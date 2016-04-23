@@ -6620,3 +6620,15 @@ window.setMouseCoordinates = function(x, y){
     xm = x;
     ym = y;
 }
+// Mouse to map coordinates
+window.mouseToMap = function (x, y) {
+  mapX = x - ww / 2;
+  mapY = y - hh / 2;
+  return [mapX, mapY];
+}
+// Map to mouse coordinates
+window.mapToMouse = function(x, y){
+  mouseX = (x*2)+ww;
+  mouseY = (y*2)+hh;
+  return [mouseX, mouseY];
+}
