@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot-launcher
 // @namespace    http://slither.io/
-// @version      0.0.3
+// @version      0.0.4
 // @description  Slither.io bot launcher
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -6615,9 +6615,8 @@ o = {
   }
 };
 getData("/i49526.txt", o);
-
 //Set fake mouse coordinates
 window.setMouseCoordinates = function(x, y){
-    xm = x - ww / 2;
-    ym = y - hh / 2;
+    xm = x;
+    ym = y;
 }
