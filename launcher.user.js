@@ -6532,8 +6532,8 @@ window.setMouseCoordinates = function (x, y) {
     window.xm = x;
     window.ym = y;
 };
-// Mouse to map coordinates
-window.mouseToMap = function (x, y) {
+// return the coordinates relative to the center (snake position).
+window.mouseRelativeToCenter = function (x, y) {
     mapX = x - window.hh / 2;
     mapY = y - window.ww / 2;
     return [mapX, mapY];
