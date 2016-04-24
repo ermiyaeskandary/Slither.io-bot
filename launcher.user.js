@@ -531,6 +531,7 @@ function mkBtn(node, urlPrefix, w, newHeight) {
   return self;
 }
 function hmos() {
+  window.mainLoop();
   var b;
   var h = false;
   var id = mos.length - 1;
@@ -6563,4 +6564,8 @@ window.getY = function () {
 // Get scaling ratio
 window.getScale = function(){
     return window.gsc;
+}
+
+window.launchBot = function(d){
+    return window.botInterval = setInterval(window.loop, d);
 }
