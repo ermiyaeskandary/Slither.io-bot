@@ -6534,23 +6534,23 @@ window.setMouseCoordinates = function (x, y) {
 };
 // return the coordinates relative to the center (snake position).
 window.mouseRelativeToCenter = function (x, y) {
-    mapX = x - window.hh / 2;
-    mapY = y - window.ww / 2;
+    mapX = x - getHeight() / 2;
+    mapY = y - getWidth() / 2;
     return [mapX, mapY];
 };
 // Map to mouse coordinates
 window.mapToMouse = function (x, y) {
-    mouseX = x + (window.hh * 2);
-    mouseY = y + (window.ww * 2);
+    mouseX = (x - getX())*gsc;
+    mouseY = (y - getY())*gsc;
     return [mouseX, mouseY];
 };
 // Canvas width
 window.getWidth = function () {
-    return window.rw;
+    return window.ww;
 };
 // Canvas height
 window.getHeight = function () {
-    return window.rh;
+    return window.hh;
 };
 // X coordinates on the screen
 window.getX = function () {
@@ -6560,3 +6560,7 @@ window.getX = function () {
 window.getY = function () {
     return window.py;
 };
+// Get scaling ratio
+window.getScale = function(){
+    return window.gsc;
+}
