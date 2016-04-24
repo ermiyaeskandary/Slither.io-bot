@@ -1185,7 +1185,7 @@ function newDeadpool() {
     }
   };
 }
-var flt_a = "ler did no;gas the;gas all;gas every;panis;panus;paynis;my ass;cut your;heil hit;flick your;fingerba;arse;naked;menstr;eat my;suck my;fuk;dong;cunn;penil;suck a;foresk;puto;puta;suck;mierd;bit.ly;slitherplus;ween;wein;peen".split(";");
+var flt_a = "ler did no;gas the;gas all;gas every;panis;panus;paynis;my ass;cut your;heil hit;flick your;fingerba;arse;naked;menstr;eat my;suck my;fuk;dong;cunn;penil;suck a;foresk;puto;puta;suck;mierd;bit.ly;slitherplus;ween;wein;wien;peen;turd;wank;crap;ur mom;tu madre;chinga;pu$$".split(";");
 var flt_g = "buttlov buttf smegm litherplu eatmy suckm sucka mydik urdik".split(" ");
 var flt_w = ["ass", "kkk"];
 function gdnm(a) {
@@ -1701,6 +1701,7 @@ function newFood(id, v00, version, cnt, dataAndEvents, key) {
   obj.cv = key;
   obj.rad = 1E-5;
   obj.sz = cnt;
+  obj.lrrad = obj.rad;
   id = per_color_imgs[obj.cv];
   obj.cv2 = Math.floor(id.ic * gsc * obj.sz / 16.5);
   if (0 > obj.cv2) {
@@ -1757,7 +1758,6 @@ function newFood(id, v00, version, cnt, dataAndEvents, key) {
   obj.gr = 0.65 + 0.1 * obj.sz;
   obj.wsp = 0.0225 * (2 * Math.random() - 1);
   obj.eaten_fr = 0;
-  obj.eaten_fr4 = 0;
   return foods[foods_c++] = obj;
 }
 function newPrey(s, name, id, cnt, value, key, text, sphere, keepData) {
@@ -1811,7 +1811,6 @@ function newPrey(s, name, id, cnt, value, key, text, sphere, keepData) {
   obj.fy = 0;
   obj.eaten = false;
   obj.eaten_fr = 0;
-  obj.eaten_fr4 = 0;
   preys.push(obj);
   return obj;
 }
@@ -2270,18 +2269,19 @@ social.style.left = "6px";
 social.style.top = "6px";
 social.style.border = "0px";
 social.style.zIndex = 9999999;
-social.width = 200;
+social.style.overflow = "hidden";
+social.width = 251;
 social.height = 150;
 social.src = "/social-box/";
 document.body.appendChild(social);
 var oef = function() {
-  var options = Date.now();
-  avfr = vfr = (options - ltm) / 8;
-  ltm = options;
+  var top = Date.now();
+  avfr = vfr = (top - ltm) / 8;
+  ltm = top;
   if (!choosing_skin) {
     if (!lagging) {
       if (wfpr) {
-        if (420 < options - last_ping_mtm) {
+        if (420 < top - last_ping_mtm) {
           lagging = true;
         }
       }
@@ -2322,25 +2322,25 @@ var oef = function() {
     var ctx = ldmc.getContext("2d");
     ctx.clearRect(0, 0, 512, 128);
     var c;
-    var x;
-    var p = 1;
-    for (;2 >= p;p++) {
+    var a;
+    var d = 1;
+    for (;2 >= d;d++) {
       ctx.beginPath();
-      if (1 == p) {
+      if (1 == d) {
         ctx.fillStyle = "#60FF70";
-        x = 0;
+        a = 0;
       } else {
         ctx.fillStyle = "#9850FF";
-        x = Math.PI;
+        a = Math.PI;
       }
       var i = 0;
       for (;256 >= i;i++) {
-        c = 32 + 5 * Math.cos(x + lsfr / 6 + 8 * i / 256) + 8 * i / 256;
+        c = 32 + 5 * Math.cos(a + lsfr / 6 + 8 * i / 256) + 8 * i / 256;
         if (256 == i) {
           c += 10;
         }
-        xx = 64 + Math.cos(x + lsfr / 44 + 0.8 * Math.PI * i / 256) * c * 1.25;
-        yy = 64 + Math.sin(x + lsfr / 44 + 0.8 * Math.PI * i / 256) * c;
+        xx = 64 + Math.cos(a + lsfr / 44 + 0.8 * Math.PI * i / 256) * c * 1.25;
+        yy = 64 + Math.sin(a + lsfr / 44 + 0.8 * Math.PI * i / 256) * c;
         if (0 == i) {
           ctx.moveTo(xx, yy);
         } else {
@@ -2348,17 +2348,17 @@ var oef = function() {
         }
       }
       c = 32;
-      xx = 64 + Math.cos(x + lsfr / 44 + 0.8 * Math.PI * (i + 47) / 256) * c * 1.25;
-      yy = 64 + Math.sin(x + lsfr / 44 + 0.8 * Math.PI * (i + 47) / 256) * c;
+      xx = 64 + Math.cos(a + lsfr / 44 + 0.8 * Math.PI * (i + 47) / 256) * c * 1.25;
+      yy = 64 + Math.sin(a + lsfr / 44 + 0.8 * Math.PI * (i + 47) / 256) * c;
       ctx.lineTo(xx, yy);
       i = 256;
       for (;0 <= i;i--) {
-        c = 32 + 5 * Math.cos(x + lsfr / 6 + 8 * i / 256) - 8 * i / 256;
+        c = 32 + 5 * Math.cos(a + lsfr / 6 + 8 * i / 256) - 8 * i / 256;
         if (256 == i) {
           c -= 10;
         }
-        xx = 64 + Math.cos(x + lsfr / 44 + 0.8 * Math.PI * i / 256) * c * 1.25;
-        yy = 64 + Math.sin(x + lsfr / 44 + 0.8 * Math.PI * i / 256) * c;
+        xx = 64 + Math.cos(a + lsfr / 44 + 0.8 * Math.PI * i / 256) * c * 1.25;
+        yy = 64 + Math.sin(a + lsfr / 44 + 0.8 * Math.PI * i / 256) * c;
         ctx.lineTo(xx, yy);
       }
       ctx.fill();
@@ -2384,23 +2384,23 @@ var oef = function() {
     i = Math.round(0.1 + 0.9 * ss_sh * (1 + 2 * Math.pow(1 - ss_a, 2)) * 1E5) / 1E5;
     trf(ldmc, "scale(" + i + "," + i + ")");
   }
-  if (-1 != play_btn_click_mtm && 6666 < options - play_btn_click_mtm) {
+  if (-1 != play_btn_click_mtm && 6666 < top - play_btn_click_mtm) {
     i = document.createElement("img");
-    x = [];
-    x.push("bso=" + encodeURIComponent(bso));
+    a = [];
+    a.push("bso=" + encodeURIComponent(bso));
     if (bso) {
-      var self;
-      for (self in bso) {
-        x.push(self + "=" + encodeURIComponent(bso[self]));
+      var p;
+      for (p in bso) {
+        a.push(p + "=" + encodeURIComponent(bso[p]));
       }
     }
-    x.push("waiting_for_sos=" + (waiting_for_sos ? "true" : "false"));
-    x.push("soslen=" + sos.length);
-    i.src = "http://slither.io/cnc.jpg?" + x.join("&");
+    a.push("waiting_for_sos=" + (waiting_for_sos ? "true" : "false"));
+    a.push("soslen=" + sos.length);
+    i.src = "http://slither.io/cnc.jpg?" + a.join("&");
     play_btn_click_mtm = -1;
   }
   if (waiting_for_sos) {
-    if (options > sos_ready_after_mtm) {
+    if (top > sos_ready_after_mtm) {
       if (!connecting) {
         if (!connected) {
           connect();
@@ -2409,7 +2409,7 @@ var oef = function() {
     }
   }
   if (connecting) {
-    if (3E3 < options - start_connect_mtm) {
+    if (3E3 < top - start_connect_mtm) {
       if (bso) {
         bso.tainted = true;
       }
@@ -2419,10 +2419,10 @@ var oef = function() {
   if (choosing_skin) {
     i = snakes.length - 1;
     for (;0 <= i;i--) {
-      self = snakes[i];
-      p = self.pts.length - 1;
-      for (;0 <= p;p--) {
-        self.pts[p].yy = grd / 2 + 15 * Math.cos(p / 4 + fr / 19) * (1 - p / self.pts.length);
+      p = snakes[i];
+      d = p.pts.length - 1;
+      for (;0 <= d;d--) {
+        p.pts[d].yy = grd / 2 + 15 * Math.cos(d / 4 + fr / 19) * (1 - d / p.pts.length);
       }
     }
     view_xx -= vfr;
@@ -2500,8 +2500,8 @@ var oef = function() {
         }
         tips.textContent = tipss[tip_pos];
       }
-      p = 0.5 - 0.5 * Math.cos(tip_fr);
-      tips.style.opacity = Math.round(1E5 * Math.pow(p, 0.5)) / 1E5;
+      d = 0.5 - 0.5 * Math.cos(tip_fr);
+      tips.style.opacity = Math.round(1E5 * Math.pow(d, 0.5)) / 1E5;
     }
   }
   if (-1 == dead_mtm) {
@@ -2516,7 +2516,7 @@ var oef = function() {
       }
     }
   } else {
-    if (1600 < options - dead_mtm) {
+    if (1600 < top - dead_mtm) {
       if (-1 == login_iv) {
         login_iv = -2;
         login.style.display = "inline";
@@ -2603,8 +2603,8 @@ var oef = function() {
   }
   if (connected) {
     if (0 < kd_l_frb || 0 < kd_r_frb) {
-      if (150 < options - lkstm) {
-        lkstm = options;
+      if (150 < top - lkstm) {
+        lkstm = top;
         if (0 < kd_r_frb) {
           if (kd_l_frb > kd_r_frb) {
             kd_l_frb -= kd_r_frb;
@@ -2656,63 +2656,63 @@ var oef = function() {
       }
     }
     if (!wfpr) {
-      if (250 < options - last_ping_mtm) {
-        last_ping_mtm = options;
+      if (250 < top - last_ping_mtm) {
+        last_ping_mtm = top;
         wfpr = true;
         i = new Uint8Array(1);
         i[0] = 5 <= protocol_version ? 251 : 112;
         ws.send(i);
-        lpstm = options;
+        lpstm = top;
       }
     }
   }
   if (null != snake) {
     if (2147483647 != grd) {
-      if (1E3 < options - locu_mtm) {
+      if (1E3 < top - locu_mtm) {
         locu_mtm = Date.now();
         myloc.style.left = Math.round(52 + 40 * (snake.xx - grd) / grd - 7) + "px";
         myloc.style.top = Math.round(52 + 40 * (snake.yy - grd) / grd - 7) + "px";
       }
     }
   }
-  if (1E3 < options - lrd_mtm) {
+  if (1E3 < top - lrd_mtm) {
     if (testing && (console && console.log)) {
       console.log("FPS: " + fps);
-      x = [];
+      a = [];
       trdps += rdps;
       if (playing) {
         tcsecs++;
       }
-      x.push("FPS: " + fps);
-      x.push("sectors: " + sectors.length);
-      x.push("foods: " + foods_c);
-      x.push("bytes/sec: " + rdps);
-      x.push("bytes/sec avg: " + Math.round(trdps / tcsecs));
-      x.push("");
-      i = self = 0;
+      a.push("FPS: " + fps);
+      a.push("sectors: " + sectors.length);
+      a.push("foods: " + foods_c);
+      a.push("bytes/sec: " + rdps);
+      a.push("bytes/sec avg: " + Math.round(trdps / tcsecs));
+      a.push("");
+      i = p = 0;
       for (;i < rdpspc.length;i++) {
         if (0 <= rdpspc[i]) {
-          self += rdpspc[i];
+          p += rdpspc[i];
         }
       }
       i = 0;
       for (;i < rdpspc.length;i++) {
         if (0 <= rdpspc[i]) {
-          x.push(String.fromCharCode(i) + ": " + rdpspc[i] + " (" + Math.round(rdpspc[i] / self * 1E3) / 10 + "%)");
+          a.push(String.fromCharCode(i) + ": " + rdpspc[i] + " (" + Math.round(rdpspc[i] / p * 1E3) / 10 + "%)");
         }
       }
-      x.push("total: " + self);
+      a.push("total: " + p);
       maxp = pf_ep = pf_nap = pf_remove = pf_new_add = pf_add = 0;
-      x.push("");
+      a.push("");
       i = 1;
       for (;i < pfs.length;i++) {
         if (0 != pfs[i]) {
-          x.push(i + ": " + Math.round(1E3 * pfs[i]) / 1E3);
+          a.push(i + ": " + Math.round(1E3 * pfs[i]) / 1E3);
           pfs[i] = 0;
         }
       }
       pft = 0;
-      pfd.innerHTML = x.join("<br>");
+      pfd.innerHTML = a.join("<br>");
     }
     if (playing) {
       if (1 == want_quality) {
@@ -2744,9 +2744,9 @@ var oef = function() {
       want_e = true;
     }
     if (want_e) {
-      if (100 < options - last_e_mtm) {
+      if (100 < top - last_e_mtm) {
         want_e = false;
-        last_e_mtm = options;
+        last_e_mtm = top;
         lsxm = xm;
         lsym = ym;
         d2 = xm * xm + ym * ym;
@@ -2766,7 +2766,7 @@ var oef = function() {
             lsang = sang;
             i = new Uint8Array(1);
             i[0] = sang & 255;
-            lpstm = options;
+            lpstm = top;
             ws.send(i.buffer);
           }
         } else {
@@ -2778,7 +2778,7 @@ var oef = function() {
             i[1] = sang >> 16 & 255;
             i[2] = sang >> 8 & 255;
             i[3] = sang & 255;
-            lpstm = options;
+            lpstm = top;
             ws.send(i.buffer);
           }
         }
@@ -2788,189 +2788,189 @@ var oef = function() {
   if (!choosing_skin) {
     i = snakes.length - 1;
     for (;0 <= i;i--) {
-      self = snakes[i];
-      ctx = mamu * vfr * self.scang * self.spang;
-      options = self.sp * vfr / 4;
-      if (options > self.msl) {
-        options = self.msl;
+      p = snakes[i];
+      ctx = mamu * vfr * p.scang * p.spang;
+      top = p.sp * vfr / 4;
+      if (top > p.msl) {
+        top = p.msl;
       }
-      if (!self.dead) {
-        if (self.tsp != self.sp) {
-          if (self.tsp < self.sp) {
-            self.tsp += 0.3 * vfr;
-            if (self.tsp > self.sp) {
-              self.tsp = self.sp;
+      if (!p.dead) {
+        if (p.tsp != p.sp) {
+          if (p.tsp < p.sp) {
+            p.tsp += 0.3 * vfr;
+            if (p.tsp > p.sp) {
+              p.tsp = p.sp;
             }
           } else {
-            self.tsp -= 0.3 * vfr;
-            if (self.tsp < self.sp) {
-              self.tsp = self.sp;
+            p.tsp -= 0.3 * vfr;
+            if (p.tsp < p.sp) {
+              p.tsp = p.sp;
             }
           }
         }
-        if (self.tsp > self.fsp) {
-          self.sfr += (self.tsp - self.fsp) * vfr * 0.021;
+        if (p.tsp > p.fsp) {
+          p.sfr += (p.tsp - p.fsp) * vfr * 0.021;
         }
-        if (0 < self.fltg) {
-          x = vfrb;
-          if (x > self.fltg) {
-            x = self.fltg;
+        if (0 < p.fltg) {
+          a = vfrb;
+          if (a > p.fltg) {
+            a = p.fltg;
           }
-          self.fltg -= x;
+          p.fltg -= a;
           qq = 0;
-          for (;qq < x;qq++) {
-            self.fl = self.fls[self.flpos];
-            self.fls[self.flpos] = 0;
-            self.flpos++;
-            if (self.flpos >= lfc) {
-              self.flpos = 0;
+          for (;qq < a;qq++) {
+            p.fl = p.fls[p.flpos];
+            p.fls[p.flpos] = 0;
+            p.flpos++;
+            if (p.flpos >= lfc) {
+              p.flpos = 0;
             }
           }
         } else {
-          if (0 == self.fltg) {
-            self.fltg = -1;
-            self.fl = 0;
+          if (0 == p.fltg) {
+            p.fltg = -1;
+            p.fl = 0;
           }
         }
-        self.cfl = self.tl + self.fl;
+        p.cfl = p.tl + p.fl;
       }
-      if (1 == self.dir) {
-        self.ang -= ctx;
-        if (0 > self.ang || self.ang >= pi2) {
-          self.ang %= pi2;
+      if (1 == p.dir) {
+        p.ang -= ctx;
+        if (0 > p.ang || p.ang >= pi2) {
+          p.ang %= pi2;
         }
-        if (0 > self.ang) {
-          self.ang += pi2;
+        if (0 > p.ang) {
+          p.ang += pi2;
         }
-        x = (self.wang - self.ang) % pi2;
-        if (0 > x) {
-          x += pi2;
+        a = (p.wang - p.ang) % pi2;
+        if (0 > a) {
+          a += pi2;
         }
-        if (x > Math.PI) {
-          x -= pi2;
+        if (a > Math.PI) {
+          a -= pi2;
         }
-        if (0 < x) {
-          self.ang = self.wang;
-          self.dir = 0;
+        if (0 < a) {
+          p.ang = p.wang;
+          p.dir = 0;
         }
       } else {
-        if (2 == self.dir) {
-          self.ang += ctx;
-          if (0 > self.ang || self.ang >= pi2) {
-            self.ang %= pi2;
+        if (2 == p.dir) {
+          p.ang += ctx;
+          if (0 > p.ang || p.ang >= pi2) {
+            p.ang %= pi2;
           }
-          if (0 > self.ang) {
-            self.ang += pi2;
+          if (0 > p.ang) {
+            p.ang += pi2;
           }
-          x = (self.wang - self.ang) % pi2;
-          if (0 > x) {
-            x += pi2;
+          a = (p.wang - p.ang) % pi2;
+          if (0 > a) {
+            a += pi2;
           }
-          if (x > Math.PI) {
-            x -= pi2;
+          if (a > Math.PI) {
+            a -= pi2;
           }
-          if (0 > x) {
-            self.ang = self.wang;
-            self.dir = 0;
+          if (0 > a) {
+            p.ang = p.wang;
+            p.dir = 0;
           }
         } else {
-          self.ang = self.wang;
+          p.ang = p.wang;
         }
       }
-      if (1 != self.ehl) {
-        self.ehl += 0.03 * vfr;
-        if (1 <= self.ehl) {
-          self.ehl = 1;
+      if (1 != p.ehl) {
+        p.ehl += 0.03 * vfr;
+        if (1 <= p.ehl) {
+          p.ehl = 1;
         }
       }
-      ctx = self.pts[self.pts.length - 1];
-      self.wehang = Math.atan2(self.yy + self.fy - ctx.yy - ctx.fy + ctx.eby * (1 - self.ehl), self.xx + self.fx - ctx.xx - ctx.fx + ctx.ebx * (1 - self.ehl));
-      if (!self.dead) {
-        if (!(self.ehang == self.wehang)) {
-          x = (self.wehang - self.ehang) % pi2;
-          if (0 > x) {
-            x += pi2;
+      ctx = p.pts[p.pts.length - 1];
+      p.wehang = Math.atan2(p.yy + p.fy - ctx.yy - ctx.fy + ctx.eby * (1 - p.ehl), p.xx + p.fx - ctx.xx - ctx.fx + ctx.ebx * (1 - p.ehl));
+      if (!p.dead) {
+        if (!(p.ehang == p.wehang)) {
+          a = (p.wehang - p.ehang) % pi2;
+          if (0 > a) {
+            a += pi2;
           }
-          if (x > Math.PI) {
-            x -= pi2;
+          if (a > Math.PI) {
+            a -= pi2;
           }
-          if (0 > x) {
-            self.edir = 1;
+          if (0 > a) {
+            p.edir = 1;
           } else {
-            if (0 < x) {
-              self.edir = 2;
+            if (0 < a) {
+              p.edir = 2;
             }
           }
         }
       }
-      if (1 == self.edir) {
-        self.ehang -= 0.1 * vfr;
-        if (0 > self.ehang || self.ehang >= pi2) {
-          self.ehang %= pi2;
+      if (1 == p.edir) {
+        p.ehang -= 0.1 * vfr;
+        if (0 > p.ehang || p.ehang >= pi2) {
+          p.ehang %= pi2;
         }
-        if (0 > self.ehang) {
-          self.ehang += pi2;
+        if (0 > p.ehang) {
+          p.ehang += pi2;
         }
-        x = (self.wehang - self.ehang) % pi2;
-        if (0 > x) {
-          x += pi2;
+        a = (p.wehang - p.ehang) % pi2;
+        if (0 > a) {
+          a += pi2;
         }
-        if (x > Math.PI) {
-          x -= pi2;
+        if (a > Math.PI) {
+          a -= pi2;
         }
-        if (0 < x) {
-          self.ehang = self.wehang;
-          self.edir = 0;
+        if (0 < a) {
+          p.ehang = p.wehang;
+          p.edir = 0;
         }
       } else {
-        if (2 == self.edir) {
-          self.ehang += 0.1 * vfr;
-          if (0 > self.ehang || self.ehang >= pi2) {
-            self.ehang %= pi2;
+        if (2 == p.edir) {
+          p.ehang += 0.1 * vfr;
+          if (0 > p.ehang || p.ehang >= pi2) {
+            p.ehang %= pi2;
           }
-          if (0 > self.ehang) {
-            self.ehang += pi2;
+          if (0 > p.ehang) {
+            p.ehang += pi2;
           }
-          x = (self.wehang - self.ehang) % pi2;
-          if (0 > x) {
-            x += pi2;
+          a = (p.wehang - p.ehang) % pi2;
+          if (0 > a) {
+            a += pi2;
           }
-          if (x > Math.PI) {
-            x -= pi2;
+          if (a > Math.PI) {
+            a -= pi2;
           }
-          if (0 > x) {
-            self.ehang = self.wehang;
-            self.edir = 0;
+          if (0 > a) {
+            p.ehang = p.wehang;
+            p.edir = 0;
           }
         }
       }
-      if (!self.dead) {
-        self.xx += Math.cos(self.ang) * options;
-        self.yy += Math.sin(self.ang) * options;
-        self.chl += options / self.msl;
+      if (!p.dead) {
+        p.xx += Math.cos(p.ang) * top;
+        p.yy += Math.sin(p.ang) * top;
+        p.chl += top / p.msl;
       }
       if (0 < vfrb) {
-        p = self.pts.length - 1;
-        for (;0 <= p;p--) {
-          ctx = self.pts[p];
+        d = p.pts.length - 1;
+        for (;0 <= d;d--) {
+          ctx = p.pts[d];
           if (ctx.dying) {
             ctx.da += 0.0015 * vfrb;
             if (1 < ctx.da) {
-              self.pts.splice(p, 1);
+              p.pts.splice(d, 1);
               ctx.dying = false;
               points_dp.add(ctx);
             }
           }
         }
-        p = self.pts.length - 1;
-        for (;0 <= p;p--) {
-          if (ctx = self.pts[p], 0 < ctx.eiu) {
+        d = p.pts.length - 1;
+        for (;0 <= d;d--) {
+          if (ctx = p.pts[d], 0 < ctx.eiu) {
             fy = fx = 0;
             qq = cm1 = ctx.eiu - 1;
             for (;0 <= qq;qq--) {
               ctx.efs[qq] = 2 == ctx.ems[qq] ? ctx.efs[qq] + vfrb2 : ctx.efs[qq] + vfrb;
-              x = ctx.efs[qq];
-              if (x >= hfc) {
+              a = ctx.efs[qq];
+              if (a >= hfc) {
                 if (qq != cm1) {
                   ctx.exs[qq] = ctx.exs[cm1];
                   ctx.eys[qq] = ctx.eys[cm1];
@@ -2980,8 +2980,8 @@ var oef = function() {
                 ctx.eiu--;
                 cm1--;
               } else {
-                fx += ctx.exs[qq] * hfas[x];
-                fy += ctx.eys[qq] * hfas[x];
+                fx += ctx.exs[qq] * hfas[a];
+                fy += ctx.eys[qq] * hfas[a];
               }
             }
             ctx.fx = fx;
@@ -2989,92 +2989,92 @@ var oef = function() {
           }
         }
       }
-      options = 2.3 * Math.cos(self.eang);
-      x = 2.3 * Math.sin(self.eang);
-      if (self.rex < options) {
-        self.rex += vfr / 6;
-        if (self.rex >= options) {
-          self.rex = options;
+      top = 2.3 * Math.cos(p.eang);
+      a = 2.3 * Math.sin(p.eang);
+      if (p.rex < top) {
+        p.rex += vfr / 6;
+        if (p.rex >= top) {
+          p.rex = top;
         }
       }
-      if (self.rey < x) {
-        self.rey += vfr / 6;
-        if (self.rey >= x) {
-          self.rey = x;
+      if (p.rey < a) {
+        p.rey += vfr / 6;
+        if (p.rey >= a) {
+          p.rey = a;
         }
       }
-      if (self.rex > options) {
-        self.rex -= vfr / 6;
-        if (self.rex <= options) {
-          self.rex = options;
+      if (p.rex > top) {
+        p.rex -= vfr / 6;
+        if (p.rex <= top) {
+          p.rex = top;
         }
       }
-      if (self.rey > x) {
-        self.rey -= vfr / 6;
-        if (self.rey <= x) {
-          self.rey = x;
+      if (p.rey > a) {
+        p.rey -= vfr / 6;
+        if (p.rey <= a) {
+          p.rey = a;
         }
       }
       if (0 < vfrb) {
-        if (0 < self.ftg) {
-          x = vfrb;
-          if (x > self.ftg) {
-            x = self.ftg;
+        if (0 < p.ftg) {
+          a = vfrb;
+          if (a > p.ftg) {
+            a = p.ftg;
           }
-          self.ftg -= x;
+          p.ftg -= a;
           qq = 0;
-          for (;qq < x;qq++) {
-            self.fx = self.fxs[self.fpos];
-            self.fy = self.fys[self.fpos];
-            self.fchl = self.fchls[self.fpos];
-            self.fxs[self.fpos] = 0;
-            self.fys[self.fpos] = 0;
-            self.fchls[self.fpos] = 0;
-            self.fpos++;
-            if (self.fpos >= rfc) {
-              self.fpos = 0;
+          for (;qq < a;qq++) {
+            p.fx = p.fxs[p.fpos];
+            p.fy = p.fys[p.fpos];
+            p.fchl = p.fchls[p.fpos];
+            p.fxs[p.fpos] = 0;
+            p.fys[p.fpos] = 0;
+            p.fchls[p.fpos] = 0;
+            p.fpos++;
+            if (p.fpos >= rfc) {
+              p.fpos = 0;
             }
           }
         } else {
-          if (0 == self.ftg) {
-            self.ftg = -1;
-            self.fx = 0;
-            self.fy = 0;
-            self.fchl = 0;
+          if (0 == p.ftg) {
+            p.ftg = -1;
+            p.fx = 0;
+            p.fy = 0;
+            p.fchl = 0;
           }
         }
-        if (0 < self.fatg) {
-          x = vfrb;
-          if (x > self.fatg) {
-            x = self.fatg;
+        if (0 < p.fatg) {
+          a = vfrb;
+          if (a > p.fatg) {
+            a = p.fatg;
           }
-          self.fatg -= x;
+          p.fatg -= a;
           qq = 0;
-          for (;qq < x;qq++) {
-            self.fa = self.fas[self.fapos];
-            self.fas[self.fapos] = 0;
-            self.fapos++;
-            if (self.fapos >= afc) {
-              self.fapos = 0;
+          for (;qq < a;qq++) {
+            p.fa = p.fas[p.fapos];
+            p.fas[p.fapos] = 0;
+            p.fapos++;
+            if (p.fapos >= afc) {
+              p.fapos = 0;
             }
           }
         } else {
-          if (0 == self.fatg) {
-            self.fatg = -1;
-            self.fa = 0;
+          if (0 == p.fatg) {
+            p.fatg = -1;
+            p.fa = 0;
           }
         }
       }
-      if (self.dead) {
-        self.dead_amt += 0.02 * vfr;
-        if (1 <= self.dead_amt) {
+      if (p.dead) {
+        p.dead_amt += 0.02 * vfr;
+        if (1 <= p.dead_amt) {
           snakes.splice(i, 1);
         }
       } else {
-        if (1 != self.alive_amt) {
-          self.alive_amt += 0.015 * vfr;
-          if (1 <= self.alive_amt) {
-            self.alive_amt = 1;
+        if (1 != p.alive_amt) {
+          p.alive_amt += 0.015 * vfr;
+          if (1 <= p.alive_amt) {
+            p.alive_amt = 1;
           }
         }
       }
@@ -3082,127 +3082,119 @@ var oef = function() {
   }
   i = preys.length - 1;
   for (;0 <= i;i--) {
-    p = preys[i];
+    d = preys[i];
     ctx = mamu2 * vfr;
-    options = p.sp * vfr / 4;
+    top = d.sp * vfr / 4;
     if (0 < vfrb) {
-      if (0 < p.ftg) {
-        x = vfrb;
-        if (x > p.ftg) {
-          x = p.ftg;
+      if (0 < d.ftg) {
+        a = vfrb;
+        if (a > d.ftg) {
+          a = d.ftg;
         }
-        p.ftg -= x;
+        d.ftg -= a;
         qq = 1;
-        for (;qq <= x;qq++) {
-          if (qq == x) {
-            p.fx = p.fxs[p.fpos];
-            p.fy = p.fys[p.fpos];
+        for (;qq <= a;qq++) {
+          if (qq == a) {
+            d.fx = d.fxs[d.fpos];
+            d.fy = d.fys[d.fpos];
           }
-          p.fxs[p.fpos] = 0;
-          p.fys[p.fpos] = 0;
-          p.fpos++;
-          if (p.fpos >= rfc) {
-            p.fpos = 0;
+          d.fxs[d.fpos] = 0;
+          d.fys[d.fpos] = 0;
+          d.fpos++;
+          if (d.fpos >= rfc) {
+            d.fpos = 0;
           }
         }
       } else {
-        if (0 == p.ftg) {
-          p.fx = 0;
-          p.fy = 0;
-          p.ftg = -1;
+        if (0 == d.ftg) {
+          d.fx = 0;
+          d.fy = 0;
+          d.ftg = -1;
         }
       }
     }
-    if (1 == p.dir) {
-      p.ang -= ctx;
-      if (0 > p.ang || p.ang >= pi2) {
-        p.ang %= pi2;
+    if (1 == d.dir) {
+      d.ang -= ctx;
+      if (0 > d.ang || d.ang >= pi2) {
+        d.ang %= pi2;
       }
-      if (0 > p.ang) {
-        p.ang += pi2;
+      if (0 > d.ang) {
+        d.ang += pi2;
       }
-      x = (p.wang - p.ang) % pi2;
-      if (0 > x) {
-        x += pi2;
+      a = (d.wang - d.ang) % pi2;
+      if (0 > a) {
+        a += pi2;
       }
-      if (x > Math.PI) {
-        x -= pi2;
+      if (a > Math.PI) {
+        a -= pi2;
       }
-      if (0 < x) {
-        p.ang = p.wang;
-        p.dir = 0;
+      if (0 < a) {
+        d.ang = d.wang;
+        d.dir = 0;
       }
     } else {
-      if (2 == p.dir) {
-        p.ang += ctx;
-        if (0 > p.ang || p.ang >= pi2) {
-          p.ang %= pi2;
+      if (2 == d.dir) {
+        d.ang += ctx;
+        if (0 > d.ang || d.ang >= pi2) {
+          d.ang %= pi2;
         }
-        if (0 > p.ang) {
-          p.ang += pi2;
+        if (0 > d.ang) {
+          d.ang += pi2;
         }
-        x = (p.wang - p.ang) % pi2;
-        if (0 > x) {
-          x += pi2;
+        a = (d.wang - d.ang) % pi2;
+        if (0 > a) {
+          a += pi2;
         }
-        if (x > Math.PI) {
-          x -= pi2;
+        if (a > Math.PI) {
+          a -= pi2;
         }
-        if (0 > x) {
-          p.ang = p.wang;
-          p.dir = 0;
+        if (0 > a) {
+          d.ang = d.wang;
+          d.dir = 0;
         }
       } else {
-        p.ang = p.wang;
+        d.ang = d.wang;
       }
     }
-    p.xx += Math.cos(p.ang) * options;
-    p.yy += Math.sin(p.ang) * options;
-    p.gfr += vfr * p.gr;
-    if (p.eaten) {
-      if (1.5 != p.fr) {
-        p.fr += vfr / 150;
-        if (1.5 <= p.fr) {
-          p.fr = 1.5;
+    d.xx += Math.cos(d.ang) * top;
+    d.yy += Math.sin(d.ang) * top;
+    d.gfr += vfr * d.gr;
+    if (d.eaten) {
+      if (1.5 != d.fr) {
+        d.fr += vfr / 150;
+        if (1.5 <= d.fr) {
+          d.fr = 1.5;
         }
       }
-      p.eaten_fr += vfr / 47;
-      p.gfr += vfr;
-      self = p.eaten_by;
-      if (1 <= p.eaten_fr || !self) {
+      d.eaten_fr += vfr / 47;
+      d.gfr += vfr;
+      p = d.eaten_by;
+      if (1 <= d.eaten_fr || !p) {
         preys.splice(i, 1);
       } else {
-        p.eaten_fr4 = Math.pow(p.eaten_fr, 4);
-        p.rad = 1 - Math.pow(p.eaten_fr, 3);
+        d.rad = 1 - Math.pow(d.eaten_fr, 3);
       }
     } else {
-      if (1 != p.fr) {
-        p.fr += vfr / 150;
-        if (1 <= p.fr) {
-          p.fr = 1;
-          p.rad = 1;
+      if (1 != d.fr) {
+        d.fr += vfr / 150;
+        if (1 <= d.fr) {
+          d.fr = 1;
+          d.rad = 1;
         } else {
-          p.rad = 0.5 * (1 - Math.cos(Math.PI * p.fr));
-          p.rad += 0.66 * (0.5 * (1 - Math.cos(Math.PI * p.rad)) - p.rad);
+          d.rad = 0.5 * (1 - Math.cos(Math.PI * d.fr));
+          d.rad += 0.66 * (0.5 * (1 - Math.cos(Math.PI * d.rad)) - d.rad);
         }
       }
     }
   }
   i = cm1 = foods_c - 1;
   for (;0 <= i;i--) {
-    options = foods[i];
-    options.gfr += vfr * options.gr;
-    if (options.eaten) {
-      if (1.5 != options.fr) {
-        options.fr += vfr / 150;
-        if (1.5 <= options.fr) {
-          options.fr = 1.5;
-        }
-      }
-      options.eaten_fr += vfr / 41;
-      options.rad = 1 - Math.pow(options.eaten_fr, 3);
-      self = options.eaten_by;
-      if (1 <= options.eaten_fr || !self) {
+    top = foods[i];
+    top.gfr += vfr * top.gr;
+    if (top.eaten) {
+      top.eaten_fr += vfr / 41;
+      p = top.eaten_by;
+      if (1 <= top.eaten_fr || !p) {
         if (i == cm1) {
           foods[i] = null;
         } else {
@@ -3212,30 +3204,30 @@ var oef = function() {
         foods_c--;
         cm1--;
       } else {
-        self = options.eaten_by;
-        x = options.eaten_fr * options.eaten_fr;
-        options.eaten_fr4 = x * x;
-        options.rad = 1 - options.eaten_fr * x;
-        options.rx = options.xx + (self.xx + self.fx + Math.cos(self.ang + self.fa) * (43 - 24 * x) * (1 - x) - options.xx) * x;
-        options.ry = options.yy + (self.yy + self.fy + Math.sin(self.ang + self.fa) * (43 - 24 * x) * (1 - x) - options.yy) * x;
-        options.rx += 6 * Math.cos(options.wsp * options.gfr) * (1 - options.eaten_fr);
-        options.ry += 6 * Math.sin(options.wsp * options.gfr) * (1 - options.eaten_fr);
+        p = top.eaten_by;
+        a = top.eaten_fr * top.eaten_fr;
+        top.rad = top.lrrad * (1 - top.eaten_fr * a);
+        top.rx = top.xx + (p.xx + p.fx + Math.cos(p.ang + p.fa) * (43 - 24 * a) * (1 - a) - top.xx) * a;
+        top.ry = top.yy + (p.yy + p.fy + Math.sin(p.ang + p.fa) * (43 - 24 * a) * (1 - a) - top.yy) * a;
+        top.rx += 6 * Math.cos(top.wsp * top.gfr) * (1 - top.eaten_fr);
+        top.ry += 6 * Math.sin(top.wsp * top.gfr) * (1 - top.eaten_fr);
       }
     } else {
-      if (1 != options.fr) {
-        options.fr += options.rsp * vfr / 150;
-        if (1 <= options.fr) {
-          options.fr = 1;
-          options.rad = 1;
+      if (1 != top.fr) {
+        top.fr += top.rsp * vfr / 150;
+        if (1 <= top.fr) {
+          top.fr = 1;
+          top.rad = 1;
         } else {
-          options.rad = 0.5 * (1 - Math.cos(Math.PI * options.fr));
-          options.rad += 0.66 * (0.5 * (1 - Math.cos(Math.PI * options.rad)) - options.rad);
+          top.rad = 0.5 * (1 - Math.cos(Math.PI * top.fr));
+          top.rad += 0.66 * (0.5 * (1 - Math.cos(Math.PI * top.rad)) - top.rad);
         }
+        top.lrrad = top.rad;
       }
-      options.rx = options.xx;
-      options.ry = options.yy;
-      options.rx = options.xx + 6 * Math.cos(options.wsp * options.gfr);
-      options.ry = options.yy + 6 * Math.sin(options.wsp * options.gfr);
+      top.rx = top.xx;
+      top.ry = top.yy;
+      top.rx = top.xx + 6 * Math.cos(top.wsp * top.gfr);
+      top.ry = top.yy + 6 * Math.sin(top.wsp * top.gfr);
     }
   }
   vfrb = vfr = 0;
@@ -3375,29 +3367,13 @@ var redraw = function() {
                 if (1 == self.rad) {
                   dx = mww2 + gsc * (self.rx - view_xx) - self.ofw2;
                   top = mhh2 + gsc * (self.ry - view_yy) - self.ofh2;
-                  if (-50 <= dx) {
-                    if (-50 <= top) {
-                      if (dx <= mwwp50) {
-                        if (top <= mhhp50) {
-                          ctx.globalAlpha = opts * self.fr;
-                          ctx.drawImage(self.ofi, dx, top);
-                        }
-                      }
-                    }
-                  }
+                  ctx.globalAlpha = opts * self.fr;
+                  ctx.drawImage(self.ofi, dx, top);
                 } else {
                   dx = mww2 + gsc * (self.rx - view_xx) - self.ofw2 * self.rad;
                   top = mhh2 + gsc * (self.ry - view_yy) - self.ofh2 * self.rad;
-                  if (-50 <= dx) {
-                    if (-50 <= top) {
-                      if (dx <= mwwp50) {
-                        if (top <= mhhp50) {
-                          ctx.globalAlpha = opts * self.fr;
-                          ctx.drawImage(self.ofi, 0, 0, self.ofw, self.ofh, dx, top, self.ofw * self.rad, self.ofh * self.rad);
-                        }
-                      }
-                    }
-                  }
+                  ctx.globalAlpha = opts * self.fr;
+                  ctx.drawImage(self.ofi, 0, 0, self.ofw, self.ofh, dx, top, self.ofw * self.rad, self.ofh * self.rad);
                 }
               }
             }
@@ -3427,33 +3403,17 @@ var redraw = function() {
                 if (1 == self.rad) {
                   dx = mww2 + gsc * (self.rx - view_xx) - self.fw2;
                   top = mhh2 + gsc * (self.ry - view_yy) - self.fh2;
-                  if (-50 <= dx) {
-                    if (-50 <= top) {
-                      if (dx <= mwwp50) {
-                        if (top <= mhhp50) {
-                          ctx.globalAlpha = mouseY * self.fr;
-                          ctx.drawImage(self.fi, dx, top);
-                          ctx.globalAlpha = opts * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
-                          ctx.drawImage(self.fi, dx, top);
-                        }
-                      }
-                    }
-                  }
+                  ctx.globalAlpha = mouseY * self.fr;
+                  ctx.drawImage(self.fi, dx, top);
+                  ctx.globalAlpha = opts * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
+                  ctx.drawImage(self.fi, dx, top);
                 } else {
                   dx = mww2 + gsc * (self.rx - view_xx) - self.fw2 * self.rad;
                   top = mhh2 + gsc * (self.ry - view_yy) - self.fh2 * self.rad;
-                  if (-50 <= dx) {
-                    if (-50 <= top) {
-                      if (dx <= mwwp50) {
-                        if (top <= mhhp50) {
-                          ctx.globalAlpha = mouseY * self.fr;
-                          ctx.drawImage(self.fi, 0, 0, self.fw, self.fh, dx, top, self.fw * self.rad, self.fh * self.rad);
-                          ctx.globalAlpha = opts * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
-                          ctx.drawImage(self.fi, 0, 0, self.fw, self.fh, dx, top, self.fw * self.rad, self.fh * self.rad);
-                        }
-                      }
-                    }
-                  }
+                  ctx.globalAlpha = mouseY * self.fr;
+                  ctx.drawImage(self.fi, 0, 0, self.fw, self.fh, dx, top, self.fw * self.rad, self.fh * self.rad);
+                  ctx.globalAlpha = opts * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
+                  ctx.drawImage(self.fi, 0, 0, self.fw, self.fh, dx, top, self.fw * self.rad, self.fh * self.rad);
                 }
               }
             }
@@ -3471,29 +3431,13 @@ var redraw = function() {
                 if (1 == self.rad) {
                   dx = mww2 + gsc * (self.rx - view_xx) - self.fw2;
                   top = mhh2 + gsc * (self.ry - view_yy) - self.fh2;
-                  if (-50 <= dx) {
-                    if (-50 <= top) {
-                      if (dx <= mwwp50) {
-                        if (top <= mhhp50) {
-                          ctx.globalAlpha = self.fr;
-                          ctx.drawImage(self.fi, dx, top);
-                        }
-                      }
-                    }
-                  }
+                  ctx.globalAlpha = self.fr;
+                  ctx.drawImage(self.fi, dx, top);
                 } else {
                   dx = mww2 + gsc * (self.rx - view_xx) - self.fw2 * self.rad;
                   top = mhh2 + gsc * (self.ry - view_yy) - self.fh2 * self.rad;
-                  if (-50 <= dx) {
-                    if (-50 <= top) {
-                      if (dx <= mwwp50) {
-                        if (top <= mhhp50) {
-                          ctx.globalAlpha = self.fr;
-                          ctx.drawImage(self.fi, 0, 0, self.fw, self.fh, dx, top, self.fw * self.rad, self.fh * self.rad);
-                        }
-                      }
-                    }
-                  }
+                  ctx.globalAlpha = self.fr;
+                  ctx.drawImage(self.fi, 0, 0, self.fw, self.fh, dx, top, self.fw * self.rad, self.fh * self.rad);
                 }
               }
             }
@@ -4208,35 +4152,19 @@ var redraw = function() {
                 dx = dx * gsc + mww2;
                 top = top * gsc + mhh2;
                 if (1 == self.rad) {
-                  if (-150 <= dx) {
-                    if (-150 <= top) {
-                      if (dx <= mwwp150) {
-                        if (top <= mhhp150) {
-                          dx -= self.gfw2;
-                          top -= self.gfh2;
-                          ctx.globalAlpha = tileWidth * self.fr;
-                          ctx.drawImage(self.gfi, dx, top);
-                          ctx.globalAlpha = tileWidth * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
-                          ctx.drawImage(self.gfi, dx, top);
-                        }
-                      }
-                    }
-                  }
+                  dx -= self.gfw2;
+                  top -= self.gfh2;
+                  ctx.globalAlpha = tileWidth * self.fr;
+                  ctx.drawImage(self.gfi, dx, top);
+                  ctx.globalAlpha = tileWidth * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
+                  ctx.drawImage(self.gfi, dx, top);
                 } else {
-                  if (-150 <= dx) {
-                    if (-150 <= top) {
-                      if (dx <= mwwp150) {
-                        if (top <= mhhp150) {
-                          dx -= self.gfw2 * self.rad;
-                          top -= self.gfh2 * self.rad;
-                          ctx.globalAlpha = tileWidth * self.fr;
-                          ctx.drawImage(self.gfi, 0, 0, self.gfw, self.gfh, dx, top, self.gfw * self.rad, self.gfh * self.rad);
-                          ctx.globalAlpha = tileWidth * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
-                          ctx.drawImage(self.gfi, 0, 0, self.gfw, self.gfh, dx, top, self.gfw * self.rad, self.gfh * self.rad);
-                        }
-                      }
-                    }
-                  }
+                  dx -= self.gfw2 * self.rad;
+                  top -= self.gfh2 * self.rad;
+                  ctx.globalAlpha = tileWidth * self.fr;
+                  ctx.drawImage(self.gfi, 0, 0, self.gfw, self.gfh, dx, top, self.gfw * self.rad, self.gfh * self.rad);
+                  ctx.globalAlpha = tileWidth * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
+                  ctx.drawImage(self.gfi, 0, 0, self.gfw, self.gfh, dx, top, self.gfw * self.rad, self.gfh * self.rad);
                 }
                 fs = 1 + 0.32 * self.rad;
                 dx = d * fs;
@@ -4251,35 +4179,19 @@ var redraw = function() {
                 dx = dx * gsc + mww2;
                 top = top * gsc + mhh2;
                 if (1 == self.rad) {
-                  if (-150 <= dx) {
-                    if (-150 <= top) {
-                      if (dx <= mwwp150) {
-                        if (top <= mhhp150) {
-                          dx -= self.g2fw2;
-                          top -= self.g2fh2;
-                          ctx.globalAlpha = tileWidth * self.fr;
-                          ctx.drawImage(self.g2fi, dx, top);
-                          ctx.globalAlpha = tileWidth * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
-                          ctx.drawImage(self.g2fi, dx, top);
-                        }
-                      }
-                    }
-                  }
+                  dx -= self.g2fw2;
+                  top -= self.g2fh2;
+                  ctx.globalAlpha = tileWidth * self.fr;
+                  ctx.drawImage(self.g2fi, dx, top);
+                  ctx.globalAlpha = tileWidth * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
+                  ctx.drawImage(self.g2fi, dx, top);
                 } else {
-                  if (-150 <= dx) {
-                    if (-150 <= top) {
-                      if (dx <= mwwp150) {
-                        if (top <= mhhp150) {
-                          dx -= self.g2fw2 * self.rad;
-                          top -= self.g2fh2 * self.rad;
-                          ctx.globalAlpha = tileWidth * self.fr;
-                          ctx.drawImage(self.g2fi, 0, 0, self.g2fw, self.g2fh, dx, top, self.g2fw * self.rad, self.g2fh * self.rad);
-                          ctx.globalAlpha = tileWidth * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
-                          ctx.drawImage(self.g2fi, 0, 0, self.g2fw, self.g2fh, dx, top, self.g2fw * self.rad, self.g2fh * self.rad);
-                        }
-                      }
-                    }
-                  }
+                  dx -= self.g2fw2 * self.rad;
+                  top -= self.g2fh2 * self.rad;
+                  ctx.globalAlpha = tileWidth * self.fr;
+                  ctx.drawImage(self.g2fi, 0, 0, self.g2fw, self.g2fh, dx, top, self.g2fw * self.rad, self.g2fh * self.rad);
+                  ctx.globalAlpha = tileWidth * (0.5 + 0.5 * Math.cos(self.gfr / 13)) * self.fr;
+                  ctx.drawImage(self.g2fi, 0, 0, self.g2fw, self.g2fh, dx, top, self.g2fw * self.rad, self.g2fh * self.rad);
                 }
               }
             }
@@ -4443,17 +4355,17 @@ function resize() {
   if (ww != lww || hh != lhh) {
     lww = ww;
     lhh = hh;
-    var w = 0;
+    var d = 0;
     if (mbi) {
       var devicePixelRatio = ww / 1245;
       mbi.width = 1245 * devicePixelRatio;
-      w = Math.ceil(260 * devicePixelRatio);
-      mbi.height = w;
-      hh -= w;
+      d = Math.ceil(260 * devicePixelRatio);
+      mbi.height = d;
+      hh -= d;
     }
     ww -= wsu;
-    loch.style.bottom = 16 + w + "px";
-    lbf.style.bottom = 4 + w + "px";
+    loch.style.bottom = 16 + d + "px";
+    lbf.style.bottom = 4 + d + "px";
     lbh.style.right = 4 + wsu + "px";
     lbs.style.right = 4 + wsu + "px";
     lbn.style.right = 64 + wsu + "px";
@@ -4475,15 +4387,15 @@ function resize() {
     ldmc.style.left = ww / 2 - 64 + "px";
     ldmc.style.top = hh / 2 - 64 + "px";
     devicePixelRatio = Math.sqrt(ww * ww + hh * hh);
-    w = Math.ceil(1400 * ww / devicePixelRatio);
-    var h = Math.ceil(1400 * hh / devicePixelRatio);
-    if (1100 < w) {
-      h = Math.ceil(1100 * h / w);
-      w = 1100;
+    d = Math.ceil(1400 * ww / devicePixelRatio);
+    var r = Math.ceil(1400 * hh / devicePixelRatio);
+    if (1100 < d) {
+      r = Math.ceil(1100 * r / d);
+      d = 1100;
     }
-    if (1100 < h) {
-      w = Math.ceil(1100 * w / h);
-      h = 1100;
+    if (1100 < r) {
+      d = Math.ceil(1100 * d / r);
+      r = 1100;
     }
     lgbsc = 560 > hh ? Math.max(50, hh) / 560 : 1;
     devicePixelRatio = Math.round(lgbsc * lgcsc * 1E5) / 1E5;
@@ -4494,9 +4406,9 @@ function resize() {
       login.style.top = -(Math.round(hh * (1 - lgbsc) * 1E5) / 1E5) + "px";
       trf(login, "scale(" + devicePixelRatio + "," + devicePixelRatio + ")");
     }
-    if (mww != w || mhh != h) {
-      mww = w;
-      mhh = h;
+    if (mww != d || mhh != r) {
+      mww = d;
+      mhh = r;
       mc.width = mww;
       mc.height = mhh;
       mwwp50 = mww + 50;
@@ -4526,15 +4438,14 @@ for (;0 <= i;i--) {
 if (0 == wic) {
   startAnimation();
 }
-//UPDATE - Disable the listener.
-window.onmousemove = undefined /*function(e) {
-  if (e = e || window.event) {
+window.onmousemove = function(e) {
+  /*if (e = e || window.event) {
     if ("undefined" != typeof e.clientX) {
       xm = e.clientX - ww / 2;
       ym = e.clientY - hh / 2;
     }
-  }
-};*/
+  }*/
+};
 function setAcceleration(recurring) {
   if (null != snake) {
     snake.md = 1 == recurring;
@@ -6199,17 +6110,17 @@ function showLogo(dataAndEvents) {
   var i = Date.now();
   var imgWidth = (i - lgtm) / 25;
   lgtm = i;
-  var w;
-  var p;
-  var f;
-  var q;
+  var C;
+  var height;
+  var tmp;
+  var val;
   var x;
-  var y2;
-  var m2;
+  var y;
+  var dx1;
   var endRho;
-  var a;
-  var y1;
-  var offset;
+  var r;
+  var delta;
+  var j;
   var sa;
   var I;
   var width;
@@ -6249,30 +6160,30 @@ function showLogo(dataAndEvents) {
     i = 0;
     for (;i < lts.length;i++) {
       var stack = lts[i];
-      var data = stack.pts;
+      var map = stack.pts;
       var length = stack.kc;
       var ws = stack.ws;
-      var il = stack.wr;
+      var wr = stack.wr;
       var indicatorStack = stack.qm;
-      w = stack.sp;
-      var ss = stack.sz;
+      C = stack.sp;
+      var il = stack.sz;
       index = stack.r;
-      var pos = stack.mwig;
+      var len = stack.mwig;
       if (dataAndEvents) {
         stack.wch = true;
-        pos = 1E-7;
+        len = 1E-7;
       }
       if (stack.wch) {
-        if (0 != pos) {
-          pos *= 0.982;
-          pos -= 0.001 * imgWidth;
+        if (0 != len) {
+          len *= 0.982;
+          len -= 0.001 * imgWidth;
           if (1 == render_mode) {
-            pos -= 0.005 * imgWidth;
+            len -= 0.005 * imgWidth;
           }
-          if (0 >= pos) {
-            pos = 0;
+          if (0 >= len) {
+            len = 0;
           }
-          stack.mwig = pos;
+          stack.mwig = len;
         }
       }
       if (!index) {
@@ -6280,65 +6191,65 @@ function showLogo(dataAndEvents) {
       }
       lctx.beginPath();
       if (9 > i) {
-        f = ctx.createLinearGradient(0, 70 * lgsc, 0, 230 * lgsc);
-        f.addColorStop(0, "#80FFA0");
-        f.addColorStop(1, "#008040");
+        tmp = ctx.createLinearGradient(0, 70 * lgsc, 0, 230 * lgsc);
+        tmp.addColorStop(0, "#80FFA0");
+        tmp.addColorStop(1, "#008040");
       } else {
-        f = ctx.createLinearGradient(0, 50 * lgsc, 0, 265 * lgsc);
-        f.addColorStop(0, "#9850FF");
-        f.addColorStop(1, "#281060");
+        tmp = ctx.createLinearGradient(0, 50 * lgsc, 0, 265 * lgsc);
+        tmp.addColorStop(0, "#9850FF");
+        tmp.addColorStop(1, "#281060");
       }
-      lctx.fillStyle = f;
+      lctx.fillStyle = tmp;
       I = false;
       width = 0;
-      f = data[0];
-      q = data[1];
-      a = f;
-      y1 = q;
-      var theta2 = lgfr * w;
-      offset = 2;
-      for (;offset < data.length;offset += 4) {
-        w = f;
-        p = q;
-        cx2 = data[offset];
-        cy2 = data[offset + 1];
-        f = data[offset + 2];
-        q = data[offset + 3];
+      tmp = map[0];
+      val = map[1];
+      r = tmp;
+      delta = val;
+      var theta2 = lgfr * C;
+      j = 2;
+      for (;j < map.length;j += 4) {
+        C = tmp;
+        height = val;
+        cx2 = map[j];
+        cy2 = map[j + 1];
+        tmp = map[j + 2];
+        val = map[j + 3];
         var l = 1;
         for (;l <= length;l++) {
           width++;
-          var h = l / length;
-          x = w + (cx2 - w) * h;
-          y2 = p + (cy2 - p) * h;
-          m2 = cx2 + (f - cx2) * h;
-          endRho = cy2 + (q - cy2) * h;
-          x += (m2 - x) * h;
-          y2 += (endRho - y2) * h;
-          a = Math.atan2(y2 - y1, x - a);
+          var f = l / length;
+          x = C + (cx2 - C) * f;
+          y = height + (cy2 - height) * f;
+          dx1 = cx2 + (tmp - cx2) * f;
+          endRho = cy2 + (val - cy2) * f;
+          x += (dx1 - x) * f;
+          y += (endRho - y) * f;
+          r = Math.atan2(y - delta, x - r);
           if (I) {
-            if (a - sa > Math.PI) {
-              a -= 2 * Math.PI;
+            if (r - sa > Math.PI) {
+              r -= 2 * Math.PI;
             } else {
-              if (a - sa < -Math.PI) {
-                a += 2 * Math.PI;
+              if (r - sa < -Math.PI) {
+                r += 2 * Math.PI;
               }
             }
-            sa += 0.05 * (a - sa);
+            sa += 0.05 * (r - sa);
             sa %= 2 * Math.PI;
           } else {
             I = true;
-            sa = a;
+            sa = r;
           }
-          a = x;
-          y1 = y2;
-          x += Math.cos(Math.PI / 2 + sa) * Math.sin(theta2) * ws * pos;
-          y2 += Math.sin(Math.PI / 2 + sa) * Math.sin(theta2) * ws * pos;
+          r = x;
+          delta = y;
+          x += Math.cos(Math.PI / 2 + sa) * Math.sin(theta2) * ws * len;
+          y += Math.sin(Math.PI / 2 + sa) * Math.sin(theta2) * ws * len;
           theta2 -= 0.76 * indicatorStack * ws;
-          ws += il;
+          ws += wr;
           lctx.beginPath();
-          endRho = 1.15 * ss * Math.min(1, lgsc * (0.2 + 0.8 * lga) * (30 * lgss * index - width / 20 - i / 2));
+          endRho = 1.15 * il * Math.min(1, lgsc * (0.2 + 0.8 * lga) * (30 * lgss * index - width / 20 - i / 2));
           if (0.5 < endRho) {
-            lctx.arc(x * lgsc, y2 * lgsc, endRho, 0, pi2);
+            lctx.arc(x * lgsc, y * lgsc, endRho, 0, pi2);
             stack.wch = true;
           }
           lctx.fill();
@@ -6615,20 +6526,37 @@ o = {
   }
 };
 getData("/i49526.txt", o);
+
 //Set fake mouse coordinates
-window.setMouseCoordinates = function(x, y){
-    xm = x;
-    ym = y;
-}
+window.setMouseCoordinates = function (x, y) {
+    window.xm = x;
+    window.ym = y;
+};
 // Mouse to map coordinates
 window.mouseToMap = function (x, y) {
-  mapX = x - ww / 2;
-  mapY = y - hh / 2;
-  return [mapX, mapY];
-}
+    mapX = x - window.hh / 2;
+    mapY = y - window.ww / 2;
+    return [mapX, mapY];
+};
 // Map to mouse coordinates
-window.mapToMouse = function(x, y){
-  mouseX = (x*2)+ww;
-  mouseY = (y*2)+hh;
-  return [mouseX, mouseY];
-}
+window.mapToMouse = function (x, y) {
+    mouseX = x + (window.hh * 2);
+    mouseY = y + (window.ww * 2);
+    return [mouseX, mouseY];
+};
+// Canvas width
+window.getWidth = function () {
+    return window.rw;
+};
+// Canvas height
+window.getHeight = function () {
+    return window.rh;
+};
+// X coordinates on the screen
+window.getX = function () {
+    return window.px;
+};
+// Y coordinates on the screen
+window.getY = function () {
+    return window.py;
+};
