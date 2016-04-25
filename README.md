@@ -13,3 +13,8 @@ On other browsers, use the [GreaseMonkey](https://addons.mozilla.org/en-GB/firef
 Once installed, click on [this](https://github.com/ErmiyaEskandary/slither.io-bot/raw/master/bot.user.js), and choose **Install**.
 
 Go to [slither.io](http://slither.io/), and enjoy !
+# License
+
+Licensed under MIT.
+
+Read LICENSE.md for more info.
