@@ -23,5 +23,5 @@ Read LICENSE.md for more info.
 # Authors
 Ermiya Eskandary & Théophile Cailliau (ErmiyaEskandary & FliiFe)
 
-Started as a collaborative project between me and Theo on 2016/04/20, with this :
+Started as a collaborative project between me and Théophile on 2016/04/20, with this :
 > Slither.io bot could be cool
