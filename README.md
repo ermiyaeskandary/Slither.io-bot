@@ -13,8 +13,15 @@ On other browsers, use the [GreaseMonkey](https://addons.mozilla.org/en-GB/firef
 Once installed, click on [this](https://github.com/ErmiyaEskandary/slither.io-bot/raw/master/bot.user.js), and choose **Install**.
 
 Go to [slither.io](http://slither.io/), and enjoy !
+
 # License
 
 Licensed under MIT.
 
 Read LICENSE.md for more info.
+
+# Authors
+Ermiya Eskandary & Théophile Cailliau (ErmiyaEskandary & FliiFe)
+
+Started as a collaborative project between me and Theo on 2016/04/20, with this :
+> Slither.io bot could be cool
