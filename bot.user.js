@@ -102,7 +102,7 @@ document.onkeydown = function (e) {
     // Original slither.io onkeydown function + whatever is under it
     document.oldKeyDown(e);
     // If the letter "t" is pressed, check if the bot is running. If it is, stop the bot. If it isn't, start the bot.
-    if (e.keyCode === 84) isBotRunning ? window.stopBot() : window.launchBot(5);
+    if (e.keyCode === 84) window.isBotRunning ? window.stopBot() : window.launchBot(5);
 };
 
 // Sorting function, from property 'distance'
