@@ -45,7 +45,7 @@ window.getY = function () {
 window.getScale = function () {
         return window.gsc;
 };
-var isBotRunning = null;
+isBotRunning = false;
     // Sets the interval for the bot loop
 window.launchBot = function (d) {
     console.log("Starting Bot.");
