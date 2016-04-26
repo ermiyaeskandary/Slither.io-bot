@@ -140,5 +140,3 @@ window.loop = function () {
 
         }
     };
-    // Start the bot
-window.launchBot(5);
