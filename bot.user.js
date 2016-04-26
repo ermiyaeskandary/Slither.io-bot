@@ -66,7 +66,7 @@ window.connectBot = function () {
     console.log("Connecting");
     window.stopBot();
     window.connect();
-    setTimeout(window.launchgBot(), 1000);
+    setTimeout(window.launchBot(), 1000);
 };
 
 document.oldKeyDown = document.onkeydown;
