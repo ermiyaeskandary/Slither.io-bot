@@ -48,6 +48,7 @@ window.getScale = function () {
 var isBotRunning = null;
     // Sets the interval for the bot loop
 window.launchBot = function (d) {
+    console.log("Starting Bot.");
     isBotRunning = true;
     window.mousemovelistener = window.onmousemove;
     window.onmousemove = undefined;
@@ -55,6 +56,7 @@ window.launchBot = function (d) {
 };
 
 window.stopBot = function () {
+    console.log("Stopping Bot.");
     window.onmousemove = window.mousemovelistener;
     isBotRunning = false;
     return clearInterval(window.botInterval);
