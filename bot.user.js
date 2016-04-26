@@ -88,7 +88,7 @@ window.getDistance = function (x1, y1, x2, y2) {
     xDistance = xDistance < 0 ? xDistance * -1 : xDistance;
     yDistance = yDistance < 0 ? yDistance * -1 : yDistance;
     //Add the coordinates of the vector to get a distance. Not the real distance, but reliable for distance comparison.
-    var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+    var distance = xDistance + yDistance;
     return distance;
 };
 // Sort food based on distance
