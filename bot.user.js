@@ -74,7 +74,7 @@ window.sortFood = function (a, b) {
 
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
 window.getDistanceFromMe = function (point) {
-    if (point == null) return null;
+    if (point === null) return null;
     point.distance = getDistance(px, py, point.xx, point.yy);
     return point;
 };
