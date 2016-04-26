@@ -210,7 +210,7 @@ window.startUpdate = function () {
     updateLoop = setInterval(window.restartloop(), 10000);
 };
 window.restartloop = function () {
-    if (playing === false && isBotRunning === true) {
+    if (playing === false && window.isBotRunning === true) {
         window.connectBot();
     }
 };
