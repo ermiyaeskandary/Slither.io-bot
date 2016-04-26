@@ -90,10 +90,10 @@ window.stopBot = function () {
 };
 
 window.connectBot = function () {
-    window.log("Connecting");
     window.stopBot();
+    window.log("Connecting...");
     window.connect();
-    setTimeout(window.launchBot(5), 1000);
+    setTimeout(function() { window.launchBot(5); }, 2000);
 };
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
@@ -207,7 +207,7 @@ window.loop = function () {
 };
 
 window.startUpdate = function () {
-    updateLoop = setInterval(window.restartloop(), 10000);
+    updateLoop = setInterval(function() { window.restartloop(); }, 10000);
 };
 window.restartloop = function () {
     if (playing === false && window.isBotRunning === true) {
