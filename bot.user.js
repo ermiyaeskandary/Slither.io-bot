@@ -1,13 +1,20 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.2.0
+// @version      0.2.1
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
 // @grant        none
 // ==/UserScript==
 // Functions needed for the bot
+// Custom logging function - disabled by default
+window.logDebugging = false
+window.log = function(message){
+    if(window.logDebugging === true){
+        console.log.apply(console, arguments);
+    }
+}
 // Set fake mouse coordinates
 window.setMouseCoordinates = function(x, y) {
     window.xm = x;
@@ -50,15 +57,15 @@ isBotRunning = false;
 window.mousemovelistener = window.onmousemove;
 // Starts the bot
 window.launchBot = function(d) {
-    console.log("Starting Bot.");
+    window.log("Starting Bot.");
     isBotRunning = true;
     // Removed the onemousemove listener so we can move the snake manually by setting coordinates
-    window.onmousemove = undefined;
+    window.onmousemove = function(){};
     return window.botInterval = setInterval(window.loop, d);
 };
 // Stops the bot
 window.stopBot = function() {
-    console.log("Stopping Bot.");
+    window.log("Stopping Bot.");
     // Re enable the original onmousemove function
     window.onmousemove = window.mousemovelistener;
     isBotRunning = false;
@@ -67,7 +74,7 @@ window.stopBot = function() {
 };
 
 window.connectBot = function() {
-    console.log("Connecting");
+    window.log("Connecting");
     window.stopBot();
     window.connect();
     setTimeout(window.launchBot(5), 1000);
@@ -130,15 +137,6 @@ window.loop = function () {
     }
 };
 */
-// Removed the onemousemove listener so we can move the snake manually by setting coordinates
-window.onmousemove = function(e) {
-    /*if (e = e || window.event) {
-      if ("undefined" != typeof e.clientX) {
-        xm = e.clientX - ww / 2;
-        ym = e.clientY - hh / 2;
-      }
-    }*/
-};
 // Actual bot code
 
 // Loop for running the bot
