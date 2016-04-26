@@ -62,6 +62,12 @@ window.stopBot = function () {
     return clearInterval(window.botInterval);
 };
 
+window.connectBot = function () {
+    console.log("Connecting");
+    window.stopBot();
+    window.connect();
+    setTimeout(window.launchgBot(), 1000);
+};
 
 document.oldKeyDown = document.onkeydown;
 document.onkeydown = function (e) {
