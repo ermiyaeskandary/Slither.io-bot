@@ -9,7 +9,7 @@
 // ==/UserScript==
 // Functions needed for the bot
 // Custom logging function - disabled by default
-window.logDebugging = false
+window.logDebugging = false;
 window.log = function (message) {
     if (window.logDebugging === true) {
         console.log.apply(console, arguments);
@@ -35,8 +35,9 @@ window.mouseToScreen = function (x, y) {
 window.onresize = function () {
     window.resize();
     window.canvasRatio = [mc.height / getHeight(), mc.width / getWidth()];
-}
+};
 window.screenToCanvas = function (x, y) {
+    window.onresize();
     canvasX = x * window.canvasRatio[0];
     canvasY = y * window.canvasRatio[1];
     return [canvasX, canvasY];
