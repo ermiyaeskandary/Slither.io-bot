@@ -44,9 +44,11 @@ window.getY = function () {
 // Get scaling ratio
 window.getScale = function () {
         return window.gsc;
-    }
+};
+var isBotRunning = null;
     // Sets the interval for the bot loop
 window.launchBot = function (d) {
+    isBotRunning = true;
     window.mousemovelistener = window.onmousemove;
     window.onmousemove = undefined;
     return window.botInterval = setInterval(window.loop, d);
@@ -54,17 +56,15 @@ window.launchBot = function (d) {
 
 window.stopBot = function () {
     window.onmousemove = window.mousemovelistener;
+    isBotRunning = false;
     return clearInterval(window.botInterval);
 };
 
-window.isBotRunning = function () {
-    return !(window.botInterval === -1);
-};
 
 document.oldKeyDown = document.onkeydown;
 document.onkeydown = function (e) {
     document.oldKeyDown(e);
-    if(e.keyCode === 84) window.isBotRunning() ? window.stopBot() : window.launchBot();
+    if(e.keyCode === 84) isBotRunning ? window.stopBot() : window.launchBot(5);
 };
 
 // Sorting function, from property 'distance'
@@ -137,6 +137,6 @@ window.loop = function () {
             window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
 
         }
-    }
+    };
     // Start the bot
 window.launchBot(5);
