@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.1.9
+// @version      0.2.0
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -46,12 +46,12 @@ window.getScale = function() {
     return window.gsc;
 };
 isBotRunning = false;
+// Save the original slither.io onmousemove function so we can re enable it back later
+window.mousemovelistener = window.onmousemove;
 // Starts the bot
 window.launchBot = function(d) {
     console.log("Starting Bot.");
     isBotRunning = true;
-    // Save the original slither.io onmousemove function so we can re enable it back later
-    window.mousemovelistener = window.onmousemove;
     // Removed the onemousemove listener so we can move the snake manually by setting coordinates
     window.onmousemove = undefined;
     return window.botInterval = setInterval(window.loop, d);
@@ -70,7 +70,7 @@ window.connectBot = function() {
     console.log("Connecting");
     window.stopBot();
     window.connect();
-    setTimeout(window.launchBot(), 1000);
+    setTimeout(window.launchBot(5), 1000);
 };
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
