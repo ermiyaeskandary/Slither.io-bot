@@ -229,6 +229,8 @@ window.loop = function () {
 window.loop = function () {
     // If the game is running
     if (playing) {
+        // And the bot is running
+        if(isBotEnabled){
         // Sort the food and enemies based on their distance relative to player's snake
         window.sortedFood = getSortedFood();
         window.sortedEnemies = getSortedEnemies();
