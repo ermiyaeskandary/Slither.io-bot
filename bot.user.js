@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.3.2
+// @version      0.3.1
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -276,7 +276,7 @@ window.loop = function () {
         // Check to see if there is a position overlay
         if (window.position_overlay) {
             // Display the X and Y of the snake
-            window.position_overlay.textContent = 'X: ' + (window.snake.xx || 0) + ' Y: ' + (window.snake.yy || 0);
+            window.position_overlay.textContent = 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0);
         }
         // Sort the food and enemies based on their distance relative to player's snake
         window.sortedFood = window.getSortedFood();
