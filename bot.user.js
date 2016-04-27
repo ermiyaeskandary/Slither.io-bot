@@ -134,7 +134,7 @@ window.getDistance = function (x1, y1, x2, y2) {
 window.getSortedFood = function () {
     // Filters the nearest food by getting the distance
     return window.foods.filter(function (val) {
-        return val != null;
+        return val !== null;
     }).map(getDistanceFromMe).sort(sortObjects);
 };
 
@@ -142,7 +142,7 @@ window.getSortedFood = function () {
 window.getSortedEnemies = function () {
     // Filters the nearest food by getting the distance
     return window.snakes.filter(function (val) {
-        return val != null && val.id != snake.id;
+        return val !== null && val.id != snake.id;
     }).map(getDistanceFromMe).sort(sortObjects);
 };
 
@@ -203,16 +203,17 @@ window.loop = function () {
     // If the game is running
     if (playing) {
         // Sort the food and enemies based on distance
-        var sortedFood = getSortedFood();
-        var sortedEnemies = getSortedEnemies();
+        window.sortedFood = getSortedFood();
+        window.sortedEnemies = getSortedEnemies();
         // Take the closest one
-        var closestFood = sortedFood[0];
-        var closestEnemy = sortedEnemies[0];
-        window.currentFood = closestFood;
+        window.closestFood = sortedFood[0];
+        window.closestEnemy = sortedEnemies[0];
+        window.currentFood = window.closestFood;
         // Convert coordinates of the closest food using mapToMouse
         var coordinatesOfClosestFood = window.mapToMouse(closestFood.xx, closestFood.yy);
-        if (closestEnemy.distance < 5) {
-            log("close enemy! (distance = " + closestEnemy.distance);
+        // If there are enemies, check if they are nearby
+        if (window.closestEnemy !== null) if (window.closestEnemy.distance < 1) {
+            log("Enemy nearby!");
             // !handle close enemies!
         }
         // Set the mouse coordinates to the coordinates of the closest food
