@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.2.5
+// @version      0.2.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -68,7 +68,11 @@ window.setZoom = function (e) {
         window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
     }
 };
-document.body.onmousewheel = window.setZoom;
+if (/firefox/i.test(navigator.userAgent)) {
+            document.addEventListener("DOMMouseScroll", zoom, false);
+        } else {
+            document.body.onmousewheel = window.setZoom;
+        }
 // Get scaling ratio
 window.getScale = function () {
     return window.gsc;
