@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.2.6
+// @version      0.2.7
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -15,6 +15,28 @@ window.log = function (message) {
         console.log.apply(console, arguments);
     }
 };
+// Appends divs to the page - used to display things on the screen
+window.appendDiv = function(id, className, style) {
+        // Create a div
+        var div = document.createElement("div");
+        // Check for id
+        if (id) {
+            // Set the id
+            div.id = id;
+        }
+        // Check for class name
+        if (className) {
+            // Set the class name
+            div.className = className;
+        }
+        // Check for css styles
+        if (style) {
+            // Set the css styles
+            div.style = style;
+        }
+        // Append the div to the page
+        document.body.appendChild(div);
+    }
 // Set fake mouse coordinates
 window.setMouseCoordinates = function (x, y) {
     window.xm = x;
@@ -68,6 +90,11 @@ window.setZoom = function (e) {
         window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
     }
 };
+// Overlays
+position_overlay = null;
+generalstyle = "color: #FFF; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;";
+appendDiv("position_overlay", "nsi", generalstyle + "right: 30; bottom: 120px;");
+position_overlay = document.getElementById("position_overlay");
 document.body.addEventListener('mousewheel', window.setZoom);
 document.body.addEventListener('DOMMouseScroll', window.setZoom);
 // Get scaling ratio
@@ -103,6 +130,7 @@ window.connectBot = function () {
     window.connect();
     window.botCanStart = setInterval(function() {
         if(playing){
+
             window.launchBot(5);
             clearInterval(window.botCanStart);
         }
@@ -165,7 +193,7 @@ window.getSortedEnemies = function () {
         return val != null && val.id != snake.id;
     }).map(getDistanceFromMe).sort(sortObjects);
 };
-
+// Draw dots on the canvas
 window.drawDot = function (x, y, radius, colour) {
     var context = mc.getContext("2d");
     context.beginPath();
@@ -174,7 +202,7 @@ window.drawDot = function (x, y, radius, colour) {
     context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
     context.fill();
 };
-
+// Draw lines on the canvas
 window.drawLine = function (x2, y2, colour) {
     var context = mc.getContext("2d");
     var center = [mc.height / 2, mc.width / 2];
@@ -229,6 +257,11 @@ window.loop = function () {
 window.loop = function () {
     // If the game is running
     if (playing) {
+        // Check to see if there is a position overlay
+        if (position_overlay) {
+            // Display the X and Y of the snake
+            position_overlay.textContent = "X: " + (~~window.px || 0) + " Y: " + (~~window.py || 0);
+        }
         // And the bot is running
         if(isBotEnabled){
         // Sort the food and enemies based on their distance relative to player's snake
@@ -250,7 +283,8 @@ window.loop = function () {
         window.startInterval = setInterval(window.startInterval, 1000);
         window.stopBot();
     }
-};
+}
+}
 
 window.startInterval = function () {
     if (playing === false && window.isBotEnabled === true) {
