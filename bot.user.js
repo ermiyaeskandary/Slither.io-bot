@@ -77,11 +77,11 @@ window.getHeight = function () {
 };
 // X coordinates on the screen
 window.getX = function () {
-    return window.px;
+    return snake.xx;
 };
 // Y coordinates on the screen
 window.getY = function () {
-    return window.py;
+    return snake.yy;
 };
 window.onresize = function () {
     window.resize();
