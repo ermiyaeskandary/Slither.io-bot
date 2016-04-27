@@ -73,7 +73,8 @@ document.body.onmousewheel = window.setZoom;
 window.getScale = function () {
     return window.gsc;
 };
-window.isBotRunning = true;
+window.isBotRunning = false;
+window.isBotEnabled = true;
 // Save the original slither.io onmousemove function so we can re enable it back later
 window.mousemovelistener = window.onmousemove;
 // Starts the bot
@@ -99,7 +100,12 @@ window.connectBot = function () {
     window.stopBot();
     window.log("Connecting...");
     window.connect();
-    setTimeout(function() { window.launchBot(5); }, 2000);
+    window.botCanStart = setInterval(function() {
+        if(playing){
+            window.launchBot(5);
+            clearInterval(window.botCanStart);
+        }
+    }, 100);
 };
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
@@ -108,7 +114,15 @@ document.onkeydown = function (e) {
     // Original slither.io onkeydown function + whatever is under it
     document.oldKeyDown(e);
     // If the letter "t" is pressed, check if the bot is running. If it is, stop the bot. If it isn't, start the bot.
-    if (e.keyCode === 84) window.isBotRunning ? window.stopBot() : window.launchBot(5);
+    if (e.keyCode === 84) {
+        if(window.isBotRunning){
+            window.stopBot();
+            window.isBotEnabled = false;
+        } else {
+            window.launchBot(5);
+            window.isBotEnabled = true;
+        }
+    }
 };
 
 // Sorting function, from property 'distance'
@@ -229,15 +243,16 @@ window.loop = function () {
         // Set the mouse coordinates to the coordinates of the closest food
         window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
 
+    } else {
+        window.startInterval = setInterval(window.startInterval, 1000);
+        window.stopBot();
     }
 };
 
-window.startUpdate = function () {
-    updateLoop = setInterval(function() { window.restartloop(); }, 10000);
-};
-window.restartloop = function () {
-    if (playing === false && window.isBotRunning === true) {
+window.startInterval = function () {
+    if (playing === false && window.isBotEnabled === true) {
         window.connectBot();
+        clearInterval(window.startInterval);
     }
 };
-window.startUpdate();
+window.startInterval();
