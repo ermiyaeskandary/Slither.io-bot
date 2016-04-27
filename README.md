@@ -1,7 +1,7 @@
 # Slither.io bot
 Goal : make a bot for slither.io
 
-### Join us on slack
+## Join us on Slack
 [![Join Slack](https://slitherio-bot.herokuapp.com/badge.svg)](https://slitherio-bot.herokuapp.com/)
 
 # Installation instructions
@@ -14,14 +14,22 @@ Once installed, click on [this](https://github.com/ErmiyaEskandary/slither.io-bo
 
 Go to [slither.io](http://slither.io/), and enjoy !
 
-# License
+# Hotkeys
 
-Licensed under MIT.
+* Press 'T' if you want to control the bot manually.
 
-Read LICENSE.md for more info.
+# Contributing
+
+Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/).
 
 # Authors
 Ermiya Eskandary & Théophile Cailliau (ErmiyaEskandary & FliiFe)
 
 Started as a collaborative project between me and Théophile on 2016/04/20, with this :
 > Slither.io bot could be cool
+
+# License
+
+Licensed under MIT.
+
+Read LICENSE.md for more info.
