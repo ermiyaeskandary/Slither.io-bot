@@ -97,7 +97,6 @@ window.setZoom = function(e) {
 };
 
 // Overlays
-window.position_overlay;
 window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
 window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
 window.position_overlay = document.getElementById('position_overlay');
