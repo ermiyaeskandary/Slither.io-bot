@@ -304,7 +304,6 @@ window.loop = function() {
 
     } else {
         window.startInterval = setInterval(window.startInterval, 1000);
-        window.stopBot();
     }
 };
 // First function called
