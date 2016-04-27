@@ -63,6 +63,12 @@ window.getX = function () {
 window.getY = function () {
     return window.py;
 };
+window.setZoom = function (e) {
+    if (window.gsc) {
+        window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
+    }
+};
+document.body.onmousewheel = window.setZoom;
 // Get scaling ratio
 window.getScale = function () {
     return window.gsc;
