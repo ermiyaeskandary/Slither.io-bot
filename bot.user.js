@@ -36,7 +36,7 @@ window.appendDiv = function(id, className, style) {
         }
         // Append the div to the page
         document.body.appendChild(div);
-    }
+    };
 // Set fake mouse coordinates
 window.setMouseCoordinates = function (x, y) {
     window.xm = x;
@@ -284,7 +284,7 @@ window.loop = function () {
         window.stopBot();
     }
 }
-}
+};
 
 window.startInterval = function () {
     if (playing === false && window.isBotEnabled === true) {
