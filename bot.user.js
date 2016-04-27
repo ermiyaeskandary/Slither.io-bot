@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.3.2
+// @version      0.3.3
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -239,7 +239,7 @@ window.drawLine = function(x2, y2, colour) {
 window.oldOef = window.oef;
 
 window.oef = function() {
-    // Original slithe.io oef function + whatever is under it
+    // Original slithee.io oef function + whatever is under it
     window.oldOef();
     window.onFrameUpdate();
 };
@@ -289,16 +289,16 @@ window.loop = function() {
         }
         // Sort the food and enemies based on their distance relative to player's snake
         window.sortedFood = window.getSortedFood();
-        window.sortedEnemies = window.getSortedEnemies();
+        // window.sortedEnemies = window.getSortedEnemies();
         // Take the closest of each
-        window.closestEnemy = window.sortedEnemies[0];
+        // window.closestEnemy = window.sortedEnemies[0];
         window.currentFood = window.sortedFood[0];
         // Convert coordinates of the closest food using mapToMouse
         var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
-        if (window.closestEnemy.distance < 300) {
+        // if (window.closestEnemy.distance < 300) {
             //window.log('close enemy! (distance = ' + window.closestEnemy.distance);
             // !handle close enemies!
-        }
+        // }
         // Set the mouse coordinates to the coordinates of the closest food
         window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
 
