@@ -78,7 +78,7 @@ window.launchBot = function (d) {
     // Removed the onemousemove listener so we can move the snake manually by setting coordinates
     window.onmousemove = function () {};
     window.botInterval = setInterval(window.loop, d);
-    return botInterval
+    return botInterval;
 };
 // Stops the bot
 window.stopBot = function () {
