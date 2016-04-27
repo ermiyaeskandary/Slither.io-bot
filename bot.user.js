@@ -202,15 +202,14 @@ window.loop = function () {
 window.loop = function () {
     // If the game is running
     if (playing) {
-        // Sort the food and enemies based on distance
-        var sortedFood = getSortedFood();
-        var sortedEnemies = getSortedEnemies();
-        // Take the closest one
-        var closestFood = sortedFood[0];
-        var closestEnemy = sortedEnemies[0];
-        window.currentFood = closestFood;
+        // Sort the food and enemies based on their distance relative to player's snake
+        window.sortedFood = getSortedFood();
+        window.sortedEnemies = getSortedEnemies();
+        // Take the closest of each
+        window.closestEnemy = sortedEnemies[0];
+        window.currentFood = sortedFood[0];
         // Convert coordinates of the closest food using mapToMouse
-        var coordinatesOfClosestFood = window.mapToMouse(closestFood.xx, closestFood.yy);
+        var coordinatesOfClosestFood = window.mapToMouse(currentFood.xx, currentFood.yy);
         if (closestEnemy.distance < 5) {
             log("close enemy! (distance = " + closestEnemy.distance);
             // !handle close enemies!
