@@ -69,7 +69,7 @@ window.setZoom = function (e) {
     }
 };
 if (/firefox/i.test(navigator.userAgent)) {
-            document.addEventListener("DOMMouseScroll", zoom, false);
+            document.addEventListener("DOMMouseScroll", window.setZoom, false);
         } else {
             document.body.onmousewheel = window.setZoom;
         }
