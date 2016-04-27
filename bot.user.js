@@ -107,7 +107,7 @@ document.onkeydown = function (e) {
 };
 
 // Sorting function, from property 'distance'
-window.sortFood = function (a, b) {
+window.sortObjects = function (a, b) {
     return a.distance - b.distance;
 };
 
@@ -135,15 +135,15 @@ window.getSortedFood = function () {
     // Filters the nearest food by getting the distance
     return window.foods.filter(function (val) {
         return val !== null;
-    }).map(getDistanceFromMe).sort(sortFood);
+    }).map(getDistanceFromMe).sort(sortObjects);
 };
 
 // Sort enemies based on distance
 window.getSortedEnemies = function () {
     // Filters the nearest food by getting the distance
-    return window.foods.filter(function (val) {
+    return window.snakes.filter(function (val) {
         return val !== null && val.id !== snake.id;
-    }).map(getDistanceFromMe).sort(sortFood);
+    }).map(getDistanceFromMe).sort(sortObjects);
 };
 
 window.drawDot = function (x, y, radius, colour) {
