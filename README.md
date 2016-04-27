@@ -4,6 +4,8 @@ Goal : make a bot for slither.io
 ## Join us on Slack
 [![Join Slack](https://slitherio-bot.herokuapp.com/badge.svg)](https://slitherio-bot.herokuapp.com/)
 
+##[Check out the wiki for more information](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki)
+
 # Installation instructions
 
 If you are on chrome, download the [TamperMonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en) extension.
