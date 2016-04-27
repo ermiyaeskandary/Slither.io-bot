@@ -7,36 +7,38 @@
 // @match        http://slither.io/
 // @grant        none
 // ==/UserScript==
+
 // Functions needed for the bot
 // Custom logging function - disabled by default
 window.logDebugging = false;
-window.log = function (message) {
+
+window.log = function () {
     if (window.logDebugging === true) {
         console.log.apply(console, arguments);
     }
 };
 // Appends divs to the page - used to display things on the screen
-window.appendDiv = function(id, className, style) {
-        // Create a div
-        var div = document.createElement("div");
-        // Check for id
-        if (id) {
-            // Set the id
-            div.id = id;
-        }
-        // Check for class name
-        if (className) {
-            // Set the class name
-            div.className = className;
-        }
-        // Check for css styles
-        if (style) {
-            // Set the css styles
-            div.style = style;
-        }
-        // Append the div to the page
-        document.body.appendChild(div);
-    };
+window.appendDiv = function (id, className, style) {
+    // Create a div
+    var div = document.createElement('div');
+    // Check for id
+    if (id) {
+        // Set the id
+        div.id = id;
+    }
+    // Check for class name
+    if (className) {
+        // Set the class name
+        div.className = className;
+    }
+    // Check for css styles
+    if (style) {
+        // Set the css styles
+        div.style = style;
+    }
+    // Append the div to the page
+    document.body.appendChild(div);
+};
 // Set fake mouse coordinates
 window.setMouseCoordinates = function (x, y) {
     window.xm = x;
@@ -44,29 +46,25 @@ window.setMouseCoordinates = function (x, y) {
 };
 // Return the coordinates relative to the center (snake position).
 window.mouseRelativeToCenter = function (x, y) {
-    mapX = x - getHeight() / 2;
-    mapY = y - getWidth() / 2;
+    var mapX = x - window.getHeight() / 2;
+    var mapY = y - window.getWidth() / 2;
     return [mapX, mapY];
 };
 // mouse coordinates to screen coordinates
 window.mouseToScreen = function (x, y) {
-    screenX = x + (getHeight() / 2);
-    screenY = y + (getWidth() / 2);
+    var screenX = x + (window.getHeight() / 2);
+    var screenY = y + (window.getWidth() / 2);
     return [screenX, screenY];
 };
-window.onresize = function () {
-    window.resize();
-    window.canvasRatio = [mc.height / getHeight(), mc.width / getWidth()];
-};
 window.screenToCanvas = function (x, y) {
-    canvasX = csc * x * window.canvasRatio[0] - parseInt(mc.style.left);
-    canvasY = csc * y * window.canvasRatio[1] - parseInt(mc.style.top);
+    var canvasX = window.csc * x * window.canvasRatio[0] - window.csc * parseInt(window.mc.style.left);
+    var canvasY = window.csc * y * window.canvasRatio[1] - window.csc * parseInt(window.mc.style.top);
     return [canvasX, canvasY];
 };
 // Map to mouse coordinates
 window.mapToMouse = function (x, y) {
-    mouseX = (x - getX()) * gsc;
-    mouseY = (y - getY()) * gsc;
+    var mouseX = (x - window.getX()) * window.gsc;
+    var mouseY = (y - window.getY()) * window.gsc;
     return [mouseX, mouseY];
 };
 // Canvas width
@@ -85,38 +83,51 @@ window.getX = function () {
 window.getY = function () {
     return window.py;
 };
+window.onresize = function () {
+    window.resize();
+    window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / window.getWidth()];
+};
 window.setZoom = function (e) {
     if (window.gsc) {
         window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
     }
 };
+
 // Overlays
-position_overlay = null;
-generalstyle = "color: #FFF; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;";
-appendDiv("position_overlay", "nsi", generalstyle + "right: 30; bottom: 120px;");
-position_overlay = document.getElementById("position_overlay");
+window.position_overlay;
+window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
+window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
+window.position_overlay = document.getElementById('position_overlay');
+
 document.body.addEventListener('mousewheel', window.setZoom);
 document.body.addEventListener('DOMMouseScroll', window.setZoom);
+
+
 // Get scaling ratio
 window.getScale = function () {
     return window.gsc;
 };
+
 window.isBotRunning = false;
 window.isBotEnabled = true;
+
 // Save the original slither.io onmousemove function so we can re enable it back later
 window.mousemovelistener = window.onmousemove;
+
 // Starts the bot
 window.launchBot = function (d) {
-    window.log("Starting Bot.");
+    window.log('Starting Bot.');
     window.isBotRunning = true;
     // Removed the onemousemove listener so we can move the snake manually by setting coordinates
     window.onmousemove = function () {};
     window.botInterval = setInterval(window.loop, d);
-    return botInterval;
+    return window.botInterval;
 };
+
+
 // Stops the bot
 window.stopBot = function () {
-    window.log("Stopping Bot.");
+    window.log('Stopping Bot.');
     // Re enable the original onmousemove function
     window.onmousemove = window.mousemovelistener;
     window.isBotRunning = false;
@@ -126,25 +137,26 @@ window.stopBot = function () {
 
 window.connectBot = function () {
     window.stopBot();
-    window.log("Connecting...");
+    window.log('Connecting...');
     window.connect();
-    window.botCanStart = setInterval(function() {
-        if(playing){
-
+    window.botCanStart = setInterval(function () {
+        if (window.playing) {
             window.launchBot(5);
             clearInterval(window.botCanStart);
         }
     }, 100);
 };
+
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
+
 // Re write the function with our function
 document.onkeydown = function (e) {
     // Original slither.io onkeydown function + whatever is under it
     document.oldKeyDown(e);
-    // If the letter "t" is pressed, check if the bot is running. If it is, stop the bot. If it isn't, start the bot.
+    // If the letter 't' is pressed, check if the bot is running. If it is, stop the bot. If it isn't, start the bot.
     if (e.keyCode === 84) {
-        if(window.isBotRunning){
+        if (window.isBotRunning) {
             window.stopBot();
             window.isBotEnabled = false;
         } else {
@@ -162,7 +174,7 @@ window.sortObjects = function (a, b) {
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
 window.getDistanceFromMe = function (point) {
     if (point === null) return null;
-    point.distance = getDistance(px, py, point.xx, point.yy);
+    point.distance = window.getDistance(window.getX(), window.getY(), point.xx, point.yy);
     return point;
 };
 
@@ -178,34 +190,37 @@ window.getDistance = function (x1, y1, x2, y2) {
     var distance = xDistance + yDistance;
     return distance;
 };
+
 // Sort food based on distance
 window.getSortedFood = function () {
     // Filters the nearest food by getting the distance
     return window.foods.filter(function (val) {
-        return val != null;
-    }).map(getDistanceFromMe).sort(sortObjects);
+        return val !== null;
+    }).map(window.getDistanceFromMe).sort(window.sortObjects);
 };
 
 // Sort enemies based on distance
 window.getSortedEnemies = function () {
     // Filters the nearest food by getting the distance
     return window.snakes.filter(function (val) {
-        return val != null && val.id != snake.id;
-    }).map(getDistanceFromMe).sort(sortObjects);
+        return val !== null && val.id !== window.snake.id;
+    }).map(window.getDistanceFromMe).sort(window.sortObjects);
 };
+
 // Draw dots on the canvas
 window.drawDot = function (x, y, radius, colour) {
-    var context = mc.getContext("2d");
+    var context = window.mc.getContext('2d');
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2);
     context.closePath();
     context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
     context.fill();
 };
+
 // Draw lines on the canvas
 window.drawLine = function (x2, y2, colour) {
-    var context = mc.getContext("2d");
-    var center = [mc.height / 2, mc.width / 2];
+    var context = window.mc.getContext('2d');
+    var center = [window.mc.height / 2, window.mc.width / 2];
     context.lineWidth = 5;
     context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
     context.moveTo(center[1], center[0]);
@@ -219,19 +234,20 @@ window.oef = function () {
     window.oldOef();
     window.onFrameUpdate();
 };
-window.canvasRatio = [mc.height / getHeight(), mc.width / getWidth()];
+
+window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / window.getWidth()];
 window.onFrameUpdate = function () {
-    if (playing && isBotRunning) {
-        var foodCoordinates = mapToMouse(window.currentFood.xx, window.currentFood.yy);
-        foodCoordinates = mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
-        foodCoordinates = screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
-        drawLine(foodCoordinates[0], foodCoordinates[1], 'green');
-        for(var i=0; i<10; i++){
+    if (window.playing && window.isBotRunning) {
+        var foodCoordinates = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
+        foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
+        foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
+        window.drawLine(foodCoordinates[0], foodCoordinates[1], 'green');
+        for (var i = 0; i < window.sortedFood.length; i++) {
             var item = window.sortedFood[i];
-            foodCoordinates = mapToMouse(item.xx, item.yy);
-            foodCoordinates = mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
-            foodCoordinates = screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
-            drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
+            foodCoordinates = window.mapToMouse(item.xx, item.yy);
+            foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
+            foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
+            window.drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
         }
     }
 };
@@ -255,25 +271,23 @@ window.loop = function () {
 
 // Loop for running the bot
 window.loop = function () {
-    // If the game is running
-    if (playing) {
+    // If the game and the bot are running
+    if (window.playing && window.isBotEnabled) {
         // Check to see if there is a position overlay
-        if (position_overlay) {
+        if (window.position_overlay) {
             // Display the X and Y of the snake
-            position_overlay.textContent = "X: " + (~~window.px || 0) + " Y: " + (~~window.py || 0);
+            window.position_overlay.textContent = 'X: ' + (~~window.px || 0) + ' Y: ' + (~~window.py || 0);
         }
-        // And the bot is running
-        if(isBotEnabled){
         // Sort the food and enemies based on their distance relative to player's snake
-        window.sortedFood = getSortedFood();
-        window.sortedEnemies = getSortedEnemies();
+        window.sortedFood = window.getSortedFood();
+        window.sortedEnemies = window.getSortedEnemies();
         // Take the closest of each
-        window.closestEnemy = sortedEnemies[0];
-        window.currentFood = sortedFood[0];
+        window.closestEnemy = window.sortedEnemies[0];
+        window.currentFood = window.sortedFood[0];
         // Convert coordinates of the closest food using mapToMouse
-        var coordinatesOfClosestFood = window.mapToMouse(currentFood.xx, currentFood.yy);
-        if (closestEnemy.distance < 5) {
-            log("close enemy! (distance = " + closestEnemy.distance);
+        var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
+        if (window.closestEnemy.distance < 5) {
+            window.log('close enemy! (distance = ' + window.closestEnemy.distance);
             // !handle close enemies!
         }
         // Set the mouse coordinates to the coordinates of the closest food
@@ -283,11 +297,10 @@ window.loop = function () {
         window.startInterval = setInterval(window.startInterval, 1000);
         window.stopBot();
     }
-}
 };
 
 window.startInterval = function () {
-    if (playing === false && window.isBotEnabled === true) {
+    if (window.playing === false && window.isBotEnabled === true) {
         window.connectBot();
         clearInterval(window.startInterval);
     }
