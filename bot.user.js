@@ -276,7 +276,7 @@ window.loop = function () {
         // Check to see if there is a position overlay
         if (window.position_overlay) {
             // Display the X and Y of the snake
-            window.position_overlay.textContent = 'X: ' + (~~window.px || 0) + ' Y: ' + (~~window.py || 0);
+            window.position_overlay.textContent = 'X: ' + (~~snake.xx || 0) + ' Y: ' + (~~snake.yy || 0);
         }
         // Sort the food and enemies based on their distance relative to player's snake
         window.sortedFood = window.getSortedFood();
