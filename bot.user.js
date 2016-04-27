@@ -286,7 +286,7 @@ window.loop = function () {
         window.currentFood = window.sortedFood[0];
         // Convert coordinates of the closest food using mapToMouse
         var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
-        if (window.closestEnemy.distance < 5) {
+        if (window.closestEnemy.distance < 300) {
             window.log('close enemy! (distance = ' + window.closestEnemy.distance);
             // !handle close enemies!
         }
