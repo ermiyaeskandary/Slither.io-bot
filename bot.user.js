@@ -77,11 +77,11 @@ window.getHeight = function () {
 };
 // X coordinates on the screen
 window.getX = function () {
-    return snake.xx;
+    return window.snake.xx;
 };
 // Y coordinates on the screen
 window.getY = function () {
-    return snake.yy;
+    return window.snake.yy;
 };
 window.onresize = function () {
     window.resize();
@@ -276,7 +276,7 @@ window.loop = function () {
         // Check to see if there is a position overlay
         if (window.position_overlay) {
             // Display the X and Y of the snake
-            window.position_overlay.textContent = 'X: ' + (~~snake.xx || 0) + ' Y: ' + (~~snake.yy || 0);
+            window.position_overlay.textContent = 'X: ' + (~~window.snake.xx || 0) + ' Y: ' + (~~window.snake.yy || 0);
         }
         // Sort the food and enemies based on their distance relative to player's snake
         window.sortedFood = window.getSortedFood();
