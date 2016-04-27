@@ -77,7 +77,8 @@ window.launchBot = function (d) {
     window.isBotRunning = true;
     // Removed the onemousemove listener so we can move the snake manually by setting coordinates
     window.onmousemove = function () {};
-    return window.botInterval = setInterval(window.loop, d);
+    window.botInterval = setInterval(window.loop, d);
+    return botInterval
 };
 // Stops the bot
 window.stopBot = function () {
@@ -137,6 +138,14 @@ window.getSortedFood = function () {
     }).map(getDistanceFromMe).sort(sortFood);
 };
 
+// Sort enemies based on distance
+window.getSortedEnemies = function () {
+    // Filters the nearest food by getting the distance
+    return window.foods.filter(function (val) {
+        return val !== null && val.id !== snake.id;
+    }).map(getDistanceFromMe).sort(sortFood);
+};
+
 window.drawDot = function (x, y, radius, colour) {
     var context = mc.getContext("2d");
     context.beginPath();
@@ -176,7 +185,6 @@ window.onFrameUpdate = function () {
 window.isInFoods = function (foodObject) {
     return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
 };
-
 window.currentFood = null;
 window.sortedFood = getSortedFood();
 window.loop = function () {
@@ -194,12 +202,18 @@ window.loop = function () {
 window.loop = function () {
     // If the game is running
     if (playing) {
-        window.sortedFood = getSortedFood();
-        window.currentFood = window.sortedFood[0];
-        // Sort the food based on distance
+        // Sort the food and enemies based on distance
         var sortedFood = getSortedFood();
+        var sortedEnemies = getSortedEnemies();
+        // Take the closest one
+        var closestFood = sortedFood[0];
+        var closestEnemy = sortedEnemies[0];
         // Convert coordinates of the closest food using mapToMouse
-        var coordinatesOfClosestFood = window.mapToMouse(sortedFood[0].xx, sortedFood[0].yy);
+        var coordinatesOfClosestFood = window.mapToMouse(closestFood.xx, closestFood.yy);
+        if (closestEnemy.distance < 5000) {
+            log("close enemy! (distance = " + closestEnemy.distance);
+            // !handle close enemies!
+        };
         // Set the mouse coordinates to the coordinates of the closest food
         window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
 
