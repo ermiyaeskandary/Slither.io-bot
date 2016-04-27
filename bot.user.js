@@ -193,7 +193,7 @@ window.oef = function () {
 };
 window.canvasRatio = [mc.height / getHeight(), mc.width / getWidth()];
 window.onFrameUpdate = function () {
-    if (playing) {
+    if (playing && isBotRunning) {
         var foodCoordinates = mapToMouse(window.currentFood.xx, window.currentFood.yy);
         foodCoordinates = mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
         foodCoordinates = screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
