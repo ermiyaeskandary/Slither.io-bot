@@ -68,11 +68,8 @@ window.setZoom = function (e) {
         window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
     }
 };
-if (/firefox/i.test(navigator.userAgent)) {
-            document.addEventListener("DOMMouseScroll", window.setZoom, false);
-        } else {
-            document.body.onmousewheel = window.setZoom;
-        }
+document.body.addEventListener('mousewheel', window.setZoom);
+document.body.addEventListener('DOMMouseScroll', window.setZoom);
 // Get scaling ratio
 window.getScale = function () {
     return window.gsc;
