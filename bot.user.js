@@ -37,9 +37,8 @@ window.onresize = function () {
     window.canvasRatio = [mc.height / getHeight(), mc.width / getWidth()];
 };
 window.screenToCanvas = function (x, y) {
-    window.onresize();
-    canvasX = x * window.canvasRatio[0];
-    canvasY = y * window.canvasRatio[1];
+    canvasX = csc * x * window.canvasRatio[0] - parseInt(mc.style.left);
+    canvasY = csc * y * window.canvasRatio[1] - parseInt(mc.style.top);
     return [canvasX, canvasY];
 };
 // Map to mouse coordinates
@@ -171,13 +170,20 @@ window.oef = function () {
     window.oldOef();
     window.onFrameUpdate();
 };
-
+window.canvasRatio = [mc.height / getHeight(), mc.width / getWidth()];
 window.onFrameUpdate = function () {
     if (playing) {
         var foodCoordinates = mapToMouse(window.currentFood.xx, window.currentFood.yy);
         foodCoordinates = mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
         foodCoordinates = screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
         drawLine(foodCoordinates[0], foodCoordinates[1], 'green');
+        for(var i=0; i<10; i++){
+            var item = window.sortedFood[i];
+            foodCoordinates = mapToMouse(item.xx, item.yy);
+            foodCoordinates = mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
+            foodCoordinates = screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
+            drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
+        }
     }
 };
 
