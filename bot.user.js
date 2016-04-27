@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.3.3
+// @version      0.3.4
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -276,11 +276,12 @@ window.loop = function () {
 };
 */
 // Actual bot code
-
+window.ranOnce = false;
 // Loop for running the bot
 window.loop = function() {
     // If the game and the bot are running
     if (window.playing && window.isBotEnabled) {
+        window.ranOnce = true;
         // Check to see if there is a position overlay
         if (window.position_overlay) {
             // Display the X and Y of the snake
@@ -307,9 +308,9 @@ window.loop = function() {
 };
 // First function called
 window.startInterval = function() {
-    if (window.playing === false && window.isBotEnabled === true) {
+    if (window.playing === false && window.isBotEnabled === true && window.ranOnce === true) {
         window.connectBot();
         clearInterval(window.startInterval);
     }
 };
-window.startInterval();
+window.launchBot();
