@@ -56,8 +56,8 @@ window.mouseToScreen = function(x, y) {
     return [screenX, screenY];
 };
 window.screenToCanvas = function(x, y) {
-    var canvasX = window.csc * x * window.canvasRatio[0] - window.csc * parseInt(window.mc.style.left);
-    var canvasY = window.csc * y * window.canvasRatio[1] - window.csc * parseInt(window.mc.style.top);
+    var canvasX = window.csc * (x * window.canvasRatio[0] - parseInt(window.mc.style.left));
+    var canvasY = window.csc * (y * window.canvasRatio[1] - parseInt(window.mc.style.top));
     return [canvasX, canvasY];
 };
 // Map to mouse coordinates
