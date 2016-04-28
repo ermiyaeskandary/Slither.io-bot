@@ -245,17 +245,24 @@ window.oef = function() {
 
 window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / window.getWidth()];
 window.onFrameUpdate = function() {
-    if (window.playing && window.isBotRunning) {
-        var foodCoordinates = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
-        foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
-        foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
-        window.drawLine(foodCoordinates[0], foodCoordinates[1], 'green');
-        for (var i = 0; i < window.sortedFood.length; i++) {
-            var item = window.sortedFood[i];
-            foodCoordinates = window.mapToMouse(item.xx, item.yy);
+    if(window.playing) {
+        if(window.isBotRunning){
+            var foodCoordinates = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
             foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
             foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
-            window.drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
+            window.drawLine(foodCoordinates[0], foodCoordinates[1], 'green');
+            for (var i = 0; i < 1; i++) {
+                var item = window.sortedFood[i];
+                foodCoordinates = window.mapToMouse(item.xx, item.yy);
+                foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
+                foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
+                window.drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
+            }
+        }
+        // Check to see if there is a position overlay
+        if (window.position_overlay) {
+            // Display the X and Y of the snake
+            window.position_overlay.textContent = 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0);
         }
     }
 };
@@ -282,11 +289,6 @@ window.loop = function() {
     // If the game and the bot are running
     if (window.playing && window.isBotEnabled) {
         window.ranOnce = true;
-        // Check to see if there is a position overlay
-        if (window.position_overlay) {
-            // Display the X and Y of the snake
-            window.position_overlay.textContent = 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0);
-        }
         // Sort the food and enemies based on their distance relative to player's snake
         window.sortedFood = window.getSortedFood();
         // window.sortedEnemies = window.getSortedEnemies();
