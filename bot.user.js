@@ -227,6 +227,7 @@ window.drawDot = function(x, y, radius, colour) {
     context.closePath();
     context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
     context.fill();
+    context.fillStyle = 'black';
 };
 
 // Draw lines on the canvas
@@ -238,6 +239,7 @@ window.drawLine = function(x2, y2, colour) {
     context.moveTo(center[1], center[0]);
     context.lineTo(x2, y2);
     context.stroke();
+    context.strokeStyle = '#000000';
 };
 // Save the original slither.io oef function so we can add things to it later
 window.oldOef = window.oef;
