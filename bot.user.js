@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.3.4
+// @version      0.3.5
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -170,10 +170,15 @@ document.onkeydown = function(e) {
         }
     }
 };
-
-// Sorting function, from property 'distance'
-window.sortObjects = function(a, b) {
-    return a.distance - b.distance;
+// Sorting function for enemies, from property 'distance'
+window.sortEnemy = function(a, b) {
+    return a.distance - b.distance ;
+};
+// Sorting function for food, from property 'distance'
+window.sortFood = function(a, b) {
+    // a.sz & b.sz - size
+    // Divide distance by size so bigger food is prioritised over smaller food
+    return a.distance / a.sz - b.distance / b.sz;
 };
 
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
@@ -203,7 +208,7 @@ window.getSortedFood = function() {
     // Filters the nearest food by getting the distance
     return window.foods.filter(function(val) {
         return val !== null;
-    }).map(window.getDistanceFromMe).sort(window.sortObjects);
+    }).map(window.getDistanceFromMe).sort(window.sortFood);
 };
 
 // Sort enemies based on distance
@@ -211,7 +216,7 @@ window.getSortedEnemies = function() {
     // Filters the nearest food by getting the distance
     return window.snakes.filter(function(val) {
         return val !== null && val.id !== window.snake.id;
-    }).map(window.getDistanceFromMe).sort(window.sortObjects);
+    }).map(window.getDistanceFromMe).sort(window.sortEnemy);
 };
 
 // Draw dots on the canvas
