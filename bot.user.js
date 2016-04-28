@@ -12,7 +12,7 @@
 window.logDebugging = false;
 
 window.log = function() {
-    if (window.logDebugging === true) {
+    if (window.logDebugging) {
         console.log.apply(console, arguments);
     }
 };
@@ -308,7 +308,7 @@ window.loop = function() {
 };
 // First function called
 window.startInterval = function() {
-    if (window.playing === false && window.isBotEnabled === true && window.ranOnce === true) {
+    if (!window.playing && window.isBotEnabled && window.ranOnce) {
         window.connectBot();
         clearInterval(window.startInterval);
     }
