@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.3.5
+// @version      0.3.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -160,8 +160,8 @@ window.save = function(item, value) {
 
 // Load all variables from local storage
 window.load = function() {
-    if (window.localStorage.getItem("<item>") != null) {
-        var <item> = window.localStorage.getItem("<item>");
+    if (window.localStorage.getItem("item") !== null) {
+        var item = window.localStorage.getItem(item);
     }
 };
 
