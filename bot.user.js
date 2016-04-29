@@ -10,6 +10,7 @@
 // Functions needed for the bot
 // Custom logging function - disabled by default
 window.logDebugging = false;
+window.localStorage.setItem("edttsg", "1"); //Unblocks all skins without the need for FB sharing.
 
 window.log = function() {
     if (window.logDebugging) {
