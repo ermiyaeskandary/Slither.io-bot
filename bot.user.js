@@ -10,7 +10,8 @@
 // Functions needed for the bot
 // Custom logging function - disabled by default
 window.logDebugging = false;
-window.localStorage.setItem("edttsg", "1"); //Unblocks all skins without the need for FB sharing.
+// Unblocks all skins without the need for FB sharing.
+window.localStorage.setItem("edttsg", "1");
 
 window.log = function() {
     if (window.logDebugging) {
@@ -267,6 +268,11 @@ window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / w
 window.onFrameUpdate = function() {
     if(window.playing) {
         if(window.isBotRunning){
+            // Check to see if there is a position overlay
+            if (window.position_overlay) {
+            // Display the X and Y of the snake
+                window.position_overlay.textContent = 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0);
+            }
             var foodCoordinates = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
             foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
             foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
@@ -278,11 +284,6 @@ window.onFrameUpdate = function() {
                 foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
                 window.drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
             }
-        }
-        // Check to see if there is a position overlay
-        if (window.position_overlay) {
-            // Display the X and Y of the snake
-            window.position_overlay.textContent = 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0);
         }
     }
 };
