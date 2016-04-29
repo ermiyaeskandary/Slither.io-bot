@@ -153,6 +153,10 @@ window.connectBot = function() {
     }, 100);
 };
 
+window.save = function(item, value) {
+    window.localStorage.setItem(item, value);
+};
+
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
 
