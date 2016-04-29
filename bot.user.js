@@ -153,8 +153,16 @@ window.connectBot = function() {
     }, 100);
 };
 
+// Save variable to local storage
 window.save = function(item, value) {
     window.localStorage.setItem(item, value);
+};
+
+// Load all variables from local storage
+window.load = function() {
+    if (window.localStorage.getItem("<item>") != null) {
+        var <item> = window.localStorage.getItem("<item>");
+    }
 };
 
 // Save the original slither.io onkeydown function so we can add stuff to it
