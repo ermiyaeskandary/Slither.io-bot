@@ -22,6 +22,7 @@ Go to [slither.io](http://slither.io/), and enjoy !
 # Hotkeys
 
 * Press 'T' if you want to control the bot manually.
+* Press 'U' if you want to toggle debugging (console).
 
 # Contributing
 
