@@ -143,7 +143,13 @@ window.savePreference = function(item, value) {
 // Load all variables from local storage
 window.loadPreferences = function() {
     if (window.localStorage.getItem("logDebugging") !== null) {
-        window.logDebugging = window.localStorage.getItem("logDebugging");
+        window.logDebuggingSet = window.localStorage.getItem("logDebugging");
+        if (window.logDebuggingSet == "true") {
+            window.logDebugging = true;
+        }
+        else {
+            window.logDebugging = false;
+        }
         window.log("Setting found for debugging: " + window.logDebugging);
     }
 };
@@ -164,7 +170,7 @@ document.onkeydown = function(e) {
         }
     }
     // Letter 'U' to toggle debugging (console)
-    if (e.keyCode === 85) { 
+    if (e.keyCode === 85) {
         window.logDebugging = !window.logDebugging;
         console.log("Debugging set to: " + window.logDebugging);
         window.savePreference("logDebugging", window.logDebugging);
