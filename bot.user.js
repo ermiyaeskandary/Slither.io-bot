@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.3.7
+// @version      0.3.8
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
 // @grant        none
 // ==/UserScript==
 // Functions needed for the bot
-
+// Custom logging function - disabled by default
 window.log = function() {
     if (window.logDebugging) {
         console.log.apply(console, arguments);
@@ -93,22 +93,10 @@ window.setZoom = function(e) {
         window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
     }
 };
-
-// Overlays
-window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
-window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
-window.position_overlay = document.getElementById('position_overlay');
-// Listener for mouse wheel scroll - used for setZoom function
-document.body.addEventListener('mousewheel', window.setZoom);
-document.body.addEventListener('DOMMouseScroll', window.setZoom);
-
 // Get scaling ratio
 window.getScale = function() {
     return window.gsc;
 };
-
-
-
 // Save the original slither.io onmousemove function so we can re enable it back later
 window.mousemovelistener = window.onmousemove;
 
@@ -121,8 +109,6 @@ window.launchBot = function(d) {
     window.botInterval = setInterval(window.loop, d);
     return window.botInterval;
 };
-
-
 // Stops the bot
 window.stopBot = function() {
     window.log('Stopping Bot.');
@@ -161,10 +147,8 @@ window.loadPreferences = function() {
         window.log("Setting found for debugging: " + window.logDebugging);
     }
 };
-
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
-
 // Re write the function with our function
 document.onkeydown = function(e) {
     // Original slither.io onkeydown function + whatever is under it
@@ -187,7 +171,7 @@ document.onkeydown = function(e) {
 };
 // Sorting function for enemies, from property 'distance'
 window.sortEnemy = function(a, b) {
-    return a.distance - b.distance ;
+    return a.distance - b.distance;
 };
 // Sorting function for food, from property 'distance'
 window.sortFood = function(a, b) {
@@ -213,7 +197,7 @@ window.getDistance = function(x1, y1, x2, y2) {
     yDistance = yDistance < 0 ? yDistance * -1 : yDistance;
     //Add the coordinates of the vector to get a distance. Not the real distance, but reliable for distance comparison.
     var distance = xDistance + yDistance;
-    // Real distance but not needed. Here for reference
+    // Real distance but not needed. Here for reference -
     // var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
     return distance;
 };
@@ -258,20 +242,17 @@ window.drawLine = function(x2, y2, colour) {
 };
 // Save the original slither.io oef function so we can add things to it later
 window.oldOef = window.oef;
-
 window.oef = function() {
-    // Original slithee.io oef function + whatever is under it
+    // Original slither.io oef function + whatever is under it
     window.oldOef();
     window.onFrameUpdate();
 };
-
-window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / window.getWidth()];
 window.onFrameUpdate = function() {
-    if(window.playing) {
-        if(window.isBotRunning){
+    if (window.playing) {
+        if (window.isBotRunning) {
             // Check to see if there is a position overlay
             if (window.position_overlay) {
-            // Display the X and Y of the snake
+                // Display the X and Y of the snake
                 window.position_overlay.textContent = 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0);
             }
             var foodCoordinates = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
@@ -287,16 +268,6 @@ window.onFrameUpdate = function() {
             }
         }
     }
-};
-
-window.initBot = function() { // This is what we run to initialize the bot
-    window.ranOnce = false;
-    window.logDebugging = false; // Custom logging function - disabled by default
-    window.isBotRunning = false;
-    window.isBotEnabled = true;
-    window.localStorage.setItem("edttsg", "1"); // Unblocks all skins without the need for FB sharing.
-    window.loadPreferences();
-    window.launchBot(20);
 };
 /*
 window.isInFoods = function (foodObject) {
@@ -329,8 +300,8 @@ window.loop = function() {
         // Convert coordinates of the closest food using mapToMouse
         var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
         // if (window.closestEnemy.distance < 300) {
-            //window.log('close enemy! (distance = ' + window.closestEnemy.distance);
-            // !handle close enemies!
+        //window.log('close enemy! (distance = ' + window.closestEnemy.distance);
+        // !handle close enemies!
         // }
         // Set the mouse coordinates to the coordinates of the closest food
         window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
@@ -339,12 +310,29 @@ window.loop = function() {
         window.startInterval = setInterval(window.startInterval, 1000);
     }
 };
-// First function called
 window.startInterval = function() {
     if (!window.playing && window.isBotEnabled && window.ranOnce) {
         window.connectBot();
         clearInterval(window.startInterval);
     }
 };
-
+window.initBot = function() { // This is what we run to initialize the bot
+    window.ranOnce = false;
+    window.logDebugging = false;
+    window.isBotRunning = false;
+    window.isBotEnabled = true;
+    // Overlays
+    window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
+    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
+    window.position_overlay = document.getElementById('position_overlay');
+    // Listener for mouse wheel scroll - used for setZoom function
+    document.body.addEventListener('mousewheel', window.setZoom);
+    document.body.addEventListener('DOMMouseScroll', window.setZoom);
+    // Canvas Ratio
+    window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / window.getWidth()];
+    // Unblocks all skins without the need for FB sharing.
+    window.localStorage.setItem("edttsg", "1");
+    window.loadPreferences();
+    setInterval(window.startInterval(), 20);
+};
 window.initBot();
