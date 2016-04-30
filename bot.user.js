@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.3.8
+// @version      0.3.9
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -104,7 +104,7 @@ window.mousemovelistener = window.onmousemove;
 window.launchBot = function(d) {
     window.log('Starting Bot.');
     window.isBotRunning = true;
-    // Removed the onemousemove listener so we can move the snake manually by setting coordinates
+    // Removed the onmousemove listener so we can move the snake manually by setting coordinates
     window.onmousemove = function() {};
     window.botInterval = setInterval(window.loop, d);
     return window.botInterval;
@@ -334,6 +334,6 @@ window.initBot = function() { // This is what we run to initialize the bot
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem("edttsg", "1");
     window.loadPreferences();
-    setInterval(window.startInterval(), 20);
+    window.launchBot(50);
 };
 window.initBot();
