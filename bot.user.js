@@ -125,6 +125,7 @@ window.stopBot = function() {
 
 // Connects the bot
 window.connectBot = function() {
+    if (!autoRespawn) return;
     // Stop the bot
     window.stopBot();
     window.log('Connecting...');
@@ -160,6 +161,7 @@ window.loadPreference = function(preference) {
 window.loadPreferences = function() {
     window.loadPreference('logDebugging');
     window.loadPreference('visualDebugging');
+    window.loadPreference('autoRespawn');
 };
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
@@ -188,6 +190,12 @@ document.onkeydown = function(e) {
         window.visualDebugging = !window.visualDebugging;
         console.log('Visual debugging set to: ' + window.visualDebugging);
         window.savePreference('visualDebugging', window.visualDebugging);
+    }
+    // Letter 'I' to toggle Autorespawn
+    if (e.keyCode === 73) {
+        window.autoRespawn = !window.autoRespawn;
+        console.log('Automatic Respawning set to: ' + window.autoRespawn);
+        window.savePreference('autoRespawn', window.autoRespawn);
     }
 };
 // Sorting function for food, from property 'distance'
@@ -260,6 +268,7 @@ window.onFrameUpdate = function() {
     window.botstatus_overlay.textContent = '(T) Bot enabled: ' + window.isBotRunning.toString().toUpperCase();
     window.visualdebugging_overlay.textContent = '(Y) Visual debugging enabled: ' + window.visualDebugging.toString().toUpperCase();
     window.logdebugging_overlay.textContent = '(U) Log debugging enabled: ' + window.logDebugging.toString().toUpperCase();
+    window.autorespawn_overlay.textContent = '(I) Auto respawning enabled: ' + window.autoRespawn.toString().toUpperCase();
     // Drawing
     if (window.playing && visualDebugging) {
         if (window.isBotRunning) {
@@ -298,7 +307,9 @@ window.loop = function() {
         window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
 
     } else {
+        if (window.autoRespawn) {
         window.startInterval = setInterval(window.startInterval, 1000);
+        }
     }
 };
 window.startInterval = function() {
@@ -313,12 +324,14 @@ window.initBot = function() { // This is what we run to initialize the bot
     window.visualDebugging = false;
     window.isBotRunning = false;
     window.isBotEnabled = true;
+    window.autoRespawn = true;
     // Overlays
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
     window.appendDiv('botstatus_overlay', 'nsi', window.generalstyle + 'left: 30; top: 30px;');
     window.appendDiv('visualdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 45px;');
     window.appendDiv('logdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 60px;');
-    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 80px;');
+    window.appendDiv('autorespawn_overlay', 'nsi', window.generalstyle + 'left: 30; top: 75px;');
+    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 90px;');
     window.position_overlay = document.getElementById('position_overlay');
     window.botstatus_overlay = document.getElementById('botstatus_overlay');
     // Listener for mouse wheel scroll - used for setZoom function
