@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.4.1
+// @version      0.4.2
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -315,10 +315,10 @@ window.initBot = function() { // This is what we run to initialize the bot
     window.isBotEnabled = true;
     // Overlays
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
-    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
     window.appendDiv('botstatus_overlay', 'nsi', window.generalstyle + 'left: 30; top: 30px;');
     window.appendDiv('visualdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 45px;');
     window.appendDiv('logdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 60px;');
+    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 80px;');
     window.position_overlay = document.getElementById('position_overlay');
     window.botstatus_overlay = document.getElementById('botstatus_overlay');
     // Listener for mouse wheel scroll - used for setZoom function
