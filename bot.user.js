@@ -175,10 +175,6 @@ document.onkeydown = function(e) {
         window.savePreference("logDebugging", window.logDebugging);
     }
 };
-// Sorting function for enemies, from property 'distance'
-window.sortEnemy = function(a, b) {
-    return a.distance - b.distance;
-};
 // Sorting function for food, from property 'distance'
 window.sortFood = function(a, b) {
     // a.sz & b.sz - size
@@ -215,15 +211,6 @@ window.getSortedFood = function() {
         return val !== null;
     }).map(window.getDistanceFromMe).sort(window.sortFood);
 };
-
-// Sort enemies based on distance
-window.getSortedEnemies = function() {
-    // Filters the nearest food by getting the distance
-    return window.snakes.filter(function(val) {
-        return val !== null && val.id !== window.snake.id;
-    }).map(window.getDistanceFromMe).sort(window.sortEnemy);
-};
-
 // Draw dots on the canvas
 window.drawDot = function(x, y, radius, colour) {
     var context = window.mc.getContext('2d');
@@ -275,21 +262,6 @@ window.onFrameUpdate = function() {
         }
     }
 };
-/*
-window.isInFoods = function (foodObject) {
-    return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
-};
-window.currentFood = null;
-window.sortedFood = getSortedFood();
-window.loop = function () {
-    if (!isInFoods(currentFood)) {
-        window.sortedFood = getSortedFood();
-        window.currentFood = sortedFood[0];
-        var coordinatesOfClosestFood = window.mapToMouse(window.sortedFood[0].xx, window.sortedFood[0].yy);
-        window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
-    }
-};
-*/
 // Actual bot code
 
 // Loop for running the bot
@@ -299,16 +271,9 @@ window.loop = function() {
         window.ranOnce = true;
         // Sort the food and enemies based on their distance relative to player's snake
         window.sortedFood = window.getSortedFood();
-        // window.sortedEnemies = window.getSortedEnemies();
-        // Take the closest of each
-        // window.closestEnemy = window.sortedEnemies[0];
         window.currentFood = window.sortedFood[0];
         // Convert coordinates of the closest food using mapToMouse
         var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
-        // if (window.closestEnemy.distance < 300) {
-        //window.log('close enemy! (distance = ' + window.closestEnemy.distance);
-        // !handle close enemies!
-        // }
         // Set the mouse coordinates to the coordinates of the closest food
         window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
 
@@ -342,3 +307,40 @@ window.initBot = function() { // This is what we run to initialize the bot
     window.launchBot(50);
 };
 window.initBot();
+// Enemy code - not used for now
+/*
+// Sort enemies based on distance
+window.getSortedEnemies = function() {
+    Filters the nearest food by getting the distance
+    return window.snakes.filter(function(val) {
+        return val !== null && val.id !== window.snake.id;
+    }).map(window.getDistanceFromMe).sort(window.sortEnemy);
+};
+// Sorting function for enemies, from property 'distance'
+window.sortEnemy = function(a, b) {
+    return a.distance - b.distance;
+};
+        window.sortedEnemies = window.getSortedEnemies();
+        // Take the closest of each
+        window.closestEnemy = window.sortedEnemies[0];
+        if (window.closestEnemy.distance < 300) {
+        window.log('close enemy! (distance = ' + window.closestEnemy.distance);
+        // !handle close enemies!
+         }
+*/
+// Better food hunting algorithm but not implemented yet
+/*
+window.isInFoods = function (foodObject) {
+    return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
+};
+window.currentFood = null;
+window.sortedFood = getSortedFood();
+window.loop = function () {
+    if (!isInFoods(currentFood)) {
+        window.sortedFood = getSortedFood();
+        window.currentFood = sortedFood[0];
+        var coordinatesOfClosestFood = window.mapToMouse(window.sortedFood[0].xx, window.sortedFood[0].yy);
+        window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
+    }
+};
+*/
