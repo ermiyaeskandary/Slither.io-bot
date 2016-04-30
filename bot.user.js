@@ -99,7 +99,7 @@ window.getScale = function() {
 };
 // Snake length
 window.getSnakeLength = function() {
-    return (Math.floor(150 * (fpsls[snake.sct] + snake.fam / fmlts[snake.sct] - 1) - 50) / 10);
+    return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
 // Save the original slither.io onmousemove function so we can re enable it back later
 window.mousemovelistener = window.onmousemove;
@@ -146,14 +146,14 @@ window.savePreference = function(item, value) {
 
 // Load all variables from local storage
 window.loadPreferences = function() {
-    if (window.localStorage.getItem("logDebugging") !== null) {
-        if (window.localStorage.getItem("logDebugging") == "true") {
+    if (window.localStorage.getItem('logDebugging') !== null) {
+        if (window.localStorage.getItem('logDebugging') == 'true') {
             window.logDebugging = true;
         }
         else {
             window.logDebugging = false;
         }
-        window.log("Setting found for debugging: " + window.logDebugging);
+        window.log('Setting found for debugging: ' + window.logDebugging);
     }
 };
 // Save the original slither.io onkeydown function so we can add stuff to it
@@ -175,8 +175,8 @@ document.onkeydown = function(e) {
     // Letter 'U' to toggle debugging (console)
     if (e.keyCode === 85) {
         window.logDebugging = !window.logDebugging;
-        console.log("Debugging set to: " + window.logDebugging);
-        window.savePreference("logDebugging", window.logDebugging);
+        console.log('Debugging set to: ' + window.logDebugging);
+        window.savePreference('logDebugging', window.logDebugging);
     }
 };
 // Sorting function for food, from property 'distance'
@@ -306,7 +306,7 @@ window.initBot = function() { // This is what we run to initialize the bot
     // Canvas Ratio
     window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / window.getWidth()];
     // Unblocks all skins without the need for FB sharing.
-    window.localStorage.setItem("edttsg", "1");
+    window.localStorage.setItem('edttsg', '1');
     window.loadPreferences();
     window.launchBot(50);
 };
