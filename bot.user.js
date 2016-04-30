@@ -186,7 +186,7 @@ document.onkeydown = function(e) {
     // Letter 'Y' to toggle debugging (visual)
     if (e.keyCode === 89) {
         window.visualDebugging = !window.visualDebugging;
-        console.log('Visual debugging set to: ' + window.logDebugging);
+        console.log('Visual debugging set to: ' + window.visualDebugging);
         window.savePreference('visualDebugging', window.visualDebugging);
     }
 };
