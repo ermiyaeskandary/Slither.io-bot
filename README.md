@@ -21,8 +21,11 @@ Go to [slither.io](http://slither.io/), and enjoy !
 
 # Hotkeys
 
-* Press 'T' if you want to control the bot manually.
-* Press 'U' if you want to toggle debugging (console).
+Key | Result
+---|---
+T | Toggles bot enabled/disabled status.
+U | Toggles debugging (console).
+Mouse wheel | Zoom in/out
 
 # Contributing
 
