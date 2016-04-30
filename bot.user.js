@@ -145,16 +145,21 @@ window.savePreference = function(item, value) {
 };
 
 // Load all variables from local storage
-window.loadPreferences = function() {
-    if (window.localStorage.getItem('logDebugging') !== null) {
-        if (window.localStorage.getItem('logDebugging') == 'true') {
-            window.logDebugging = true;
+window.loadPreference = function(preference) {
+    if (window.localStorage.getItem(preference) !== null) {
+        if (window.localStorage.getItem(preference) == 'true') {
+            window[preference] = true;
         }
         else {
-            window.logDebugging = false;
+            window[preference] = false;
         }
-        window.log('Setting found for debugging: ' + window.logDebugging);
+        window.log('Setting found for ' + preference + ': ' + window[preference]);
     }
+};
+
+window.loadPreferences = function() {
+    window.loadPreference('logDebugging');
+    window.loadPreference('visualDebugging');
 };
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
@@ -175,8 +180,14 @@ document.onkeydown = function(e) {
     // Letter 'U' to toggle debugging (console)
     if (e.keyCode === 85) {
         window.logDebugging = !window.logDebugging;
-        console.log('Debugging set to: ' + window.logDebugging);
+        console.log('Log debugging set to: ' + window.logDebugging);
         window.savePreference('logDebugging', window.logDebugging);
+    }
+    // Letter 'Y' to toggle debugging (visual)
+    if (e.keyCode === 89) {
+        window.visualDebugging = !window.visualDebugging;
+        console.log('Visual debugging set to: ' + window.logDebugging);
+        window.savePreference('visualDebugging', window.visualDebugging);
     }
 };
 // Sorting function for food, from property 'distance'
@@ -245,7 +256,12 @@ window.oef = function() {
     window.onFrameUpdate();
 };
 window.onFrameUpdate = function() {
-    if (window.playing) {
+    // Botstatus overlay
+    window.botstatus_overlay.textContent = '(T) Bot enabled: ' + window.isBotRunning.toString().toUpperCase();
+    window.visualdebugging_overlay.textContent = '(Y) Visual debugging enabled: ' + window.visualDebugging.toString().toUpperCase();
+    window.logdebugging_overlay.textContent = '(U) Log debugging enabled: ' + window.logDebugging.toString().toUpperCase();
+    // Drawing
+    if (window.playing && visualDebugging) {
         if (window.isBotRunning) {
             // Check to see if there is a position overlay
             if (window.position_overlay) {
@@ -294,12 +310,17 @@ window.startInterval = function() {
 window.initBot = function() { // This is what we run to initialize the bot
     window.ranOnce = false;
     window.logDebugging = false;
+    window.visualDebugging = false;
     window.isBotRunning = false;
     window.isBotEnabled = true;
     // Overlays
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
+    window.appendDiv('botstatus_overlay', 'nsi', window.generalstyle + 'left: 30; top: 30px;');
+    window.appendDiv('visualdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 45px;');
+    window.appendDiv('logdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 60px;');
     window.position_overlay = document.getElementById('position_overlay');
+    window.botstatus_overlay = document.getElementById('botstatus_overlay');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
