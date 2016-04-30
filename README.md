@@ -34,7 +34,7 @@ Please contribute using [Github Flow](https://guides.github.com/introduction/flo
 # Authors
 Ermiya Eskandary & Théophile Cailliau (ErmiyaEskandary & FliiFe)
 
-Started as a collaborative project between me and Théophile on 2016/04/20, with this :
+Started as a collaborative and fun project between me and FliiFe on 2016/04/20, with this :
 > Slither.io bot could be cool
 
 # License
