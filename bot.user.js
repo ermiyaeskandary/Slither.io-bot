@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.3.9
+// @version      0.3.10
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -143,8 +143,7 @@ window.savePreference = function(item, value) {
 // Load all variables from local storage
 window.loadPreferences = function() {
     if (window.localStorage.getItem("logDebugging") !== null) {
-        window.logDebuggingSet = window.localStorage.getItem("logDebugging");
-        if (window.logDebuggingSet == "true") {
+        if (window.localStorage.getItem("logDebugging") == "true") {
             window.logDebugging = true;
         }
         else {
