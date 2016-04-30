@@ -97,6 +97,10 @@ window.setZoom = function(e) {
 window.getScale = function() {
     return window.gsc;
 };
+// Snake length
+window.getSnakeLength = function() {
+    return (Math.floor(150 * (fpsls[snake.sct] + snake.fam / fmlts[snake.sct] - 1) - 50) / 10);
+};
 // Save the original slither.io onmousemove function so we can re enable it back later
 window.mousemovelistener = window.onmousemove;
 
