@@ -1,17 +1,13 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.3.6
+// @version      0.3.7
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
 // @grant        none
 // ==/UserScript==
 // Functions needed for the bot
-// Custom logging function - disabled by default
-window.logDebugging = false;
-// Unblocks all skins without the need for FB sharing.
-window.localStorage.setItem("edttsg", "1");
 
 window.log = function() {
     if (window.logDebugging) {
@@ -111,8 +107,7 @@ window.getScale = function() {
     return window.gsc;
 };
 
-window.isBotRunning = false;
-window.isBotEnabled = true;
+
 
 // Save the original slither.io onmousemove function so we can re enable it back later
 window.mousemovelistener = window.onmousemove;
@@ -155,14 +150,15 @@ window.connectBot = function() {
 };
 
 // Save variable to local storage
-window.save = function(item, value) {
+window.savePreference = function(item, value) {
     window.localStorage.setItem(item, value);
 };
 
 // Load all variables from local storage
-window.load = function() {
-    if (window.localStorage.getItem("item") !== null) {
-        var item = window.localStorage.getItem(item);
+window.loadPreferences = function() {
+    if (window.localStorage.getItem("logDebugging") !== null) {
+        window.logDebugging = window.localStorage.getItem("logDebugging");
+        window.log("Setting found for debugging: " + window.logDebugging);
     }
 };
 
@@ -182,6 +178,11 @@ document.onkeydown = function(e) {
             window.launchBot(5);
             window.isBotEnabled = true;
         }
+    }
+    if (e.keyCode === 85) { // Letter 'u' to toggle console debug
+        window.logDebugging = !window.logDebugging;
+        console.log("Debugging set to: " + window.logDebugging);
+        window.savePreference("logDebugging", window.logDebugging);
     }
 };
 // Sorting function for enemies, from property 'distance'
@@ -288,6 +289,15 @@ window.onFrameUpdate = function() {
     }
 };
 
+window.initBot = function() { // This is what we run to initialize the bot
+    window.ranOnce = false;
+    window.logDebugging = false; // Custom logging function - disabled by default
+    window.isBotRunning = false;
+    window.isBotEnabled = true;
+    window.localStorage.setItem("edttsg", "1"); // Unblocks all skins without the need for FB sharing.
+    window.loadPreferences();
+    window.launchBot(20);
+};
 /*
 window.isInFoods = function (foodObject) {
     return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
@@ -304,7 +314,7 @@ window.loop = function () {
 };
 */
 // Actual bot code
-window.ranOnce = false;
+
 // Loop for running the bot
 window.loop = function() {
     // If the game and the bot are running
@@ -336,4 +346,5 @@ window.startInterval = function() {
         clearInterval(window.startInterval);
     }
 };
-window.launchBot();
+
+window.initBot();
