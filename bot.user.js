@@ -86,7 +86,7 @@ window.onresize = function() {
     // Canvas different size from the screen (often bigger). Gives a ratio so we can convert
     window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / window.getWidth()];
 };
-// Lets you zoom in and out using the mosue wheel
+// Lets you zoom in and out using the mouse wheel
 window.setZoom = function(e) {
     // Scaling ratio
     if (window.gsc) {
@@ -153,7 +153,7 @@ document.oldKeyDown = document.onkeydown;
 document.onkeydown = function(e) {
     // Original slither.io onkeydown function + whatever is under it
     document.oldKeyDown(e);
-    // If the letter 't' is pressed, check if the bot is running. If it is, stop the bot. If it isn't, start the bot.
+    // Letter `T` to toggle bot
     if (e.keyCode === 84) {
         if (window.isBotRunning) {
             window.stopBot();
@@ -163,7 +163,8 @@ document.onkeydown = function(e) {
             window.isBotEnabled = true;
         }
     }
-    if (e.keyCode === 85) { // Letter 'u' to toggle console debug
+    // Letter 'U' to toggle debugging (console)
+    if (e.keyCode === 85) { 
         window.logDebugging = !window.logDebugging;
         console.log("Debugging set to: " + window.logDebugging);
         window.savePreference("logDebugging", window.logDebugging);
