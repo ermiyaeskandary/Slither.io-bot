@@ -313,11 +313,11 @@ window.onFrameUpdate = function() {
         window.render_mode = 2;
     }
     // Botstatus overlay
-    window.botstatus_overlay.textContent = '(T) Bot enabled: ' + window.isBotRunning.toString().toUpperCase();
-    window.visualdebugging_overlay.textContent = '(Y) Visual debugging enabled: ' + window.visualDebugging.toString().toUpperCase();
-    window.logdebugging_overlay.textContent = '(U) Log debugging enabled: ' + window.logDebugging.toString().toUpperCase();
-    window.autorespawn_overlay.textContent = '(I) Auto respawning enabled: ' + window.autoRespawn.toString().toUpperCase();
-    window.rendermode_overlay.textContent = '(O) Mobile rendering: ' + window.mobileRender.toString().toUpperCase();
+    window.botstatus_overlay.textContent = '(T) Bot ' + (window.isBotRunning?'enabled':'disabled');
+    window.visualdebugging_overlay.textContent = '(Y) Visual debugging ' + (window.visualDebugging?'enabled':'disabled');
+    window.logdebugging_overlay.textContent = '(U) Log debugging ' + (window.logDebugging?'enabled':'disabled');
+    window.autorespawn_overlay.textContent = '(I) Auto respawning ' + (window.autoRespawn?'enabled':'disabled');
+    window.rendermode_overlay.textContent = '(O) Mobile rendering ' + (window.mobileRender?'enabled':'disabled');
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
@@ -382,7 +382,7 @@ window.loop = function() {
 };
 // Starts bot
 window.startBot = function() {
-    if (window.autoRespawn && !window.playing && window.isBotEnabled && window.ranOnce) {
+    if (window.autoRespawn && !window.playing && window.isBotEnabled && window.ranOnce && !window.isBotRunning) {
         window.connectBot();
         //clearInterval(window.startInterval);
     }
