@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.4.8
+// @version      0.4.9
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -251,6 +251,13 @@ window.getAngleFromObject = function(object){
     var x = object.xx-window.getX();
     var y = object.yy-window.getY();
     return Math.atan(x/y);
+};
+
+// Polar angle to Cartesian angles
+window.getCoordsFromAngle = function(angle){
+    var x = Math.cos(angle)*100;
+    var y = Math.sin(angle)*100;
+    return [x,y];
 };
 
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
