@@ -57,7 +57,7 @@ window.appendDiv = function(id, className, style) {
 // Saves username when you click on "Play" button
 window.play_btn.btnf.addEventListener('click', function(){
     var nick = document.getElementById('nick').value;
-    window.savePreference('nick', nick);
+    window.savePreference('savedNick', nick);
 });
 
 // Set fake mouse coordinates
