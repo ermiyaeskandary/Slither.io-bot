@@ -53,6 +53,13 @@ window.appendDiv = function(id, className, style) {
     // Append the div to the page
     document.body.appendChild(div);
 };
+
+// Saves username when you click on "Play" button
+window.play_btn.btnf.addEventListener('click', function(e){
+    var nick = document.getElementById('nick').value;
+    window.savePreference('nick', nick);
+});
+
 // Set fake mouse coordinates
 window.setMouseCoordinates = function(x, y) {
     window.xm = x;
@@ -187,6 +194,8 @@ window.loadPreferences = function() {
     window.loadPreference('visualDebugging');
     window.loadPreference('autoRespawn');
     window.loadPreference('mobileRender');
+    localStorage.nick = (localStorage.nick === undefined)?'':localStorage.nick;
+    document.getElementById('nick').value = localStorage.getItem('nick');
 };
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
