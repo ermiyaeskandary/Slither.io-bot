@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.4.5
+// @version      0.4.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -95,7 +95,7 @@ window.setZoom = function(e) {
 };
 // Set background - default is slither.io's own background
 function setBackground(url = '/s/bg45.jpg') {
-	ii.src = url;
+    ii.src = url;
 }
 // Get scaling ratio
 window.getScale = function() {
@@ -205,11 +205,9 @@ document.onkeydown = function(e) {
         if (window.mobileRender) {
             setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
             render_mode = 1;
-            
         } else {
             setBackground();
             render_mode = 2;
-            
         }
     }
 };
@@ -218,6 +216,10 @@ window.sortFood = function(a, b) {
     // a.sz & b.sz - size
     // Divide distance by size so bigger food is prioritised over smaller food
     return a.distance / a.sz - b.distance / b.sz;
+};
+// Sorting function for prey, from property 'distance'
+window.sortPrey = function(a, b) {
+    return a.distance - b.distance;
 };
 
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
@@ -248,6 +250,13 @@ window.getSortedFood = function() {
     return window.foods.filter(function(val) {
         return val !== null;
     }).map(window.getDistanceFromMe).sort(window.sortFood);
+};
+// Sort prey based on distance
+window.getSortedPrey = function() {
+    // Filters the nearest food by getting the distance
+    return window.preys.filter(function(val) {
+        return val !== null;
+    }).map(window.getDistanceFromMe).sort(window.sortPrey);
 };
 // Draw dots on the canvas
 window.drawDot = function(x, y, radius, colour) {
@@ -284,7 +293,7 @@ window.onFrameUpdate = function() {
     window.visualdebugging_overlay.textContent = '(Y) Visual debugging enabled: ' + window.visualDebugging.toString().toUpperCase();
     window.logdebugging_overlay.textContent = '(U) Log debugging enabled: ' + window.logDebugging.toString().toUpperCase();
     window.autorespawn_overlay.textContent = '(I) Auto respawning enabled: ' + window.autoRespawn.toString().toUpperCase();
-    window.rendermode_overlay.textContent = '(O) Mobile render: ' + window.mobileRender.toString().toUpperCase();
+    window.rendermode_overlay.textContent = '(O) Mobile rendering: ' + window.mobileRender.toString().toUpperCase();
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
@@ -314,14 +323,32 @@ window.loop = function() {
     // If the game and the bot are running
     if (window.playing && window.isBotEnabled) {
         window.ranOnce = true;
-        // Sort the food and enemies based on their distance relative to player's snake
+        // Sort the food based on their distance relative to player's snake
         window.sortedFood = window.getSortedFood();
+        // Current food
         window.currentFood = window.sortedFood[0];
         // Convert coordinates of the closest food using mapToMouse
         var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
-        // Set the mouse coordinates to the coordinates of the closest food
-        window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
-
+        window.goalCoordinates = coordinatesOfClosestFood;
+        // Disable Sprint
+        setAcceleration(0);
+        // Check for preys, enough "length"
+        if (preys.length > 0 && getSnakeLength() > 20) {
+            // Sort preys based on their distance relative to player's snake
+            window.sortedPrey = window.getSortedPrey();
+            // Current prey
+            window.currentPrey = window.sortedPrey[0];
+            // Convert coordinates of the closest prey using mapToMouse
+            var coordinatesOfClosestPrey = window.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
+            // Check for the distance
+            if (currentPrey.distance < 1500) {
+                // Set the mouse coordinates to the coordinates of the closest prey
+                window.goalCoordinates = coordinatesOfClosestPrey;
+                // "Sprint" enabled
+                setAcceleration(1);
+            }
+        }
+        window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
     } else {
         if (window.autoRespawn) {
             window.startInterval = setInterval(window.startInterval, 1000);
@@ -363,38 +390,38 @@ window.initBot = function() { // This is what we run to initialize the bot
 window.initBot();
 // Enemy code - not used for now
 /*
-// Sort enemies based on distance
-window.getSortedEnemies = function() {
-    Filters the nearest food by getting the distance
-    return window.snakes.filter(function(val) {
-        return val !== null && val.id !== window.snake.id;
-    }).map(window.getDistanceFromMe).sort(window.sortEnemy);
-};
-// Sorting function for enemies, from property 'distance'
-window.sortEnemy = function(a, b) {
-    return a.distance - b.distance;
-};
-        window.sortedEnemies = window.getSortedEnemies();
-        // Take the closest of each
-        window.closestEnemy = window.sortedEnemies[0];
-        if (window.closestEnemy.distance < 300) {
-        window.log('close enemy! (distance = ' + window.closestEnemy.distance);
-        // !handle close enemies!
-         }
-*/
+        // Sort enemies based on distance
+        window.getSortedEnemies = function() {
+            Filters the nearest food by getting the distance
+            return window.snakes.filter(function(val) {
+                return val !== null && val.id !== window.snake.id;
+            }).map(window.getDistanceFromMe).sort(window.sortEnemy);
+        };
+        // Sorting function for enemies, from property 'distance'
+        window.sortEnemy = function(a, b) {
+            return a.distance - b.distance;
+        };
+                window.sortedEnemies = window.getSortedEnemies();
+                // Take the closest of each
+                window.closestEnemy = window.sortedEnemies[0];
+                if (window.closestEnemy.distance < 300) {
+                window.log('close enemy! (distance = ' + window.closestEnemy.distance);
+                // !handle close enemies!
+                 }
+        */
 // Better food hunting algorithm but not implemented yet
 /*
-window.isInFoods = function (foodObject) {
-    return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
-};
-window.currentFood = null;
-window.sortedFood = getSortedFood();
-window.loop = function () {
-    if (!isInFoods(currentFood)) {
+        window.isInFoods = function (foodObject) {
+            return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
+        };
+        window.currentFood = null;
         window.sortedFood = getSortedFood();
-        window.currentFood = sortedFood[0];
-        var coordinatesOfClosestFood = window.mapToMouse(window.sortedFood[0].xx, window.sortedFood[0].yy);
-        window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
-    }
-};
-*/
+        window.loop = function () {
+            if (!isInFoods(currentFood)) {
+                window.sortedFood = getSortedFood();
+                window.currentFood = sortedFood[0];
+                var coordinatesOfClosestFood = window.mapToMouse(window.sortedFood[0].xx, window.sortedFood[0].yy);
+                window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
+            }
+        };
+        */
