@@ -352,7 +352,7 @@ window.loop = function() {
         var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
         window.goalCoordinates = coordinatesOfClosestFood;
         // Disable Sprint
-        setAcceleration(0);
+        window.setAcceleration(0);
         // Check for preys, enough "length"
         if (window.preys.length > 0 && window.getSnakeLength() > 100) {
             // Sort preys based on their distance relative to player's snake
@@ -366,17 +366,18 @@ window.loop = function() {
                 // Set the mouse coordinates to the coordinates of the closest prey
                 window.goalCoordinates = coordinatesOfClosestPrey;
                 // "Sprint" enabled
-                setAcceleration(1);
+                window.setAcceleration(1);
             }
         }
         window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
     } else {
-        if (window.autoRespawn) {
-            window.startInterval = setInterval(window.startInterval, 1000);
+        if (window.autoRespawn && window.ranOnce) {
+            //window.startInterval = setInterval(window.startBot, 1000);
+            window.stopBot();
         }
     }
 };
-window.startInterval = function() {
+window.startBot = function() {
     if (!window.playing && window.isBotEnabled && window.ranOnce) {
         window.connectBot();
         clearInterval(window.startInterval);
@@ -410,6 +411,7 @@ window.initBot = function() { // This is what we run to initialize the bot
     // Start!
     window.loadPreferences();
     window.launchBot(50);
+    window.startInterval = setInterval(window.startBot, 1000);
 };
 window.initBot();
 // Enemy code - not used for now
