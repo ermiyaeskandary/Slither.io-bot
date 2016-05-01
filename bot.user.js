@@ -55,7 +55,7 @@ window.appendDiv = function(id, className, style) {
 };
 
 // Saves username when you click on "Play" button
-window.play_btn.btnf.addEventListener('click', function(e){
+window.play_btn.btnf.addEventListener('click', function(){
     var nick = document.getElementById('nick').value;
     window.savePreference('nick', nick);
 });
@@ -245,6 +245,14 @@ window.sortFood = function(a, b) {
 window.sortPrey = function(a, b) {
     return a.distance - b.distance;
 };
+
+// Convert object coordinates to radians
+window.getAngleFromObject = function(object){
+    var x = object.xx-window.getX();
+    var y = object.yy-window.getY();
+    return Math.atan(x/y);
+};
+
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
 window.getDistanceFromMe = function(point) {
     if (point === null) return null;
