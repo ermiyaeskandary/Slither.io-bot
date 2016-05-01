@@ -23,8 +23,11 @@ Go to [slither.io](http://slither.io/), and enjoy !
 
 Key | Result
 ---|---
-T | Toggles bot enabled/disabled status.
-U | Toggles debugging (console).
+T | Bot enabled/disabled
+U | Log debugging
+Y | Visual debugging
+I | Automatic Respawning
+O | Mobile rendering
 Mouse wheel | Zoom in/out
 
 # Contributing
