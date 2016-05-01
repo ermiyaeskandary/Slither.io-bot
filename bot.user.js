@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.4.4
+// @version      0.4.5
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -93,6 +93,10 @@ window.setZoom = function(e) {
         window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
     }
 };
+// Set background - default is slither.io's own background
+function setBackground(url = '/s/bg45.jpg') {
+	ii.src = url;
+}
 // Get scaling ratio
 window.getScale = function() {
     return window.gsc;
@@ -196,9 +200,17 @@ document.onkeydown = function(e) {
     // Letter 'O' to change rendermode (visual)
     if (e.keyCode === 79) {
         window.mobileRender = !window.mobileRender;
-        console.log('Mobile render set to: ' + window.mobileRender);
+        console.log('Mobile rendering set to: ' + window.mobileRender);
         window.savePreference('mobileRender', window.mobileRender);
-        if (window.mobileRender) {render_mode = 1;} else {render_mode = 2;}
+        if (window.mobileRender) {
+            setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+            render_mode = 1;
+            
+        } else {
+            setBackground();
+            render_mode = 2;
+            
+        }
     }
 };
 // Sorting function for food, from property 'distance'
