@@ -67,14 +67,14 @@ window.setMouseCoordinates = function(x, y) {
 };
 // Coordinates relative to the center (snake position).
 window.mouseRelativeToCenter = function(x, y) {
-    var mapX = x - window.getHeight() / 2;
-    var mapY = y - window.getWidth() / 2;
+    var mapX = x - window.getWidth() / 2;
+    var mapY = y - window.getHeight() / 2;
     return [mapX, mapY];
 };
 // Mouse coordinates to screen coordinates
 window.mouseToScreen = function(x, y) {
-    var screenX = x + (window.getHeight() / 2);
-    var screenY = y + (window.getWidth() / 2);
+    var screenX = x + (window.getWidth() / 2);
+    var screenY = y + (window.getHeight() / 2);
     return [screenX, screenY];
 };
 // Screen to canvas coordinates
@@ -109,7 +109,7 @@ window.getY = function() {
 window.onresize = function() {
     window.resize();
     // Canvas different size from the screen (often bigger). Gives a ratio so we can convert
-    window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / window.getWidth()];
+    window.canvasRatio = [window.mc.width / window.getWidth(), window.mc.height / window.getHeight()];
 };
 // Lets you zoom in and out using the mouse wheel
 window.setZoom = function(e) {
@@ -351,7 +351,7 @@ window.onFrameUpdate = function() {
             foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
             foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
             window.drawLine(foodCoordinates[0], foodCoordinates[1], 'green');
-            for (var i = 0; i < 1; i++) {
+            for (var i = 0; i < window.sortedFood.length; i++) {
                 var item = window.sortedFood[i];
                 foodCoordinates = window.mapToMouse(item.xx, item.yy);
                 foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
@@ -431,7 +431,7 @@ window.initBot = function() {
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
     // Canvas Ratio
-    window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / window.getWidth()];
+    window.canvasRatio = [window.mc.width / window.getWidth(), window.mc.height / window.getHeight()];
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
     // Remove social
