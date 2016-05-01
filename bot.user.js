@@ -151,8 +151,11 @@ window.savePreference = function(item, value) {
 
 // Load all variables from local storage
 window.loadPreference = function(preference) {
-    if (window.localStorage.getItem(preference) !== null) {
-        window[preference] = window.localStorage.getItem(preference);
+    var savedItem = window.localStorage.getItem(preference);
+    if (savedItem !== null) {
+        if (savedItem == 'true') {window[preference] = true;}
+        else if (savedItem == 'false') {window[preference] = false;}
+        else {window[preference] = savedItem;}
         window.log('Setting found for ' + preference + ': ' + window[preference]);
     }
 };
@@ -202,13 +205,6 @@ document.onkeydown = function(e) {
         window.mobileRender = !window.mobileRender;
         console.log('Mobile rendering set to: ' + window.mobileRender);
         window.savePreference('mobileRender', window.mobileRender);
-        if (window.mobileRender) {
-            setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
-            render_mode = 1;
-        } else {
-            setBackground();
-            render_mode = 2;
-        }
     }
 };
 // Sorting function for food, from property 'distance'
@@ -288,6 +284,14 @@ window.oef = function() {
     window.onFrameUpdate();
 };
 window.onFrameUpdate = function() {
+    // Set render mode
+    if (window.mobileRender) {
+        setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+        render_mode = 1;
+    } else {
+        setBackground();
+        render_mode = 2;
+    }
     // Botstatus overlay
     window.botstatus_overlay.textContent = '(T) Bot enabled: ' + window.isBotRunning.toString().toUpperCase();
     window.visualdebugging_overlay.textContent = '(Y) Visual debugging enabled: ' + window.visualDebugging.toString().toUpperCase();
