@@ -175,7 +175,7 @@ window.savePreference = function(item, value) {
 };
 
 // Load a variable from local storage
-window.loadPreference = function(preference) {
+window.loadPreference = function(preference, defaultVar) {
     var savedItem = window.localStorage.getItem(preference);
     if (savedItem !== null) {
         if (savedItem == 'true') {
@@ -187,16 +187,13 @@ window.loadPreference = function(preference) {
         }
         window.log('Setting found for ' + preference + ': ' + window[preference]);
     }
+    else {
+        window[preference] = defaultVar;
+        window.log('No setting found for ' + preference + '. Used default: ' + window[preference]);
+    }
+    return window[preference];
 };
-// Loads all variables from local storage
-window.loadPreferences = function() {
-    window.loadPreference('logDebugging');
-    window.loadPreference('visualDebugging');
-    window.loadPreference('autoRespawn');
-    window.loadPreference('mobileRender');
-    localStorage.nick = (localStorage.nick === undefined)?'':localStorage.nick;
-    document.getElementById('nick').value = localStorage.getItem('nick');
-};
+
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
 // Re write the function with our function
@@ -399,12 +396,14 @@ window.startBot = function() {
 // Initialises the bot
 window.initBot = function() {
     window.ranOnce = false;
-    window.logDebugging = false;
-    window.visualDebugging = false;
-    window.autoRespawn = true;
-    window.mobileRender = false;
     window.isBotRunning = false;
     window.isBotEnabled = true;
+    // Load preferences
+    window.loadPreference('logDebugging', false);
+    window.loadPreference('visualDebugging', false);
+    window.loadPreference('autoRespawn', true);
+    window.loadPreference('mobileRender', false);
+    window.nick.value = window.loadPreference('savedNick', 'SuperBot!');
     // Overlays
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
     window.appendDiv('botstatus_overlay', 'nsi', window.generalstyle + 'left: 30; top: 30px;');
@@ -423,7 +422,6 @@ window.initBot = function() {
     // Remove social
     window.social.remove();
     // Start!
-    window.loadPreferences();
     window.launchBot(50);
     window.startInterval = setInterval(window.startBot, 1000);
 };
