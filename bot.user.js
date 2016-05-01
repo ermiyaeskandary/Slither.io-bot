@@ -287,10 +287,10 @@ window.onFrameUpdate = function() {
     // Set render mode
     if (window.mobileRender) {
         setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
-        window.render_mode = 1;
+        render_mode = 1;
     } else {
         setBackground();
-        window.render_mode = 2;
+        render_mode = 2;
     }
     // Botstatus overlay
     window.botstatus_overlay.textContent = '(T) Bot enabled: ' + window.isBotRunning.toString().toUpperCase();
