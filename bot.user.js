@@ -374,7 +374,7 @@ window.loop = function() {
         }
         window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
     } else {
-        if (window.autoRespawn && window.ranOnce) {
+        if (window.ranOnce) {
             //window.startInterval = setInterval(window.startBot, 1000);
             window.stopBot();
         }
@@ -382,9 +382,9 @@ window.loop = function() {
 };
 // Starts bot
 window.startBot = function() {
-    if (!window.playing && window.isBotEnabled && window.ranOnce) {
+    if (window.autoRespawn && !window.playing && window.isBotEnabled && window.ranOnce) {
         window.connectBot();
-        clearInterval(window.startInterval);
+        //clearInterval(window.startInterval);
     }
 };
 // Initialises the bot
@@ -419,6 +419,7 @@ window.initBot = function() {
     window.startInterval = setInterval(window.startBot, 1000);
 };
 window.initBot();
+
 // Enemy code - not used for now
 /*
         // Sort enemies based on distance
