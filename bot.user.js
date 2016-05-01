@@ -95,7 +95,7 @@ window.setZoom = function(e) {
 };
 // Set background - default is slither.io's own background
 function setBackground(url = '/s/bg45.jpg') {
-    ii.src = url;
+    window.ii.src = url;
 }
 // Get scaling ratio
 window.getScale = function() {
@@ -129,7 +129,7 @@ window.stopBot = function() {
 
 // Connects the bot
 window.connectBot = function() {
-    if (!autoRespawn) return;
+    if (!window.autoRespawn) return;
     // Stop the bot
     window.stopBot();
     window.log('Connecting...');
@@ -287,10 +287,10 @@ window.onFrameUpdate = function() {
     // Set render mode
     if (window.mobileRender) {
         setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
-        render_mode = 1;
+        window.render_mode = 1;
     } else {
         setBackground();
-        render_mode = 2;
+        window.render_mode = 2;
     }
     // Botstatus overlay
     window.botstatus_overlay.textContent = '(T) Bot enabled: ' + window.isBotRunning.toString().toUpperCase();
@@ -335,9 +335,9 @@ window.loop = function() {
         var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
         window.goalCoordinates = coordinatesOfClosestFood;
         // Disable Sprint
-        setAcceleration(0);
+        window.setAcceleration(0);
         // Check for preys, enough "length"
-        if (preys.length > 0 && getSnakeLength() > 20) {
+        if (window.preys.length > 0 && window.getSnakeLength() > 20) {
             // Sort preys based on their distance relative to player's snake
             window.sortedPrey = window.getSortedPrey();
             // Current prey
@@ -345,11 +345,11 @@ window.loop = function() {
             // Convert coordinates of the closest prey using mapToMouse
             var coordinatesOfClosestPrey = window.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
             // Check for the distance
-            if (currentPrey.distance < 1500) {
+            if (window.currentPrey.distance < 1500) {
                 // Set the mouse coordinates to the coordinates of the closest prey
                 window.goalCoordinates = coordinatesOfClosestPrey;
                 // "Sprint" enabled
-                setAcceleration(1);
+                window.setAcceleration(1);
             }
         }
         window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
