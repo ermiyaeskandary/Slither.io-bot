@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.4.7
+// @version      0.4.8
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -70,6 +70,7 @@ window.mouseToScreen = function(x, y) {
     var screenY = y + (window.getWidth() / 2);
     return [screenX, screenY];
 };
+// Screen to canvas coordinates
 window.screenToCanvas = function(x, y) {
     var canvasX = window.csc * (x * window.canvasRatio[0]) - parseInt(window.mc.style.left);
     var canvasY = window.csc * (y * window.canvasRatio[1]) - parseInt(window.mc.style.top);
@@ -166,17 +167,21 @@ window.savePreference = function(item, value) {
     window.localStorage.setItem(item, value);
 };
 
-// Load all variables from local storage
+// Load a variable from local storage
 window.loadPreference = function(preference) {
     var savedItem = window.localStorage.getItem(preference);
     if (savedItem !== null) {
-        if (savedItem == 'true') {window[preference] = true;}
-        else if (savedItem == 'false') {window[preference] = false;}
-        else {window[preference] = savedItem;}
+        if (savedItem == 'true') {
+            window[preference] = true;
+        } else if (savedItem == 'false') {
+            window[preference] = false;
+        } else {
+            window[preference] = savedItem;
+        }
         window.log('Setting found for ' + preference + ': ' + window[preference]);
     }
 };
-
+// Loads all variables from local storage
 window.loadPreferences = function() {
     window.loadPreference('logDebugging');
     window.loadPreference('visualDebugging');
@@ -211,7 +216,7 @@ document.onkeydown = function(e) {
         console.log('Visual debugging set to: ' + window.visualDebugging);
         window.savePreference('visualDebugging', window.visualDebugging);
     }
-    // Letter 'I' to toggle Autorespawn
+    // Letter 'I' to toggle autorespawn
     if (e.keyCode === 73) {
         window.autoRespawn = !window.autoRespawn;
         console.log('Automatic Respawning set to: ' + window.autoRespawn);
@@ -234,14 +239,12 @@ window.sortFood = function(a, b) {
 window.sortPrey = function(a, b) {
     return a.distance - b.distance;
 };
-
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
 window.getDistanceFromMe = function(point) {
     if (point === null) return null;
     point.distance = window.getDistance(window.getX(), window.getY(), point.xx, point.yy);
     return point;
 };
-
 // Get a distance from point (x1; y1) to point (x2; y2).
 window.getDistance = function(x1, y1, x2, y2) {
     // Calculate the vector coordinates.
@@ -377,13 +380,15 @@ window.loop = function() {
         }
     }
 };
+// Starts bot
 window.startBot = function() {
     if (!window.playing && window.isBotEnabled && window.ranOnce) {
         window.connectBot();
         clearInterval(window.startInterval);
     }
 };
-window.initBot = function() { // This is what we run to initialize the bot
+// Initialises the bot
+window.initBot = function() {
     window.ranOnce = false;
     window.logDebugging = false;
     window.visualDebugging = false;
