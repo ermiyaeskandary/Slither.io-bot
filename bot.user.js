@@ -388,6 +388,9 @@ window.initBot = function() { // This is what we run to initialize the bot
     window.canvasRatio = [window.mc.height / window.getHeight(), window.mc.width / window.getWidth()];
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
+    // Remove social
+    window.social.remove();
+    // Start!
     window.loadPreferences();
     window.launchBot(50);
 };
