@@ -351,13 +351,7 @@ window.onFrameUpdate = function() {
             foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
             foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
             window.drawLine(foodCoordinates[0], foodCoordinates[1], 'green');
-            for (var i = 0; i < window.sortedFood.length; i++) {
-                var item = window.sortedFood[i];
-                foodCoordinates = window.mapToMouse(item.xx, item.yy);
-                foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
-                foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
-                window.drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
-            }
+            window.drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
         }
     }
 };
