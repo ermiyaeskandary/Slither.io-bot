@@ -273,6 +273,9 @@ window.getSortedEnemies = function() {
 window.sortEnemy = function(a, b) {
     return a.distance - b.distance;
 };
+window.turnAround = function() {
+    // Boilerplate function
+}
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
 window.getDistanceFromMe = function(point) {
     if (point === null) return null;
