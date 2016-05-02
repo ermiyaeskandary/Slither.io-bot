@@ -230,6 +230,14 @@ document.onkeydown = function(e) {
         window.mobileRender = !window.mobileRender;
         console.log('Mobile rendering set to: ' + window.mobileRender);
         window.savePreference('mobileRender', window.mobileRender);
+        // Set render mode
+        if (window.mobileRender) {
+            setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+            window.render_mode = 1;
+        } else {
+            setBackground();
+            window.render_mode = 2;
+        }
     }
 };
 // Sorting function for food, from property 'distance'
@@ -323,14 +331,6 @@ window.oef = function() {
     window.onFrameUpdate();
 };
 window.onFrameUpdate = function() {
-    // Set render mode
-    if (window.mobileRender) {
-        setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
-        window.render_mode = 1;
-    } else {
-        setBackground();
-        window.render_mode = 2;
-    }
     // Botstatus overlay
     window.botstatus_overlay.textContent = '(T) Bot ' + (window.isBotRunning?'enabled':'disabled');
     window.visualdebugging_overlay.textContent = '(Y) Visual debugging ' + (window.visualDebugging?'enabled':'disabled');
@@ -422,6 +422,14 @@ window.initBot = function() {
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
+    // Set render mode
+    if (window.mobileRender) {
+        setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+        window.render_mode = 1;
+    } else {
+        setBackground();
+        window.render_mode = 2;
+    }
     // Canvas Ratio
     window.canvasRatio = [window.mc.width / window.getWidth(), window.mc.height / window.getHeight()];
     // Unblocks all skins without the need for FB sharing.
