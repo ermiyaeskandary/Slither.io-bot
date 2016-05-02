@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.5.0
+// @version      0.5.1
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -416,9 +416,9 @@ window.initBot = function() {
     // Load preferences
     window.loadPreference('logDebugging', false);
     window.loadPreference('visualDebugging', false);
-    window.loadPreference('autoRespawn', true);
+    window.loadPreference('autoRespawn', false);
     window.loadPreference('mobileRender', false);
-    window.nick.value = window.loadPreference('savedNick', 'SuperBot!');
+    window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
     // Overlays
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
     window.appendDiv('botstatus_overlay', 'nsi', window.generalstyle + 'left: 30; top: 30px;');
