@@ -197,46 +197,48 @@ document.oldKeyDown = document.onkeydown;
 document.onkeydown = function(e) {
     // Original slither.io onkeydown function + whatever is under it
     document.oldKeyDown(e);
-    // Letter `T` to toggle bot
-    if (e.keyCode === 84) {
-        if (window.isBotRunning) {
-            window.stopBot();
-            window.isBotEnabled = false;
-        } else {
-            window.launchBot(5);
-            window.isBotEnabled = true;
+    if (document.activeElement.parentElement !== window.nick_holder) {
+        // Letter `T` to toggle bot
+        if (e.keyCode === 84) {
+            if (window.isBotRunning) {
+                window.stopBot();
+                window.isBotEnabled = false;
+            } else {
+                window.launchBot(5);
+                window.isBotEnabled = true;
+            }
         }
-    }
-    // Letter 'U' to toggle debugging (console)
-    if (e.keyCode === 85) {
-        window.logDebugging = !window.logDebugging;
-        console.log('Log debugging set to: ' + window.logDebugging);
-        window.savePreference('logDebugging', window.logDebugging);
-    }
-    // Letter 'Y' to toggle debugging (visual)
-    if (e.keyCode === 89) {
-        window.visualDebugging = !window.visualDebugging;
-        console.log('Visual debugging set to: ' + window.visualDebugging);
-        window.savePreference('visualDebugging', window.visualDebugging);
-    }
-    // Letter 'I' to toggle autorespawn
-    if (e.keyCode === 73) {
-        window.autoRespawn = !window.autoRespawn;
-        console.log('Automatic Respawning set to: ' + window.autoRespawn);
-        window.savePreference('autoRespawn', window.autoRespawn);
-    }
-    // Letter 'O' to change rendermode (visual)
-    if (e.keyCode === 79) {
-        window.mobileRender = !window.mobileRender;
-        console.log('Mobile rendering set to: ' + window.mobileRender);
-        window.savePreference('mobileRender', window.mobileRender);
-        // Set render mode
-        if (window.mobileRender) {
-            setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
-            window.render_mode = 1;
-        } else {
-            setBackground();
-            window.render_mode = 2;
+        // Letter 'U' to toggle debugging (console)
+        if (e.keyCode === 85) {
+            window.logDebugging = !window.logDebugging;
+            console.log('Log debugging set to: ' + window.logDebugging);
+            window.savePreference('logDebugging', window.logDebugging);
+        }
+        // Letter 'Y' to toggle debugging (visual)
+        if (e.keyCode === 89) {
+            window.visualDebugging = !window.visualDebugging;
+            console.log('Visual debugging set to: ' + window.visualDebugging);
+            window.savePreference('visualDebugging', window.visualDebugging);
+        }
+        // Letter 'I' to toggle autorespawn
+        if (e.keyCode === 73) {
+            window.autoRespawn = !window.autoRespawn;
+            console.log('Automatic Respawning set to: ' + window.autoRespawn);
+            window.savePreference('autoRespawn', window.autoRespawn);
+        }
+        // Letter 'O' to change rendermode (visual)
+        if (e.keyCode === 79) {
+            window.mobileRender = !window.mobileRender;
+            console.log('Mobile rendering set to: ' + window.mobileRender);
+            window.savePreference('mobileRender', window.mobileRender);
+            // Set render mode
+            if (window.mobileRender) {
+                setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+                window.render_mode = 1;
+            } else {
+                setBackground();
+                window.render_mode = 2;
+            }
         }
     }
 };
