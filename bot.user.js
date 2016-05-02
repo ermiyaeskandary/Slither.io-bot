@@ -250,7 +250,7 @@ window.sortPrey = function(a, b) {
 window.getAngleFromObject = function(object){
     var x = object.xx-window.getX();
     var y = object.yy-window.getY();
-    return Math.atan(x/y);
+    return Math.atan2(x,y);
 };
 
 // Polar angle to Cartesian angles
