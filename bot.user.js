@@ -65,6 +65,9 @@ window.setMouseCoordinates = function(x, y) {
     window.xm = x;
     window.ym = y;
 };
+window.setMouseAngle = function(angle){
+    window.setMouseCoordinates.apply(this, window.getCoordsFromAngle(angle));
+};
 // Coordinates relative to the center (snake position).
 window.mouseRelativeToCenter = function(x, y) {
     var mapX = x - window.getWidth() / 2;
