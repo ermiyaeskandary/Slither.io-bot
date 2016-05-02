@@ -134,13 +134,11 @@ window.getSnakeLength = function() {
 window.mousemovelistener = window.onmousemove;
 
 // Starts the bot
-window.launchBot = function(d) {
+window.launchBot = function() {
     window.log('Starting Bot.');
     window.isBotRunning = true;
     // Removed the onmousemove listener so we can move the snake manually by setting coordinates
     window.onmousemove = function() {};
-    window.botInterval = setInterval(window.loop, d);
-    return window.botInterval;
 };
 // Stops the bot
 window.stopBot = function() {
@@ -149,7 +147,6 @@ window.stopBot = function() {
     window.onmousemove = window.mousemovelistener;
     window.isBotRunning = false;
     // Clear the interval which starts the bot
-    return clearInterval(window.botInterval);
 };
 
 // Connects the bot
@@ -163,7 +160,7 @@ window.connectBot = function() {
     // Check if bot can start
     window.botCanStart = setInterval(function() {
         if (window.playing) {
-            window.launchBot(5);
+            window.launchBot();
             clearInterval(window.botCanStart);
         }
     }, 100);
@@ -322,6 +319,7 @@ window.oldOef = window.oef;
 window.oef = function() {
     // Original slither.io oef function + whatever is under it
     window.oldOef();
+    if (window.isBotRunning) window.loop();
     window.onFrameUpdate();
 };
 window.onFrameUpdate = function() {
