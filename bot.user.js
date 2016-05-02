@@ -262,7 +262,17 @@ window.getCoordsFromAngle = function(angle){
     var y = Math.sin(angle)*100;
     return [x,y];
 };
-
+// Sort enemies based on distance
+window.getSortedEnemies = function() {
+    // Filters the nearest food by getting the distance
+    return window.snakes.filter(function(val) {
+        return val !== null && val.id !== window.snake.id;
+    }).map(window.getDistanceFromMe).sort(window.sortEnemy);
+};
+// Sorting function for enemies, from property 'distance'
+window.sortEnemy = function(a, b) {
+    return a.distance - b.distance;
+};
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
 window.getDistanceFromMe = function(point) {
     if (point === null) return null;
@@ -447,17 +457,6 @@ window.initBot();
 
 // Enemy code - not used for now
 /*
-        // Sort enemies based on distance
-        window.getSortedEnemies = function() {
-            Filters the nearest food by getting the distance
-            return window.snakes.filter(function(val) {
-                return val !== null && val.id !== window.snake.id;
-            }).map(window.getDistanceFromMe).sort(window.sortEnemy);
-        };
-        // Sorting function for enemies, from property 'distance'
-        window.sortEnemy = function(a, b) {
-            return a.distance - b.distance;
-        };
                 window.sortedEnemies = window.getSortedEnemies();
                 // Take the closest of each
                 window.closestEnemy = window.sortedEnemies[0];
