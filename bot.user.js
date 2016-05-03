@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.5.1
+// @version      0.5.3
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -137,13 +137,11 @@ window.getSnakeLength = function() {
 window.mousemovelistener = window.onmousemove;
 
 // Starts the bot
-window.launchBot = function(d) {
+window.launchBot = function() {
     window.log('Starting Bot.');
     window.isBotRunning = true;
     // Removed the onmousemove listener so we can move the snake manually by setting coordinates
     window.onmousemove = function() {};
-    window.botInterval = setInterval(window.loop, d);
-    return window.botInterval;
 };
 // Stops the bot
 window.stopBot = function() {
@@ -152,7 +150,6 @@ window.stopBot = function() {
     window.onmousemove = window.mousemovelistener;
     window.isBotRunning = false;
     // Clear the interval which starts the bot
-    return clearInterval(window.botInterval);
 };
 
 // Connects the bot
@@ -166,7 +163,7 @@ window.connectBot = function() {
     // Check if bot can start
     window.botCanStart = setInterval(function() {
         if (window.playing) {
-            window.launchBot(5);
+            window.launchBot();
             clearInterval(window.botCanStart);
         }
     }, 100);
@@ -203,39 +200,55 @@ document.oldKeyDown = document.onkeydown;
 document.onkeydown = function(e) {
     // Original slither.io onkeydown function + whatever is under it
     document.oldKeyDown(e);
-    // Letter `T` to toggle bot
-    if (e.keyCode === 84) {
-        if (window.isBotRunning) {
-            window.stopBot();
-            window.isBotEnabled = false;
-        } else {
-            window.launchBot(5);
-            window.isBotEnabled = true;
+    if (document.activeElement.parentElement !== window.nick_holder) {
+        // Letter `T` to toggle bot
+        if (e.keyCode === 84) {
+            if (window.isBotRunning) {
+                window.stopBot();
+                window.isBotEnabled = false;
+            } else {
+                window.launchBot(5);
+                window.isBotEnabled = true;
+            }
         }
-    }
-    // Letter 'U' to toggle debugging (console)
-    if (e.keyCode === 85) {
-        window.logDebugging = !window.logDebugging;
-        console.log('Log debugging set to: ' + window.logDebugging);
-        window.savePreference('logDebugging', window.logDebugging);
-    }
-    // Letter 'Y' to toggle debugging (visual)
-    if (e.keyCode === 89) {
-        window.visualDebugging = !window.visualDebugging;
-        console.log('Visual debugging set to: ' + window.visualDebugging);
-        window.savePreference('visualDebugging', window.visualDebugging);
-    }
-    // Letter 'I' to toggle autorespawn
-    if (e.keyCode === 73) {
-        window.autoRespawn = !window.autoRespawn;
-        console.log('Automatic Respawning set to: ' + window.autoRespawn);
-        window.savePreference('autoRespawn', window.autoRespawn);
-    }
-    // Letter 'O' to change rendermode (visual)
-    if (e.keyCode === 79) {
-        window.mobileRender = !window.mobileRender;
-        console.log('Mobile rendering set to: ' + window.mobileRender);
-        window.savePreference('mobileRender', window.mobileRender);
+        // Letter 'U' to toggle debugging (console)
+        if (e.keyCode === 85) {
+            window.logDebugging = !window.logDebugging;
+            console.log('Log debugging set to: ' + window.logDebugging);
+            window.savePreference('logDebugging', window.logDebugging);
+        }
+        // Letter 'Y' to toggle debugging (visual)
+        if (e.keyCode === 89) {
+            window.visualDebugging = !window.visualDebugging;
+            console.log('Visual debugging set to: ' + window.visualDebugging);
+            window.savePreference('visualDebugging', window.visualDebugging);
+        }
+        // Letter 'I' to toggle autorespawn
+        if (e.keyCode === 73) {
+            window.autoRespawn = !window.autoRespawn;
+            console.log('Automatic Respawning set to: ' + window.autoRespawn);
+            window.savePreference('autoRespawn', window.autoRespawn);
+        }
+        // Letter 'O' to change rendermode (visual)
+        if (e.keyCode === 79) {
+            window.mobileRender = !window.mobileRender;
+            console.log('Mobile rendering set to: ' + window.mobileRender);
+            window.savePreference('mobileRender', window.mobileRender);
+            // Set render mode
+            if (window.mobileRender) {
+                setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+                window.render_mode = 1;
+            } else {
+                setBackground();
+                window.render_mode = 2;
+            }
+        }
+        // Letter 'P' to toggle hunting Prey
+        if (e.keyCode === 80) {
+            window.huntPrey = !window.huntPrey;
+            console.log('Prey hunting set to: ' + window.huntPrey);
+            window.savePreference('huntPrey', window.huntPrey);
+        }
     }
 };
 // Sorting function for food, from property 'distance'
@@ -338,23 +351,17 @@ window.oldOef = window.oef;
 window.oef = function() {
     // Original slither.io oef function + whatever is under it
     window.oldOef();
+    if (window.isBotRunning) window.loop();
     window.onFrameUpdate();
 };
 window.onFrameUpdate = function() {
-    // Set render mode
-    if (window.mobileRender) {
-        setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
-        window.render_mode = 1;
-    } else {
-        setBackground();
-        window.render_mode = 2;
-    }
     // Botstatus overlay
     window.botstatus_overlay.textContent = '(T) Bot ' + (window.isBotRunning?'enabled':'disabled');
     window.visualdebugging_overlay.textContent = '(Y) Visual debugging ' + (window.visualDebugging?'enabled':'disabled');
     window.logdebugging_overlay.textContent = '(U) Log debugging ' + (window.logDebugging?'enabled':'disabled');
     window.autorespawn_overlay.textContent = '(I) Auto respawning ' + (window.autoRespawn?'enabled':'disabled');
     window.rendermode_overlay.textContent = '(O) Mobile rendering ' + (window.mobileRender?'enabled':'disabled');
+    window.huntprey_overlay.textContent = '(P) Prey hunting ' + (window.huntPrey?'enabled':'disabled');
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
@@ -367,13 +374,7 @@ window.onFrameUpdate = function() {
             foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
             foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
             window.drawLine(foodCoordinates[0], foodCoordinates[1], 'green');
-            for (var i = 0; i < window.sortedFood.length; i++) {
-                var item = window.sortedFood[i];
-                foodCoordinates = window.mapToMouse(item.xx, item.yy);
-                foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
-                foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
-                window.drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
-            }
+            window.drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
         }
     }
 };
@@ -394,7 +395,7 @@ window.loop = function() {
         // Disable Sprint
         window.setAcceleration(0);
         // Check for preys, enough "length"
-        if (window.preys.length > 0) {
+        if (window.preys.length > 0 && huntPrey) {
             // Sort preys based on their distance relative to player's snake
             window.sortedPrey = window.getSortedPrey();
             // Current prey
@@ -434,6 +435,7 @@ window.initBot = function() {
     window.loadPreference('visualDebugging', false);
     window.loadPreference('autoRespawn', false);
     window.loadPreference('mobileRender', false);
+    window.loadPreference('huntPrey', true);
     window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
     // Overlays
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
@@ -442,10 +444,19 @@ window.initBot = function() {
     window.appendDiv('logdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 60px;');
     window.appendDiv('autorespawn_overlay', 'nsi', window.generalstyle + 'left: 30; top: 75px;');
     window.appendDiv('rendermode_overlay', 'nsi', window.generalstyle + 'left: 30; top: 90px;');
-    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 110px;');
+    window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 105px;');
+    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 125px;');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
+    // Set render mode
+    if (window.mobileRender) {
+        setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+        window.render_mode = 1;
+    } else {
+        setBackground();
+        window.render_mode = 2;
+    }
     // Canvas Ratio
     window.canvasRatio = [window.mc.width / window.getWidth(), window.mc.height / window.getHeight()];
     // Unblocks all skins without the need for FB sharing.
