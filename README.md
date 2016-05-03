@@ -28,6 +28,7 @@ U | Log debugging
 Y | Visual debugging
 I | Automatic Respawning
 O | Mobile rendering
+P | Hunt prey( moving food )
 Mouse wheel | Zoom in/out
 
 # Contributing
