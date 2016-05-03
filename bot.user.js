@@ -22,6 +22,7 @@ SOFTWARE.*/
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
+// @downloadURL  https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
 // @grant        none
 // ==/UserScript==
 // Functions needed for the bot
