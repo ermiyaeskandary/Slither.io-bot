@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.5.2
+// @version      0.5.3
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -240,6 +240,12 @@ document.onkeydown = function(e) {
                 window.render_mode = 2;
             }
         }
+        // Letter 'P' to toggle hunting Prey
+        if (e.keyCode === 80) {
+            window.huntPrey = !window.huntPrey;
+            console.log('Prey hunting set to: ' + window.huntPrey);
+            window.savePreference('huntPrey', window.huntPrey);
+        }
     }
 };
 // Sorting function for food, from property 'distance'
@@ -339,6 +345,7 @@ window.onFrameUpdate = function() {
     window.logdebugging_overlay.textContent = '(U) Log debugging ' + (window.logDebugging?'enabled':'disabled');
     window.autorespawn_overlay.textContent = '(I) Auto respawning ' + (window.autoRespawn?'enabled':'disabled');
     window.rendermode_overlay.textContent = '(O) Mobile rendering ' + (window.mobileRender?'enabled':'disabled');
+    window.huntprey_overlay.textContent = '(P) Prey hunting ' + (window.huntPrey?'enabled':'disabled');
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
@@ -372,7 +379,7 @@ window.loop = function() {
         // Disable Sprint
         window.setAcceleration(0);
         // Check for preys, enough "length"
-        if (window.preys.length > 0) {
+        if (window.preys.length > 0 && huntPrey) {
             // Sort preys based on their distance relative to player's snake
             window.sortedPrey = window.getSortedPrey();
             // Current prey
@@ -412,6 +419,7 @@ window.initBot = function() {
     window.loadPreference('visualDebugging', false);
     window.loadPreference('autoRespawn', false);
     window.loadPreference('mobileRender', false);
+    window.loadPreference('huntPrey', true);
     window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
     // Overlays
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
@@ -420,7 +428,8 @@ window.initBot = function() {
     window.appendDiv('logdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 60px;');
     window.appendDiv('autorespawn_overlay', 'nsi', window.generalstyle + 'left: 30; top: 75px;');
     window.appendDiv('rendermode_overlay', 'nsi', window.generalstyle + 'left: 30; top: 90px;');
-    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 110px;');
+    window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 105px;');
+    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 125px;');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
