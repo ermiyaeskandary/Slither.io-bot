@@ -27,8 +27,8 @@ T | Bot enabled/disabled
 U | Log debugging
 Y | Visual debugging
 I | Automatic Respawning
-O | Mobile rendering
-P | Hunt prey( moving food )
+**O** | **Mobile rendering - Try this if you experience lag**
+P | Hunt prey - Moving food
 Mouse wheel | Zoom in/out
 
 # Contributing
