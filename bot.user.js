@@ -250,7 +250,7 @@ document.onkeydown = function(e) {
 };
 // Snake's width
 window.snakeWidth = function() {
-    return snake.sc * 15 * gsc;
+    return window.snake.sc * 15 * window.gsc;
 };
 // Sorting function for food, from property 'distance'
 window.sortFood = function(a, b) {
@@ -383,7 +383,7 @@ window.loop = function() {
         // Disable Sprint
         window.setAcceleration(0);
         // Check for preys, enough "length"
-        if (window.preys.length > 0 && huntPrey) {
+        if (window.preys.length > 0 && window.huntPrey) {
             // Sort preys based on their distance relative to player's snake
             window.sortedPrey = window.getSortedPrey();
             // Current prey
@@ -391,7 +391,7 @@ window.loop = function() {
             // Convert coordinates of the closest prey using mapToMouse
             var coordinatesOfClosestPrey = window.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
             // Check for the distance
-            if (window.currentPrey.distance <= Math.pow(window.getSnakeLength(), 2)) {
+            if (window.currentPrey.distance <= Math.pow(window.getSnakeLength(), 2)/2) {
                 // Set the mouse coordinates to the coordinates of the closest prey
                 window.goalCoordinates = coordinatesOfClosestPrey;
                 // "Sprint" enabled
