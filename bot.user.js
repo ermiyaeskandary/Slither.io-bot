@@ -248,6 +248,10 @@ document.onkeydown = function(e) {
         }
     }
 };
+// Snake's width
+window.snakeWidth = function() {
+    return snake.sc * 15 * gsc;
+};
 // Sorting function for food, from property 'distance'
 window.sortFood = function(a, b) {
     // a.sz & b.sz - size
