@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.5.4
+// @version      0.5.5
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -130,6 +130,10 @@ window.setZoom = function(e) {
 // Set background - default is slither.io's own background
 function setBackground(url = '/s/bg45.jpg') {
     window.ii.src = url;
+}
+// Reset zoom
+window.resetZoom = function () {
+	w.gsc = 0.9;
 }
 // Get scaling ratio
 window.getScale = function() {
@@ -261,10 +265,14 @@ document.onkeydown = function(e) {
             console.log('Defence set to: ' + window.defence);
             window.savePreference('defence', window.defence);
         }
+        // Letter 'Z' to reset zoom
+        if (e.keyCode === 90) {
+            window.resetZoom();
+        }
     }
 };
-// Snake's width
-window.snakeWidth = function() {
+// Snake width
+window.getSnakeWidth = function() {
     return window.snake.sc * 15 * window.gsc;
 };
 // Sorting function for food, from property 'distance'
@@ -368,7 +376,8 @@ window.onFrameUpdate = function() {
     window.autorespawn_overlay.innerHTML = '(I) Auto respawning: ' + window.handleTextColor(window.autoRespawn);
     window.rendermode_overlay.innerHTML = '(O) Mobile rendering: ' + window.handleTextColor(window.mobileRender);
     window.huntprey_overlay.innerHTML = '(P) Prey hunting: ' + window.handleTextColor(window.huntPrey);
-    window.defence_overlay.innerHTML = '([) Defence: ' + window.handleTextColor(window.defence);
+    window.defence_overlay.innerHTML = '(D) Defence: ' + window.handleTextColor(window.defence);
+    window.resetzoom_overlay.innerHTML = '(Z) Reset zoom '
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
@@ -469,6 +478,7 @@ window.initBot = function() {
     window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 105px;');
     window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 120px;');
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 140px;');
+    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 35; top: 160px;');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
