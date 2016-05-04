@@ -351,14 +351,14 @@ window.checkCollision = function() {
 	
 	for (var snake in window.snakes){
 		if (window.snakes[snake].nk != window.snake.nk) {
-			circle2 = {x: window.snakes[snake].xx +  window.snakes[snake].fx, y: window.snakes[snake].yy +  window.snakes[snake].fy, radius: 18*window.snakes[snake].sc};
+			circle2 = {x: window.snakes[snake].xx +  window.snakes[snake].fx, y: window.snakes[snake].yy +  window.snakes[snake].fy, radius: 20*window.snakes[snake].sc};
 			if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))){
 				window.changeGoalCoords(circle2);
 				avoid = true;
 			}
 			for (var y = window.snakes[snake].pts.length - 1; 0 <= y; y--){
 				if(!window.snakes[snake].pts[y].dying) {
-					circle2 = {x: window.snakes[snake].pts[y].xx +  window.snakes[snake].fx, y: window.snakes[snake].pts[y].yy +  window.snakes[snake].fy, radius: 18*window.snakes[snake].sc};
+					circle2 = {x: window.snakes[snake].pts[y].xx +  window.snakes[snake].fx, y: window.snakes[snake].pts[y].yy +  window.snakes[snake].fy, radius: 20*window.snakes[snake].sc};
 					if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))){
 						window.changeGoalCoords(circle2);
 						avoid = true;
