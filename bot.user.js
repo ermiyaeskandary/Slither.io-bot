@@ -323,16 +323,6 @@ window.drawDot = function(x, y, radius, colour) {
     context.fill();
     context.fillStyle = 'black';
 };
-// Draw dots on the canvas
-window.drawGrid = function(x, y, height,width, colour) {
-    var context = window.mc.getContext('2d');
-    context.beginPath();
-    context.rect(x,y,height,width);
-	context.stroke();
-    context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
-    context.fill();
-};
-
 
 // Draw lines on the canvas
 window.drawLine = function(x2, y2, colour) {
@@ -349,15 +339,6 @@ window.drawLine = function(x2, y2, colour) {
 // Radius  on the screen
 window.getRadius = function() {
     return window.snake.sc*15;
-};
-
-window.drawGridMap = function (){
-	for(var w = 0;w <= window.getWidth();w += 25){
-		for(var h = 0;h <= window.getHeight();h += 25){
-			console.log(w + "," + h);
-			window.drawGrid(w,h, 25, 25, 'yellow');
-		}	
-	}
 };
 
 window.checkCollision = function() {
