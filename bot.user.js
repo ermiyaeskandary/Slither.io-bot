@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.5.7
+// @version      0.5.8
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -402,7 +402,7 @@ window.onFrameUpdate = function() {
             if (window.position_overlay) {
                 // Display the X and Y of the snake
                 window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
-                window.fps_overlay.innerHTML = generalStyle + 'fps: ' + window.framesPerSecond.getFPS() + '</span>';
+                window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
             }
             var foodCoordinates = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
             foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
@@ -497,7 +497,7 @@ window.initBot = function() {
     window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 120px;');
     window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 135px;');
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
-    window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'left: 30; top: 155px;');
+    window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
