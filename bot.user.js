@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.5.3
+// @version      0.5.4
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -255,8 +255,8 @@ document.onkeydown = function(e) {
             console.log('Prey hunting set to: ' + window.huntPrey);
             window.savePreference('huntPrey', window.huntPrey);
         }
-        // Letter '[' to toggle defence
-        if (e.keyCode === 219) {
+        // Letter 'D' to toggle defence mode
+        if (e.keyCode === 68) {
             window.defence = !window.defence;
             console.log('Defence set to: ' + window.defence);
             window.savePreference('defence', window.defence);
@@ -385,6 +385,7 @@ window.onFrameUpdate = function() {
         }
     }
 };
+// Defense mode - bot turns around in a perfect circle
 window.playDefence = function(dir) {
     window.kd_l = (dir === "l");
     window.kd_r = (dir === "r");
