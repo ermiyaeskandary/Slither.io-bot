@@ -343,14 +343,17 @@ window.oef = function() {
     if (window.isBotRunning) window.loop();
     window.onFrameUpdate();
 };
+window.handleTextColor = function(enabled){
+    return '<span style=\"color:' + (enabled?'green;\">enabled':'red;\">disabled') + '</span>';
+};
 window.onFrameUpdate = function() {
     // Botstatus overlay
-    window.botstatus_overlay.textContent = '(T) Bot ' + (window.isBotRunning?'enabled':'disabled');
-    window.visualdebugging_overlay.textContent = '(Y) Visual debugging ' + (window.visualDebugging?'enabled':'disabled');
-    window.logdebugging_overlay.textContent = '(U) Log debugging ' + (window.logDebugging?'enabled':'disabled');
-    window.autorespawn_overlay.textContent = '(I) Auto respawning ' + (window.autoRespawn?'enabled':'disabled');
-    window.rendermode_overlay.textContent = '(O) Mobile rendering ' + (window.mobileRender?'enabled':'disabled');
-    window.huntprey_overlay.textContent = '(P) Prey hunting ' + (window.huntPrey?'enabled':'disabled');
+    window.botstatus_overlay.innerHTML = '(T) Bot: ' + window.handleTextColor(window.isBotRunning);
+    window.visualdebugging_overlay.innerHTML = '(Y) Visual debugging: ' + window.handleTextColor(window.visualDebugging);
+    window.logdebugging_overlay.innerHTML = '(U) Log debugging: ' + window.handleTextColor(window.logDebugging);
+    window.autorespawn_overlay.innerHTML = '(I) Auto respawning: ' + window.handleTextColor(window.autoRespawn);
+    window.rendermode_overlay.innerHTML = '(O) Mobile rendering: ' + window.handleTextColor(window.mobileRender);
+    window.huntprey_overlay.innerHTML = '(P) Prey hunting: ' + window.handleTextColor(window.huntPrey);
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
