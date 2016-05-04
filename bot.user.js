@@ -150,7 +150,7 @@ function setBackground(url = '/s/bg45.jpg') {
 // Reset zoom
 window.resetZoom = function () {
 	window.gsc = 0.9;
-}
+};
 // Get scaling ratio
 window.getScale = function() {
     return window.gsc;
@@ -395,6 +395,7 @@ window.onFrameUpdate = function() {
     window.huntprey_overlay.innerHTML = generalStyle + '(P) Prey hunting: </span>' + window.handleTextColor(window.huntPrey);
     window.defence_overlay.innerHTML = generalStyle + '(D) Defence: </span>' + window.handleTextColor(window.defence);
     window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
+    window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
@@ -402,7 +403,6 @@ window.onFrameUpdate = function() {
             if (window.position_overlay) {
                 // Display the X and Y of the snake
                 window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
-                window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
             }
             var foodCoordinates = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
             foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
