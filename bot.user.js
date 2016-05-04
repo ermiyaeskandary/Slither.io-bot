@@ -386,22 +386,23 @@ window.handleTextColor = function(enabled){
 };
 window.onFrameUpdate = function() {
     // Botstatus overlay
-    window.botstatus_overlay.innerHTML = '(T) Bot: ' + window.handleTextColor(window.isBotRunning);
-    window.visualdebugging_overlay.innerHTML = '(Y) Visual debugging: ' + window.handleTextColor(window.visualDebugging);
-    window.logdebugging_overlay.innerHTML = '(U) Log debugging: ' + window.handleTextColor(window.logDebugging);
-    window.autorespawn_overlay.innerHTML = '(I) Auto respawning: ' + window.handleTextColor(window.autoRespawn);
-    window.rendermode_overlay.innerHTML = '(O) Mobile rendering: ' + window.handleTextColor(window.mobileRender);
-    window.huntprey_overlay.innerHTML = '(P) Prey hunting: ' + window.handleTextColor(window.huntPrey);
-    window.defence_overlay.innerHTML = '(D) Defence: ' + window.handleTextColor(window.defence);
-    window.resetzoom_overlay.innerHTML = '(Z) Reset zoom ';
+    var generalStyle = '<span style = "opacity: 0.35";>';
+    window.botstatus_overlay.innerHTML = generalStyle + '(T) Bot: </span>' + window.handleTextColor(window.isBotRunning);
+    window.visualdebugging_overlay.innerHTML = generalStyle + '(Y) Visual debugging: </span>' + window.handleTextColor(window.visualDebugging);
+    window.logdebugging_overlay.innerHTML = generalStyle + '(U) Log debugging: </span>' + window.handleTextColor(window.logDebugging);
+    window.autorespawn_overlay.innerHTML = generalStyle + '(I) Auto respawning: </span>' + window.handleTextColor(window.autoRespawn);
+    window.rendermode_overlay.innerHTML = generalStyle + '(O) Mobile rendering: </span>' + window.handleTextColor(window.mobileRender);
+    window.huntprey_overlay.innerHTML = generalStyle + '(P) Prey hunting: </span>' + window.handleTextColor(window.huntPrey);
+    window.defence_overlay.innerHTML = generalStyle + '(D) Defence: </span>' + window.handleTextColor(window.defence);
+    window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
             // Check to see if there is a position overlay
             if (window.position_overlay) {
                 // Display the X and Y of the snake
-                window.position_overlay.textContent = 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0);
-                window.fps_overlay.textContent = 'fps: ' + window.framesPerSecond.getFPS();
+                window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
+                window.fps_overlay.innerHTML = generalStyle + 'fps: ' + window.framesPerSecond.getFPS() + '</span>';
             }
             var foodCoordinates = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
             foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
@@ -486,7 +487,7 @@ window.initBot = function() {
     window.loadPreference('defence', false);
     window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
     // Overlays
-    window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
+    window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; z-index: 7;';
     window.appendDiv('botstatus_overlay', 'nsi', window.generalstyle + 'left: 30; top: 30px;');
     window.appendDiv('visualdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 45px;');
     window.appendDiv('logdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 60px;');
