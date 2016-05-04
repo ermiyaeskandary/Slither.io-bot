@@ -462,7 +462,7 @@ window.getSortedPrey = function() {
 window.drawDot = function(x, y, radius, colour, fill) {
     var context = window.mc.getContext('2d');
     context.beginPath();
-	context.strokeStyle = '##00FF00';
+	context.strokeStyle = '#00FF00';
     context.arc(x, y, radius*window.getScale(), 0, Math.PI * 2);
     context.closePath();
 	if (fill){
