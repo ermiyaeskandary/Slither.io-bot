@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.5.3
+// @version      0.5.8
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -57,9 +57,17 @@ window.appendDiv = function(id, className, style) {
 
 // Saves username when you click on "Play" button
 window.play_btn.btnf.addEventListener('click', function(){
-    var nick = document.getElementById('nick').value;
-    window.savePreference('savedNick', nick);
+    window.saveNick();
 });
+window.nick_holder.addEventListener('keypress', function(e){
+  if (e.keyCode == 13){
+      window.saveNick();
+  }
+});
+window.saveNick = function() {
+  var nick = document.getElementById('nick').value;
+  window.savePreference('savedNick', nick);
+};
 
 // Set fake mouse coordinates
 window.setMouseCoordinates = function(x, y) {
@@ -119,9 +127,29 @@ window.setZoom = function(e) {
         window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
     }
 };
+
+window.framesPerSecond = {
+    startTime: 0,
+    frameNumber: 0,
+    filterStrength: 40,
+    lastLoop: 0,
+    frameTime: 0,
+    getFPS: function() {
+       var thisLoop = performance.now();
+       var thisFrameTime = thisLoop - this.lastLoop;
+       this.frameTime += (thisFrameTime - this.frameTime) / this.filterStrength;
+       this.lastLoop = thisLoop;
+       return (1000/this.frameTime).toFixed(0);
+    }
+};
+
 // Set background - default is slither.io's own background
 function setBackground(url = '/s/bg45.jpg') {
     window.ii.src = url;
+}
+// Reset zoom
+window.resetZoom = function () {
+	window.gsc = 0.9;
 }
 // Get scaling ratio
 window.getScale = function() {
@@ -247,11 +275,45 @@ document.onkeydown = function(e) {
             console.log('Prey hunting set to: ' + window.huntPrey);
             window.savePreference('huntPrey', window.huntPrey);
         }
+		
+		 // Letter 'C' to toggle collisionDetection
+        if (e.keyCode === 67) {
+            window.collisionDetection = !window.collisionDetection;
+            console.log('collisionDetection set to: ' + window.collisionDetection);
+            window.savePreference('collisionDetection', window.collisionDetection);
+        }
+		
+		// Letter 'A' to toggle collisionDetection
+        if (e.keyCode === 65) {
+            window.collisionRadiusMultiplier++;
+            console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
+            window.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
+        }
+		
+		// Letter 'S' to toggle collisionDetection
+        if (e.keyCode === 83) {
+			if (window.collisionRadiusMultiplier > 1) {
+				window.collisionRadiusMultiplier--;
+				console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
+				window.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
+			}
+        }
+		
+        // Letter 'D' to toggle defence mode
+        if (e.keyCode === 68) {
+            window.defence = !window.defence;
+            console.log('Defence set to: ' + window.defence);
+            window.savePreference('defence', window.defence);
+        }
+        // Letter 'Z' to reset zoom
+        if (e.keyCode === 90) {
+            window.resetZoom();
+        }
     }
 };
-// Snake's width
-window.snakeWidth = function() {
-    return window.snake.sc * 15 * window.gsc;
+// Snake width
+window.getSnakeWidth = function() {
+    return window.snake.sc * 15;
 };
 // Sorting function for food, from property 'distance'
 window.sortFood = function(a, b) {
@@ -299,6 +361,89 @@ window.getDistance = function(x1, y1, x2, y2) {
     return distance;
 };
 
+window.checkCollision = function() {
+	var circle1 = collisionScreenToCanvas({x: window.getX(), y: window.getY(), radius: window.getSnakeWidth()*window.collisionRadiusMultiplier});
+	if(window.visualDebugging){
+		window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue');
+	}
+	var avoid = false;
+	var circle2;
+	
+	for (var snake in window.snakes){
+		if (window.snakes[snake].nk != window.snake.nk) {
+			circle2 = {x: window.snakes[snake].xx +  window.snakes[snake].fx, y: window.snakes[snake].yy +  window.snakes[snake].fy, radius: 20*window.snakes[snake].sc};
+			if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))){
+				window.changeGoalCoords(circle2);
+				avoid = true;
+			}
+			for (var y = window.snakes[snake].pts.length - 1; 0 <= y; y--){
+				if(!window.snakes[snake].pts[y].dying) {
+					circle2 = {x: window.snakes[snake].pts[y].xx +  window.snakes[snake].fx, y: window.snakes[snake].pts[y].yy +  window.snakes[snake].fy, radius: 20*window.snakes[snake].sc};
+					if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))){
+						window.changeGoalCoords(circle2);
+						avoid = true;
+					}
+				}
+			}
+		}
+	}
+	
+	return avoid;
+};
+
+window.collisionScreenToCanvas = function(circle) {
+	var newCircle = window.mapToMouse(circle.x, circle.y);
+	newCircle = window.mouseToScreen(newCircle[0], newCircle[1]);
+	newCircle = window.screenToCanvas(newCircle[0], newCircle[1]);
+	
+	return {x: newCircle[0] , y: newCircle[1], radius: circle.radius};
+};
+
+window.changeGoalCoords = function(circle1){
+	if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
+		window.collisionPoint = circle1;
+		window.goalCoordinates = window.mapToMouse(window.snake.xx + window.snake.sp * (window.snake.xx - window.collisionPoint.x), window.snake.yy + window.snake.sp * (window.snake.yy - window.collisionPoint.y));
+		window.setAcceleration(0);
+		window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
+	} 
+};
+	
+window.circleIntersect = function(circle1,circle2){
+	if (quickCollisionCheck(circle1,circle2)){
+		if (collisionCheck(circle1,circle2)){
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
+};
+
+window.quickCollisionCheck = function(circle1, circle2){
+	return (circle1.x + circle1.radius + circle2.radius > circle2.x 
+		&& circle1.x < circle2.x + circle1.radius + circle2.radius
+		&& circle1.y + circle1.radius + circle2.radius > circle2.y 
+		&& circle1.y < circle2.y + circle1.radius + circle2.radius);
+};
+
+window.collisionCheck = function(circle1, circle2){
+	distance = Math.sqrt(((circle1.x - circle2.x) * (circle1.x - circle2.x)) + ((circle1.y - circle2.y) * (circle1.y - circle2.y)));
+		   
+	if (distance < circle1.radius + circle2.radius){
+		collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / (circle1.radius + circle2.radius);
+		collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / (circle1.radius + circle2.radius);
+		
+		if(window.visualDebugging){
+			window.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan');
+			window.drawDot(circle2.x, circle2.y, circle2.radius, 'red');
+		}
+		return true;
+	} else {
+		return false;
+	}
+};
+
 // Sort food based on distance
 window.getSortedFood = function() {
     // Filters the nearest food by getting the distance
@@ -328,101 +473,13 @@ window.drawDot = function(x, y, radius, colour) {
 window.drawLine = function(x2, y2, colour) {
     var context = window.mc.getContext('2d');
     var center = [window.mc.height / 2, window.mc.width / 2];
-    context.lineWidth = 5;
+    context.lineWidth = 5*window.getScale();
     context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
     context.moveTo(center[1], center[0]);
     context.lineTo(x2, y2);
     context.stroke();
     context.strokeStyle = '#000000';
 };
-
-// Radius  on the screen
-window.getRadius = function() {
-    return window.snake.sc*15;
-};
-
-window.checkCollision = function() {
-	var circle1 = collisionScreenToCanvas({x: window.getX(), y: window.getY(), radius: window.getRadius()*10});
-	if(window.visualDebugging){
-		//window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue');
-	}
-	var avoid = false;
-	var circle2;
-	
-	for (var snake in window.snakes){
-		if (window.snakes[snake].nk != window.snake.nk) {
-			circle2 = {x: window.snakes[snake].xx +  window.snakes[snake].fx, y: window.snakes[snake].yy +  window.snakes[snake].fy, radius: 20*window.snakes[snake].sc};
-			if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))){
-				window.changeGoalCoords(circle2);
-				avoid = true;
-			}
-			for (var y = window.snakes[snake].pts.length - 1; 0 <= y; y--){
-				if(!window.snakes[snake].pts[y].dying) {
-					circle2 = {x: window.snakes[snake].pts[y].xx +  window.snakes[snake].fx, y: window.snakes[snake].pts[y].yy +  window.snakes[snake].fy, radius: 20*window.snakes[snake].sc};
-					if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))){
-						window.changeGoalCoords(circle2);
-						avoid = true;
-					}
-				}
-			}
-		}
-	}
-	
-	return avoid;
-};
-
-window.changeGoalCoords = function(circle1){
-	if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
-		window.collisionPoint = circle1;
-		window.goalCoordinates = window.mapToMouse(window.snake.xx + window.snake.sp * (window.snake.xx - window.collisionPoint.x), window.snake.yy + window.snake.sp * (window.snake.yy - window.collisionPoint.y));
-		window.setAcceleration(0);
-		window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
-	} 
-};
-	
-window.circleIntersect = function(circle1,circle2){
-	if (quickCollisionCheck(circle1,circle2)){
-		if (collisionCheck(circle1,circle2)){
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		return false;
-	}
-};
-
-window.collisionCheck = function(circle1, circle2){
-	distance = Math.sqrt(((circle1.x - circle2.x) * (circle1.x - circle2.x)) + ((circle1.y - circle2.y) * (circle1.y - circle2.y)));
-		   
-	if (distance < circle1.radius + circle2.radius){
-		collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / (circle1.radius + circle2.radius);
-		collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / (circle1.radius + circle2.radius);
-		
-		if(window.visualDebugging){
-			window.drawDot(collisionPointX, collisionPointY, circle2.radius, 'blue');
-		}
-		return true;
-	} else {
-		return false;
-	}
-};
-
-window.quickCollisionCheck = function(circle1, circle2){
-	return (circle1.x + circle1.radius + circle2.radius > circle2.x 
-		&& circle1.x < circle2.x + circle1.radius + circle2.radius
-		&& circle1.y + circle1.radius + circle2.radius > circle2.y 
-		&& circle1.y < circle2.y + circle1.radius + circle2.radius);
-};
-
-window.collisionScreenToCanvas = function(circle) {
-	var newCircle = window.mapToMouse(circle.x, circle.y);
-	newCircle = window.mouseToScreen(newCircle[0], newCircle[1]);
-	newCircle = window.screenToCanvas(newCircle[0], newCircle[1]);
-	
-	return {x: newCircle[0] , y: newCircle[1], radius: circle.radius};
-};
-
 // Save the original slither.io oef function so we can add things to it later
 window.oldOef = window.oef;
 window.oef = function() {
@@ -433,31 +490,43 @@ window.oef = function() {
     window.onFrameUpdate();
 };
 window.handleTextColor = function(enabled){
-    return '<span style=\"color:' + (enabled?'green;\">enabled':'red;\">disabled') + '</span>';
+    return '<span style=\"opacity: 0.8; color:' + (enabled?'green;\">enabled':'red;\">disabled') + '</span>';
 };
 window.onFrameUpdate = function() {
     // Botstatus overlay
-    window.botstatus_overlay.innerHTML = '(T) Bot: ' + window.handleTextColor(window.isBotRunning);
-    window.visualdebugging_overlay.innerHTML = '(Y) Visual debugging: ' + window.handleTextColor(window.visualDebugging);
-    window.logdebugging_overlay.innerHTML = '(U) Log debugging: ' + window.handleTextColor(window.logDebugging);
-    window.autorespawn_overlay.innerHTML = '(I) Auto respawning: ' + window.handleTextColor(window.autoRespawn);
-    window.rendermode_overlay.innerHTML = '(O) Mobile rendering: ' + window.handleTextColor(window.mobileRender);
-    window.huntprey_overlay.innerHTML = '(P) Prey hunting: ' + window.handleTextColor(window.huntPrey);
+    var generalStyle = '<span style = "opacity: 0.35";>';
+    window.botstatus_overlay.innerHTML = generalStyle + '(T) Bot: </span>' + window.handleTextColor(window.isBotRunning);
+    window.visualdebugging_overlay.innerHTML = generalStyle + '(Y) Visual debugging: </span>' + window.handleTextColor(window.visualDebugging);
+    window.logdebugging_overlay.innerHTML = generalStyle + '(U) Log debugging: </span>' + window.handleTextColor(window.logDebugging);
+    window.autorespawn_overlay.innerHTML = generalStyle + '(I) Auto respawning: </span>' + window.handleTextColor(window.autoRespawn);
+    window.rendermode_overlay.innerHTML = generalStyle + '(O) Mobile rendering: </span>' + window.handleTextColor(window.mobileRender);
+    window.huntprey_overlay.innerHTML = generalStyle + '(P) Prey hunting: </span>' + window.handleTextColor(window.huntPrey);
+	window.collision_detection_overlay.innerHTML = generalStyle + '(C) Collision detection: </span>' + window.handleTextColor(window.collisionDetection);
+	window.collision_radius_multiplier_overlay.innerHTML = generalStyle + '(A/S) Collision radius multiplier: '  + window.collisionRadiusMultiplier + ' </span>';
+    window.defence_overlay.innerHTML = generalStyle + '(D) Defence: </span>' + window.handleTextColor(window.defence);
+    window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
+	window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
+	
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
             // Check to see if there is a position overlay
             if (window.position_overlay) {
                 // Display the X and Y of the snake
-                window.position_overlay.textContent = 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0);
+                window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
             }
-            var foodCoordinates = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
-            foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
-            foodCoordinates = window.screenToCanvas(foodCoordinates[0], foodCoordinates[1]);
-            window.drawLine(foodCoordinates[0], foodCoordinates[1], 'green');
-            window.drawDot(foodCoordinates[0], foodCoordinates[1], 5, 'red');
+            drawGoalCoordinates = window.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
+            drawGoalCoordinates = window.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
+            window.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
+            window.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red');
         }
     }
+};
+// Defense mode - bot turns around in a perfect circle
+window.playDefence = function(dir) {
+    window.kd_l = (dir === "l");
+    window.kd_r = (dir === "r");
+    window.setMouseCoordinates(window.getWidth()/2,window.getHeight()/2);
 };
 // Actual bot code
 
@@ -465,8 +534,15 @@ window.onFrameUpdate = function() {
 window.loop = function() {
     // If the game and the bot are running
     if (window.playing && window.isBotEnabled) {
+        window.ranOnce = true;
+        // TODO: Check some condition to see if we should play defence
+        // Right now this just uses the manual toggle
+        if(window.defence){
+            window.playDefence("l");
+            return;
+        }
+		
 		if(!window.checkCollision()){
-			window.ranOnce = true;
 			// Sort the food based on their distance relative to player's snake
 			window.sortedFood = window.getSortedFood();
 			// Current food
@@ -492,6 +568,8 @@ window.loop = function() {
 					window.setAcceleration(1);
 				}
 			}
+			window.kd_l = false;
+			window.kd_r = false;
 			window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
 		}
     } else {
@@ -499,13 +577,6 @@ window.loop = function() {
             //window.startInterval = setInterval(window.startBot, 1000);
             window.stopBot();
         }
-    }
-};
-// Starts bot
-window.startBot = function() {
-    if (window.autoRespawn && !window.playing && window.isBotEnabled && window.ranOnce && !window.isBotRunning) {
-        window.connectBot();
-        //clearInterval(window.startInterval);
     }
 };
 
@@ -519,6 +590,13 @@ window.startBot = function() {
   window.requestAnimationFrame = requestAnimationFrame;
 })();
 
+// Starts bot
+window.startBot = function() {
+    if (window.autoRespawn && !window.playing && window.isBotEnabled && window.ranOnce && !window.isBotRunning) {
+        window.connectBot();
+        //clearInterval(window.startInterval);
+    }
+};
 // Initialises the bot
 window.initBot = function() {
     window.ranOnce = false;
@@ -531,16 +609,24 @@ window.initBot = function() {
     window.loadPreference('autoRespawn', false);
     window.loadPreference('mobileRender', false);
     window.loadPreference('huntPrey', true);
+	window.loadPreference('collisionDetection', true);
+	window.loadPreference('collisionRadiusMultiplier', 8);
+    window.loadPreference('defence', false);
     window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
     // Overlays
-    window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
+    window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; z-index: 7;';
     window.appendDiv('botstatus_overlay', 'nsi', window.generalstyle + 'left: 30; top: 30px;');
     window.appendDiv('visualdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 45px;');
     window.appendDiv('logdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 60px;');
     window.appendDiv('autorespawn_overlay', 'nsi', window.generalstyle + 'left: 30; top: 75px;');
     window.appendDiv('rendermode_overlay', 'nsi', window.generalstyle + 'left: 30; top: 90px;');
     window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 105px;');
-    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 125px;');
+	window.appendDiv('collision_detection_overlay', 'nsi', window.generalstyle + 'left: 30; top: 120px;');
+	window.appendDiv('collision_radius_multiplier_overlay', 'nsi', window.generalstyle + 'left: 30; top: 135px;');
+    window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 150px;');
+    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 165px;');
+    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
+    window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
