@@ -342,7 +342,7 @@ window.getRadius = function() {
 };
 
 window.checkCollision = function() {
-	var circle1 = collisionScreenToCanvas({x: window.getX(), y: window.getY(), radius: window.getRadius()*4});
+	var circle1 = collisionScreenToCanvas({x: window.getX(), y: window.getY(), radius: window.getRadius()*10});
 	if(window.visualDebugging){
 		//window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue');
 	}
