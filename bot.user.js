@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.5.6
+// @version      0.5.7
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -377,7 +377,7 @@ window.onFrameUpdate = function() {
     window.rendermode_overlay.innerHTML = '(O) Mobile rendering: ' + window.handleTextColor(window.mobileRender);
     window.huntprey_overlay.innerHTML = '(P) Prey hunting: ' + window.handleTextColor(window.huntPrey);
     window.defence_overlay.innerHTML = '(D) Defence: ' + window.handleTextColor(window.defence);
-    window.resetzoom_overlay.innerHTML = '(Z) Reset zoom '
+    window.resetzoom_overlay.innerHTML = '(Z) Reset zoom ';
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
@@ -477,8 +477,8 @@ window.initBot = function() {
     window.appendDiv('rendermode_overlay', 'nsi', window.generalstyle + 'left: 30; top: 90px;');
     window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 105px;');
     window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 120px;');
-    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 135px;');
-    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 150px;');
+    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 130px;');
+    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
