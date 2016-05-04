@@ -314,7 +314,7 @@ document.onkeydown = function(e) {
 };
 // Snake width
 window.getSnakeWidth = function() {
-    return window.snake.sc * 15;
+    return window.snake.sc * 15 * window.getScale();
 };
 // Sorting function for food, from property 'distance'
 window.sortFood = function(a, b) {
@@ -379,7 +379,7 @@ window.checkCollision = function() {
             circle2 = {
                 x: window.snakes[snake].xx + window.snakes[snake].fx,
                 y: window.snakes[snake].yy + window.snakes[snake].fy,
-                radius: 15 * window.snakes[snake].sc
+                radius: 15 * window.snakes[snake].sc * window.getScale()
             };
             if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
                 window.changeGoalCoords(circle2);
@@ -390,7 +390,7 @@ window.checkCollision = function() {
                     circle2 = {
                         x: window.snakes[snake].pts[y].xx + window.snakes[snake].fx,
                         y: window.snakes[snake].pts[y].yy + window.snakes[snake].fy,
-                        radius: 15 * window.snakes[snake].sc
+                        radius: 15 * window.snakes[snake].sc * window.getScale()
                     };
                     if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
                         window.changeGoalCoords(circle2);
