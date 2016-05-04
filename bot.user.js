@@ -127,6 +127,22 @@ window.setZoom = function(e) {
         window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
     }
 };
+
+window.framesPerSecond = {
+    startTime: 0,
+    frameNumber: 0,
+    filterStrength: 40,
+    lastLoop: 0,
+    frameTime: 0,
+    getFPS: function() {
+       var thisLoop = performance.now();
+       var thisFrameTime = thisLoop - this.lastLoop;
+       this.frameTime += (thisFrameTime - this.frameTime) / this.filterStrength;
+       this.lastLoop = thisLoop;
+       return (1000/this.frameTime).toFixed(0);
+    }
+};
+
 // Set background - default is slither.io's own background
 function setBackground(url = '/s/bg45.jpg') {
     window.ii.src = url;
@@ -385,6 +401,7 @@ window.onFrameUpdate = function() {
             if (window.position_overlay) {
                 // Display the X and Y of the snake
                 window.position_overlay.textContent = 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0);
+                window.fps_overlay.textContent = 'fps: ' + window.framesPerSecond.getFPS();
             }
             var foodCoordinates = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
             foodCoordinates = window.mouseToScreen(foodCoordinates[0], foodCoordinates[1]);
@@ -477,8 +494,9 @@ window.initBot = function() {
     window.appendDiv('rendermode_overlay', 'nsi', window.generalstyle + 'left: 30; top: 90px;');
     window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 105px;');
     window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 120px;');
-    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 130px;');
+    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 135px;');
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
+    window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'left: 30; top: 155px;');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
