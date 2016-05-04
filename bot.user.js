@@ -57,9 +57,17 @@ window.appendDiv = function(id, className, style) {
 
 // Saves username when you click on "Play" button
 window.play_btn.btnf.addEventListener('click', function(){
-    var nick = document.getElementById('nick').value;
-    window.savePreference('savedNick', nick);
+    window.saveNick();
 });
+window.nick_holder.addEventListener('keypress', function(e){
+  if (e.keyCode == 13){
+      window.saveNick();
+  }
+});
+window.saveNick = function() {
+  var nick = document.getElementById('nick').value;
+  window.savePreference('savedNick', nick);
+};
 
 // Set fake mouse coordinates
 window.setMouseCoordinates = function(x, y) {
