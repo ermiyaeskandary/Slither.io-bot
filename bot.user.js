@@ -364,7 +364,7 @@ window.getDistance = function(x1, y1, x2, y2) {
 window.checkCollision = function() {
 	var circle1 = collisionScreenToCanvas({x: window.getX(), y: window.getY(), radius: window.getSnakeWidth()*window.collisionRadiusMultiplier});
 	if(window.visualDebugging){
-		window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue');
+		window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
 	}
 	var avoid = false;
 	var circle2;
@@ -435,8 +435,8 @@ window.collisionCheck = function(circle1, circle2){
 		collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / (circle1.radius + circle2.radius);
 		
 		if(window.visualDebugging){
-			window.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan');
-			window.drawDot(circle2.x, circle2.y, circle2.radius, 'red');
+			window.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
+			window.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
 		}
 		return true;
 	} else {
@@ -459,14 +459,17 @@ window.getSortedPrey = function() {
     }).map(window.getDistanceFromMe).sort(window.sortPrey);
 };
 // Draw dots on the canvas
-window.drawDot = function(x, y, radius, colour) {
+window.drawDot = function(x, y, radius, colour, fill) {
     var context = window.mc.getContext('2d');
     context.beginPath();
+	context.strokeStyle = '##00FF00';
     context.arc(x, y, radius*window.getScale(), 0, Math.PI * 2);
     context.closePath();
-    context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
-    context.fill();
-    context.fillStyle = 'black';
+	if (fill){
+		context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
+		context.fill();
+		context.fillStyle = 'black';
+	}
 };
 
 // Draw lines on the canvas
@@ -518,7 +521,7 @@ window.onFrameUpdate = function() {
             drawGoalCoordinates = window.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
             drawGoalCoordinates = window.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
             window.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
-            window.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red');
+            window.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
         }
     }
 };
