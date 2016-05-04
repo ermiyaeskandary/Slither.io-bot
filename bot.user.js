@@ -255,6 +255,12 @@ document.onkeydown = function(e) {
             console.log('Prey hunting set to: ' + window.huntPrey);
             window.savePreference('huntPrey', window.huntPrey);
         }
+        // Letter '[' to toggle defence
+        if (e.keyCode === 219) {
+            window.defence = !window.defence;
+            console.log('Defence set to: ' + window.defence);
+            window.savePreference('defence', window.defence);
+        }
     }
 };
 // Snake's width
@@ -362,6 +368,7 @@ window.onFrameUpdate = function() {
     window.autorespawn_overlay.innerHTML = '(I) Auto respawning: ' + window.handleTextColor(window.autoRespawn);
     window.rendermode_overlay.innerHTML = '(O) Mobile rendering: ' + window.handleTextColor(window.mobileRender);
     window.huntprey_overlay.innerHTML = '(P) Prey hunting: ' + window.handleTextColor(window.huntPrey);
+    window.defence_overlay.innerHTML = '([) Defence: ' + window.handleTextColor(window.defence);
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
@@ -378,6 +385,11 @@ window.onFrameUpdate = function() {
         }
     }
 };
+window.playDefence = function(dir) {
+    window.kd_l = (dir === "l");
+    window.kd_r = (dir === "r");
+    window.setMouseCoordinates(window.getWidth()/2,window.getHeight()/2);
+};
 // Actual bot code
 
 // Loop for running the bot
@@ -385,6 +397,12 @@ window.loop = function() {
     // If the game and the bot are running
     if (window.playing && window.isBotEnabled) {
         window.ranOnce = true;
+        // TODO: Check some condition to see if we should play defence
+        // Right now this just uses the manual toggle
+        if(window.defence){
+            window.playDefence("l");
+            return;
+        }
         // Sort the food based on their distance relative to player's snake
         window.sortedFood = window.getSortedFood();
         // Current food
@@ -410,6 +428,8 @@ window.loop = function() {
                 window.setAcceleration(1);
             }
         }
+        window.kd_l = false;
+        window.kd_r = false;
         window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
     } else {
         if (window.ranOnce) {
@@ -436,6 +456,7 @@ window.initBot = function() {
     window.loadPreference('autoRespawn', false);
     window.loadPreference('mobileRender', false);
     window.loadPreference('huntPrey', true);
+    window.loadPreference('defence', false);
     window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
     // Overlays
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; opacity: 0.35; z-index: 7;';
@@ -445,7 +466,8 @@ window.initBot = function() {
     window.appendDiv('autorespawn_overlay', 'nsi', window.generalstyle + 'left: 30; top: 75px;');
     window.appendDiv('rendermode_overlay', 'nsi', window.generalstyle + 'left: 30; top: 90px;');
     window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 105px;');
-    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 125px;');
+    window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 120px;');
+    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 140px;');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
