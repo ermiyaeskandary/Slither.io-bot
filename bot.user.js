@@ -382,7 +382,7 @@ window.oef = function() {
     window.onFrameUpdate();
 };
 window.handleTextColor = function(enabled){
-    return '<span style=\"color:' + (enabled?'green;\">enabled':'red;\">disabled') + '</span>';
+    return '<span style=\"opacity: 0.8; color:' + (enabled?'green;\">enabled':'red;\">disabled') + '</span>';
 };
 window.onFrameUpdate = function() {
     // Botstatus overlay
