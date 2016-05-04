@@ -29,6 +29,7 @@ Y | Visual debugging
 I | Automatic Respawning
 **O** | **Mobile rendering - Try this if you experience lag**
 P | Hunt prey - Moving food
+D | Defense mode - bot turns around in a perfect circle
 Mouse wheel | Zoom in/out
 
 # Contributing
