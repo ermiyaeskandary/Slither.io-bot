@@ -31,6 +31,7 @@ I | Automatic Respawning
 P | Hunt prey - Moving food
 D | Defense mode - bot turns around in a circle
 C | Enemy avoidance / Collision prevention
+Z | Reset zoom
 Mouse wheel | Zoom in/out
 
 # Contributing
