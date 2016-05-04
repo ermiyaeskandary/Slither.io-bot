@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.5.5
+// @version      0.5.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -133,7 +133,7 @@ function setBackground(url = '/s/bg45.jpg') {
 }
 // Reset zoom
 window.resetZoom = function () {
-	w.gsc = 0.9;
+	window.gsc = 0.9;
 }
 // Get scaling ratio
 window.getScale = function() {
@@ -477,8 +477,8 @@ window.initBot = function() {
     window.appendDiv('rendermode_overlay', 'nsi', window.generalstyle + 'left: 30; top: 90px;');
     window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 105px;');
     window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 120px;');
-    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 140px;');
-    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 35; top: 160px;');
+    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 135px;');
+    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'left: 35; top: 150px;');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
     document.body.addEventListener('DOMMouseScroll', window.setZoom);
