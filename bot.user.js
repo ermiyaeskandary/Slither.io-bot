@@ -504,7 +504,7 @@ window.drawLine = function(x2, y2, colour) {
 window.oldOef = window.oef;
 window.oef = function() {
     // Original slither.io oef function + whatever is under it
-    requestAnimationFrame(window.loop);
+    // requestAnimationFrame(window.loop);
     window.oldOef();
     if (window.isBotRunning) window.loop();
     window.onFrameUpdate();
