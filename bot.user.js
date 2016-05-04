@@ -237,6 +237,7 @@ document.onkeydown = function(e) {
                 window.isBotEnabled = true;
             }
         }
+		
         // Letter 'U' to toggle debugging (console)
         if (e.keyCode === 85) {
             window.logDebugging = !window.logDebugging;
@@ -362,33 +363,37 @@ window.getDistance = function(x1, y1, x2, y2) {
 };
 
 window.checkCollision = function() {
-	var circle1 = collisionScreenToCanvas({x: window.getX(), y: window.getY(), radius: window.getSnakeWidth()*window.collisionRadiusMultiplier});
-	if(window.visualDebugging){
-		window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
-	}
-	var avoid = false;
-	var circle2;
-	
-	for (var snake in window.snakes){
-		if (window.snakes[snake].nk != window.snake.nk) {
-			circle2 = {x: window.snakes[snake].xx +  window.snakes[snake].fx, y: window.snakes[snake].yy +  window.snakes[snake].fy, radius: 15*window.snakes[snake].sc};
-			if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))){
-				window.changeGoalCoords(circle2);
-				avoid = true;
-			}
-			for (var y = window.snakes[snake].pts.length - 1; 0 <= y; y--){
-				if(!window.snakes[snake].pts[y].dying) {
-					circle2 = {x: window.snakes[snake].pts[y].xx +  window.snakes[snake].fx, y: window.snakes[snake].pts[y].yy +  window.snakes[snake].fy, radius: 15*window.snakes[snake].sc};
-					if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))){
-						window.changeGoalCoords(circle2);
-						avoid = true;
+	if (window.collisionDetection){
+		var circle1 = collisionScreenToCanvas({x: window.getX(), y: window.getY(), radius: window.getSnakeWidth()*window.collisionRadiusMultiplier});
+		if(window.visualDebugging){
+			window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
+		}
+		var avoid = false;
+		var circle2;
+		
+		for (var snake in window.snakes){
+			if (window.snakes[snake].nk != window.snake.nk) {
+				circle2 = {x: window.snakes[snake].xx +  window.snakes[snake].fx, y: window.snakes[snake].yy +  window.snakes[snake].fy, radius: 15*window.snakes[snake].sc};
+				if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))){
+					window.changeGoalCoords(circle2);
+					avoid = true;
+				}
+				for (var y = window.snakes[snake].pts.length - 1; 0 <= y; y--){
+					if(!window.snakes[snake].pts[y].dying) {
+						circle2 = {x: window.snakes[snake].pts[y].xx +  window.snakes[snake].fx, y: window.snakes[snake].pts[y].yy +  window.snakes[snake].fy, radius: 15*window.snakes[snake].sc};
+						if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))){
+							window.changeGoalCoords(circle2);
+							avoid = true;
+						}
 					}
 				}
 			}
 		}
+		
+		return avoid;
 	}
 	
-	return avoid;
+	return false;
 };
 
 window.collisionScreenToCanvas = function(circle) {
@@ -544,7 +549,6 @@ window.loop = function() {
             window.playDefence("l");
             return;
         }
-		
 		if(!window.checkCollision()){
 			// Sort the food based on their distance relative to player's snake
 			window.sortedFood = window.getSortedFood();
