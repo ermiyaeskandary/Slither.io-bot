@@ -340,7 +340,7 @@ window.sortPrey = function(a, b) {
             window.want_close_socket = true;
             window.dead_mtm = 0;
 			if (window.play_btn) {
-				w.play_btn.setEnabled(true);
+				window.play_btn.setEnabled(true);
 			}
 			window.resetGame();
         }
