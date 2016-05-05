@@ -559,6 +559,16 @@ window.loop = function() {
             window.playDefence("l");
             return;
         }
+        
+        if(window.framesPerSecond.getFPS() <= 20)
+        {
+        	window.mobileRender = true;
+        }
+        
+        if(window.framesPerSecond.getFPS() >= 40)
+        {
+        	window.mobileRender = false;
+        }
 		
         // If no enemies or obstacles, go after what you are going after
         if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*window.collisionRadiusMultiplier)) {
