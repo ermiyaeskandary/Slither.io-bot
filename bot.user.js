@@ -16,13 +16,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 // ==UserScript==
-// @name         Slither.io-bot
+// @name         Slither-io Bot
 // @namespace    http://slither.io/
-// @version      0.6.0
+// @version      0.6.7
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
+// @updateURL    https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
 // @downloadURL  https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
+// @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
 // @grant        none
 // ==/UserScript==
 // Functions needed for the bot
@@ -58,6 +60,7 @@ window.appendDiv = function(id, className, style) {
 // Saves username when you click on "Play" button
 window.play_btn.btnf.addEventListener('click', function() {
     window.saveNick();
+	window.loadPreference('autoRespawn', false);
 });
 // Save nickname when you press "Enter"
 window.nick_holder.addEventListener('keypress', function(e) {
@@ -146,13 +149,14 @@ window.framesPerSecond = {
 };
 
 // Set background - default is slither.io's own background
-function setBackground(url = '/s/bg45.jpg') {
+function setBackground(url) {
+    url = typeof url !== 'undefined' ? url : '/s/bg45.jpg';
     window.ii.src = url;
 }
 // Reset zoom
 window.resetZoom = function() {
         window.gsc = 0.9;
-    }
+};
     // Get scaling ratio
 window.getScale = function() {
     return window.gsc;
@@ -310,43 +314,33 @@ document.onkeydown = function(e) {
         if (e.keyCode === 90) {
             window.resetZoom();
         }
+        // Letter 'Q' to quit to main menu
+    	if (e.keyCode == 81) {
+			window.autoRespawn = false;
+			window.quit();    
+    	}
     }
 };
 // Snake width
 window.getSnakeWidth = function() {
     return window.snake.sc * 15 * window.getScale();
 };
-// Sorting function for food, from property 'distance'
-window.sortFood = function(a, b) {
-    // a.sz & b.sz - size
-    // Divide distance by size so bigger food is prioritised over smaller food
-    return a.distance / a.sz - b.distance / b.sz;
-};
 // Sorting function for prey, from property 'distance'
 window.sortPrey = function(a, b) {
     return a.distance - b.distance;
 };
 
-// Convert object coordinates to radians
-window.getAngleFromObject = function(object) {
-    var x = object.xx - window.getX();
-    var y = object.yy - window.getY();
-    return Math.atan2(x, y);
-};
-
-// Polar angle to Cartesian angles
-window.getCoordsFromAngle = function(angle) {
-    var x = Math.cos(angle) * 100;
-    var y = Math.sin(angle) * 100;
-    return [x, y];
-};
-
-// Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
-window.getDistanceFromMe = function(point) {
-    if (point === null) return null;
-    point.distance = window.getDistance(window.getX(), window.getY(), point.xx, point.yy);
-    return point;
-};
+// Quit to menu
+	window.quit = function () {
+        if (window.playing && window.resetGame) {
+            window.want_close_socket = true;
+            window.dead_mtm = 0;
+			if (window.play_btn) {
+				window.play_btn.setEnabled(true);
+			}
+			window.resetGame();
+        }
+    }
 // Get a distance from point (x1; y1) to point (x2; y2).
 window.getDistance = function(x1, y1, x2, y2) {
     // Calculate the vector coordinates.
@@ -358,11 +352,12 @@ window.getDistance = function(x1, y1, x2, y2) {
     //Add the coordinates of the vector to get a distance. Not the real distance, but reliable for distance comparison.
     var distance = xDistance + yDistance;
     // Real distance but not needed. Here for reference -
-    // var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+    var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
     return distance;
 };
 // Checks to see if you are going to collide with anything in the collision detection radius
 window.checkCollision = function(x, y, r) {
+    if (!window.collisionDetection) return false;
     var circle1 = collisionScreenToCanvas({
         x: x,
         y: y,
@@ -373,6 +368,7 @@ window.checkCollision = function(x, y, r) {
     }
     var avoid = false;
     var circle2;
+	var multiplier = 1;
 
     for (var snake in window.snakes) {
         if (window.snakes[snake].nk != window.snake.nk) {
@@ -384,14 +380,14 @@ window.checkCollision = function(x, y, r) {
                         radius: 15 * window.snakes[snake].sc * window.getScale()
                     };
                     if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
-							window.changeGoalCoords(circle2);
+							window.changeGoalCoords(circle2, multiplier, (window.snakes[snake].sp > 10));
+							multiplier++;
 							avoid = true;
                     }
                 }
             }
         }
     }
-	
 	return avoid;
 };
 // Screen to Canvas coordinate conversion - used for collision detection
@@ -407,11 +403,11 @@ window.collisionScreenToCanvas = function(circle) {
     };
 };
 // Change direction
-window.changeGoalCoords = function(circle1) {
+window.changeGoalCoords = function(circle1, multiplier, speed) {
 	if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
 		window.collisionPoint = circle1;
-		window.goalCoordinates = window.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
-		window.setAcceleration(0);
+		window.goalCoordinates = window.mapToMouse(window.snake.xx + (multiplier * (window.snake.xx - window.collisionPoint.x)), window.snake.yy + (multiplier * (window.snake.yy - window.collisionPoint.y)));
+		window.setAcceleration(speed);
 		window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
 	}
 };
@@ -457,8 +453,47 @@ window.getSortedFood = function() {
     // Filters the nearest food by getting the distance
     return window.foods.filter(function(val) {
         return val !== null;
-    }).map(window.getDistanceFromMe).sort(window.sortFood);
+    }).map(window.getDistanceFromMe).map(window.foodNearFood).sort(window.sortFood);
 };
+
+window.foodNearFood = function(food){
+	if (!food.clustered){
+		var mySnakeWidth = window.getSnakeWidth();
+		food.clusterCount = 1;
+		
+		for (var foodNearFood in window.foods){
+			nearFood = window.foods[foodNearFood];
+			if (nearFood !== null && nearFood.id !== food.id){
+				foodDistance = window.getDistance(food.xx,food.yy, nearFood.xx, nearFood.yy);
+				if(foodDistance <= mySnakeWidth*5){
+					food.clusterCount++;
+					nearFood.clusterCount = 0;
+					nearFood.clustered = true;
+				}
+			}
+		}
+	}
+	
+	food.clustered = true;
+	return food;
+};
+// Sorting function for food, from property 'distance'
+window.sortFood = function(a, b) {
+    // a.sz & b.sz - size
+    // Divide distance by size so bigger food is prioritised over smaller food
+	//console.log(a.clusterCount - b.clusterCount);
+	aCluster = a.clusterCount;
+	bCluster = b.clusterCount;
+	
+    return (aCluster == bCluster ? 0 : aCluster / a.distance >  bCluster  / b.distance ? -1 : 1);
+};
+// Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
+window.getDistanceFromMe = function(point) {
+    if (point === null) return null;
+    point.distance = window.getDistance(window.getX(), window.getY(), point.xx, point.yy);
+    return point;
+};
+
 // Sort prey based on distance
 window.getSortedPrey = function() {
     // Filters the nearest food by getting the distance
@@ -495,7 +530,7 @@ window.drawLine = function(x2, y2, colour) {
 window.oldOef = window.oef;
 window.oef = function() {
     // Original slither.io oef function + whatever is under it
-    // requestAnimationFrame(window.loop);
+    requestAnimationFrame(window.foodNearFood);
     window.oldOef();
     if (window.isBotRunning) window.loop();
     window.onFrameUpdate();
@@ -516,6 +551,7 @@ window.onFrameUpdate = function() {
     window.collision_radius_multiplier_overlay.innerHTML = generalStyle + '(A/S) Collision radius multiplier: ' + window.collisionRadiusMultiplier + ' </span>';
     window.defence_overlay.innerHTML = generalStyle + '(D) Defence: </span>' + window.handleTextColor(window.defence);
     window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
+    window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
     window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
 
     // If playing
@@ -552,24 +588,25 @@ window.loop = function() {
             window.playDefence("l");
             return;
         }
-		
         // If no enemies or obstacles, go after what you are going after
         if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*window.collisionRadiusMultiplier)) {
-            //New food Algorithm
-             window.isInFoods = function (foodObject) {
-            return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
-        };
-        window.currentFood = null;
-        window.sortedFood = getSortedFood();
-            if (!isInFoods(currentFood)) {
-                window.sortedFood = getSortedFood();
-                window.currentFood = sortedFood[0];
-                var coordinatesOfClosestFood = window.mapToMouse(window.sortedFood[0].xx, window.sortedFood[0].yy);
-                window.goalCoordinates = coordinatesOfClosestFood;
-            }
-        //New food Algorithm
+			            window.setAcceleration(0);
+            // Sort the food based on their distance relative to player's snake
+            window.sortedFood = window.getSortedFood();
+            // Current food
+            window.currentFood = window.sortedFood[0];
+			//console.log(sortedFood.length);
+            // Convert coordinates of the closest food using mapToMouse
+            var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
+            window.goalCoordinates = coordinatesOfClosestFood;
+			
+			if (window.currentFood.clusterCount >= 12){
+				if(window.currentFood.distance <= Math.pow(window.getSnakeLength(), 2) / 2){
+					setAcceleration(1);
+				}
+			} 
+			
             // Disable Sprint
-            window.setAcceleration(0);
             // Check for preys, enough "length"
             if (window.preys.length > 0 && window.huntPrey) {
                 // Sort preys based on their distance relative to player's snake
@@ -589,7 +626,7 @@ window.loop = function() {
             window.kd_l = false;
             window.kd_r = false;
             window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
-        } 
+        }
     } else {
         if (window.ranOnce) {
             //window.startInterval = setInterval(window.startBot, 1000);
@@ -648,6 +685,7 @@ window.initBot = function() {
     window.appendDiv('collision_radius_multiplier_overlay', 'nsi', window.generalstyle + 'left: 30; top: 135px;');
     window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 150px;');
     window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 165px;');
+    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 180px;');
     // Bottom right
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
     window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
@@ -695,4 +733,19 @@ window.initBot();
                 // !handle close enemies!
                  }
         */
-
+// Better food hunting algorithm but not implemented yet
+/*
+        window.isInFoods = function (foodObject) {
+            return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
+        };
+        window.currentFood = null;
+        window.sortedFood = getSortedFood();
+        window.loop = function () {
+            if (!isInFoods(currentFood)) {
+                window.sortedFood = getSortedFood();
+                window.currentFood = sortedFood[0];
+                var coordinatesOfClosestFood = window.mapToMouse(window.sortedFood[0].xx, window.sortedFood[0].yy);
+                window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
+            }
+        };
+        */
