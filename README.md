@@ -7,7 +7,7 @@ Goal : make a bot for slither.io
 ## Join us on Discord (team communication)
 [![Discord][discord-image]][discord-url]
 [discord-image]: https://img.shields.io/badge/discord-join%20chat-blue.svg
-[discord-url]: https://discord.gg/0zVDZuCDvvSs6rFB
+[discord-url]: https://discord.gg/0zVDZuCDvvTtT2S8
 
 ## Check us out on waffle.io (project management)
 ## [![Issues being worked on](https://badge.waffle.io/ErmiyaEskandary/Slither.io-bot.svg?label=Work%20in%20progress&title=Being%20Worked%20On)](http://waffle.io/ErmiyaEskandary/Slither.io-bot)
