@@ -384,7 +384,7 @@ window.checkCollision = function(x, y, r) {
                         radius: 15 * window.snakes[snake].sc * window.getScale()
                     };
                     if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
-							window.changeGoalCoords(circle1);
+							window.changeGoalCoords(circle2);
 							avoid = true;
                     }
                 }
