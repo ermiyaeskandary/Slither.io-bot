@@ -24,7 +24,7 @@ SOFTWARE.*/
 // @match        http://slither.io/
 // @updateURL    https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
 // @downloadURL  https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
-// @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
+// @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
 // @grant        none
 // ==/UserScript==
 // Functions needed for the bot
