@@ -371,20 +371,22 @@ window.checkCollision = function(x, y, r) {
         window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
     }
     var avoid = false;
-    var circle2;
-	var multiplier = 1;
 	window.collisionPoints = window.getCollisionPoints()
-	
-	circle2 = {
-		x: collisionPoints[0].xx + collisionPoints[0].fx,
-		y: collisionPoints[0].yy + collisionPoints[0].fy,
-		radius: 22 * collisionPoints[0].sc * window.getScale()
-	};
-	
-	if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
-			window.changeGoalCoords(circle2, multiplier, (collisionPoints[0].sp > 10));
-			multiplier++;
-			avoid = true;
+	if (collisionPoints != null){
+		var circle2;
+		var multiplier = 1;
+		
+		circle2 = {
+			x: collisionPoints[0].xx + collisionPoints[0].fx,
+			y: collisionPoints[0].yy + collisionPoints[0].fy,
+			radius: 22 * collisionPoints[0].sc * window.getScale()
+		};
+		
+		if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
+				window.changeGoalCoords(circle2, multiplier, (collisionPoints[0].sp > 10));
+				multiplier++;
+				avoid = true;
+		}
 	}
 	return avoid;
 };
