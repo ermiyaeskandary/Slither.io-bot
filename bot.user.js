@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.6.1
+// @version      0.6.2
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -146,7 +146,8 @@ window.framesPerSecond = {
 };
 
 // Set background - default is slither.io's own background
-function setBackground(url = '/s/bg45.jpg') {
+function setBackground(url) {
+    url = typeof url !== 'undefined' ? url : '/s/bg45.jpg';
     window.ii.src = url;
 }
 // Reset zoom
