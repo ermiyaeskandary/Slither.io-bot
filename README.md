@@ -4,6 +4,9 @@ Goal : make a bot for slither.io
 ## Join us on Slack (team communication)
 ## [![Join Slack](https://slitherio-bot.herokuapp.com/badge.svg)](https://slitherio-bot.herokuapp.com/)
 
+## Join us on Discord (team communication)
+## https://discord.gg/0zVDZuCDvvSs6rFB
+
 ## Check us out on waffle.io (project management)
 ## [![Issues being worked on](https://badge.waffle.io/ErmiyaEskandary/Slither.io-bot.svg?label=Work%20in%20progress&title=Being%20Worked%20On)](http://waffle.io/ErmiyaEskandary/Slither.io-bot)
 

@@ -362,11 +362,11 @@ window.getDistance = function(x1, y1, x2, y2) {
     return distance;
 };
 // Checks to see if you are going to collide with anything in the collision detection radius
-window.checkCollision = function() {
+window.checkCollision = function(x, y, r) {
     var circle1 = collisionScreenToCanvas({
-        x: window.getX(),
-        y: window.getY(),
-        radius: window.getSnakeWidth() * window.collisionRadiusMultiplier
+        x: x,
+        y: y,
+        radius: r
     });
     if (window.visualDebugging) {
         window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
@@ -376,15 +376,6 @@ window.checkCollision = function() {
 
     for (var snake in window.snakes) {
         if (window.snakes[snake].nk != window.snake.nk) {
-            circle2 = {
-                x: window.snakes[snake].xx + window.snakes[snake].fx,
-                y: window.snakes[snake].yy + window.snakes[snake].fy,
-                radius: 15 * window.snakes[snake].sc * window.getScale()
-            };
-            if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
-                window.changeGoalCoords(circle2);
-                avoid = true;
-            }
             for (var y = window.snakes[snake].pts.length - 1; 0 <= y; y--) {
                 if (!window.snakes[snake].pts[y].dying) {
                     circle2 = {
@@ -393,15 +384,15 @@ window.checkCollision = function() {
                         radius: 15 * window.snakes[snake].sc * window.getScale()
                     };
                     if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
-                        window.changeGoalCoords(circle2);
-                        avoid = true;
+							window.changeGoalCoords(circle1);
+							avoid = true;
                     }
                 }
             }
         }
     }
-
-    return avoid;
+	
+	return avoid;
 };
 // Screen to Canvas coordinate conversion - used for collision detection
 window.collisionScreenToCanvas = function(circle) {
@@ -417,12 +408,12 @@ window.collisionScreenToCanvas = function(circle) {
 };
 // Change direction
 window.changeGoalCoords = function(circle1) {
-    if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
-        window.collisionPoint = circle1;
-        window.goalCoordinates = window.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
-        window.setAcceleration(0);
-        window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
-    }
+	if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
+		window.collisionPoint = circle1;
+		window.goalCoordinates = window.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
+		window.setAcceleration(0);
+		window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
+	}
 };
 // Check if circles intersect
 window.circleIntersect = function(circle1, circle2) {
@@ -561,8 +552,9 @@ window.loop = function() {
             window.playDefence("l");
             return;
         }
+		
         // If no enemies or obstacles, go after what you are going after
-        if (!window.checkCollision()) {
+        if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*window.collisionRadiusMultiplier)) {
             // Sort the food based on their distance relative to player's snake
             window.sortedFood = window.getSortedFood();
             // Current food
@@ -591,7 +583,7 @@ window.loop = function() {
             window.kd_l = false;
             window.kd_r = false;
             window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
-        }
+        } 
     } else {
         if (window.ranOnce) {
             //window.startInterval = setInterval(window.startBot, 1000);
