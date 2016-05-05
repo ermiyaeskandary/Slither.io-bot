@@ -379,7 +379,7 @@ window.checkCollision = function(x, y, r) {
     if (window.visualDebugging) {
         window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
     }
-    var shortest_distance = 10000;
+    var shortest_distance = Number.MAX_VALUE;
     var avoid = false;
     var circle2;
 
