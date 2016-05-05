@@ -379,6 +379,7 @@ window.checkCollision = function(x, y, r) {
     if (window.visualDebugging) {
         window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
     }
+    var shortest_distance = 10000;
     var avoid = false;
     var circle2;
 
@@ -386,14 +387,20 @@ window.checkCollision = function(x, y, r) {
         if (window.snakes[snake].nk != window.snake.nk) {
             for (var y = window.snakes[snake].pts.length - 1; 0 <= y; y--) {
                 if (!window.snakes[snake].pts[y].dying) {
+                    var xx = window.snakes[snake].pts[y].xx + window.snakes[snake].fx;
+                    var yy = window.snakes[snake].pts[y].yy + window.snakes[snake].fy;
                     circle2 = {
-                        x: window.snakes[snake].pts[y].xx + window.snakes[snake].fx,
-                        y: window.snakes[snake].pts[y].yy + window.snakes[snake].fy,
+                        x: xx,
+                        y: yy,
                         radius: 15 * window.snakes[snake].sc * window.getScale()
                     };
                     if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
-                        window.changeGoalCoords(circle2);
-                        avoid = true;
+                        var distance = window.getDistance(window.getX(), window.getY(), xx, yy);
+                        if (distance < shortest_distance){
+                            window.changeGoalCoords(circle2);
+                            avoid = true;
+                            shortest_distance = distance;
+                        }
                     }
                 }
             }
