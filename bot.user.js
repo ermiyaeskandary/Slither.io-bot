@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.6.4
+// @version      0.6.5
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -313,6 +313,10 @@ document.onkeydown = function(e) {
         if (e.keyCode === 90) {
             window.resetZoom();
         }
+        // Letter 'Q' to quit to main menu
+        if (e.keycode === 81) {
+            window.quit();	
+        }
     }
 };
 // Snake width
@@ -330,19 +334,17 @@ window.sortPrey = function(a, b) {
     return a.distance - b.distance;
 };
 
-// Convert object coordinates to radians
-window.getAngleFromObject = function(object) {
-    var x = object.xx - window.getX();
-    var y = object.yy - window.getY();
-    return Math.atan2(x, y);
-};
-
-// Polar angle to Cartesian angles
-window.getCoordsFromAngle = function(angle) {
-    var x = Math.cos(angle) * 100;
-    var y = Math.sin(angle) * 100;
-    return [x, y];
-};
+// Quit to menu
+	window.quit = function () {
+        if (window.playing && window..resetGame) {
+            window.want_close_socket = true;
+            window.dead_mtm = 0;
+			if (window.play_btn) {
+				w.play_btn.setEnabled(true);
+			}
+			window.resetGame();
+        }
+    }
 
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
 window.getDistanceFromMe = function(point) {
@@ -519,6 +521,7 @@ window.onFrameUpdate = function() {
     window.collision_radius_multiplier_overlay.innerHTML = generalStyle + '(A/S) Collision radius multiplier: ' + window.collisionRadiusMultiplier + ' </span>';
     window.defence_overlay.innerHTML = generalStyle + '(D) Defence: </span>' + window.handleTextColor(window.defence);
     window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
+     window.resetzoom_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
     window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
 
     // If playing
@@ -645,6 +648,7 @@ window.initBot = function() {
     window.appendDiv('collision_radius_multiplier_overlay', 'nsi', window.generalstyle + 'left: 30; top: 135px;');
     window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 150px;');
     window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 165px;');
+    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 180px;');
     // Bottom right
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
     window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
