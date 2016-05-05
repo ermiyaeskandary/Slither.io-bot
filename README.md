@@ -4,6 +4,9 @@ Goal : make a bot for slither.io
 ## Join us on Slack (team communication)
 ## [![Join Slack](https://slitherio-bot.herokuapp.com/badge.svg)](https://slitherio-bot.herokuapp.com/)
 
+## Join us on Discord (team communication)
+## [![Join Discord] (https://discord.gg/0zVDZuCDvvTsw9u3)
+
 ## Check us out on waffle.io (project management)
 ## [![Issues being worked on](https://badge.waffle.io/ErmiyaEskandary/Slither.io-bot.svg?label=Work%20in%20progress&title=Being%20Worked%20On)](http://waffle.io/ErmiyaEskandary/Slither.io-bot)
 
@@ -30,6 +33,8 @@ I | Automatic Respawning
 **O** | **Mobile rendering - Try this if you experience lag**
 P | Hunt prey - Moving food
 D | Defense mode - bot turns around in a circle
+C | Enemy avoidance / Collision prevention
+Z | Reset zoom
 Mouse wheel | Zoom in/out
 
 # Contributing
