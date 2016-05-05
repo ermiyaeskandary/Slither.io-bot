@@ -152,7 +152,7 @@ function setBackground(url = '/s/bg45.jpg') {
 // Reset zoom
 window.resetZoom = function() {
         window.gsc = 0.9;
-    }
+};
     // Get scaling ratio
 window.getScale = function() {
     return window.gsc;
