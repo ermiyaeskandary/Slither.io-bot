@@ -336,7 +336,7 @@ window.sortPrey = function(a, b) {
 
 // Quit to menu
 	window.quit = function () {
-        if (window.playing && window..resetGame) {
+        if (window.playing && window.resetGame) {
             window.want_close_socket = true;
             window.dead_mtm = 0;
 			if (window.play_btn) {
