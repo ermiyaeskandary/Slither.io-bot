@@ -363,6 +363,7 @@ window.getDistance = function(x1, y1, x2, y2) {
 };
 // Checks to see if you are going to collide with anything in the collision detection radius
 window.checkCollision = function(x, y, r) {
+    if (!window.collisionDetection) return false;
     var circle1 = collisionScreenToCanvas({
         x: x,
         y: y,
@@ -391,7 +392,6 @@ window.checkCollision = function(x, y, r) {
             }
         }
     }
-	
 	return avoid;
 };
 // Screen to Canvas coordinate conversion - used for collision detection
@@ -583,7 +583,7 @@ window.loop = function() {
             window.kd_l = false;
             window.kd_r = false;
             window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
-        } 
+        }
     } else {
         if (window.ranOnce) {
             //window.startInterval = setInterval(window.startBot, 1000);
