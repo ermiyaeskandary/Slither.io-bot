@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.6.5
+// @version      0.6.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -521,7 +521,7 @@ window.onFrameUpdate = function() {
     window.collision_radius_multiplier_overlay.innerHTML = generalStyle + '(A/S) Collision radius multiplier: ' + window.collisionRadiusMultiplier + ' </span>';
     window.defence_overlay.innerHTML = generalStyle + '(D) Defence: </span>' + window.handleTextColor(window.defence);
     window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
-     window.resetzoom_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
+    window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
     window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
 
     // If playing
