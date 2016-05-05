@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.6.6
+// @version      0.6.7
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -314,9 +314,10 @@ document.onkeydown = function(e) {
             window.resetZoom();
         }
         // Letter 'Q' to quit to main menu
-        if (e.keycode === 81) {
-            window.quit();	
-        }
+    	if (e.keyCode == 81) {
+        window.autoRespawn = !window.autoRespawn;
+        window.quit();    
+    	}
     }
 };
 // Snake width
