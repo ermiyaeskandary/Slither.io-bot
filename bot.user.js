@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.6.7
+// @version      0.6.8
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -60,6 +60,7 @@ window.appendDiv = function(id, className, style) {
 // Saves username when you click on "Play" button
 window.play_btn.btnf.addEventListener('click', function() {
     window.saveNick();
+    window.loadPreference('autoRespawn', false);
 });
 // Save nickname when you press "Enter"
 window.nick_holder.addEventListener('keypress', function(e) {
@@ -154,9 +155,9 @@ function setBackground(url) {
 }
 // Reset zoom
 window.resetZoom = function() {
-        window.gsc = 0.9;
+    window.gsc = 0.9;
 };
-    // Get scaling ratio
+// Get scaling ratio
 window.getScale = function() {
     return window.gsc;
 };
@@ -314,10 +315,10 @@ document.onkeydown = function(e) {
             window.resetZoom();
         }
         // Letter 'Q' to quit to main menu
-    	if (e.keyCode == 81) {
-        window.autoRespawn = !window.autoRespawn;
-        window.quit();    
-    	}
+        if (e.keyCode == 81) {
+            window.autoRespawn = false;
+            window.quit();
+        }
     }
 };
 // Snake width
@@ -336,16 +337,16 @@ window.sortPrey = function(a, b) {
 };
 
 // Quit to menu
-	window.quit = function () {
-        if (window.playing && window.resetGame) {
-            window.want_close_socket = true;
-            window.dead_mtm = 0;
-			if (window.play_btn) {
-				window.play_btn.setEnabled(true);
-			}
-			window.resetGame();
+window.quit = function() {
+    if (window.playing && window.resetGame) {
+        window.want_close_socket = true;
+        window.dead_mtm = 0;
+        if (window.play_btn) {
+            window.play_btn.setEnabled(true);
         }
+        window.resetGame();
     }
+}
 
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
 window.getDistanceFromMe = function(point) {
@@ -391,14 +392,14 @@ window.checkCollision = function(x, y, r) {
                         radius: 15 * window.snakes[snake].sc * window.getScale()
                     };
                     if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
-							window.changeGoalCoords(circle2);
-							avoid = true;
+                        window.changeGoalCoords(circle2);
+                        avoid = true;
                     }
                 }
             }
         }
     }
-	return avoid;
+    return avoid;
 };
 // Screen to Canvas coordinate conversion - used for collision detection
 window.collisionScreenToCanvas = function(circle) {
@@ -414,12 +415,12 @@ window.collisionScreenToCanvas = function(circle) {
 };
 // Change direction
 window.changeGoalCoords = function(circle1) {
-	if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
-		window.collisionPoint = circle1;
-		window.goalCoordinates = window.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
-		window.setAcceleration(0);
-		window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
-	}
+    if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
+        window.collisionPoint = circle1;
+        window.goalCoordinates = window.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
+        window.setAcceleration(0);
+        window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
+    }
 };
 // Check if circles intersect
 window.circleIntersect = function(circle1, circle2) {
@@ -559,9 +560,9 @@ window.loop = function() {
             window.playDefence("l");
             return;
         }
-		
+
         // If no enemies or obstacles, go after what you are going after
-        if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*window.collisionRadiusMultiplier)) {
+        if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
             // Sort the food based on their distance relative to player's snake
             window.sortedFood = window.getSortedFood();
             // Current food
