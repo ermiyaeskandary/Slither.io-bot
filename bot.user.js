@@ -372,7 +372,7 @@ window.checkCollision = function(x, y, r) {
     }
     var avoid = false;
 	window.collisionPoints = window.getCollisionPoints()
-	if (collisionPoints != null){
+	if (collisionPoints[0] != null){
 		var circle2;
 		var multiplier = 1;
 		
