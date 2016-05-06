@@ -346,7 +346,7 @@ window.quit = function() {
         }
         window.resetGame();
     }
-}
+};
 
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
 window.getDistanceFromMe = function(point) {
@@ -371,7 +371,7 @@ window.getDistance = function(x1, y1, x2, y2) {
 // Checks to see if you are going to collide with anything in the collision detection radius
 window.checkCollision = function(x, y, r) {
     if (!window.collisionDetection) return false;
-    var circle1 = collisionScreenToCanvas({
+    var circle1 = window.collisionScreenToCanvas({
         x: x,
         y: y,
         radius: r
@@ -385,7 +385,7 @@ window.checkCollision = function(x, y, r) {
 
     for (var snake in window.snakes) {
         if (window.snakes[snake].nk != window.snake.nk) {
-            for (var y = window.snakes[snake].pts.length - 1; 0 <= y; y--) {
+            for (y = window.snakes[snake].pts.length - 1; 0 <= y; y--) {
                 if (!window.snakes[snake].pts[y].dying) {
                     var xx = window.snakes[snake].pts[y].xx + window.snakes[snake].fx;
                     var yy = window.snakes[snake].pts[y].yy + window.snakes[snake].fy;
@@ -394,7 +394,7 @@ window.checkCollision = function(x, y, r) {
                         y: yy,
                         radius: 15 * window.snakes[snake].sc * window.getScale()
                     };
-                    if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
+                    if (window.circleIntersect(circle1, window.collisionScreenToCanvas(circle2))) {
                         var distance = window.getDistance(window.getX(), window.getY(), xx, yy);
                         if (distance < shortest_distance){
                             window.changeGoalCoords(circle2);
@@ -426,13 +426,13 @@ window.changeGoalCoords = function(circle1) {
         window.collisionPoint = circle1;
         window.goalCoordinates = window.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
         window.setAcceleration(0);
-        window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
+        window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
     }
 };
 // Check if circles intersect
 window.circleIntersect = function(circle1, circle2) {
-    if (quickCollisionCheck(circle1, circle2)) {
-        if (collisionCheck(circle1, circle2)) {
+    if (window.quickCollisionCheck(circle1, circle2)) {
+        if (window.collisionCheck(circle1, circle2)) {
             return true;
         } else {
             return false;
@@ -450,11 +450,11 @@ window.quickCollisionCheck = function(circle1, circle2) {
 };
 // Collision check
 window.collisionCheck = function(circle1, circle2) {
-    distance = Math.sqrt(((circle1.x - circle2.x) * (circle1.x - circle2.x)) + ((circle1.y - circle2.y) * (circle1.y - circle2.y)));
+    var distance = Math.sqrt(((circle1.x - circle2.x) * (circle1.x - circle2.x)) + ((circle1.y - circle2.y) * (circle1.y - circle2.y)));
 
     if (distance < circle1.radius + circle2.radius) {
-        collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / (circle1.radius + circle2.radius);
-        collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / (circle1.radius + circle2.radius);
+        var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / (circle1.radius + circle2.radius);
+        var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / (circle1.radius + circle2.radius);
 
         if (window.visualDebugging) {
             window.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
@@ -541,7 +541,7 @@ window.onFrameUpdate = function() {
                 // Display the X and Y of the snake
                 window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
             }
-            drawGoalCoordinates = window.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
+            var drawGoalCoordinates = window.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
             drawGoalCoordinates = window.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
             window.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
             window.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
@@ -550,8 +550,8 @@ window.onFrameUpdate = function() {
 };
 // Defense mode - bot turns around in a circle
 window.playDefence = function(dir) {
-    window.kd_l = (dir === "l");
-    window.kd_r = (dir === "r");
+    window.kd_l = (dir === 'l');
+    window.kd_r = (dir === 'r');
     window.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
 };
 // Actual bot code
@@ -564,7 +564,7 @@ window.loop = function() {
         // TODO: Check some condition to see if we should play defence
         // Right now this just uses the manual toggle
         if (window.defence) {
-            window.playDefence("l");
+            window.playDefence('l');
             return;
         }
 
