@@ -703,7 +703,7 @@ window.loop = function() {
             window.sortedFood = window.getSortedFood();
             // Current food
 			//i = 0;
-            window.currentFood = window.sortedFood[0];
+           // window.currentFood = window.sortedFood[i];
 			
 			//while (!window.goodPath(window.currentFood)){
 			//	i++;
