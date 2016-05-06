@@ -719,7 +719,7 @@ window.initBot = function() {
     window.loadPreference('mobileRender', false);
     window.loadPreference('huntPrey', true);
     window.loadPreference('collisionDetection', true);
-    window.loadPreference('collisionRadiusMultiplier', 8);
+    window.collisionRadiusMultiplier = window.loadPreference('collisionRadiusMultiplier', 8);
     window.loadPreference('defence', false);
     window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
     // Overlays
