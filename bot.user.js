@@ -289,11 +289,7 @@ document.onkeydown = function(e) {
         }
 
         // Letter 'A' to increase collision detection radius
-<<<<<<< HEAD
         if (e.keyCode === 65 && window.snake.sp < 10) {
-=======
-        if (e.keyCode === 65) {
->>>>>>> refs/remotes/ErmiyaEskandary/master
             window.collisionRadiusMultiplier++;
 			window.lastCollisionRadiusMultiplier = window.collisionRadiusMultiplier;
             console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
@@ -301,16 +297,10 @@ document.onkeydown = function(e) {
         }
 
         // Letter 'S' to decrease collision detection radius
-<<<<<<< HEAD
         if (e.keyCode === 83 && window.snake.sp < 10) {
             if (window.collisionRadiusMultiplier > 1) {
                 window.collisionRadiusMultiplier--;
 				window.lastCollisionRadiusMultiplier = window.collisionRadiusMultiplier;
-=======
-        if (e.keyCode === 83) {
-            if (window.collisionRadiusMultiplier > 1) {
-                window.collisionRadiusMultiplier--;
->>>>>>> refs/remotes/ErmiyaEskandary/master
                 console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
                 window.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
             }
@@ -358,11 +348,7 @@ window.quit = function() {
         }
         window.resetGame();
     }
-<<<<<<< HEAD
 };
-=======
-}
->>>>>>> refs/remotes/ErmiyaEskandary/master
 
 // Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
 window.getDistanceFromMe = function(point) {
@@ -384,22 +370,7 @@ window.getDistance = function(x1, y1, x2, y2) {
     // var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
     return distance;
 };
-// Checks to see if you are going to collide with anything in the collision detection radius
-window.checkCollision = function(x, y, r) {
-    if (!window.collisionDetection) return false;
-    var circle1 = collisionScreenToCanvas({
-        x: x,
-        y: y,
-        radius: r
-    });
-    if (window.visualDebugging) {
-        window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
-    }
-    var shortest_distance = 10000;
-    var avoid = false;
-    var circle2;
 
-<<<<<<< HEAD
  window.sortDistance= function(a, b) {
     return a.distance  >  b.distance  ? 1 : -1;
 };
@@ -434,32 +405,6 @@ window.checkCollision = function(x, y, r) {
 		}
 	}
 	return avoid;
-=======
-    for (var snake in window.snakes) {
-        if (window.snakes[snake].nk != window.snake.nk) {
-            for (var y = window.snakes[snake].pts.length - 1; 0 <= y; y--) {
-                if (!window.snakes[snake].pts[y].dying) {
-                    var xx = window.snakes[snake].pts[y].xx + window.snakes[snake].fx;
-                    var yy = window.snakes[snake].pts[y].yy + window.snakes[snake].fy;
-                    circle2 = {
-                        x: xx,
-                        y: yy,
-                        radius: 15 * window.snakes[snake].sc * window.getScale()
-                    };
-                    if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
-                        var distance = window.getDistance(window.getX(), window.getY(), xx, yy);
-                        if (distance < shortest_distance){
-                            window.changeGoalCoords(circle2);
-                            avoid = true;
-                            shortest_distance = distance;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return avoid;
->>>>>>> refs/remotes/ErmiyaEskandary/master
 };
 // Screen to Canvas coordinate conversion - used for collision detection
 window.collisionScreenToCanvas = function(circle) {
@@ -474,7 +419,6 @@ window.collisionScreenToCanvas = function(circle) {
     };
 };
 // Change direction
-<<<<<<< HEAD
 window.changeGoalCoords = function(circle1, multiplier, speed) {
 	if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
 		window.collisionPoint = circle1;
@@ -482,15 +426,6 @@ window.changeGoalCoords = function(circle1, multiplier, speed) {
 		window.setAcceleration(speed);
 		window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
 	}
-=======
-window.changeGoalCoords = function(circle1) {
-    if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
-        window.collisionPoint = circle1;
-        window.goalCoordinates = window.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
-        window.setAcceleration(0);
-        window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
-    }
->>>>>>> refs/remotes/ErmiyaEskandary/master
 };
 // Check if circles intersect
 window.circleIntersect = function(circle1, circle2) {
@@ -514,19 +449,11 @@ window.quickCollisionCheck = function(circle1, circle2) {
 // Collision check
 window.collisionCheck = function(circle1, circle2) {
     distance = Math.sqrt(((circle1.x - circle2.x) * (circle1.x - circle2.x)) + ((circle1.y - circle2.y) * (circle1.y - circle2.y)));
-<<<<<<< HEAD
 
     if (distance < circle1.radius + circle2.radius) {
         collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / (circle1.radius + circle2.radius);
         collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / (circle1.radius + circle2.radius);
 
-=======
-
-    if (distance < circle1.radius + circle2.radius) {
-        collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / (circle1.radius + circle2.radius);
-        collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / (circle1.radius + circle2.radius);
-
->>>>>>> refs/remotes/ErmiyaEskandary/master
         if (window.visualDebugging) {
             window.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
             window.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
@@ -535,7 +462,6 @@ window.collisionCheck = function(circle1, circle2) {
     } else {
         return false;
     }
-<<<<<<< HEAD
 };
 // Sort collision points based on distance
 window.getCollisionPoints = function() {
@@ -561,8 +487,6 @@ window.getCollisionPoints = function() {
 	}
 	
 	return collisionPoints.sort(window.sortDistance);
-=======
->>>>>>> refs/remotes/ErmiyaEskandary/master
 };
 // Sort food based on distance
 window.getSortedFood = function() {
@@ -650,10 +574,6 @@ window.drawLine = function(x2, y2, colour) {
 window.oldOef = window.oef;
 window.oef = function() {
     // Original slither.io oef function + whatever is under it
-<<<<<<< HEAD
-=======
-    // requestAnimationFrame(window.loop);
->>>>>>> refs/remotes/ErmiyaEskandary/master
     window.oldOef();
     if (window.isBotRunning) window.loop();
     window.onFrameUpdate();
@@ -697,7 +617,6 @@ window.playDefence = function(dir) {
     window.kd_l = (dir === "l");
     window.kd_r = (dir === "r");
     window.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
-<<<<<<< HEAD
 };
 //increase dodge radius when using speed
 window.speedRadius = function() {
@@ -708,8 +627,6 @@ window.speedRadius = function() {
 	} else {
 		window.collisionRadiusMultiplier = window.lastCollisionRadiusMultiplier;
 	}
-=======
->>>>>>> refs/remotes/ErmiyaEskandary/master
 };
 
 // Actual bot code
@@ -725,7 +642,6 @@ window.loop = function() {
             window.playDefence("l");
             return;
         }
-<<<<<<< HEAD
 		
 		//increase dodge radius when using speed
 		window.speedRadius();
@@ -733,16 +649,10 @@ window.loop = function() {
         // If no enemies or obstacles, go after what you are going after
         if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*window.collisionRadiusMultiplier)) {
 			window.setAcceleration(0);
-=======
-
-        // If no enemies or obstacles, go after what you are going after
-        if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
->>>>>>> refs/remotes/ErmiyaEskandary/master
             // Sort the food based on their distance relative to player's snake
             window.sortedFood = window.getSortedFood();
             // Current food
             window.currentFood = window.sortedFood[0];
-<<<<<<< HEAD
 			//console.log(sortedFood.length);
             // Convert coordinates of the closest food using mapToMouse
             var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
@@ -756,13 +666,6 @@ window.loop = function() {
 			} 
 			
             // Disable Sprint
-=======
-            // Convert coordinates of the closest food using mapToMouse
-            var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
-            window.goalCoordinates = coordinatesOfClosestFood;
-            // Disable Sprint
-            window.setAcceleration(0);
->>>>>>> refs/remotes/ErmiyaEskandary/master
             // Check for preys, enough "length"
             if (window.preys.length > 0 && window.huntPrey) {
                 // Sort preys based on their distance relative to player's snake
@@ -791,19 +694,6 @@ window.loop = function() {
     }
 };
 
-<<<<<<< HEAD
-=======
-// Target the user's browser.
-(function() {
-    var requestAnimationFrame = window.requestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.msRequestAnimationFrame;
-
-    window.requestAnimationFrame = requestAnimationFrame;
-})();
-
->>>>>>> refs/remotes/ErmiyaEskandary/master
 // Starts bot
 window.startBot = function() {
     if (window.autoRespawn && !window.playing && window.isBotEnabled && window.ranOnce && !window.isBotRunning) {
@@ -816,10 +706,7 @@ window.initBot = function() {
     window.ranOnce = false;
     window.isBotRunning = false;
     window.isBotEnabled = true;
-<<<<<<< HEAD
 	window.lastCollisionRadiusMultiplier = window.collisionRadiusMultiplier;
-=======
->>>>>>> refs/remotes/ErmiyaEskandary/master
     window.collisionPoint = {
         x: 0,
         y: 0,
