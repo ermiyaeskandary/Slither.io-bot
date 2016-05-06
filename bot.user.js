@@ -652,7 +652,7 @@ window.loop = function() {
             window.goalCoordinates = coordinatesOfClosestFood;
 			
 			//use speed to go to larger clusters
-			if (window.currentFood.clusterSz >= 70){
+			if (window.currentFood.clusterSz >= 60){
 				if(window.currentFood.distance <= Math.pow(window.getSnakeLength(), 2) / 2){
 					setAcceleration(1);
 				}
@@ -660,7 +660,7 @@ window.loop = function() {
 			
             // Disable Sprint
             // Check for preys, enough "length"
-            if (window.preys.length > 0 && window.huntPrey) {
+            if (window.preys.length > 0 && window.huntPrey && window.currentFood.clusterSz < 60) {
                 // Sort preys based on their distance relative to player's snake
                 window.sortedPrey = window.getSortedPrey();
                 // Current prey
