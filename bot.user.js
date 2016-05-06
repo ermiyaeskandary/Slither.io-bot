@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.6.9
+// @version      0.7.0
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -652,7 +652,7 @@ window.loop = function() {
             window.goalCoordinates = coordinatesOfClosestFood;
 			
 			//use speed to go to larger clusters
-			if (window.currentFood.clusterSz >= 80){
+			if (window.currentFood.clusterSz >= 100){
 				if(window.currentFood.distance <= Math.pow(window.getSnakeLength(), 2) / 2){
 					setAcceleration(1);
 				}
@@ -660,7 +660,7 @@ window.loop = function() {
 			
             // Disable Sprint
             // Check for preys, enough "length"
-            if (window.preys.length > 0 && window.huntPrey && window.currentFood.clusterSz < 80) {
+            if (window.preys.length > 0 && window.huntPrey && window.currentFood.clusterSz < 100) {
                 // Sort preys based on their distance relative to player's snake
                 window.sortedPrey = window.getSortedPrey();
                 // Current prey
