@@ -583,20 +583,19 @@ window.onFrameUpdate = function () {
     window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
     window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
 
+    if (window.position_overlay && window.playing) {
+        // Display the X and Y of the snake
+        window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
+    }
+
     // If playing
     if (window.playing && window.visualDebugging) {
         if (window.isBotRunning) {
-            // Check to see if there is a position overlay
-            if (window.position_overlay) {
-                // Display the X and Y of the snake
-                window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
-            }
             var drawGoalCoordinates = window.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
             drawGoalCoordinates = window.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
             window.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
             window.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
             window.drawAngle(window.snake.ang-Math.PI/4, window.snake.ang+Math.PI/4, false);
-
         }
     }
 };
