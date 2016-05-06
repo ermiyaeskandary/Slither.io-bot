@@ -352,7 +352,7 @@ window.getSnakeWidth = function () {
 window.sortFood = function (a, b) {
     // a.sz & b.sz - size
     // Divide distance by size so bigger food is prioritised over smaller food
-    return return a.distance - b.distance;
+    return a.distance - b.distance;
 };
 // Sorting function for prey, from property 'distance'
 window.sortPrey = function (a, b) {
