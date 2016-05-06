@@ -18,7 +18,7 @@ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.6.7
+// @version      0.6.8
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -60,7 +60,7 @@ window.appendDiv = function(id, className, style) {
 // Saves username when you click on "Play" button
 window.play_btn.btnf.addEventListener('click', function() {
     window.saveNick();
-	window.loadPreference('autoRespawn', false);
+    window.loadPreference('autoRespawn', false);
 });
 // Save nickname when you press "Enter"
 window.nick_holder.addEventListener('keypress', function(e) {
@@ -155,9 +155,9 @@ function setBackground(url) {
 }
 // Reset zoom
 window.resetZoom = function() {
-        window.gsc = 0.9;
+    window.gsc = 0.9;
 };
-    // Get scaling ratio
+// Get scaling ratio
 window.getScale = function() {
     return window.gsc;
 };
@@ -317,15 +317,21 @@ document.onkeydown = function(e) {
             window.resetZoom();
         }
         // Letter 'Q' to quit to main menu
-    	if (e.keyCode == 81) {
-			window.autoRespawn = false;
-			window.quit();    
-    	}
+        if (e.keyCode == 81) {
+            window.autoRespawn = false;
+            window.quit();
+        }
     }
 };
 // Snake width
 window.getSnakeWidth = function() {
     return window.snake.sc * 15 * window.getScale();
+};
+// Sorting function for food, from property 'distance'
+window.sortFood = function(a, b) {
+    // a.sz & b.sz - size
+    // Divide distance by size so bigger food is prioritised over smaller food
+    return a.distance / a.sz - b.distance / b.sz;
 };
 // Sorting function for prey, from property 'distance'
 window.sortPrey = function(a, b) {
@@ -333,16 +339,23 @@ window.sortPrey = function(a, b) {
 };
 
 // Quit to menu
-	window.quit = function () {
-        if (window.playing && window.resetGame) {
-            window.want_close_socket = true;
-            window.dead_mtm = 0;
-			if (window.play_btn) {
-				window.play_btn.setEnabled(true);
-			}
-			window.resetGame();
+window.quit = function() {
+    if (window.playing && window.resetGame) {
+        window.want_close_socket = true;
+        window.dead_mtm = 0;
+        if (window.play_btn) {
+            window.play_btn.setEnabled(true);
         }
+        window.resetGame();
     }
+};
+
+// Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
+window.getDistanceFromMe = function(point) {
+    if (point === null) return null;
+    point.distance = window.getDistance(window.getX(), window.getY(), point.xx, point.yy);
+    return point;
+};
 // Get a distance from point (x1; y1) to point (x2; y2).
 window.getDistance = function(x1, y1, x2, y2) {
     // Calculate the vector coordinates.
@@ -354,11 +367,13 @@ window.getDistance = function(x1, y1, x2, y2) {
     //Add the coordinates of the vector to get a distance. Not the real distance, but reliable for distance comparison.
     var distance = xDistance + yDistance;
     // Real distance but not needed. Here for reference -
-    var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+    // var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
     return distance;
 };
 
-
+ window.sortDistance= function(a, b) {
+    return a.distance  >  b.distance  ? 1 : -1;
+};
 // Checks to see if you are going to collide with anything in the collision detection radius
 window.checkCollision = function(x, y, r) {
     if (!window.collisionDetection) return false;
@@ -371,7 +386,8 @@ window.checkCollision = function(x, y, r) {
         window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
     }
     var avoid = false;
-	window.collisionPoints = window.getCollisionPoints()
+	window.collisionPoints = window.getCollisionPoints();
+ 
 	if (collisionPoints[0] != null){
 		var circle2;
 		var multiplier = 1;
@@ -411,8 +427,6 @@ window.changeGoalCoords = function(circle1, multiplier, speed) {
 		window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
 	}
 };
-
-
 // Check if circles intersect
 window.circleIntersect = function(circle1, circle2) {
     if (quickCollisionCheck(circle1, circle2)) {
@@ -449,9 +463,7 @@ window.collisionCheck = function(circle1, circle2) {
         return false;
     }
 };
-
-
-// Sort food based on distance
+// Sort collision points based on distance
 window.getCollisionPoints = function() {
 	var collisionPoints = [];
     for (var snake in window.snakes){
@@ -476,8 +488,6 @@ window.getCollisionPoints = function() {
 	
 	return collisionPoints.sort(window.sortDistance);
 };
-
-
 // Sort food based on distance
 window.getSortedFood = function() {
     // Filters the nearest food by getting the distance
@@ -507,11 +517,9 @@ window.foodNearFood = function(food){
     food.clustered = true;
     return food;
 };
- window.sortDistance= function(a, b) {
-    return a.distance  >  b.distance  ? 1 : -1;
-};
 
-// Sorting function for food, from property 'distance'
+
+// Sorting function for food, from property 'clusterCount'
 window.sortFood = function(a, b) {
     // a.sz & b.sz - size
     // Divide distance by size so bigger food is prioritised over smaller food
@@ -521,12 +529,14 @@ window.sortFood = function(a, b) {
 	
     return (aCluster == bCluster ? 0 : aCluster  >  bCluster  ? -1 : 1);
 };
-// Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
-window.getDistanceFromMe = function(point) {
-    if (point === null) return null;
-    point.distance = window.getDistance(window.getX(), window.getY(), point.xx, point.yy);
-    return point;
-};
+
+//OLD Sort food based on distance
+//window.getSortedFood = function() {
+//    // Filters the nearest food by getting the distance
+//    return window.foods.filter(function(val) {
+//        return val !== null;
+//    }).map(window.getDistanceFromMe).sort(window.sortFood);
+//};
 
 // Sort prey based on distance
 window.getSortedPrey = function() {
@@ -552,10 +562,10 @@ window.drawDot = function(x, y, radius, colour, fill) {
 // Draw lines on the canvas
 window.drawLine = function(x2, y2, colour) {
     var context = window.mc.getContext('2d');
-    var center = [window.mc.width / 2, window.mc.height / 2];
+    var center = [window.mc.height / 2, window.mc.width / 2];
     context.lineWidth = 5 * window.getScale();
     context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
-    context.moveTo(center[0], center[1]);
+    context.moveTo(center[1], center[0]);
     context.lineTo(x2, y2);
     context.stroke();
     context.strokeStyle = '#000000';
@@ -599,65 +609,16 @@ window.onFrameUpdate = function() {
             drawGoalCoordinates = window.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
             window.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
             window.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
-			
-			//collsionPoints = window.getCollisionPoints();
-			//var center = [window.mc.width / 2, window.mc.height / 2];
-			//
-            //lineStart = window.mapToMouse(window.snake.xx, window.snake.yy);
-			//lineStart = window.mouseToScreen(lineStart[0], lineStart[1]);
-            //lineStart = window.screenToCanvas(lineStart[0], lineStart[1]);
-			//
-			//for (points in collsionPoints){
-			//	circle = {x: collsionPoints[points].x + collsionPoints[points].fx,
-			//			  y: collsionPoints[points].y + collsionPoints[points].fy,
-			//			  radius: 22 * collsionPoints[points].sc * window.getScale()};
-			//			  
-			//	interceptOnCircle({x: lineStart[0], y: lineStart[1]},{x: drawGoalCoordinates[0], y: drawGoalCoordinates[1]}, collisionScreenToCanvas(circle));
-			//}
         }
     }
 };
-
-function interceptOnCircle(p1,p2,c){
-    //p1 is the first line point
-    //p2 is the second line point
-    //c is the circle's center
-    //r is the circle's radius
-	
-	//window.drawDot(c.x, c.y, c.radius, 'red', true);
-    var p3 = {x:p1.x - c.x, y:p1.y - c.y} //shifted line points
-    var p4 = {x:p2.x - c.x, y:p2.y - c.y}
-
-    var m = (p4.y - p3.y) / (p4.x - p3.x); //slope of the line
-    var b = p3.y - m * p3.x; //y-intercept of line
-
-    var underRadical = Math.pow((Math.pow(c.radius,2)*(Math.pow(m,2)+1)) ,2) -Math.pow(b,2); //the value under the square root sign 
-	
-	//var context = window.mc.getContext('2d');
-    //context.lineWidth = 5 * window.getScale();
-    //context.strokeStyle = '#00FF00' 
-    //context.moveTo(p1.x, p1.y);
-    //context.lineTo(p2.x, p2.y);
-    //context.stroke();
-	
-    if (underRadical < 0){
-    //line completely missed
-		console.log("MISS");
-        return false;
-    } else {
-		console.log("HIT");
-        return true;
-    }
-};
-
 // Defense mode - bot turns around in a circle
 window.playDefence = function(dir) {
     window.kd_l = (dir === "l");
     window.kd_r = (dir === "r");
     window.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
 };
-// Actual bot code
-
+//increase dodge radius when using speed
 window.speedRadius = function() {
 	if (window.snake.sp > 10) {
 		if(window.collisionRadiusMultiplier === window.lastCollisionRadiusMultiplier) {
@@ -668,6 +629,7 @@ window.speedRadius = function() {
 	}
 };
 
+// Actual bot code
 
 // Loop for running the bot
 window.loop = function() {
@@ -681,7 +643,9 @@ window.loop = function() {
             return;
         }
 		
+		//increase dodge radius when using speed
 		window.speedRadius();
+		
         // If no enemies or obstacles, go after what you are going after
         if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*window.collisionRadiusMultiplier)) {
 			window.setAcceleration(0);
@@ -694,6 +658,7 @@ window.loop = function() {
             var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
             window.goalCoordinates = coordinatesOfClosestFood;
 			
+			//use speed to go to larger clusters
 			if (window.currentFood.clusterCount >= 7){
 				if(window.currentFood.distance <= Math.pow(window.getSnakeLength(), 2) / 2){
 					setAcceleration(1);
@@ -741,6 +706,7 @@ window.initBot = function() {
     window.ranOnce = false;
     window.isBotRunning = false;
     window.isBotEnabled = true;
+	window.lastCollisionRadiusMultiplier = window.collisionRadiusMultiplier;
     window.collisionPoint = {
         x: 0,
         y: 0,
@@ -756,7 +722,6 @@ window.initBot = function() {
     window.loadPreference('collisionRadiusMultiplier', 8);
     window.loadPreference('defence', false);
     window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
-	window.lastCollisionRadiusMultiplier = window.collisionRadiusMultiplier;
     // Overlays
     // Top left
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; z-index: 7;';
@@ -795,6 +760,7 @@ window.initBot = function() {
     window.launchBot(50);
     window.startInterval = setInterval(window.startBot, 1000);
 };
+
 window.initBot();
 
 // Enemy code - not used for now
@@ -834,3 +800,54 @@ window.initBot();
             }
         };
         */
+		
+					//collsionPoints = window.getCollisionPoints();
+			//var center = [window.mc.width / 2, window.mc.height / 2];
+			//
+            //lineStart = window.mapToMouse(window.snake.xx, window.snake.yy);
+			//lineStart = window.mouseToScreen(lineStart[0], lineStart[1]);
+            //lineStart = window.screenToCanvas(lineStart[0], lineStart[1]);
+			//
+			//for (points in collsionPoints){
+			//	circle = {x: collsionPoints[points].x + collsionPoints[points].fx,
+			//			  y: collsionPoints[points].y + collsionPoints[points].fy,
+			//			  radius: 22 * collsionPoints[points].sc * window.getScale()};
+			//			  
+			//	interceptOnCircle({x: lineStart[0], y: lineStart[1]},{x: drawGoalCoordinates[0], y: drawGoalCoordinates[1]}, collisionScreenToCanvas(circle));
+			//}
+//        }
+//    }
+//};
+
+//line intercept
+/*function interceptOnCircle(p1,p2,c){
+    //p1 is the first line point
+    //p2 is the second line point
+    //c is the circle's center
+    //r is the circle's radius
+	
+	//window.drawDot(c.x, c.y, c.radius, 'red', true);
+    var p3 = {x:p1.x - c.x, y:p1.y - c.y} //shifted line points
+    var p4 = {x:p2.x - c.x, y:p2.y - c.y}
+
+    var m = (p4.y - p3.y) / (p4.x - p3.x); //slope of the line
+    var b = p3.y - m * p3.x; //y-intercept of line
+
+    var underRadical = Math.pow((Math.pow(c.radius,2)*(Math.pow(m,2)+1)) ,2) -Math.pow(b,2); //the value under the square root sign 
+	
+	//var context = window.mc.getContext('2d');
+    //context.lineWidth = 5 * window.getScale();
+    //context.strokeStyle = '#00FF00' 
+    //context.moveTo(p1.x, p1.y);
+    //context.lineTo(p2.x, p2.y);
+    //context.stroke();
+	
+    if (underRadical < 0){
+    //line completely missed
+		console.log("MISS");
+        return false;
+    } else {
+		console.log("HIT");
+        return true;
+    }
+};*/
