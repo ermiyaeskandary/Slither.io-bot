@@ -730,10 +730,10 @@ window.initBot = function() {
     window.appendDiv('automobilerender_overlay', 'nsi', window.generalstyle + 'left: 30; top: 105px;');
     window.appendDiv('collision_detection_overlay', 'nsi', window.generalstyle + 'left: 30; top: 120px;');
     window.appendDiv('collision_radius_multiplier_overlay', 'nsi', window.generalstyle + 'left: 30; top: 135px;');
-    window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 150px;');
-    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 165px;');
-    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 180px;');
-    window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 195px;');
+    window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 150px;');
+    window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 165px;');
+    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 180px;');
+    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 195px;');
     // Bottom right
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
     window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
