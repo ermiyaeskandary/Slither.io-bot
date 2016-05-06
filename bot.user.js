@@ -528,6 +528,22 @@ window.drawDot = function (x, y, radius, colour, fill) {
     context.strokeStyle = '#000000';
 };
 
+// Draw an angle of value `angle` from starting angle `start`. Danger is a boolean.
+window.drawAngle = function(start, angle, danger){
+    var context = window.mc.getContext('2d');
+    context.globalAlpha = 0.6;
+    context.beginPath();
+    context.moveTo(window.mc.width/2, window.mc.height/2);
+    context.arc(window.mc.width/2, window.mc.height/2, window.gsc*100, start, angle);
+    context.lineTo(window.mc.width/2, window.mc.height/2);
+    context.closePath();
+    context.fillStyle = (danger) ? 'red' : 'green';
+    context.fill();
+    context.globalAlpha = 1;
+    context.fillStyle = 'black'
+    ;
+};
+
 // Draw lines on the canvas
 window.drawLine = function (x2, y2, colour) {
     var context = window.mc.getContext('2d');
@@ -579,6 +595,8 @@ window.onFrameUpdate = function () {
             drawGoalCoordinates = window.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
             window.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
             window.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
+            window.drawAngle(window.snake.ang-Math.PI/4, window.snake.ang+Math.PI/4, false);
+
         }
     }
 };
