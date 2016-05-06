@@ -1,4 +1,6 @@
 # Slither.io bot
+
+[![Join the chat at https://gitter.im/ErmiyaEskandary/Slither.io-bot](https://badges.gitter.im/ErmiyaEskandary/Slither.io-bot.svg)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Goal : make a bot for slither.io
 
 ## Join us on Gitter (team communication)
