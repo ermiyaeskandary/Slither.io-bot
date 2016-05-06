@@ -386,20 +386,18 @@ window.checkCollision = function(x, y, r) {
         window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
     }
     var avoid = false;
-	window.collisionPoints = window.getCollisionPoints();
- 
-	if (collisionPoints[0] != null){
+	if (window.collisionPoints[0] != null){
 		var circle2;
 		var multiplier = 1;
 		
 		circle2 = {
-			x: collisionPoints[0].xx + collisionPoints[0].fx,
-			y: collisionPoints[0].yy + collisionPoints[0].fy,
+			x: window.collisionPoints[0].xx + window.collisionPoints[0].fx,
+			y: window.collisionPoints[0].yy + window.collisionPoints[0].fy,
 			radius: 22 * collisionPoints[0].sc * window.getScale()
 		};
 		
 		if (window.circleIntersect(circle1, collisionScreenToCanvas(circle2))) {
-				window.changeGoalCoords(circle2, multiplier, (collisionPoints[0].sp > 10));
+				window.changeGoalCoords(circle2, multiplier, (window.collisionPoints[0].sp > 10));
 				multiplier++;
 				avoid = true;
 		}
@@ -492,8 +490,30 @@ window.getCollisionPoints = function() {
 window.getSortedFood = function() {
     // Filters the nearest food by getting the distance
     return window.foods.filter(function(val) {
-        return val !== null;
+		return val !== null;
     }).map(window.getDistanceFromMe).map(window.foodNearFood).sort(window.sortFood);
+};
+
+window.goodPath = function(point){
+	var lineStart = window.mapToMouse(window.snake.xx, window.snake.yy);
+	lineStart = window.mouseToScreen(lineStart[0], lineStart[1]);
+	lineStart = window.screenToCanvas(lineStart[0], lineStart[1]);
+	
+	var lineEnd = window.mapToMouse(point.xx, point.yy);
+	lineEnd = window.mouseToScreen(lineEnd[0], lineEnd[1]);
+	lineEnd = window.screenToCanvas(lineEnd[0], lineEnd[1]);
+	if (window.collisionPoints[0] !== null){
+		for (var points in window.collisionPoints){
+			circle = {x: window.collisionPoints[points].xx + window.collisionPoints[points].fx,
+					  y: window.collisionPoints[points].yy + window.collisionPoints[points].fy};
+					  
+			if(interceptOnCircle({x: lineStart[0], y: lineStart[1]},{x: lineEnd[0], y: lineEnd[1]}, collisionScreenToCanvas(circle), 22 * window.collisionPoints[points].sc * window.getScale())){
+				return false;
+			}
+		}
+	}
+	
+	return true;
 };
 
 window.foodNearFood = function(food){
@@ -607,9 +627,38 @@ window.onFrameUpdate = function() {
             }
             drawGoalCoordinates = window.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
             drawGoalCoordinates = window.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
-            window.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
+			window.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
             window.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
-        }
+		}
+	}
+};
+
+function interceptOnCircle(p1, p2, c, r) {
+    //p1 is the first line point
+    //p2 is the second line point
+    //c is the circle's center
+    //r is the circle's radius
+
+    var p3 = {x:p1.x - c.x, y:p1.y - c.y}; //shifted line points
+    var p4 = {x:p2.x - c.x, y:p2.y - c.y};
+
+    var m = (p4.y - p3.y) / (p4.x - p3.x); //slope of the line
+    var b = p3.y - m * p3.x; //y-intercept of line
+
+    var underRadical = Math.pow(r,2)*Math.pow(m,2) + Math.pow(r,2) - Math.pow(b,2); //the value under the square root sign 
+
+    if (underRadical < 0) {
+        //line completely missed
+		//console.log("missed");
+        return false;
+    } else {
+        //var t1 = (-m*b + Math.sqrt(underRadical))/(Math.pow(m,2) + 1); //one of the intercept x's
+        //var t2 = (-m*b - Math.sqrt(underRadical))/(Math.pow(m,2) + 1); //other intercept's x
+        //var i1 = {x:t1+c.x, y:m*t1+b+c.y}; //intercept point 1
+       // var i2 = {x:t2+c.x, y:m*t2+b+c.y}; //intercept point 2
+		//console.log("hit");
+        return true;
+		
     }
 };
 // Defense mode - bot turns around in a circle
@@ -645,6 +694,7 @@ window.loop = function() {
 		
 		//increase dodge radius when using speed
 		window.speedRadius();
+		window.collisionPoints = window.getCollisionPoints();
 		
         // If no enemies or obstacles, go after what you are going after
         if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*window.collisionRadiusMultiplier)) {
@@ -652,7 +702,13 @@ window.loop = function() {
             // Sort the food based on their distance relative to player's snake
             window.sortedFood = window.getSortedFood();
             // Current food
-            window.currentFood = window.sortedFood[0];
+			i = 0;
+            window.currentFood = window.sortedFood[i];
+			
+			while (!window.goodPath(window.currentFood)){
+				i++;
+				window.currentFood = window.sortedFood[i];
+			}
 			//console.log(sortedFood.length);
             // Convert coordinates of the closest food using mapToMouse
             var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
