@@ -488,34 +488,35 @@ window.changeGoalCoords = function(circle1) {
         window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
     }
 };
+
 // Check if circles intersect
 window.circleIntersect = function(circle1, circle2) {
+    // Only do the expensive check if we need to
     if (window.quickCollisionCheck(circle1, circle2)) {
-        if (window.collisionCheck(circle1, circle2)) {
-            return true;
-        } else {
-            return false;
-        }
+        return window.slowCollisionCheck(circle1, circle2);
     } else {
         return false;
     }
 };
-// Quickly check if we are going to collide with anything
+
+// Very quick collision check that pretends the circles are squares. Subject to false-positives.
 window.quickCollisionCheck = function(circle1, circle2) {
-    return (circle1.x + circle1.radius + circle2.radius > circle2.x &&
-        circle1.x < circle2.x + circle1.radius + circle2.radius &&
-        circle1.y + circle1.radius + circle2.radius > circle2.y &&
-        circle1.y < circle2.y + circle1.radius + circle2.radius);
+    var bothRadii = circle1.radius + circle2.radius;
+    return (circle1.x + bothRadii > circle2.x &&
+            circle1.y + bothRadii > circle2.y &&
+            circle1.x < circle2.x + bothRadii &&
+            circle1.y < circle2.y + bothRadii);
 };
+
 // Collision check
-window.collisionCheck = function(circle1, circle2) {
-    var distance = Math.sqrt(((circle1.x - circle2.x) * (circle1.x - circle2.x)) + ((circle1.y - circle2.y) * (circle1.y - circle2.y)));
-
-    if (distance < circle1.radius + circle2.radius) {
-        var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / (circle1.radius + circle2.radius);
-        var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / (circle1.radius + circle2.radius);
-
+window.slowCollisionCheck = function(circle1, circle2) {
+    var distance = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) +
+                             Math.pow(circle1.y - circle2.y, 2));
+    var bothRadii = circle1.radius + circle2.radius;
+    if (distance < bothRadii) {
         if (window.visualDebugging) {
+            var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
+            var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii;
             window.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
             window.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
         }
