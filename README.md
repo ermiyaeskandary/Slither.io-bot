@@ -1,8 +1,8 @@
 # Slither.io bot
 Goal : make a bot for slither.io
 
-## Join us on Slack (team communication)
-## [![Join Slack](https://slitherio-bot.herokuapp.com/badge.svg)](https://slitherio-bot.herokuapp.com/)
+## Join us on Gitter (team communication)
+## [![Gitter](https://badges.gitter.im/ErmiyaEskandary/Slither.io-bot.svg)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ## Join us on Discord (team communication)
 ## https://discord.gg/0zVDZuCDvvSs6rFB
