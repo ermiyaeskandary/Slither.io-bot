@@ -312,18 +312,16 @@ document.onkeydown = function (e) {
         }
 
           // Letter 'A' to increase collision detection radius
-        if (e.keyCode === 65 && window.snake.sp < 10) {
+        if (e.keyCode === 65) {
             window.collisionRadiusMultiplier++;
-			window.lastCollisionRadiusMultiplier = window.collisionRadiusMultiplier;
             console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
             window.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
         }
 
         // Letter 'S' to decrease collision detection radius
-        if (e.keyCode === 83 && window.snake.sp < 10) {
+        if (e.keyCode === 83) {
             if (window.collisionRadiusMultiplier > 1) {
                 window.collisionRadiusMultiplier--;
-				window.lastCollisionRadiusMultiplier = window.collisionRadiusMultiplier;
                 console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
                 window.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
             }
@@ -625,16 +623,6 @@ window.playDefence = function (dir) {
     window.kd_r = (dir === 'r');
     window.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
 };
-//increase dodge radius when using speed
-window.speedRadius = function() {
-	if (window.snake.sp > 10) {
-		if(window.collisionRadiusMultiplier === window.lastCollisionRadiusMultiplier) {
-			window.collisionRadiusMultiplier *= 1.25; 
-		}
-	} else {
-		window.collisionRadiusMultiplier = window.lastCollisionRadiusMultiplier;
-	}
-};
 // Actual bot code
 // Loop for running the bot
 window.loop = function() {
@@ -649,10 +637,10 @@ window.loop = function() {
         }
 		
 		//increase dodge radius when using speed
-		window.speedRadius();
+		var speedingMultiplier = (window.snake.sp > 10) ? 1.25 : 1.0;
 		window.collisionPoints = window.getCollisionPoints();
         // If no enemies or obstacles, go after what you are going after
-        if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*window.collisionRadiusMultiplier)) {
+        if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*(window.collisionRadiusMultiplier * speedingMultiplier))) {
 			window.setAcceleration(0);
             // Sort the food based on their distance relative to player's snake
             window.sortedFood = window.getSortedFood();
@@ -724,7 +712,6 @@ window.initBot = function () {
     window.loadPreference('huntPrey', true);
     window.loadPreference('collisionDetection', true);
     window.loadPreference('collisionRadiusMultiplier', 8);
-	window.lastCollisionRadiusMultiplier = window.collisionRadiusMultiplier;
     window.loadPreference('defence', false);
     window.loadPreference('autoMobileRender', true);
     window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
