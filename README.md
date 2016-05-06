@@ -4,6 +4,9 @@ Goal : make a bot for slither.io
 ## Join us on Gitter (team communication)
 ## [![Gitter](https://badges.gitter.im/ErmiyaEskandary/Slither.io-bot.svg)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
+## Join us on Discord (team communication)
+## https://discord.gg/0zVDZuCDvvSs6rFB
+
 ## Check us out on waffle.io (project management)
 ## [![Issues being worked on](https://badge.waffle.io/ErmiyaEskandary/Slither.io-bot.svg?label=Work%20in%20progress&title=Being%20Worked%20On)](http://waffle.io/ErmiyaEskandary/Slither.io-bot)
 
