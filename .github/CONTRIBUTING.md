@@ -8,8 +8,8 @@
 
 When making your report, be sure to mention:
 
-* Title: Start title with "Bug" (Helps with labeling)
 * Title: Short description of what the issue is. (Clearer the better.)
+* **Label: Add the Bug label**
 * Your browser. (Firefox, Google Chrome, etc.)
 * What version of the bot you are using. (Can be found at the top of the bot's code in Tamper/Greasemonkey.)
 * What you think caused this issue. (On your end, you don't need to diagnose our code, tell us what you did that caused it.)
@@ -24,6 +24,8 @@ When making your report, be sure to mention:
 
 * Please use the already made pull request template to layout your pull request.
 
+*Pull request are made to be discussed, thus collaborators may want you to change things. Don't make a new PR for these changes. Update your existing PR.*
+
 #### **Do you intend to add a new feature or change an existing one?**
 Check if it's been suggested already [here](https://github.com/ErmiyaEskandary/Slither.io-bot/issues).
 
@@ -35,11 +37,11 @@ If it hasn't been suggested, suggest your change on [Gitter](https://gitter.im/E
 
 Be sure to include in your report:
 
-* Title: Start your title with [Suggestion] (Helps with labeling)
 * Title: A clear, short description of what you suggest. You can always go into detail in the description
 * Information about your suggestion. (Does not need to be technical.)
+* **Label: Add the Suggestion label.**
 * Why you think this would improve the bot if added.
-* If you have Javascript experience, feel free to include snippets of code. (or even refer to a pull request or fork)
+* If you have JavaScript experience, feel free to include snippets of code. (or even refer to a pull request or fork)
 
 **Pat yourself on the back. If your suggestion is added, you will be a productive contributor to an open source passion-powered project.**
 
@@ -47,8 +49,8 @@ Be sure to include in your report:
 
 * Ask any question on [Gitter](https://gitter.im/ErmiyaEskandary/Slither.io-bot).
 
-</br>
-Slither.io is a volunteer effort and is a collaborative and fun project. We encourage you to pitch in and [join the team](https://gitter.im/ErmiyaEskandary/Slither.io-bot)!
+
+Slither.io bot is a volunteer effort and is a collaborative and fun project. We encourage you to pitch in and [join the team](https://gitter.im/ErmiyaEskandary/Slither.io-bot)!
 
 Thanks!
 
