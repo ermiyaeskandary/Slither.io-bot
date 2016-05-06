@@ -702,13 +702,13 @@ window.loop = function() {
             // Sort the food based on their distance relative to player's snake
             window.sortedFood = window.getSortedFood();
             // Current food
-			i = 0;
-            window.currentFood = window.sortedFood[i];
+			//i = 0;
+            window.currentFood = window.sortedFood[0];
 			
-			while (!window.goodPath(window.currentFood)){
-				i++;
-				window.currentFood = window.sortedFood[i];
-			}
+			//while (!window.goodPath(window.currentFood)){
+			//	i++;
+			//	window.currentFood = window.sortedFood[i];
+			//}
 			//console.log(sortedFood.length);
             // Convert coordinates of the closest food using mapToMouse
             var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
