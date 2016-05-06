@@ -706,7 +706,6 @@ window.initBot = function() {
     window.ranOnce = false;
     window.isBotRunning = false;
     window.isBotEnabled = true;
-	window.lastCollisionRadiusMultiplier = window.collisionRadiusMultiplier;
     window.collisionPoint = {
         x: 0,
         y: 0,
@@ -719,7 +718,8 @@ window.initBot = function() {
     window.loadPreference('mobileRender', false);
     window.loadPreference('huntPrey', true);
     window.loadPreference('collisionDetection', true);
-    window.collisionRadiusMultiplier = window.loadPreference('collisionRadiusMultiplier', 8);
+	window.loadPreference('collisionRadiusMultiplier', 8);
+	window.lastCollisionRadiusMultiplier = window.collisionRadiusMultiplier;
     window.loadPreference('defence', false);
     window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
     // Overlays
