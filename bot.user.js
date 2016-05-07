@@ -555,6 +555,8 @@ window.computeFoodGoal = function() {
         var bestClusterIndx = 0;
         var bestClusterScore = 0;
         var bestClusterAbsScore = 0;
+        var bestClusterX = 0;
+        var bestClusterY = 0;
 
         // there is no need to view more points (for performance)
         var nIter = Math.min(window.sortedFood.length, 300);
@@ -562,26 +564,34 @@ window.computeFoodGoal = function() {
             var clusterScore = 0;
             var clusterSize = 0;
             var clusterAbsScore = 0;
+            var clusterSumX = 0;
+            var clusterSumY = 0;
+
             var p1 = window.sortedFood[i];
             for (var j = 0; j < nIter; ++j) {
                 var p2 = window.sortedFood[j];
                 var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
                 if (dist < 100) {
                     clusterScore += p2.sz;
+                    clusterSumX += p2.xx;
+                    clusterSumY += p2.yy;
                     clusterSize += 1;
                 }
             }
             clusterAbsScore = clusterScore;
-            clusterScore /= p1.distance * Math.sqrt(p1.distance);
+            clusterScore /= Math.pow(p1.distance, 1.5);
             if (clusterSize > 2 && clusterScore > bestClusterScore) {
                 bestClusterScore = clusterScore;
                 bestClusterAbsScore = clusterAbsScore;
+                bestClusterX = clusterSumX / clusterSize;
+                bestClusterY = clusterSumY / clusterSize;
                 bestClusterIndx = i;
+                console.log(clusterSize);
             }
         }
         window.currentFood = window.sortedFood[bestClusterIndx];
-        window.currentFoodX = window.currentFood.xx;
-        window.currentFoodY = window.currentFood.yy;
+        window.currentFoodX = bestClusterX;
+        window.currentFoodY = bestClusterY;
 
         // if see a large cluster then use acceleration
         if (bestClusterAbsScore > 50) {
