@@ -18,7 +18,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.7.2
+// @version      0.7.3
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -344,7 +344,32 @@ document.onkeydown = function(e) {
         }
     }
 };
-// Snake width
+// Save the original slither.io onmousedown function so we can re enable it back later
+window.oldMouseDown = window.onmousedown;
+window.onmousedown = function(e) {
+        window.oldMouseDown(e);
+        e = e || window.event;
+        if (window.playing && window.isBotRunning) {
+            switch (e.which) {
+                // "Left click" to manually speed up the slither
+                case 1:
+                    window.setAcceleration(1);
+                    window.log('Enabling manual speed...');
+                    break;
+                    // "Right click" to toggle bot in addition to the letter "T"
+                case 3:
+                    if (window.isBotRunning) {
+                        window.stopBot();
+                        window.isBotEnabled = false;
+                    } else {
+                        window.launchBot(5);
+                        window.isBotEnabled = true;
+                    }
+                    break;
+            }
+        };
+    }
+    // Snake width
 window.getSnakeWidth = function() {
     return window.snake.sc * 15 * window.getScale();
 };
