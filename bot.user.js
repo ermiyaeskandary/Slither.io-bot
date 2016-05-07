@@ -586,10 +586,9 @@ window.computeFoodGoal = function() {
                 bestClusterX = clusterSumX / clusterSize;
                 bestClusterY = clusterSumY / clusterSize;
                 bestClusterIndx = i;
-                console.log(clusterSize);
             }
         }
-        window.currentFood = window.sortedFood[bestClusterIndx];
+
         window.currentFoodX = bestClusterX;
         window.currentFoodY = bestClusterY;
 
