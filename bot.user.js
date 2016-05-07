@@ -466,7 +466,7 @@ window.checkCollision = function(x, y, r) {
 	
 	if (window.collisionPoints[0] != null && snake.dead_amt === 0){
 		collisionCircle = window.collisionPoints[0].circle
-		if (window.collisionCheck(headCircle, collisionCircle.circle)) {
+		if (window.collisionCheck(headCircle, collisionCircle)) {
 				window.changeGoalCoords();
 				if (window.visualDebugging) {
 					window.drawDot(collisionCircle.x, collisionCircle.y, collisionCircle.radius, 'blue', false);
