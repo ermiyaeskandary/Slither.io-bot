@@ -573,8 +573,8 @@ window.computeFoodGoal = function() {
                 var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
                 if (dist < 100) {
                     clusterScore += p2.sz;
-                    clusterSumX += p2.xx;
-                    clusterSumY += p2.yy;
+                    clusterSumX += p2.xx * p2.sz;
+                    clusterSumY += p2.yy * p2.sz;
                     clusterSize += 1;
                 }
             }
@@ -583,8 +583,8 @@ window.computeFoodGoal = function() {
             if (clusterSize > 2 && clusterScore > bestClusterScore) {
                 bestClusterScore = clusterScore;
                 bestClusterAbsScore = clusterAbsScore;
-                bestClusterX = clusterSumX / clusterSize;
-                bestClusterY = clusterSumY / clusterSize;
+                bestClusterX = clusterSumX / clusterAbsScore;
+                bestClusterY = clusterSumY / clusterAbsScore;
                 bestClusterIndx = i;
             }
         }
