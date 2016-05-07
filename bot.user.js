@@ -178,6 +178,8 @@ window.launchBot = function() {
 // Stops the bot
 window.stopBot = function() {
     window.log('Stopping Bot.');
+	// Disable the "sprint"
+    window.setAcceleration(0);
     // Re enable the original onmousemove function
     window.onmousemove = window.mousemovelistener;
     window.isBotRunning = false;
@@ -354,7 +356,7 @@ window.onmousedown = function(e) {
                 // "Left click" to manually speed up the slither
                 case 1:
                     window.setAcceleration(1);
-                    window.log('Enabling manual speed...');
+                    window.log('Manual boost...');
                     break;
                     // "Right click" to toggle bot in addition to the letter "T"
                 case 3:
