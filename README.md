@@ -23,7 +23,7 @@ Go to [slither.io](http://slither.io/), and enjoy !
 
 Key | Result
 ---|---
-T | Bot enabled/disabled
+T / Right Click | Bot enabled/disabled
 U | Log debugging
 Y | Visual debugging
 I | Automatic Respawning
@@ -31,6 +31,7 @@ I | Automatic Respawning
 P | Hunt prey - Moving food
 D | Defense mode - bot turns around in a circle
 C | Enemy avoidance / Collision prevention
+A / S | Collision radius multiplier increase / decrease
 Z | Reset zoom
 Q | Quit to menu
 Mouse wheel | Zoom in/out
