@@ -569,33 +569,38 @@ window.computeFoodGoal = function() {
         // there is no need to view more points (for performance)
         var nIter = Math.min(window.sortedFood.length, 300);
         for (var i = 0; i < nIter; i += 2) {
-            var clusterScore = 0;
-            var clusterSize = 0;
-            var clusterAbsScore = 0;
-            var clusterSumX = 0;
-            var clusterSumY = 0;
+			var p1 = window.sortedFood[i];
+				if (window.goodPath(p1)){
+				var clusterScore = 0;
+				var clusterSize = 0;
+				var clusterAbsScore = 0;
+				var clusterSumX = 0;
+				var clusterSumY = 0;
 
-            var p1 = window.sortedFood[i];
-            for (var j = 0; j < nIter; ++j) {
-                var p2 = window.sortedFood[j];
-                var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
-                if (dist < 100) {
-                    clusterScore += p2.sz;
-                    clusterSumX += p2.xx * p2.sz;
-                    clusterSumY += p2.yy * p2.sz;
-                    clusterSize += 1;
-                }
-            }
-            clusterAbsScore = clusterScore;
-            clusterScore /= Math.pow(p1.distance, 1.5);
-            if (clusterSize > 2 && clusterScore > bestClusterScore) {
-                bestClusterScore = clusterScore;
-                bestClusterAbsScore = clusterAbsScore;
-                bestClusterX = clusterSumX / clusterAbsScore;
-                bestClusterY = clusterSumY / clusterAbsScore;
-                bestClusterIndx = i;
-            }
+				for (var j = 0; j < nIter; ++j) {
+					var p2 = window.sortedFood[j];
+					var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
+					if (dist < 100) {
+						clusterScore += p2.sz;
+						clusterSumX += p2.xx * p2.sz;
+						clusterSumY += p2.yy * p2.sz;
+						clusterSize += 1;
+					}
+				}
+				clusterAbsScore = clusterScore;
+				clusterScore /= Math.pow(p1.distance, 1.5);
+				
+				if (clusterSize > 2 && clusterScore > bestClusterScore) {
+					bestClusterScore = clusterScore;
+					bestClusterAbsScore = clusterAbsScore;
+					bestClusterX = clusterSumX / clusterAbsScore;
+					bestClusterY = clusterSumY / clusterAbsScore;
+					bestClusterIndx = i;
+				}
+			}
         }
+		
+		
 
         window.currentFoodX = bestClusterX;
         window.currentFoodY = bestClusterY;
@@ -704,6 +709,55 @@ window.playDefence = function(dir) {
     window.kd_r = (dir === 'r');
     window.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
 };
+
+function interceptOnCircle(p1, p2, c) {
+    //p1 is the first line point
+    //p2 is the second line point
+    //c is the circle's center
+
+    var p3 = {x:p1.x - c.x, y:p1.y - c.y}; //shifted line points
+    var p4 = {x:p2.x - c.x, y:p2.y - c.y};
+
+    var m = (p4.y - p3.y) / (p4.x - p3.x); //slope of the line
+    var b = p3.y - m * p3.x; //y-intercept of line
+
+    var underRadical = Math.pow(c.radius,2)*Math.pow(m,2) + Math.pow(c.radius,2) - Math.pow(b,2); //the value under the square root sign 
+
+    if (underRadical < 0) {
+        //line completely missed
+		//console.log("missed");
+        return false;
+    } else {
+        //var t1 = (-m*b + Math.sqrt(underRadical))/(Math.pow(m,2) + 1); //one of the intercept x's
+        //var t2 = (-m*b - Math.sqrt(underRadical))/(Math.pow(m,2) + 1); //other intercept's x
+        //var i1 = {x:t1+c.x, y:m*t1+b+c.y}; //intercept point 1
+       // var i2 = {x:t2+c.x, y:m*t2+b+c.y}; //intercept point 2
+		//console.log("hit");
+        return true;
+		
+    }
+};
+
+window.goodPath = function(point){
+	var lineStart = window.mapToMouse(window.snake.xx, window.snake.yy);
+	lineStart = window.mouseToScreen(lineStart[0], lineStart[1]);
+	lineStart = window.screenToCanvas(lineStart[0], lineStart[1]);
+	
+	var lineEnd = window.mapToMouse(point.xx, point.yy);
+	lineEnd = window.mouseToScreen(lineEnd[0], lineEnd[1]);
+	lineEnd = window.screenToCanvas(lineEnd[0], lineEnd[1]);
+	if (window.collisionPoints[0] !== null){
+		for (var points in window.collisionPoints){
+			var collisionCircle = collisionScreenToCanvas(window.collisionPoints[0].circle);
+			if(interceptOnCircle({x: lineStart[0], y: lineStart[1]},{x: lineEnd[0], y: lineEnd[1]}, collisionCircle)){
+				return false;
+			}
+		}
+	}
+	
+	return true;
+};
+
 // Actual bot code
 
 // Loop for running the bot
@@ -727,7 +781,7 @@ window.loop = function() {
         if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*(window.collisionRadiusMultiplier * speedingMultiplier))) {
             // Current food
             window.computeFoodGoal();
-
+			
             var coordinatesOfClosestFood = window.mapToMouse(window.currentFoodX, window.currentFoodY);
             window.goalCoordinates = coordinatesOfClosestFood;
             // Sprint
