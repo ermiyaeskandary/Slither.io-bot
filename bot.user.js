@@ -18,7 +18,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.7.4
+// @version      0.7.5
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -455,42 +455,41 @@ window.getDistance = function(x1, y1, x2, y2) {
 // Checks to see if you are going to collide with anything in the collision detection radius
 window.checkCollision = function(x, y, r) {
     if (!window.collisionDetection) return false;
-    var circle1 = window.collisionScreenToCanvas({
-        x: x,
-        y: y,
-        radius: r
-    });
-    if (window.visualDebugging) {
-        window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
+	//front and back offsets
+	var fxOffset = Math.cos(window.snake.ang) * r;
+	var fyOffset = Math.sin(window.snake.ang) * r;
+	
+	headCircle = collisionScreenToCanvas({x: window.getX()  + fxOffset, y: window.getY() + fyOffset, radius: r});
+    
+	if (window.visualDebugging) {
+        window.drawDot(headCircle.x, headCircle.y, headCircle.radius, 'blue', false);
     }
-    var shortest_distance = Number.MAX_VALUE;
-    var avoid = false;
-    var circle2;
-
-    for (var snake in window.snakes) {
-        if (window.snakes[snake].nk != window.snake.nk) {
-            for (y = window.snakes[snake].pts.length - 1; 0 <= y; y--) {
-                if (!window.snakes[snake].pts[y].dying) {
-                    var xx = window.snakes[snake].pts[y].xx + window.snakes[snake].fx;
-                    var yy = window.snakes[snake].pts[y].yy + window.snakes[snake].fy;
-                    circle2 = {
-                        x: xx,
-                        y: yy,
-                        radius: 15 * window.snakes[snake].sc * window.getScale()
-                    };
-                    if (window.circleIntersect(circle1, window.collisionScreenToCanvas(circle2))) {
-                        var distance = window.getDistance(window.getX(), window.getY(), xx, yy);
-                        if (distance < shortest_distance) {
-                            window.changeGoalCoords(circle2);
-                            avoid = true;
-                            shortest_distance = distance;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return avoid;
+	
+	if (window.collisionPoints[0] != null && snake.dead_amt === 0){
+		collisionCircle = collisionScreenToCanvas(window.collisionPoints[0].circle)
+		if (window.collisionCheck(headCircle, collisionCircle)) {
+				window.changeGoalCoords();
+				if (window.visualDebugging) {
+					window.drawDot(collisionCircle.x, collisionCircle.y, collisionCircle.radius, 'blue', false);
+				}
+				return true;
+		}
+	}
+	return false;
+};
+// Change direction
+window.changeGoalCoords = function() {
+	window.goalCoordinates = window.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoints[0].xx), window.snake.yy + (window.snake.yy - window.collisionPoints[0].yy));
+	window.setAcceleration(0);
+	window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
+};
+// Very quick collision check that pretends the circles are squares. Subject to false-positives.
+window.collisionCheck = function(circle1, circle2) {
+    var bothRadii = circle1.radius + circle2.radius;
+    return (circle1.x + bothRadii > circle2.x &&
+            circle1.y + bothRadii > circle2.y &&
+            circle1.x < circle2.x + bothRadii &&
+            circle1.y < circle2.y + bothRadii);
 };
 // Screen to Canvas coordinate conversion - used for collision detection
 window.collisionScreenToCanvas = function(circle) {
@@ -504,53 +503,35 @@ window.collisionScreenToCanvas = function(circle) {
         radius: circle.radius
     };
 };
-// Change direction
-window.changeGoalCoords = function(circle1) {
-    if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
-        window.collisionPoint = circle1;
-        window.goalCoordinates = window.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
-        window.setAcceleration(0);
-        window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
-    }
-};
+//Sort collision points based on distance
+window.getCollisionPoints = function() {
+	var collisionPoints = [];
+    for (var snake in window.snakes){
+		if (window.snakes[snake].nk != window.snake.nk) {
+			for (var pts in window.snakes[snake].pts) {
+				if(!window.snakes[snake].pts[pts].dying){
+					collisionPoint = {
+					xx: window.snakes[snake].pts[pts].xx,
+					yy: window.snakes[snake].pts[pts].yy,
+					circle:{
+						x: window.snakes[snake].pts[pts].xx,
+						y: window.snakes[snake].pts[pts].yy,
+						radius: 20 * window.snakes[snake].sc * window.getScale()},
+					 sp: window.snakes[snake].sp
+					 };
 
-// Check if circles intersect
-window.circleIntersect = function(circle1, circle2) {
-    // Only do the expensive check if we need to
-    if (window.quickCollisionCheck(circle1, circle2)) {
-        return window.slowCollisionCheck(circle1, circle2);
-    } else {
-        return false;
-    }
+					window.getDistanceFromMe(collisionPoint);
+					collisionPoints.push(collisionPoint);
+				}
+			}
+		}
+	}
+	//Sort collision points based on distance
+	return collisionPoints.sort(window.sortDistance);
 };
-
-// Very quick collision check that pretends the circles are squares. Subject to false-positives.
-window.quickCollisionCheck = function(circle1, circle2) {
-    var bothRadii = circle1.radius + circle2.radius;
-    return (circle1.x + bothRadii > circle2.x &&
-            circle1.y + bothRadii > circle2.y &&
-            circle1.x < circle2.x + bothRadii &&
-            circle1.y < circle2.y + bothRadii);
+window.sortDistance = function(a, b) {
+    return a.distance  >  b.distance  ? 1 : -1;
 };
-
-// Collision check
-window.slowCollisionCheck = function(circle1, circle2) {
-    var distance = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) +
-                             Math.pow(circle1.y - circle2.y, 2));
-    var bothRadii = circle1.radius + circle2.radius;
-    if (distance < bothRadii) {
-        if (window.visualDebugging) {
-            var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
-            var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii;
-            window.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
-            window.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
-        }
-        return true;
-    } else {
-        return false;
-    }
-};
-
 // Sort food based on distance
 window.getSortedFood = function() {
     // Filters the nearest food by getting the distance
@@ -738,8 +719,12 @@ window.loop = function() {
             return;
         }
 
+        //increase dodge radius when using speed
+		var speedingMultiplier = (window.snake.sp > 10) ? 1.25 : 1.0;
+		//get collision points
+		window.collisionPoints = window.getCollisionPoints();
         // If no enemies or obstacles, go after what you are going after
-        if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
+        if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth()*(window.collisionRadiusMultiplier * speedingMultiplier))) {
             // Current food
             window.computeFoodGoal();
 
@@ -876,20 +861,4 @@ window.initBot();
  window.log('close enemy! (distance = ' + window.closestEnemy.distance);
  // !handle close enemies!
  }
- */
-// Better food hunting algorithm but not implemented yet
-/*
- window.isInFoods = function (foodObject) {
- return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
- };
- window.currentFood = null;
- window.sortedFood = getSortedFood();
- window.loop = function () {
- if (!isInFoods(currentFood)) {
- window.sortedFood = getSortedFood();
- window.currentFood = sortedFood[0];
- var coordinatesOfClosestFood = window.mapToMouse(window.sortedFood[0].xx, window.sortedFood[0].yy);
- window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
- }
- };
  */
