@@ -349,7 +349,7 @@ window.oldMouseDown = window.onmousedown;
 window.onmousedown = function(e) {
         window.oldMouseDown(e);
         e = e || window.event;
-        if (window.playing && window.isBotRunning) {
+        if (window.playing) {
             switch (e.which) {
                 // "Left click" to manually speed up the slither
                 case 1:
