@@ -350,8 +350,6 @@ window.getSnakeWidth = function() {
 };
 // Sorting function for food, from property 'distance'
 window.sortFood = function(a, b) {
-    // a.sz & b.sz - size
-    // Divide distance by size so bigger food is prioritised over smaller food
     return a.distance - b.distance;
 };
 // Sorting function for prey, from property 'distance'
@@ -556,13 +554,14 @@ window.computeFoodGoal = function() {
 
         var bestClusterIndx = 0;
         var bestClusterScore = 0;
-        var bestClusterSize = 0;
+        var bestClusterAbsScore = 0;
 
         // there is no need to view more points (for performance)
         var nIter = Math.min(window.sortedFood.length, 300);
         for (var i = 0; i < nIter; i += 2) {
             var clusterScore = 0;
             var clusterSize = 0;
+            var clusterAbsScore = 0;
             var p1 = window.sortedFood[i];
             for (var j = 0; j < nIter; ++j) {
                 var p2 = window.sortedFood[j];
@@ -572,10 +571,11 @@ window.computeFoodGoal = function() {
                     clusterSize += 1;
                 }
             }
-            clusterScore /= p1.distance;
+            clusterAbsScore = clusterScore;
+            clusterScore /= p1.distance * Math.sqrt(p1.distance);
             if (clusterSize > 2 && clusterScore > bestClusterScore) {
                 bestClusterScore = clusterScore;
-                bestClusterSize = clusterScore * p1.distance;
+                bestClusterAbsScore = clusterAbsScore;
                 bestClusterIndx = i;
             }
         }
@@ -584,7 +584,7 @@ window.computeFoodGoal = function() {
         window.currentFoodY = window.currentFood.yy;
 
         // if see a large cluster then use acceleration
-        if (bestClusterSize > 50) {
+        if (bestClusterAbsScore > 50) {
             window.foodAcceleration = 1;
         } else {
             window.foodAcceleration = 0;
