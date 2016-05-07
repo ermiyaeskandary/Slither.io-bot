@@ -458,7 +458,6 @@ window.checkCollision = function(x, y, r) {
 	//front and back offsets
 	var fxOffset = Math.cos(window.snake.ang) * r;
 	var fyOffset = Math.sin(window.snake.ang) * r;
-	
 	headCircle = collisionScreenToCanvas({x: window.getX()  + fxOffset, y: window.getY() + fyOffset, radius: r});
     
 	if (window.visualDebugging) {
