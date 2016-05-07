@@ -719,7 +719,7 @@ window.loop = function() {
         }
 
         //increase dodge radius when using speed
-		var speedingMultiplier = (window.snake.sp > 10) ? 1.25 : 1.0;
+		var speedingMultiplier = (window.snake.sp > 10) ? 1.5 : 1.0;
 		//get collision points
 		window.collisionPoints = window.getCollisionPoints();
         // If no enemies or obstacles, go after what you are going after
