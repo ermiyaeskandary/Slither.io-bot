@@ -570,7 +570,7 @@ window.computeFoodGoal = function() {
         var nIter = Math.min(window.sortedFood.length, 300);
         for (var i = 0; i < nIter; i += 2) {
 			var p1 = window.sortedFood[i];
-			if (window.goodPath(p1)){
+			if (window.goodPath(p1)) {
 				var clusterScore = 0;
 				var clusterSize = 0;
 				var clusterAbsScore = 0;
@@ -597,22 +597,15 @@ window.computeFoodGoal = function() {
 					bestClusterY = clusterSumY / clusterAbsScore;
 					bestClusterIndx = i;
 				}
-			}else{
-				console.log("bad path");
 			}
-        }
-		
-		
-
-        window.currentFoodX = bestClusterX;
-        window.currentFoodY = bestClusterY;
-
-        // if see a large cluster then use acceleration
-        if (bestClusterAbsScore > 50) {
-            window.foodAcceleration = 1;
-        } else {
-            window.foodAcceleration = 0;
-        }
+				
+			// if see a large cluster then use acceleration
+			if (bestClusterAbsScore > 50) {
+				window.foodAcceleration = 1;
+			} else {
+				window.foodAcceleration = 0;
+			}
+		}
     }
     window.foodIndx += 1;
 };
