@@ -18,7 +18,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.7.1
+// @version      0.7.2
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -584,7 +584,7 @@ window.computeFoodGoal = function() {
         window.currentFoodY = window.currentFood.yy;
 
         // if see a large cluster then use acceleration
-        if (bestClusterSize > 60) {
+        if (bestClusterSize > 50) {
             window.foodAcceleration = 1;
         } else {
             window.foodAcceleration = 0;
