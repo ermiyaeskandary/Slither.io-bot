@@ -465,8 +465,8 @@ window.checkCollision = function(x, y, r) {
     }
 	
 	if (window.collisionPoints[0] != null && snake.dead_amt === 0){
-		collisionCircle = collisionScreenToCanvas(window.collisionPoints[0].circle)
-		if (window.collisionCheck(headCircle, collisionCircle)) {
+		collisionCircle = window.collisionPoints[0].circle
+		if (window.collisionCheck(headCircle, collisionCircle.circle)) {
 				window.changeGoalCoords();
 				if (window.visualDebugging) {
 					window.drawDot(collisionCircle.x, collisionCircle.y, collisionCircle.radius, 'blue', false);
@@ -512,10 +512,10 @@ window.getCollisionPoints = function() {
 					collisionPoint = {
 					xx: window.snakes[snake].pts[pts].xx,
 					yy: window.snakes[snake].pts[pts].yy,
-					circle:{
+					circle: collisionScreenToCanvas({
 						x: window.snakes[snake].pts[pts].xx,
 						y: window.snakes[snake].pts[pts].yy,
-						radius: 20 * window.snakes[snake].sc * window.getScale()},
+						radius: 20 * window.snakes[snake].sc * window.getScale()}),
 					 sp: window.snakes[snake].sp
 					 };
 
@@ -748,7 +748,7 @@ window.goodPath = function(point){
 	lineEnd = window.screenToCanvas(lineEnd[0], lineEnd[1]);
 	if (window.collisionPoints[0] !== null){
 		for (var points in window.collisionPoints){
-			var collisionCircle = collisionScreenToCanvas(window.collisionPoints[0].circle);
+			collisionCircle = window.collisionPoints[points].circle
 			if(interceptOnCircle({x: lineStart[0], y: lineStart[1]},{x: lineEnd[0], y: lineEnd[1]}, collisionCircle)){
 				return false;
 			}
