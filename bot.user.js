@@ -1,20 +1,20 @@
 /*The MIT License (MIT)
-Copyright (c) 2016 Ermiya Eskandary & Théophile Cailliau and other contributors
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.*/
+ Copyright (c) 2016 Ermiya Eskandary & Théophile Cailliau and other contributors
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.*/
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
@@ -352,7 +352,7 @@ window.getSnakeWidth = function () {
 window.sortFood = function (a, b) {
     // a.sz & b.sz - size
     // Divide distance by size so bigger food is prioritised over smaller food
-    return a.distance / a.sz - b.distance / b.sz;
+    return a.distance - b.distance;
 };
 // Sorting function for prey, from property 'distance'
 window.sortPrey = function (a, b) {
@@ -503,9 +503,9 @@ window.circleIntersect = function (circle1, circle2) {
 // Quickly check if we are going to collide with anything
 window.quickCollisionCheck = function (circle1, circle2) {
     return (circle1.x + circle1.radius + circle2.radius > circle2.x &&
-        circle1.x < circle2.x + circle1.radius + circle2.radius &&
-        circle1.y + circle1.radius + circle2.radius > circle2.y &&
-        circle1.y < circle2.y + circle1.radius + circle2.radius);
+    circle1.x < circle2.x + circle1.radius + circle2.radius &&
+    circle1.y + circle1.radius + circle2.radius > circle2.y &&
+    circle1.y < circle2.y + circle1.radius + circle2.radius);
 };
 // Collision check
 window.collisionCheck = function (circle1, circle2) {
@@ -543,6 +543,56 @@ window.getSortedPrey = function () {
         return val !== null;
     }).map(window.getDistanceFromMe).sort(window.sortPrey);
 };
+
+
+window.computeFoodGoal = function () {
+
+    // recompute food goal every 25th frame
+    if (window.foodIndx > 25)
+        window.foodIndx = 0;
+
+    if (window.foodIndx == 0) {
+        window.sortedFood = window.getSortedFood();
+
+        var bestClusterIndx = 0;
+        var bestClusterScore = 0;
+        var bestClusterSize = 0;
+
+        // there is no need to view more points (for performance)
+        var nIter = Math.min(window.sortedFood.length, 300);
+        for (var i = 0; i < nIter; i += 2) {
+            var clusterScore = 0;
+            var clusterSize = 0;
+            var p1 = window.sortedFood[i];
+            for (var j = 0; j < nIter; ++j) {
+                var p2 = window.sortedFood[j];
+                var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
+                if (dist < 100) {
+                    clusterScore += p2.sz;
+                    clusterSize += 1;
+                }
+            }
+            clusterScore /= p1.distance;
+            if (clusterSize > 2 && clusterScore > bestClusterScore) {
+                bestClusterScore = clusterScore;
+                bestClusterSize = clusterScore * p1.distance;
+                bestClusterIndx = i;
+            }
+        }
+        window.currentFood = window.sortedFood[bestClusterIndx];
+        window.currentFoodX = window.currentFood.xx;
+        window.currentFoodY = window.currentFood.yy;
+
+        // if see a large cluster then use acceleration
+        if (bestClusterSize > 40) {
+            window.foodAcceleration = 1;
+        } else {
+            window.foodAcceleration = 0;
+        }
+    }
+    window.foodIndx += 1;
+};
+
 // Draw dots on the canvas
 window.drawDot = function (x, y, radius, colour, fill) {
     var context = window.mc.getContext('2d');
@@ -652,15 +702,13 @@ window.loop = function () {
 
         // If no enemies or obstacles, go after what you are going after
         if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
-            // Sort the food based on their distance relative to player's snake
-            window.sortedFood = window.getSortedFood();
             // Current food
-            window.currentFood = window.sortedFood[0];
-            // Convert coordinates of the closest food using mapToMouse
-            var coordinatesOfClosestFood = window.mapToMouse(window.currentFood.xx, window.currentFood.yy);
+            window.computeFoodGoal();
+
+            var coordinatesOfClosestFood = window.mapToMouse(window.currentFoodX, window.currentFoodY);
             window.goalCoordinates = coordinatesOfClosestFood;
-            // Disable Sprint
-            window.setAcceleration(0);
+            // Sprint
+            window.setAcceleration(window.foodAcceleration);
             // Check for preys, enough "length"
             if (window.preys.length > 0 && window.huntPrey) {
                 // Sort preys based on their distance relative to player's snake
@@ -765,43 +813,44 @@ window.initBot = function () {
     // Start!
     window.launchBot(50);
     window.startInterval = setInterval(window.startBot, 1000);
+    window.foodIndx = 0;
 };
 window.initBot();
 
 // Enemy code - not used for now
 /*
-        // Sort enemies based on distance
-        window.getSortedEnemies = function() {
-            Filters the nearest food by getting the distance
-            return window.snakes.filter(function(val) {
-                return val !== null && val.id !== window.snake.id;
-            }).map(window.getDistanceFromMe).sort(window.sortEnemy);
-        };
-        // Sorting function for enemies, from property 'distance'
-        window.sortEnemy = function(a, b) {
-            return a.distance - b.distance;
-        };
-                window.sortedEnemies = window.getSortedEnemies();
-                // Take the closest of each
-                window.closestEnemy = window.sortedEnemies[0];
-                if (window.closestEnemy.distance < 300) {
-                window.log('close enemy! (distance = ' + window.closestEnemy.distance);
-                // !handle close enemies!
-                 }
-        */
+ // Sort enemies based on distance
+ window.getSortedEnemies = function() {
+ Filters the nearest food by getting the distance
+ return window.snakes.filter(function(val) {
+ return val !== null && val.id !== window.snake.id;
+ }).map(window.getDistanceFromMe).sort(window.sortEnemy);
+ };
+ // Sorting function for enemies, from property 'distance'
+ window.sortEnemy = function(a, b) {
+ return a.distance - b.distance;
+ };
+ window.sortedEnemies = window.getSortedEnemies();
+ // Take the closest of each
+ window.closestEnemy = window.sortedEnemies[0];
+ if (window.closestEnemy.distance < 300) {
+ window.log('close enemy! (distance = ' + window.closestEnemy.distance);
+ // !handle close enemies!
+ }
+ */
 // Better food hunting algorithm but not implemented yet
 /*
-        window.isInFoods = function (foodObject) {
-            return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
-        };
-        window.currentFood = null;
-        window.sortedFood = getSortedFood();
-        window.loop = function () {
-            if (!isInFoods(currentFood)) {
-                window.sortedFood = getSortedFood();
-                window.currentFood = sortedFood[0];
-                var coordinatesOfClosestFood = window.mapToMouse(window.sortedFood[0].xx, window.sortedFood[0].yy);
-                window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
-            }
-        };
-        */
+ window.isInFoods = function (foodObject) {
+ return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
+ };
+ window.currentFood = null;
+ window.sortedFood = getSortedFood();
+ window.loop = function () {
+ if (!isInFoods(currentFood)) {
+ window.sortedFood = getSortedFood();
+ window.currentFood = sortedFood[0];
+ var coordinatesOfClosestFood = window.mapToMouse(window.sortedFood[0].xx, window.sortedFood[0].yy);
+ window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
+ }
+ };
+ */
