@@ -18,7 +18,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.7.5
+// @version      0.7.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -348,6 +348,10 @@ document.onkeydown = function(e) {
         if (e.keyCode == 27) {
             window.quickResp();
         }
+        // Letter 'X' to change skin
+        if (e.keyCode == 88) {
+            window.changeSkin();
+        }
     }
 };
 // Save the original slither.io onmousedown function so we can re enable it back later
@@ -513,6 +517,18 @@ window.quickResp = function() {
         window.dead_mtm = 0;
         window.login_fr = 0;
         window.forceConnect();
+    }
+    // Change skin
+window.changeSkin = function() {
+        if (window.playing && window.snake != null) {
+            var skin = window.snake.rcv,
+                max = window.max_skin_cv || 27;
+            skin++;
+            if (skin > max) {
+                skin = 0;
+            }
+            window.setSkin(window.snake, skin);
+        }
     }
     // Force connect
 window.forceConnect = function() {
@@ -716,6 +732,7 @@ window.onFrameUpdate = function() {
     window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
     window.scroll_overlay.innerHTML = generalStyle + '(Mouse Wheel) Zoom in/out </span>';
     window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
+    window.changeskin_overlay.innerHTML = generalStyle + '(X) Change skin </span>';
     window.quickResp_overlay.innerHTML = generalStyle + '(ESC) Quick Respawn </span>';
     window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
 
@@ -866,7 +883,8 @@ window.initBot = function() {
     window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 215px;');
     window.appendDiv('scroll_overlay', 'nsi', window.generalstyle + 'left: 30; top: 230px;');
     window.appendDiv('quickResp_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
-    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 260px;');
+    window.appendDiv('changeskin_overlay', 'nsi', window.generalstyle + 'left: 30; top: 260px;');
+    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 275px;');
     // Bottom right
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
     window.appendDiv('ip_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 150px;');
