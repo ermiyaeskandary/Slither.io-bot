@@ -18,7 +18,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.7.4
+// @version      0.7.5
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -178,7 +178,7 @@ window.launchBot = function() {
 // Stops the bot
 window.stopBot = function() {
     window.log('Stopping Bot.');
-	// Disable the "sprint"
+    // Disable the "sprint"
     window.setAcceleration(0);
     // Re enable the original onmousemove function
     window.onmousemove = window.mousemovelistener;
@@ -344,6 +344,10 @@ document.onkeydown = function(e) {
             window.autoRespawn = false;
             window.quit();
         }
+        // 'ESC' to quickly respawn
+        if (e.keyCode == 27) {
+            window.quickResp();
+        }
     }
 };
 // Save the original slither.io onmousedown function so we can re enable it back later
@@ -504,7 +508,28 @@ window.collisionScreenToCanvas = function(circle) {
         radius: circle.radius
     };
 };
-// Change direction
+// Quick resp
+window.quickResp = function() {
+        window.dead_mtm = 0;
+        window.login_fr = 0;
+        window.forceConnect();
+    }
+    // Force connect
+window.forceConnect = function() {
+        if (!window.connect) {
+            return;
+        }
+        window.forcing = true;
+        if (!window.bso) {
+            window.bso = {};
+        }
+        currentIP = window.bso.ip + ":" + window.bso.po;
+        var srv = currentIP.trim().split(":");
+        window.bso.ip = srv[0];
+        window.bso.po = srv[1];
+        window.connect();
+    }
+    // Change direction
 window.changeGoalCoords = function(circle1) {
     if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
         window.collisionPoint = circle1;
@@ -528,15 +553,15 @@ window.circleIntersect = function(circle1, circle2) {
 window.quickCollisionCheck = function(circle1, circle2) {
     var bothRadii = circle1.radius + circle2.radius;
     return (circle1.x + bothRadii > circle2.x &&
-            circle1.y + bothRadii > circle2.y &&
-            circle1.x < circle2.x + bothRadii &&
-            circle1.y < circle2.y + bothRadii);
+        circle1.y + bothRadii > circle2.y &&
+        circle1.x < circle2.x + bothRadii &&
+        circle1.y < circle2.y + bothRadii);
 };
 
 // Collision check
 window.slowCollisionCheck = function(circle1, circle2) {
     var distance = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) +
-                             Math.pow(circle1.y - circle2.y, 2));
+        Math.pow(circle1.y - circle2.y, 2));
     var bothRadii = circle1.radius + circle2.radius;
     if (distance < bothRadii) {
         if (window.visualDebugging) {
@@ -691,6 +716,7 @@ window.onFrameUpdate = function() {
     window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
     window.scroll_overlay.innerHTML = generalStyle + '(Mouse Wheel) Zoom in/out </span>';
     window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
+    window.quickResp_overlay.innerHTML = generalStyle + '(ESC) Quick Respawn </span>';
     window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
 
     if (window.position_overlay && window.playing) {
@@ -835,7 +861,8 @@ window.initBot = function() {
     window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 200px;');
     window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 215px;');
     window.appendDiv('scroll_overlay', 'nsi', window.generalstyle + 'left: 30; top: 230px;');
-    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
+    window.appendDiv('quickResp_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
+    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 260px;');
     // Bottom right
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
     window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
