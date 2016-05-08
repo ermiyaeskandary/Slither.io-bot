@@ -456,9 +456,9 @@ window.getDistance = function(x1, y1, x2, y2) {
 window.checkCollision = function(x, y, r) {
     if (!window.collisionDetection) return false;
 	//front and back offsets
-	var fxOffset = Math.cos(window.snake.ang) * r;
-	var fyOffset = Math.sin(window.snake.ang) * r;
-	headCircle = collisionScreenToCanvas({x: window.getX()  + fxOffset, y: window.getY() + fyOffset, radius: r});
+	//var fxOffset = Math.cos(window.snake.ang) * r;
+	//var fyOffset = Math.sin(window.snake.ang) * r;
+	headCircle = collisionScreenToCanvas({x: window.getX(), y: window.getY(), radius: r});
     
 	if (window.visualDebugging) {
         window.drawDot(headCircle.x, headCircle.y, headCircle.radius, 'blue', false);
@@ -515,7 +515,7 @@ window.getCollisionPoints = function() {
 					circle: collisionScreenToCanvas({
 						x: window.snakes[snake].pts[pts].xx,
 						y: window.snakes[snake].pts[pts].yy,
-						radius: 20 * window.snakes[snake].sc * window.getScale()}),
+						radius: 15 * window.snakes[snake].sc * window.getScale()}),
 					 sp: window.snakes[snake].sp
 					 };
 
