@@ -523,8 +523,8 @@ window.forceConnect = function() {
         if (!window.bso) {
             window.bso = {};
         }
-        currentIP = window.bso.ip + ":" + window.bso.po;
-        var srv = currentIP.trim().split(":");
+        window.currentIP = window.bso.ip + ":" + window.bso.po;
+        var srv = window.currentIP.trim().split(":");
         window.bso.ip = srv[0];
         window.bso.po = srv[1];
         window.connect();
@@ -723,6 +723,10 @@ window.onFrameUpdate = function() {
         // Display the X and Y of the snake
         window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
     }
+    if (window.playing && window.ip_overlay) {
+        window.ip_overlay.innerHTML = generalStyle + 'Server: ' + window.bso.ip + ':' + window.bso.po;
+        '</span>';
+    }
 
     // If playing
     if (window.playing && window.visualDebugging) {
@@ -865,6 +869,7 @@ window.initBot = function() {
     window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 260px;');
     // Bottom right
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
+    window.appendDiv('ip_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 150px;');
     window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', window.setZoom);
