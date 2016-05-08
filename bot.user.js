@@ -27,111 +27,523 @@
 // @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
 // @grant        none
 // ==/UserScript==
-// Functions needed for the bot
+
 // Custom logging function - disabled by default
 window.log = function() {
     if (window.logDebugging) {
         console.log.apply(console, arguments);
     }
 };
-// Appends divs to the page - used to display things on the screen
-window.appendDiv = function(id, className, style) {
-    // Create a div
-    var div = document.createElement('div');
-    // Check for id
-    if (id) {
-        // Set the id
-        div.id = id;
-    }
-    // Check for class name
-    if (className) {
-        // Set the class name
-        div.className = className;
-    }
-    // Check for css styles
-    if (style) {
-        // Set the css styles
-        div.style = style;
-    }
-    // Append the div to the page
-    document.body.appendChild(div);
+
+window.getWidth = function() {
+    return window.ww;
 };
+window.getHeight = function() {
+    return window.hh;
+};
+
+window.getSnakeLength = function() {
+    return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
+};
+window.getSnakeWidth = function() {
+    return window.snake.sc * 15 * graphics.getScale();
+};
+
+window.getX = function() {
+    return window.snake.xx;
+};
+window.getY = function() {
+    return window.snake.yy;
+};
+
+var graphics = (function() {
+    return {
+        // Spoofs moving the mouse to the provided coordinates.
+        setMouseCoordinates: function(x, y) {
+            window.xm = x;
+            window.ym = y;
+        },
+
+        // Convert snake-relative coordinates to absolute screen coordinates.
+        mouseToScreen: function(x, y) {
+            var screenX = x + (window.getWidth() / 2);
+            var screenY = y + (window.getHeight() / 2);
+            return [screenX, screenY];
+        },
+
+        // Convert screen coordinates to canvas coordinates.
+        screenToCanvas: function(x, y) {
+            var canvasX = window.csc * (x * window.canvasRatio[0]) - parseInt(window.mc.style.left);
+            var canvasY = window.csc * (y * window.canvasRatio[1]) - parseInt(window.mc.style.top);
+            return [canvasX, canvasY];
+        },
+
+        // Convert map coordinates to mouse coordinates.
+        mapToMouse: function(x, y) {
+            var mouseX = (x - window.getX()) * window.gsc;
+            var mouseY = (y - window.getY()) * window.gsc;
+            return [mouseX, mouseY];
+        },
+
+        // Adjusts zoom in response to the mouse wheel.
+        setZoom: function(e) {
+            // Scaling ratio
+            if (window.gsc) {
+                window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
+            }
+        },
+
+        // Restores zoom to the default value.
+        resetZoom: function() {
+            window.gsc = 0.9;
+        },
+
+        // Sets background to the given image URL.
+        // Defaults to slither.io's own background.
+        setBackground: function(url) {
+            url = typeof url !== 'undefined' ? url : '/s/bg45.jpg';
+            window.ii.src = url;
+        },
+
+        // TODO what does window scale mean?
+        getScale: function() {
+            return window.gsc;
+        },
+
+        // Manual mobile rendering
+        toggleMobileRendering: function(mobileRendering) {
+            window.mobileRender = mobileRendering;
+            window.log('Mobile rendering set to: ' + window.mobileRender);
+            window.savePreference('mobileRender', window.mobileRender);
+            // Set render mode
+            if (window.mobileRender) {
+                graphics.setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+                window.render_mode = 1;
+            } else {
+                graphics.setBackground();
+                window.render_mode = 2;
+            }
+        },
+
+        // Auto mobile rendering.
+        toggleAutomaticMobileRendering: function() {
+            if (window.autoMobileRender) {
+                // Set interval to check the fps and if it is below 20, turn on mobile rendering
+                window.mobileRenderInterval = setInterval(function() {
+                    graphics.toggleMobileRendering(window.framesPerSecond.getFPS() <= 20);
+                }, 5000);
+                window.autoMobileRender = false;
+                // When more than 20, turn it off
+            } else {
+                clearInterval(window.mobileRenderInterval);
+                window.autoMobileRender = true;
+            }
+            window.log('Automatic mobile rendering set to: ' + window.autoMobileRender);
+            window.savePreference('autoMobileRender', window.autoMobileRender);
+        },
+
+        // Draw a dot on the canvas.
+        drawDot: function(x, y, radius, colour, fill) {
+            var context = window.mc.getContext('2d');
+            context.beginPath();
+            context.strokeStyle = '#00FF00';
+            context.arc(x, y, radius * graphics.getScale(), 0, Math.PI * 2);
+            context.closePath();
+            if (fill) {
+                context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
+                context.fill();
+            }
+            context.fillStyle = 'black';
+            context.strokeStyle = '#000000';
+        },
+
+        // Draw an angle.
+        // @param {number} start -- where to start the angle
+        // @param {number} angle -- width of the angle
+        // @param {bool} danger -- green if false, red if true
+        drawAngle: function(start, angle, danger) {
+            var context = window.mc.getContext('2d');
+            context.globalAlpha = 0.6;
+            context.beginPath();
+            context.moveTo(window.mc.width / 2, window.mc.height / 2);
+            context.arc(window.mc.width / 2, window.mc.height / 2, window.gsc * 100, start, angle);
+            context.lineTo(window.mc.width / 2, window.mc.height / 2);
+            context.closePath();
+            context.fillStyle = (danger) ? 'red' : 'green';
+            context.fill();
+            context.globalAlpha = 1;
+            context.fillStyle = 'black';
+        },
+
+        // Draw a line on the canvas.
+        drawLine: function(x2, y2, colour) {
+            var context = window.mc.getContext('2d');
+            var center = [window.mc.height / 2, window.mc.width / 2];
+            context.lineWidth = 5 * graphics.getScale();
+            context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
+            context.moveTo(center[1], center[0]);
+            context.lineTo(x2, y2);
+            context.stroke();
+            context.strokeStyle = '#000000';
+        }
+    };
+})();
+
+var shapeMath = (function() {
+    return {
+        // Check if a point is between two vectors.
+        // The vectors have to be anticlockwise (sectorEnd on the left of sectorStart).
+        isBetweenVectors: function(point, sectorStart, sectorEnd) {
+            var center = [window.snake.xx, window.snake.yy];
+            if (point.xx) {
+                // Point coordinates relative to center
+                var relPoint = {
+                    x: point.xx - center[0],
+                    y: point.yy - center[1]
+                };
+                return (!shapeMath.areClockwise(sectorStart, relPoint) &&
+                        shapeMath.areClockwise(sectorEnd, relPoint));
+            }
+            return false;
+        },
+
+        // Angles are given in radians. The overall angle (endAngle-startAngle)
+        // cannot be above Math.PI radians (180°).
+        isInsideAngle: function(point, startAngle, endAngle) {
+            // calculate normalized vectors from angle
+            var startAngleVector = {
+                x: Math.cos(startAngle),
+                y: Math.sin(startAngle)
+            };
+            var endAngleVector = {
+                x: Math.cos(endAngle),
+                y: Math.sin(endAngle)
+            };
+            // Use isBetweenVectors to check if the point belongs to the angle
+            return shapeMath.isBetweenVectors(point, startAngleVector, endAngleVector);
+        },
+
+        // Given two vectors, return a truthy/falsy value depending on their position relative to each other.
+        areClockwise: function(vector1, vector2) {
+            //Calculate the dot product.
+            return -vector1.x * vector2.y + vector1.y * vector2.x > 0;
+        },
+
+        // Given an object (of which properties xx and yy are not null),
+        // return the object with an additional property 'distance'.
+        getDistanceFromSnake: function(point) {
+            if (point === null) return null;
+            point.distance = shapeMath.getDistance(window.getX(), window.getY(),
+                                                point.xx, point.yy);
+            return point;
+        },
+
+        // Get a distance from point (x1; y1) to point (x2; y2).
+        getDistance: function(x1, y1, x2, y2) {
+            // Calculate the vector coordinates.
+            var xDistance = (x1 - x2);
+            var yDistance = (y1 - y2);
+            // Get the absolute value of each coordinate
+            xDistance = xDistance < 0 ? xDistance * -1 : xDistance;
+            yDistance = yDistance < 0 ? yDistance * -1 : yDistance;
+            //Add the coordinates of the vector to get a distance. Not the real distance, but reliable for distance comparison.
+            var distance = xDistance + yDistance;
+            // Real distance but not needed. Here for reference -
+            // var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+            return distance;
+        },
+
+        // Screen to Canvas coordinate conversion - used for collision detection
+        collisionScreenToCanvas: function(circle) {
+            var newCircle = graphics.mapToMouse(circle.x, circle.y);
+            newCircle = graphics.mouseToScreen(newCircle[0], newCircle[1]);
+            newCircle = graphics.screenToCanvas(newCircle[0], newCircle[1]);
+            return {
+                x: newCircle[0],
+                y: newCircle[1],
+                radius: circle.radius
+            };
+        },
+
+        // Check if circles intersect
+        circleIntersect: function(circle1, circle2) {
+            var bothRadii = circle1.radius + circle2.radius;
+
+            // Pretends the circles are squares for a quick collision check.
+            // If it collides, do the more expensive circle check.
+            if (circle1.x + bothRadii > circle2.x &&
+                circle1.y + bothRadii > circle2.y &&
+                circle1.x < circle2.x + bothRadii &&
+                circle1.y < circle2.y + bothRadii) {
+
+                var distance = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) +
+                                         Math.pow(circle1.y - circle2.y, 2));
+                if (distance < bothRadii) {
+                    if (window.visualDebugging) {
+                        var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
+                        var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii;
+                        graphics.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
+                        graphics.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+    };
+})();
+
+var bot = (function() {
+    // Save the original slither.io onmousemove function so we can re enable it back later
+    var original_onmousemove = window.onmousemove;
+
+    return {
+        startBot: function() {
+            if (window.autoRespawn && !window.playing && window.isBotEnabled && window.ranOnce && !window.isBotRunning) {
+                bot.connectBot();
+            }
+        },
+
+        launchBot: function() {
+            window.log('Starting Bot.');
+            window.isBotRunning = true;
+            // Removed the onmousemove listener so we can move the snake manually by setting coordinates
+            window.onmousemove = function() {};
+        },
+
+        // Stops the bot
+        stopBot: function() {
+            window.log('Stopping Bot.');
+            window.setAcceleration(0);  // Disable the "sprint"
+            window.isBotRunning = false;
+            // Re-enable the original onmousemove function
+            window.onmousemove = original_onmousemove;
+        },
+
+        // Connects the bot
+        connectBot: function() {
+            if (!window.autoRespawn) return;
+            bot.stopBot();  // Just in case
+            window.log('Connecting...');
+            window.connect();
+
+            // Wait until we're playing to start the bot
+            window.botCanStart = setInterval(function() {
+                if (window.playing) {
+                    bot.launchBot();
+                    clearInterval(window.botCanStart);
+                }
+            }, 100);
+        },
+
+        changeGoalCoords: function(circle1) {
+            if ((circle1.x != window.collisionPoint.x || circle1.y != window.collisionPoint.y)) {
+                window.collisionPoint = circle1;
+                window.goalCoordinates = graphics.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
+                window.setAcceleration(0);
+                graphics.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
+            }
+        },
+
+        // Sorting function for food, from property 'distance'
+        sortFood: function(a, b) {
+            return a.distance - b.distance;
+        },
+
+        // Sorting function for prey, from property 'distance'
+        sortPrey: function(a, b) {
+            return a.distance - b.distance;
+        },
+
+        // Checks to see if you are going to collide with anything in the collision detection radius
+        checkCollision: function(x, y, r) {
+            if (!window.collisionDetection) return false;
+            var circle1 = shapeMath.collisionScreenToCanvas({
+                x: x,
+                y: y,
+                radius: r
+            });
+            if (window.visualDebugging) {
+                graphics.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
+            }
+            var shortest_distance = Number.MAX_VALUE;
+            var avoid = false;
+            var circle2;
+
+            for (var snake in window.snakes) {
+                if (window.snakes[snake].nk != window.snake.nk) {
+                    for (y = window.snakes[snake].pts.length - 1; 0 <= y; y--) {
+                        if (!window.snakes[snake].pts[y].dying) {
+                            var xx = window.snakes[snake].pts[y].xx + window.snakes[snake].fx;
+                            var yy = window.snakes[snake].pts[y].yy + window.snakes[snake].fy;
+                            circle2 = {
+                                x: xx,
+                                y: yy,
+                                radius: 15 * window.snakes[snake].sc * graphics.getScale()
+                            };
+                            if (shapeMath.circleIntersect(circle1, shapeMath.collisionScreenToCanvas(circle2))) {
+                                var distance = shapeMath.getDistance(window.getX(), window.getY(), xx, yy);
+                                if (distance < shortest_distance) {
+                                    bot.changeGoalCoords(circle2);
+                                    avoid = true;
+                                    shortest_distance = distance;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return avoid;
+        },
+
+        // Sort food based on distance
+        getSortedFood: function() {
+            // Filters the nearest food by getting the distance
+            return window.foods.filter(function(val) {
+                return val !== null && val !== undefined;
+            }).map(shapeMath.getDistanceFromSnake).filter(function(val) {
+                var isInsideDangerAngles = shapeMath.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
+                isInsideDangerAngles = isInsideDangerAngles || shapeMath.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
+                return !(isInsideDangerAngles && (val.distance <= 150));
+            }).sort(bot.sortFood);
+        },
+
+        // Sort prey based on distance
+        getSortedPrey: function() {
+            // Filters the nearest food by getting the distance
+            return window.preys.filter(function(val) {
+                return val !== null;
+            }).map(shapeMath.getDistanceFromSnake).sort(bot.sortPrey);
+        },
+
+        computeFoodGoal: function() {
+            var sortedFood = bot.getSortedFood();
+
+            var bestClusterIndx = 0;
+            var bestClusterScore = 0;
+            var bestClusterAbsScore = 0;
+            var bestClusterX = 0;
+            var bestClusterY = 0;
+
+            // there is no need to view more points (for performance)
+            var nIter = Math.min(sortedFood.length, 300);
+            for (var i = 0; i < nIter; i += 2) {
+                var clusterScore = 0;
+                var clusterSize = 0;
+                var clusterAbsScore = 0;
+                var clusterSumX = 0;
+                var clusterSumY = 0;
+
+                var p1 = sortedFood[i];
+                for (var j = 0; j < nIter; ++j) {
+                    var p2 = sortedFood[j];
+                    var dist = shapeMath.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
+                    if (dist < 100) {
+                        clusterScore += p2.sz;
+                        clusterSumX += p2.xx * p2.sz;
+                        clusterSumY += p2.yy * p2.sz;
+                        clusterSize += 1;
+                    }
+                }
+                clusterAbsScore = clusterScore;
+                clusterScore /= Math.pow(p1.distance, 1.5);
+                if (clusterSize > 2 && clusterScore > bestClusterScore) {
+                    bestClusterScore = clusterScore;
+                    bestClusterAbsScore = clusterAbsScore;
+                    bestClusterX = clusterSumX / clusterAbsScore;
+                    bestClusterY = clusterSumY / clusterAbsScore;
+                    bestClusterIndx = i;
+                }
+            }
+
+            window.currentFoodX = bestClusterX;
+            window.currentFoodY = bestClusterY;
+
+            // if see a large cluster then use acceleration
+            if (bestClusterAbsScore > 50) {
+                window.foodAcceleration = 1;
+            } else {
+                window.foodAcceleration = 0;
+            }
+        },
+
+        // Defense mode - bot turns around in a circle
+        playDefence: function(dir) {
+            window.kd_l = (dir === 'l');
+            window.kd_r = (dir === 'r');
+            graphics.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
+        },
+
+        // Called by the window loop, this is the main logic of the bot.
+        thinkAboutGoals: function() {
+            // If no enemies or obstacles, go after what you are going after
+            if (!bot.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
+
+                // Save CPU by only calculating every Nth frame
+                window.tickCounter++;
+                if (window.tickCounter > 25) {
+                    window.tickCounter = 0;
+
+                    // Current food
+                    bot.computeFoodGoal();
+
+                    var coordinatesOfClosestFood = graphics.mapToMouse(window.currentFoodX, window.currentFoodY);
+                    window.goalCoordinates = coordinatesOfClosestFood;
+                    // Sprint
+                    window.setAcceleration(window.foodAcceleration);
+                    // Check for preys, enough "length"
+                    if (window.preys.length > 0 && window.huntPrey) {
+                        // Sort preys based on their distance relative to player's snake
+                        window.sortedPrey = bot.getSortedPrey();
+                        // Current prey
+                        window.currentPrey = window.sortedPrey[0];
+                        // Convert coordinates of the closest prey using mapToMouse
+                        var coordinatesOfClosestPrey = window.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
+                        // Check for the distance
+                        if (window.currentPrey.distance <= Math.pow(window.getSnakeLength(), 2) / 2) {
+                            // Set the mouse coordinates to the coordinates of the closest prey
+                            window.goalCoordinates = coordinatesOfClosestPrey;
+                            // "Sprint" enabled
+                            window.setAcceleration(1);
+                        }
+                    }
+                    window.kd_l = false;
+                    window.kd_r = false;
+                    graphics.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
+                }
+            }
+        }
+    };
+})();
 
 // Saves username when you click on "Play" button
 window.play_btn.btnf.addEventListener('click', function() {
     window.saveNick();
     window.loadPreference('autoRespawn', false);
 });
+
 // Save nickname when you press "Enter"
 window.nick_holder.addEventListener('keypress', function(e) {
     if (e.keyCode == 13) {
         window.saveNick();
     }
 });
+
 // Save nickname
 window.saveNick = function() {
     var nick = document.getElementById('nick').value;
     window.savePreference('savedNick', nick);
 };
 
-// Set fake mouse coordinates
-window.setMouseCoordinates = function(x, y) {
-    window.xm = x;
-    window.ym = y;
+// Append a div to the page. Used to add interface elements to the page.
+window.appendDiv = function(id, className, style) {
+    var div = document.createElement('div');
+    if (id) div.id = id;
+    if (className) div.className = className;
+    if (style) div.style = style;
+    document.body.appendChild(div);
 };
-// Coordinates relative to the center (snake position).
-window.mouseRelativeToCenter = function(x, y) {
-    var mapX = x - window.getWidth() / 2;
-    var mapY = y - window.getHeight() / 2;
-    return [mapX, mapY];
-};
-// Mouse coordinates to screen coordinates
-window.mouseToScreen = function(x, y) {
-    var screenX = x + (window.getWidth() / 2);
-    var screenY = y + (window.getHeight() / 2);
-    return [screenX, screenY];
-};
-// Screen to canvas coordinates
-window.screenToCanvas = function(x, y) {
-    var canvasX = window.csc * (x * window.canvasRatio[0]) - parseInt(window.mc.style.left);
-    var canvasY = window.csc * (y * window.canvasRatio[1]) - parseInt(window.mc.style.top);
-    return [canvasX, canvasY];
-};
-// Map to mouse coordinates
-window.mapToMouse = function(x, y) {
-    var mouseX = (x - window.getX()) * window.gsc;
-    var mouseY = (y - window.getY()) * window.gsc;
-    return [mouseX, mouseY];
-};
-// Canvas width
-window.getWidth = function() {
-    return window.ww;
-};
-// Canvas height
-window.getHeight = function() {
-    return window.hh;
-};
-// X coordinates on the screen
-window.getX = function() {
-    return window.snake.xx;
-};
-// Y coordinates on the screen
-window.getY = function() {
-    return window.snake.yy;
-};
-// Updates the relation between the screen and the canvas
-window.onresize = function() {
-    window.resize();
-    // Canvas different size from the screen (often bigger). Gives a ratio so we can convert
-    window.canvasRatio = [window.mc.width / window.getWidth(), window.mc.height / window.getHeight()];
-};
-// Lets you zoom in and out using the mouse wheel
-window.setZoom = function(e) {
-    // Scaling ratio
-    if (window.gsc) {
-        window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
-    }
-};
+
 // FPS counter
 window.framesPerSecond = {
     startTime: 0,
@@ -148,90 +560,6 @@ window.framesPerSecond = {
     }
 };
 
-// Set background - default is slither.io's own background
-function setBackground(url) {
-    url = typeof url !== 'undefined' ? url : '/s/bg45.jpg';
-    window.ii.src = url;
-}
-// Reset zoom
-window.resetZoom = function() {
-    window.gsc = 0.9;
-};
-// Get scaling ratio
-window.getScale = function() {
-    return window.gsc;
-};
-// Snake length
-window.getSnakeLength = function() {
-    return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
-};
-// Save the original slither.io onmousemove function so we can re enable it back later
-window.mousemovelistener = window.onmousemove;
-
-// Starts the bot
-window.launchBot = function() {
-    window.log('Starting Bot.');
-    window.isBotRunning = true;
-    // Removed the onmousemove listener so we can move the snake manually by setting coordinates
-    window.onmousemove = function() {};
-};
-// Stops the bot
-window.stopBot = function() {
-    window.log('Stopping Bot.');
-	// Disable the "sprint"
-    window.setAcceleration(0);
-    // Re enable the original onmousemove function
-    window.onmousemove = window.mousemovelistener;
-    window.isBotRunning = false;
-    // Clear the interval which starts the bot
-};
-
-// Connects the bot
-window.connectBot = function() {
-    if (!window.autoRespawn) return;
-    // Stop the bot
-    window.stopBot();
-    window.log('Connecting...');
-    // Connect the bot
-    window.connect();
-    // Check if bot can start
-    window.botCanStart = setInterval(function() {
-        if (window.playing) {
-            window.launchBot();
-            clearInterval(window.botCanStart);
-        }
-    }, 100);
-};
-// Manual mobile rendering
-window.toggleMobileRendering = function(mobileRendering) {
-    window.mobileRender = mobileRendering;
-    window.log('Mobile rendering set to: ' + window.mobileRender);
-    window.savePreference('mobileRender', window.mobileRender);
-    // Set render mode
-    if (window.mobileRender) {
-        setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
-        window.render_mode = 1;
-    } else {
-        setBackground();
-        window.render_mode = 2;
-    }
-};
-// Auto mobile rendering
-window.toggleAutomaticMobileRendering = function() {
-    if (window.autoMobileRender) {
-        // Set interval to check the fps and if it is below 20, turn on mobile rendering
-        window.mobileRenderInterval = setInterval(function() {
-            window.toggleMobileRendering(window.framesPerSecond.getFPS() <= 20);
-        }, 5000);
-        window.autoMobileRender = false;
-        // When more than 20, turn it off
-    } else {
-        clearInterval(window.mobileRenderInterval);
-        window.autoMobileRender = true;
-    }
-    window.log('Automatic mobile rendering set to: ' + window.autoMobileRender);
-    window.savePreference('autoMobileRender', window.autoMobileRender);
-};
 // Save variable to local storage
 window.savePreference = function(item, value) {
     window.localStorage.setItem(item, value);
@@ -258,6 +586,7 @@ window.loadPreference = function(preference, defaultVar) {
 
 // Save the original slither.io onkeydown function so we can add stuff to it
 document.oldKeyDown = document.onkeydown;
+
 // Re write the function with our function
 document.onkeydown = function(e) {
     // Original slither.io onkeydown function + whatever is under it
@@ -266,10 +595,10 @@ document.onkeydown = function(e) {
         // Letter `T` to toggle bot
         if (e.keyCode === 84) {
             if (window.isBotRunning) {
-                window.stopBot();
+                bot.stopBot();
                 window.isBotEnabled = false;
             } else {
-                window.launchBot(5);
+                bot.launchBot(5);
                 window.isBotEnabled = true;
             }
         }
@@ -293,11 +622,11 @@ document.onkeydown = function(e) {
         }
         // Letter 'O' to set automatic mobile rendering
         if (e.keyCode === 79) {
-            window.toggleMobileRendering(!window.mobileRender);
+            graphics.toggleMobileRendering(!window.mobileRender);
         }
         // Letter 'M' to manually set mobile rendering
         if (e.keyCode === 77) {
-            window.toggleAutomaticMobileRendering();
+            graphics.toggleAutomaticMobileRendering();
         }
         // Letter 'P' to toggle hunting Prey
         if (e.keyCode === 80) {
@@ -337,7 +666,7 @@ document.onkeydown = function(e) {
         }
         // Letter 'Z' to reset zoom
         if (e.keyCode === 90) {
-            window.resetZoom();
+            graphics.resetZoom();
         }
         // Letter 'Q' to quit to main menu
         if (e.keyCode == 81) {
@@ -346,42 +675,39 @@ document.onkeydown = function(e) {
         }
     }
 };
+
 // Save the original slither.io onmousedown function so we can re enable it back later
 window.oldMouseDown = window.onmousedown;
 window.onmousedown = function(e) {
-        window.oldMouseDown(e);
-        e = e || window.event;
-        if (window.playing) {
-            switch (e.which) {
-                // "Left click" to manually speed up the slither
-                case 1:
-                    window.setAcceleration(1);
-                    window.log('Manual boost...');
-                    break;
-                    // "Right click" to toggle bot in addition to the letter "T"
-                case 3:
-                    if (window.isBotRunning) {
-                        window.stopBot();
-                        window.isBotEnabled = false;
-                    } else {
-                        window.launchBot(5);
-                        window.isBotEnabled = true;
-                    }
-                    break;
-            }
-        };
+    window.oldMouseDown(e);
+    e = e || window.event;
+    if (window.playing) {
+        switch (e.which) {
+            // "Left click" to manually speed up the slither
+            case 1:
+                window.setAcceleration(1);
+                window.log('Manual boost...');
+                break;
+                // "Right click" to toggle bot in addition to the letter "T"
+            case 3:
+                if (window.isBotRunning) {
+                    bot.stopBot();
+                    window.isBotEnabled = false;
+                } else {
+                    bot.launchBot(5);
+                    window.isBotEnabled = true;
+                }
+                break;
+        }
     }
-    // Snake width
-window.getSnakeWidth = function() {
-    return window.snake.sc * 15 * window.getScale();
-};
-// Sorting function for food, from property 'distance'
-window.sortFood = function(a, b) {
-    return a.distance - b.distance;
-};
-// Sorting function for prey, from property 'distance'
-window.sortPrey = function(a, b) {
-    return a.distance - b.distance;
+}
+
+// Updates the relation between the screen and the canvas.
+window.onresize = function() {
+    window.resize();
+    // Canvas different size from the screen (often bigger).
+    window.canvasRatio = [window.mc.width / window.getWidth(),
+                          window.mc.height / window.getHeight()];
 };
 
 // Quit to menu
@@ -396,273 +722,6 @@ window.quit = function() {
     }
 };
 
-//Check if a point is between two vectors. The vectors have to we anticlockwise (sectorEnd on the left of sectorStart)
-function isBetweenVectors(point, sectorStart, sectorEnd) {
-    var center = [window.snake.xx, window.snake.yy];
-    if (point.xx) {
-        // Point coordinates relative to center
-        var relPoint = {
-            x: point.xx - center[0],
-            y: point.yy - center[1]
-        };
-
-        return !window.areClockwise(sectorStart, relPoint) && window.areClockwise(sectorEnd, relPoint);
-    }
-    return false;
-}
-
-//Angles are given in radians. The overall angle (endAngle-startAngle) cannot be above Math.PI radians (180°).
-function isInsideAngle(point, startAngle, endAngle) {
-    // calculate normalized vectors from angle
-    var startAngleVector = {
-        x: Math.cos(startAngle),
-        y: Math.sin(startAngle)
-    };
-    var endAngleVector = {
-        x: Math.cos(endAngle),
-        y: Math.sin(endAngle)
-    };
-    // Use isBetweenVectors to check if the point belongs to the angle
-    return isBetweenVectors(point, startAngleVector, endAngleVector);
-}
-
-//Given two vectors, return a truthy/falsy value depending on their position relative to each other.
-window.areClockwise = function(vector1, vector2) {
-    //Calculate the dot product.
-    return -vector1.x * vector2.y + vector1.y * vector2.x > 0;
-};
-
-// Given an object (of which properties xx and yy are not null), return the object with an additional property 'distance'
-window.getDistanceFromMe = function(point) {
-    if (point === null) return null;
-    point.distance = window.getDistance(window.getX(), window.getY(), point.xx, point.yy);
-    return point;
-};
-// Get a distance from point (x1; y1) to point (x2; y2).
-window.getDistance = function(x1, y1, x2, y2) {
-    // Calculate the vector coordinates.
-    var xDistance = (x1 - x2);
-    var yDistance = (y1 - y2);
-    // Get the absolute value of each coordinate
-    xDistance = xDistance < 0 ? xDistance * -1 : xDistance;
-    yDistance = yDistance < 0 ? yDistance * -1 : yDistance;
-    //Add the coordinates of the vector to get a distance. Not the real distance, but reliable for distance comparison.
-    var distance = xDistance + yDistance;
-    // Real distance but not needed. Here for reference -
-    // var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
-    return distance;
-};
-// Checks to see if you are going to collide with anything in the collision detection radius
-window.checkCollision = function(x, y, r) {
-    if (!window.collisionDetection) return false;
-    var circle1 = window.collisionScreenToCanvas({
-        x: x,
-        y: y,
-        radius: r
-    });
-    if (window.visualDebugging) {
-        window.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
-    }
-    var shortest_distance = Number.MAX_VALUE;
-    var avoid = false;
-    var circle2;
-
-    for (var snake in window.snakes) {
-        if (window.snakes[snake].nk != window.snake.nk) {
-            for (y = window.snakes[snake].pts.length - 1; 0 <= y; y--) {
-                if (!window.snakes[snake].pts[y].dying) {
-                    var xx = window.snakes[snake].pts[y].xx + window.snakes[snake].fx;
-                    var yy = window.snakes[snake].pts[y].yy + window.snakes[snake].fy;
-                    circle2 = {
-                        x: xx,
-                        y: yy,
-                        radius: 15 * window.snakes[snake].sc * window.getScale()
-                    };
-                    if (window.circleIntersect(circle1, window.collisionScreenToCanvas(circle2))) {
-                        var distance = window.getDistance(window.getX(), window.getY(), xx, yy);
-                        if (distance < shortest_distance) {
-                            window.changeGoalCoords(circle2);
-                            avoid = true;
-                            shortest_distance = distance;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return avoid;
-};
-// Screen to Canvas coordinate conversion - used for collision detection
-window.collisionScreenToCanvas = function(circle) {
-    var newCircle = window.mapToMouse(circle.x, circle.y);
-    newCircle = window.mouseToScreen(newCircle[0], newCircle[1]);
-    newCircle = window.screenToCanvas(newCircle[0], newCircle[1]);
-
-    return {
-        x: newCircle[0],
-        y: newCircle[1],
-        radius: circle.radius
-    };
-};
-// Change direction
-window.changeGoalCoords = function(circle1) {
-    if ((circle1.x != window.collisionPoint.x && circle1.y != window.collisionPoint.y)) {
-        window.collisionPoint = circle1;
-        window.goalCoordinates = window.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
-        window.setAcceleration(0);
-        window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
-    }
-};
-
-// Check if circles intersect
-window.circleIntersect = function(circle1, circle2) {
-    // Only do the expensive check if we need to
-    if (window.quickCollisionCheck(circle1, circle2)) {
-        return window.slowCollisionCheck(circle1, circle2);
-    } else {
-        return false;
-    }
-};
-
-// Very quick collision check that pretends the circles are squares. Subject to false-positives.
-window.quickCollisionCheck = function(circle1, circle2) {
-    var bothRadii = circle1.radius + circle2.radius;
-    return (circle1.x + bothRadii > circle2.x &&
-            circle1.y + bothRadii > circle2.y &&
-            circle1.x < circle2.x + bothRadii &&
-            circle1.y < circle2.y + bothRadii);
-};
-
-// Collision check
-window.slowCollisionCheck = function(circle1, circle2) {
-    var distance = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) +
-                             Math.pow(circle1.y - circle2.y, 2));
-    var bothRadii = circle1.radius + circle2.radius;
-    if (distance < bothRadii) {
-        if (window.visualDebugging) {
-            var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
-            var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii;
-            window.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
-            window.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
-        }
-        return true;
-    } else {
-        return false;
-    }
-};
-
-// Sort food based on distance
-window.getSortedFood = function() {
-    // Filters the nearest food by getting the distance
-    return window.foods.filter(function(val) {
-        return val !== null && val !== undefined;
-    }).map(window.getDistanceFromMe).filter(function(val) {
-        var isInsideDangerAngles = isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
-        isInsideDangerAngles = isInsideDangerAngles || isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
-        return !(isInsideDangerAngles && (val.distance <= 150));
-    }).sort(window.sortFood);
-};
-// Sort prey based on distance
-window.getSortedPrey = function() {
-    // Filters the nearest food by getting the distance
-    return window.preys.filter(function(val) {
-        return val !== null;
-    }).map(window.getDistanceFromMe).sort(window.sortPrey);
-};
-
-
-window.computeFoodGoal = function() {
-    window.sortedFood = window.getSortedFood();
-
-    var bestClusterIndx = 0;
-    var bestClusterScore = 0;
-    var bestClusterAbsScore = 0;
-    var bestClusterX = 0;
-    var bestClusterY = 0;
-
-    // there is no need to view more points (for performance)
-    var nIter = Math.min(window.sortedFood.length, 300);
-    for (var i = 0; i < nIter; i += 2) {
-        var clusterScore = 0;
-        var clusterSize = 0;
-        var clusterAbsScore = 0;
-        var clusterSumX = 0;
-        var clusterSumY = 0;
-
-        var p1 = window.sortedFood[i];
-        for (var j = 0; j < nIter; ++j) {
-            var p2 = window.sortedFood[j];
-            var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
-            if (dist < 100) {
-                clusterScore += p2.sz;
-                clusterSumX += p2.xx * p2.sz;
-                clusterSumY += p2.yy * p2.sz;
-                clusterSize += 1;
-            }
-        }
-        clusterAbsScore = clusterScore;
-        clusterScore /= Math.pow(p1.distance, 1.5);
-        if (clusterSize > 2 && clusterScore > bestClusterScore) {
-            bestClusterScore = clusterScore;
-            bestClusterAbsScore = clusterAbsScore;
-            bestClusterX = clusterSumX / clusterAbsScore;
-            bestClusterY = clusterSumY / clusterAbsScore;
-            bestClusterIndx = i;
-        }
-    }
-
-    window.currentFoodX = bestClusterX;
-    window.currentFoodY = bestClusterY;
-
-    // if see a large cluster then use acceleration
-    if (bestClusterAbsScore > 50) {
-        window.foodAcceleration = 1;
-    } else {
-        window.foodAcceleration = 0;
-    }
-};
-
-// Draw dots on the canvas
-window.drawDot = function(x, y, radius, colour, fill) {
-    var context = window.mc.getContext('2d');
-    context.beginPath();
-    context.strokeStyle = '#00FF00';
-    context.arc(x, y, radius * window.getScale(), 0, Math.PI * 2);
-    context.closePath();
-    if (fill) {
-        context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
-        context.fill();
-    }
-    context.fillStyle = 'black';
-    context.strokeStyle = '#000000';
-};
-
-// Draw an angle of value `angle` from starting angle `start`. Danger is a boolean.
-window.drawAngle = function(start, angle, danger) {
-    var context = window.mc.getContext('2d');
-    context.globalAlpha = 0.6;
-    context.beginPath();
-    context.moveTo(window.mc.width / 2, window.mc.height / 2);
-    context.arc(window.mc.width / 2, window.mc.height / 2, window.gsc * 100, start, angle);
-    context.lineTo(window.mc.width / 2, window.mc.height / 2);
-    context.closePath();
-    context.fillStyle = (danger) ? 'red' : 'green';
-    context.fill();
-    context.globalAlpha = 1;
-    context.fillStyle = 'black';
-};
-
-// Draw lines on the canvas
-window.drawLine = function(x2, y2, colour) {
-    var context = window.mc.getContext('2d');
-    var center = [window.mc.height / 2, window.mc.width / 2];
-    context.lineWidth = 5 * window.getScale();
-    context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
-    context.moveTo(center[1], center[0]);
-    context.lineTo(x2, y2);
-    context.stroke();
-    context.strokeStyle = '#000000';
-};
 // Save the original slither.io oef function so we can add things to it later
 window.oldOef = window.oef;
 window.oef = function() {
@@ -672,9 +731,7 @@ window.oef = function() {
     if (window.isBotRunning) window.loop();
     window.onFrameUpdate();
 };
-window.handleTextColor = function(enabled) {
-    return '<span style=\"opacity: 0.8; color:' + (enabled ? 'green;\">enabled' : 'red;\">disabled') + '</span>';
-};
+
 window.onFrameUpdate = function() {
     // Botstatus overlay
     var generalStyle = '<span style = "opacity: 0.35";>';
@@ -699,64 +756,21 @@ window.onFrameUpdate = function() {
     }
 
     // If playing
-    if (window.playing && window.visualDebugging) {
-        if (window.isBotRunning) {
-            var drawGoalCoordinates = window.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
-            drawGoalCoordinates = window.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
-            window.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
-            window.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
-            window.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
-            window.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
+    if (window.playing && window.visualDebugging && window.isBotRunning) {
+        if (window.goalCoordinates && window.goalCoordinates.length == 2) {
+            var drawGoalCoordinates = graphics.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
+            drawGoalCoordinates = graphics.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
+            graphics.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
+            graphics.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
+            graphics.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
+            graphics.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
         }
     }
 };
-// Defense mode - bot turns around in a circle
-window.playDefence = function(dir) {
-    window.kd_l = (dir === 'l');
-    window.kd_r = (dir === 'r');
-    window.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
+
+window.handleTextColor = function(enabled) {
+    return '<span style=\"opacity: 0.8; color:' + (enabled ? 'green;\">enabled' : 'red;\">disabled') + '</span>';
 };
-
-// Actual bot code
-window.thinkAboutGoals = function() {
-
-    // If no enemies or obstacles, go after what you are going after
-    if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
-
-        // Save CPU by only calculating every Nth frame
-        window.tickCounter++;
-        if (window.tickCounter > 25) {
-            window.tickCounter = 0;
-
-            // Current food
-            window.computeFoodGoal();
-
-            var coordinatesOfClosestFood = window.mapToMouse(window.currentFoodX, window.currentFoodY);
-            window.goalCoordinates = coordinatesOfClosestFood;
-            // Sprint
-            window.setAcceleration(window.foodAcceleration);
-            // Check for preys, enough "length"
-            if (window.preys.length > 0 && window.huntPrey) {
-                // Sort preys based on their distance relative to player's snake
-                window.sortedPrey = window.getSortedPrey();
-                // Current prey
-                window.currentPrey = window.sortedPrey[0];
-                // Convert coordinates of the closest prey using mapToMouse
-                var coordinatesOfClosestPrey = window.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
-                // Check for the distance
-                if (window.currentPrey.distance <= Math.pow(window.getSnakeLength(), 2) / 2) {
-                    // Set the mouse coordinates to the coordinates of the closest prey
-                    window.goalCoordinates = coordinatesOfClosestPrey;
-                    // "Sprint" enabled
-                    window.setAcceleration(1);
-                }
-            }
-            window.kd_l = false;
-            window.kd_r = false;
-            window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
-        }
-    }
-}
 
 // Loop for running the bot
 window.loop = function() {
@@ -767,16 +781,14 @@ window.loop = function() {
         // TODO: Check some condition to see if we should play defence
         // Right now this just uses the manual toggle
         if (window.defence) {
-            window.playDefence('l');
+            bot.playDefence('l');
             return;
         }
-
-        window.thinkAboutGoals();
-
+        bot.thinkAboutGoals();
     } else {
         if (window.ranOnce) {
-            //window.startInterval = setInterval(window.startBot, 1000);
-            window.stopBot();
+            //window.startInterval = setInterval(bot.startBot, 1000);
+            bot.stopBot();
         }
     }
 };
@@ -791,14 +803,7 @@ window.loop = function() {
     window.requestAnimationFrame = requestAnimationFrame;
 })();
 
-// Starts bot
-window.startBot = function() {
-    if (window.autoRespawn && !window.playing && window.isBotEnabled && window.ranOnce && !window.isBotRunning) {
-        window.connectBot();
-        //clearInterval(window.startInterval);
-    }
-};
-// Initialises the bot
+// Initial setup
 window.initBot = function() {
     window.ranOnce = false;
     window.tickCounter = 0;
@@ -840,14 +845,14 @@ window.initBot = function() {
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
     window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
     // Listener for mouse wheel scroll - used for setZoom function
-    document.body.addEventListener('mousewheel', window.setZoom);
-    document.body.addEventListener('DOMMouseScroll', window.setZoom);
+    document.body.addEventListener('mousewheel', graphics.setZoom);
+    document.body.addEventListener('DOMMouseScroll', graphics.setZoom);
     // Set render mode
     if (window.mobileRender) {
-        setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+        graphics.setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
         window.render_mode = 1;
     } else {
-        setBackground();
+        graphics.setBackground();
         window.render_mode = 2;
     }
     // Canvas Ratio
@@ -857,46 +862,8 @@ window.initBot = function() {
     // Remove social
     window.social.remove();
     // Start!
-    window.launchBot(50);
-    window.startInterval = setInterval(window.startBot, 1000);
+    bot.launchBot(50);
+    window.startInterval = setInterval(bot.startBot, 1000);
     window.foodIndx = 0;
 };
 window.initBot();
-
-// Enemy code - not used for now
-/*
- // Sort enemies based on distance
- window.getSortedEnemies = function() {
- Filters the nearest food by getting the distance
- return window.snakes.filter(function(val) {
- return val !== null && val.id !== window.snake.id;
- }).map(window.getDistanceFromMe).sort(window.sortEnemy);
- };
- // Sorting function for enemies, from property 'distance'
- window.sortEnemy = function(a, b) {
- return a.distance - b.distance;
- };
- window.sortedEnemies = window.getSortedEnemies();
- // Take the closest of each
- window.closestEnemy = window.sortedEnemies[0];
- if (window.closestEnemy.distance < 300) {
- window.log('close enemy! (distance = ' + window.closestEnemy.distance);
- // !handle close enemies!
- }
- */
-// Better food hunting algorithm but not implemented yet
-/*
- window.isInFoods = function (foodObject) {
- return (foodObject === null) ? false : (window.foods.indexOf(foodObject) >= 0);
- };
- window.currentFood = null;
- window.sortedFood = getSortedFood();
- window.loop = function () {
- if (!isInFoods(currentFood)) {
- window.sortedFood = getSortedFood();
- window.currentFood = sortedFood[0];
- var coordinatesOfClosestFood = window.mapToMouse(window.sortedFood[0].xx, window.sortedFood[0].yy);
- window.setMouseCoordinates(coordinatesOfClosestFood[0], coordinatesOfClosestFood[1]);
- }
- };
- */
