@@ -463,9 +463,13 @@ window.checkCollision = function(x, y, r) {
 	if (window.visualDebugging) {
         window.drawDot(headCircle.x, headCircle.y, headCircle.radius, 'blue', false);
     }
-	
+
 	if (window.collisionPoints[0] != null && snake.dead_amt === 0){
-		collisionCircle = window.collisionPoints[0].circle;
+		collisionCircle = 	collisionScreenToCanvas({
+						x: window.collisionPoints[0].xx,
+						y: window.collisionPoints[0].yy,
+						radius: 20 * window.collisionPoints[0].sc * window.getScale()});
+						
 		if (window.circleIntersect(headCircle, collisionCircle)) {
 			window.changeGoalCoords();
 			return true;
@@ -536,12 +540,9 @@ window.getCollisionPoints = function() {
 					collisionPoint = {
 					xx: window.snakes[snake].pts[pts].xx,
 					yy: window.snakes[snake].pts[pts].yy,
-					circle: collisionScreenToCanvas({
-						x: window.snakes[snake].pts[pts].xx,
-						y: window.snakes[snake].pts[pts].yy,
-						radius: 20 * window.snakes[snake].sc * window.getScale()}),
-					 sp: window.snakes[snake].sp
-					 };
+					sc: window.snakes[snake].sc,
+					sp: window.snakes[snake].sp
+					};
 
 					window.getDistanceFromMe(collisionPoint);
 					collisionPoints.push(collisionPoint);
@@ -773,7 +774,7 @@ window.goodPath = function(point){
 
 // Actual bot code
 window.updateLoop = function(){
-	if (window.updateLoopCounter > 5)
+	if (window.updateLoopCounter > 25)
 		window.updateLoopCounter = 0;
 	
 	if (window.updateLoopCounter == 0){
