@@ -18,7 +18,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.7.4
+// @version      0.7.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -350,6 +350,40 @@ var bot = (function() {
             }, 100);
         },
 
+        forceConnect: function() {
+            if (!window.connect) {
+                return;
+            }
+            window.forcing = true;
+            if (!window.bso) {
+                window.bso = {};
+            }
+            window.currentIP = window.bso.ip + ":" + window.bso.po;
+            var srv = window.currentIP.trim().split(":");
+            window.bso.ip = srv[0];
+            window.bso.po = srv[1];
+            window.connect();
+        },
+
+        quickRespawn: function() {
+            window.dead_mtm = 0;
+            window.login_fr = 0;
+            window.forceConnect();
+        },
+
+        changeSkin: function() {
+            if (window.playing && window.snake != null) {
+                var skin = window.snake.rcv,
+                    max = window.max_skin_cv || 27;
+                skin++;
+                if (skin > max) {
+                    skin = 0;
+                }
+                window.setSkin(window.snake, skin);
+            }
+        },
+
+        // Adjust goal direction
         changeGoalCoords: function(circle1) {
             if ((circle1.x != bot.collisionPoint.x || circle1.y != bot.collisionPoint.y)) {
                 bot.collisionPoint = circle1;
@@ -687,6 +721,14 @@ document.onkeydown = function(e) {
             window.autoRespawn = false;
             window.quit();
         }
+        // 'ESC' to quickly respawn
+        if (e.keyCode == 27) {
+            bot.quickRespawn();
+        }
+        // Letter 'X' to change skin
+        if (e.keyCode == 88) {
+            bot.changeSkin();
+        }
     }
 };
 
@@ -762,15 +804,20 @@ window.onFrameUpdate = function() {
     window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
     window.scroll_overlay.innerHTML = generalStyle + '(Mouse Wheel) Zoom in/out </span>';
     window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
+    window.changeskin_overlay.innerHTML = generalStyle + '(X) Change skin </span>';
+    window.quickResp_overlay.innerHTML = generalStyle + '(ESC) Quick Respawn </span>';
     window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
 
     if (window.position_overlay && window.playing) {
         // Display the X and Y of the snake
         window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
     }
-
-    // If playing
+    if (window.playing && window.ip_overlay) {
+        window.ip_overlay.innerHTML = generalStyle + 'Server: ' + window.bso.ip + ':' + window.bso.po;
+        '</span>';
+    }
     if (window.playing && window.visualDebugging && bot.isBotRunning) {
+        // Only draw the goal when a bot has a goal.
         if (window.goalCoordinates && window.goalCoordinates.length == 2) {
             var drawGoalCoordinates = graphics.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
             drawGoalCoordinates = graphics.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
@@ -844,10 +891,13 @@ window.loop = function() {
     window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 200px;');
     window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 215px;');
     window.appendDiv('scroll_overlay', 'nsi', window.generalstyle + 'left: 30; top: 230px;');
-    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
+    window.appendDiv('quickResp_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
+    window.appendDiv('changeskin_overlay', 'nsi', window.generalstyle + 'left: 30; top: 260px;');
+    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 275px;');
 
     // Bottom right
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
+    window.appendDiv('ip_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 150px;');
     window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
 
     // Listener for mouse wheel scroll - used for setZoom function
