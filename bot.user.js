@@ -117,7 +117,7 @@ var canvas = (function() {
         toggleMobileRendering: function(mobileRendering) {
             window.mobileRender = mobileRendering;
             window.log('Mobile rendering set to: ' + window.mobileRender);
-            window.savePreference('mobileRender', window.mobileRender);
+            userInterface.savePreference('mobileRender', window.mobileRender);
             // Set render mode
             if (window.mobileRender) {
                 canvas.setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
@@ -133,7 +133,7 @@ var canvas = (function() {
             if (window.autoMobileRender) {
                 // Set interval to check the fps and if it is below 20, turn on mobile rendering
                 window.mobileRenderInterval = setInterval(function() {
-                    canvas.toggleMobileRendering(window.framesPerSecond.getFPS() <= 20);
+                    canvas.toggleMobileRendering(userInterface.framesPerSecond.getFPS() <= 20);
                 }, 5000);
                 window.autoMobileRender = false;
                 // When more than 20, turn it off
@@ -142,7 +142,7 @@ var canvas = (function() {
                 window.autoMobileRender = true;
             }
             window.log('Automatic mobile rendering set to: ' + window.autoMobileRender);
-            window.savePreference('autoMobileRender', window.autoMobileRender);
+            userInterface.savePreference('autoMobileRender', window.autoMobileRender);
         },
 
         // Draw a dot on the canvas.
@@ -560,274 +560,277 @@ var bot = (function() {
     };
 })();
 
-// Saves username when you click on "Play" button
-window.play_btn.btnf.addEventListener('click', function() {
-    window.saveNick();
-    window.loadPreference('autoRespawn', false);
-});
+var userInterface = (function() {
+    // Save the original slither.io functions so we can modify them, or reenable them later.
+    var original_keydown = document.onkeydown;
+    var original_onmouseDown = window.onmousedown;
+    var original_oef = window.oef;
 
-// Save nickname when you press "Enter"
-window.nick_holder.addEventListener('keypress', function(e) {
-    if (e.keyCode == 13) {
-        window.saveNick();
-    }
-});
+    return {
+        // Save variable to local storage
+        savePreference: function(item, value) {
+            window.localStorage.setItem(item, value);
+        },
 
-// Save nickname
-window.saveNick = function() {
-    var nick = document.getElementById('nick').value;
-    window.savePreference('savedNick', nick);
-};
-
-// Append a div to the page. Used to add interface elements to the page.
-window.appendDiv = function(id, className, style) {
-    var div = document.createElement('div');
-    if (id) div.id = id;
-    if (className) div.className = className;
-    if (style) div.style = style;
-    document.body.appendChild(div);
-};
-
-// FPS counter
-window.framesPerSecond = {
-    startTime: 0,
-    frameNumber: 0,
-    filterStrength: 40,
-    lastLoop: 0,
-    frameTime: 0,
-    getFPS: function() {
-        var thisLoop = performance.now();
-        var thisFrameTime = thisLoop - this.lastLoop;
-        this.frameTime += (thisFrameTime - this.frameTime) / this.filterStrength;
-        this.lastLoop = thisLoop;
-        return (1000 / this.frameTime).toFixed(0);
-    }
-};
-
-// Save variable to local storage
-window.savePreference = function(item, value) {
-    window.localStorage.setItem(item, value);
-};
-
-// Load a variable from local storage
-window.loadPreference = function(preference, defaultVar) {
-    var savedItem = window.localStorage.getItem(preference);
-    if (savedItem !== null) {
-        if (savedItem == 'true') {
-            window[preference] = true;
-        } else if (savedItem == 'false') {
-            window[preference] = false;
-        } else {
-            window[preference] = savedItem;
-        }
-        window.log('Setting found for ' + preference + ': ' + window[preference]);
-    } else {
-        window[preference] = defaultVar;
-        window.log('No setting found for ' + preference + '. Used default: ' + window[preference]);
-    }
-    return window[preference];
-};
-
-// Save the original slither.io onkeydown function so we can add stuff to it
-document.oldKeyDown = document.onkeydown;
-
-// Re write the function with our function
-document.onkeydown = function(e) {
-    // Original slither.io onkeydown function + whatever is under it
-    document.oldKeyDown(e);
-    if (document.activeElement.parentElement !== window.nick_holder) {
-        // Letter `T` to toggle bot
-        if (e.keyCode === 84) {
-            if (bot.isBotRunning) {
-                bot.stopBot();
-                bot.isBotEnabled = false;
-            } else {
-                bot.launchBot();
-                bot.isBotEnabled = true;
-            }
-        }
-        // Letter 'U' to toggle debugging (console)
-        if (e.keyCode === 85) {
-            window.logDebugging = !window.logDebugging;
-            console.log('Log debugging set to: ' + window.logDebugging);
-            window.savePreference('logDebugging', window.logDebugging);
-        }
-        // Letter 'Y' to toggle debugging (visual)
-        if (e.keyCode === 89) {
-            window.visualDebugging = !window.visualDebugging;
-            console.log('Visual debugging set to: ' + window.visualDebugging);
-            window.savePreference('visualDebugging', window.visualDebugging);
-        }
-        // Letter 'I' to toggle autorespawn
-        if (e.keyCode === 73) {
-            window.autoRespawn = !window.autoRespawn;
-            console.log('Automatic Respawning set to: ' + window.autoRespawn);
-            window.savePreference('autoRespawn', window.autoRespawn);
-        }
-        // Letter 'O' to set automatic mobile rendering
-        if (e.keyCode === 79) {
-            canvas.toggleMobileRendering(!window.mobileRender);
-        }
-        // Letter 'M' to manually set mobile rendering
-        if (e.keyCode === 77) {
-            canvas.toggleAutomaticMobileRendering();
-        }
-        // Letter 'P' to toggle hunting Prey
-        if (e.keyCode === 80) {
-            window.huntPrey = !window.huntPrey;
-            console.log('Prey hunting set to: ' + window.huntPrey);
-            window.savePreference('huntPrey', window.huntPrey);
-        }
-
-        // Letter 'C' to toggle Collision detection / enemy avoidance
-        if (e.keyCode === 67) {
-            window.collisionDetection = !window.collisionDetection;
-            console.log('collisionDetection set to: ' + window.collisionDetection);
-            window.savePreference('collisionDetection', window.collisionDetection);
-        }
-
-        // Letter 'A' to increase collision detection radius
-        if (e.keyCode === 65) {
-            window.collisionRadiusMultiplier++;
-            console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
-            window.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
-        }
-
-        // Letter 'S' to decrease collision detection radius
-        if (e.keyCode === 83) {
-            if (window.collisionRadiusMultiplier > 1) {
-                window.collisionRadiusMultiplier--;
-                console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
-                window.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
-            }
-        }
-
-        // Letter 'D' to toggle defence mode
-        if (e.keyCode === 68) {
-            window.defence = !window.defence;
-            console.log('Defence set to: ' + window.defence);
-            window.savePreference('defence', window.defence);
-        }
-        // Letter 'Z' to reset zoom
-        if (e.keyCode === 90) {
-            canvas.resetZoom();
-        }
-        // Letter 'Q' to quit to main menu
-        if (e.keyCode == 81) {
-            window.autoRespawn = false;
-            window.quit();
-        }
-        // 'ESC' to quickly respawn
-        if (e.keyCode == 27) {
-            bot.quickRespawn();
-        }
-        // Letter 'X' to change skin
-        if (e.keyCode == 88) {
-            bot.changeSkin();
-        }
-    }
-};
-
-// Save the original slither.io onmousedown function so we can re enable it back later
-window.oldMouseDown = window.onmousedown;
-window.onmousedown = function(e) {
-    window.oldMouseDown(e);
-    e = e || window.event;
-    if (window.playing) {
-        switch (e.which) {
-            // "Left click" to manually speed up the slither
-            case 1:
-                window.setAcceleration(1);
-                window.log('Manual boost...');
-                break;
-                // "Right click" to toggle bot in addition to the letter "T"
-            case 3:
-                if (bot.isBotRunning) {
-                    bot.stopBot();
-                    bot.isBotEnabled = false;
+        // Load a variable from local storage
+        loadPreference: function(preference, defaultVar) {
+            var savedItem = window.localStorage.getItem(preference);
+            if (savedItem !== null) {
+                if (savedItem == 'true') {
+                    window[preference] = true;
+                } else if (savedItem == 'false') {
+                    window[preference] = false;
                 } else {
-                    bot.launchBot();
-                    bot.isBotEnabled = true;
+                    window[preference] = savedItem;
                 }
-                break;
+                window.log('Setting found for ' + preference + ': ' + window[preference]);
+            } else {
+                window[preference] = defaultVar;
+                window.log('No setting found for ' + preference + '. Used default: ' + window[preference]);
+            }
+            return window[preference];
+        },
+
+        // Saves username when you click on "Play" button
+        playButtonClickListener: function() {
+            userInterface.saveNick();
+            userInterface.loadPreference('autoRespawn', false);
+        },
+
+        // Preserve nickname
+        saveNick: function() {
+            var nick = document.getElementById('nick').value;
+            userInterface.savePreference('savedNick', nick);
+        },
+
+        // Add interface elements to the page.
+        // @param {string} id
+        // @param {string} className
+        // @param style
+        appendDiv: function(id, className, style) {
+            var div = document.createElement('div');
+            if (id) div.id = id;
+            if (className) div.className = className;
+            if (style) div.style = style;
+            document.body.appendChild(div);
+        },
+
+        // Store FPS data
+        framesPerSecond: {
+            startTime: 0,
+            frameNumber: 0,
+            filterStrength: 40,
+            lastLoop: 0,
+            frameTime: 0,
+            getFPS: function() {
+                var thisLoop = performance.now();
+                var thisFrameTime = thisLoop - this.lastLoop;
+                this.frameTime += (thisFrameTime - this.frameTime) / this.filterStrength;
+                this.lastLoop = thisLoop;
+                return (1000 / this.frameTime).toFixed(0);
+            }
+        },
+
+        onkeydown: function(e) {
+            // Original slither.io onkeydown function + whatever is under it
+            original_keydown(e);
+            if (document.activeElement.parentElement !== window.nick_holder) {
+                // Letter `T` to toggle bot
+                if (e.keyCode === 84) {
+                    if (bot.isBotRunning) {
+                        bot.stopBot();
+                        bot.isBotEnabled = false;
+                    } else {
+                        bot.launchBot();
+                        bot.isBotEnabled = true;
+                    }
+                }
+                // Letter 'U' to toggle debugging (console)
+                if (e.keyCode === 85) {
+                    window.logDebugging = !window.logDebugging;
+                    console.log('Log debugging set to: ' + window.logDebugging);
+                    userInterface.savePreference('logDebugging', window.logDebugging);
+                }
+                // Letter 'Y' to toggle debugging (visual)
+                if (e.keyCode === 89) {
+                    window.visualDebugging = !window.visualDebugging;
+                    console.log('Visual debugging set to: ' + window.visualDebugging);
+                    userInterface.savePreference('visualDebugging', window.visualDebugging);
+                }
+                // Letter 'I' to toggle autorespawn
+                if (e.keyCode === 73) {
+                    window.autoRespawn = !window.autoRespawn;
+                    console.log('Automatic Respawning set to: ' + window.autoRespawn);
+                    userInterface.savePreference('autoRespawn', window.autoRespawn);
+                }
+                // Letter 'O' to set automatic mobile rendering
+                if (e.keyCode === 79) {
+                    canvas.toggleMobileRendering(!window.mobileRender);
+                }
+                // Letter 'M' to manually set mobile rendering
+                if (e.keyCode === 77) {
+                    canvas.toggleAutomaticMobileRendering();
+                }
+                // Letter 'P' to toggle hunting Prey
+                if (e.keyCode === 80) {
+                    window.huntPrey = !window.huntPrey;
+                    console.log('Prey hunting set to: ' + window.huntPrey);
+                    userInterface.savePreference('huntPrey', window.huntPrey);
+                }
+                // Letter 'C' to toggle Collision detection / enemy avoidance
+                if (e.keyCode === 67) {
+                    window.collisionDetection = !window.collisionDetection;
+                    console.log('collisionDetection set to: ' + window.collisionDetection);
+                    userInterface.savePreference('collisionDetection', window.collisionDetection);
+                }
+                // Letter 'A' to increase collision detection radius
+                if (e.keyCode === 65) {
+                    window.collisionRadiusMultiplier++;
+                    console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
+                    userInterface.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
+                }
+                // Letter 'S' to decrease collision detection radius
+                if (e.keyCode === 83) {
+                    if (window.collisionRadiusMultiplier > 1) {
+                        window.collisionRadiusMultiplier--;
+                        console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
+                        userInterface.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
+                    }
+                }
+                // Letter 'D' to toggle defence mode
+                if (e.keyCode === 68) {
+                    window.defence = !window.defence;
+                    console.log('Defence set to: ' + window.defence);
+                    userInterface.savePreference('defence', window.defence);
+                }
+                // Letter 'Z' to reset zoom
+                if (e.keyCode === 90) {
+                    canvas.resetZoom();
+                }
+                // Letter 'Q' to quit to main menu
+                if (e.keyCode == 81) {
+                    window.autoRespawn = false;
+                    userInterface.quit();
+                }
+                // 'ESC' to quickly respawn
+                if (e.keyCode == 27) {
+                    bot.quickRespawn();
+                }
+                // Letter 'X' to change skin
+                if (e.keyCode == 88) {
+                    bot.changeSkin();
+                }
+                // Save nickname when you press "Enter"
+                if (e.keyCode == 13) {
+                    userInterface.saveNick();
+                }
+            }
+        },
+
+        onmousedown: function(e) {
+            original_onmouseDown(e);
+            e = e || window.event;
+            if (window.playing) {
+                switch (e.which) {
+                    // "Left click" to manually speed up the slither
+                    case 1:
+                        window.setAcceleration(1);
+                        window.log('Manual boost...');
+                        break;
+                        // "Right click" to toggle bot in addition to the letter "T"
+                    case 3:
+                        if (bot.isBotRunning) {
+                            bot.stopBot();
+                            bot.isBotEnabled = false;
+                        } else {
+                            bot.launchBot();
+                            bot.isBotEnabled = true;
+                        }
+                        break;
+                }
+            }
+        },
+
+        onFrameUpdate: function() {
+            // Botstatus overlay
+            var generalStyle = '<span style = "opacity: 0.35";>';
+            window.botstatus_overlay.innerHTML = generalStyle + '(T / Right Click) Bot: </span>' + userInterface.handleTextColor(bot.isBotRunning);
+            window.visualdebugging_overlay.innerHTML = generalStyle + '(Y) Visual debugging: </span>' + userInterface.handleTextColor(window.visualDebugging);
+            window.logdebugging_overlay.innerHTML = generalStyle + '(U) Log debugging: </span>' + userInterface.handleTextColor(window.logDebugging);
+            window.autorespawn_overlay.innerHTML = generalStyle + '(I) Auto respawning: </span>' + userInterface.handleTextColor(window.autoRespawn);
+            window.automobilerender_overlay.innerHTML = generalStyle + '(M) Auto mobile rendering: </span>' + userInterface.handleTextColor(window.autoMobileRender);
+            window.rendermode_overlay.innerHTML = generalStyle + '(O) Mobile rendering: </span>' + userInterface.handleTextColor(window.mobileRender);
+            window.huntprey_overlay.innerHTML = generalStyle + '(P) Prey hunting: </span>' + userInterface.handleTextColor(window.huntPrey);
+            window.collision_detection_overlay.innerHTML = generalStyle + '(C) Collision detection: </span>' + userInterface.handleTextColor(window.collisionDetection);
+            window.collision_radius_multiplier_overlay.innerHTML = generalStyle + '(A/S) Collision radius multiplier: ' + window.collisionRadiusMultiplier + ' </span>';
+            window.defence_overlay.innerHTML = generalStyle + '(D) Defence: </span>' + userInterface.handleTextColor(window.defence);
+            window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
+            window.scroll_overlay.innerHTML = generalStyle + '(Mouse Wheel) Zoom in/out </span>';
+            window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
+            window.changeskin_overlay.innerHTML = generalStyle + '(X) Change skin </span>';
+            window.quickResp_overlay.innerHTML = generalStyle + '(ESC) Quick Respawn </span>';
+            window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + userInterface.framesPerSecond.getFPS() + '</span>';
+
+            if (window.position_overlay && window.playing) {
+                // Display the X and Y of the snake
+                window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
+            }
+            if (window.playing && window.ip_overlay) {
+                window.ip_overlay.innerHTML = generalStyle + 'Server: ' + window.bso.ip + ':' + window.bso.po;
+                '</span>';
+            }
+            if (window.playing && window.visualDebugging && bot.isBotRunning) {
+                // Only draw the goal when a bot has a goal.
+                if (window.goalCoordinates && window.goalCoordinates.length == 2) {
+                    var drawGoalCoordinates = canvas.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
+                    drawGoalCoordinates = canvas.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
+                    canvas.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
+                    canvas.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
+                    canvas.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
+                    canvas.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
+                }
+            }
+        },
+
+        oef: function() {
+            // Original slither.io oef function + whatever is under it
+            // requestAnimationFrame(window.loop);
+            original_oef();
+            if (bot.isBotRunning) window.loop();
+            userInterface.onFrameUpdate();
+        },
+
+        // Quit to menu
+        quit: function() {
+            if (window.playing && window.resetGame) {
+                window.want_close_socket = true;
+                window.dead_mtm = 0;
+                if (window.play_btn) {
+                    window.play_btn.setEnabled(true);
+                }
+                window.resetGame();
+            }
+        },
+
+        // Update the relation between the screen and the canvas.
+        onresize: function() {
+            window.resize();
+            // Canvas different size from the screen (often bigger).
+            canvas.canvasRatio = [window.mc.width / window.getWidth(),
+                                  window.mc.height / window.getHeight()];
+        },
+
+        handleTextColor: function(enabled) {
+            return '<span style=\"opacity: 0.8; color:' + (enabled ? 'green;\">enabled' : 'red;\">disabled') + '</span>';
         }
-    }
-}
+    };
+})();
+window.play_btn.btnf.addEventListener('click', userInterface.playButtonClickListener);
+document.onkeydown = userInterface.onkeydown;
+window.onmousedown = userInterface.onmousedown;
+window.oef = userInterface.oef;
+window.onresize = userInterface.onresize;
 
-// Updates the relation between the screen and the canvas.
-window.onresize = function() {
-    window.resize();
-    // Canvas different size from the screen (often bigger).
-    canvas.canvasRatio = [window.mc.width / window.getWidth(),
-                          window.mc.height / window.getHeight()];
-};
-
-// Quit to menu
-window.quit = function() {
-    if (window.playing && window.resetGame) {
-        window.want_close_socket = true;
-        window.dead_mtm = 0;
-        if (window.play_btn) {
-            window.play_btn.setEnabled(true);
-        }
-        window.resetGame();
-    }
-};
-
-// Save the original slither.io oef function so we can add things to it later
-window.oldOef = window.oef;
-window.oef = function() {
-    // Original slither.io oef function + whatever is under it
-    // requestAnimationFrame(window.loop);
-    window.oldOef();
-    if (bot.isBotRunning) window.loop();
-    window.onFrameUpdate();
-};
-
-window.onFrameUpdate = function() {
-    // Botstatus overlay
-    var generalStyle = '<span style = "opacity: 0.35";>';
-    window.botstatus_overlay.innerHTML = generalStyle + '(T / Right Click) Bot: </span>' + window.handleTextColor(bot.isBotRunning);
-    window.visualdebugging_overlay.innerHTML = generalStyle + '(Y) Visual debugging: </span>' + window.handleTextColor(window.visualDebugging);
-    window.logdebugging_overlay.innerHTML = generalStyle + '(U) Log debugging: </span>' + window.handleTextColor(window.logDebugging);
-    window.autorespawn_overlay.innerHTML = generalStyle + '(I) Auto respawning: </span>' + window.handleTextColor(window.autoRespawn);
-    window.automobilerender_overlay.innerHTML = generalStyle + '(M) Auto mobile rendering: </span>' + window.handleTextColor(window.autoMobileRender);
-    window.rendermode_overlay.innerHTML = generalStyle + '(O) Mobile rendering: </span>' + window.handleTextColor(window.mobileRender);
-    window.huntprey_overlay.innerHTML = generalStyle + '(P) Prey hunting: </span>' + window.handleTextColor(window.huntPrey);
-    window.collision_detection_overlay.innerHTML = generalStyle + '(C) Collision detection: </span>' + window.handleTextColor(window.collisionDetection);
-    window.collision_radius_multiplier_overlay.innerHTML = generalStyle + '(A/S) Collision radius multiplier: ' + window.collisionRadiusMultiplier + ' </span>';
-    window.defence_overlay.innerHTML = generalStyle + '(D) Defence: </span>' + window.handleTextColor(window.defence);
-    window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
-    window.scroll_overlay.innerHTML = generalStyle + '(Mouse Wheel) Zoom in/out </span>';
-    window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
-    window.changeskin_overlay.innerHTML = generalStyle + '(X) Change skin </span>';
-    window.quickResp_overlay.innerHTML = generalStyle + '(ESC) Quick Respawn </span>';
-    window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + window.framesPerSecond.getFPS() + '</span>';
-
-    if (window.position_overlay && window.playing) {
-        // Display the X and Y of the snake
-        window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
-    }
-    if (window.playing && window.ip_overlay) {
-        window.ip_overlay.innerHTML = generalStyle + 'Server: ' + window.bso.ip + ':' + window.bso.po;
-        '</span>';
-    }
-    if (window.playing && window.visualDebugging && bot.isBotRunning) {
-        // Only draw the goal when a bot has a goal.
-        if (window.goalCoordinates && window.goalCoordinates.length == 2) {
-            var drawGoalCoordinates = canvas.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
-            drawGoalCoordinates = canvas.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
-            canvas.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
-            canvas.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
-            canvas.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
-            canvas.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
-        }
-    }
-};
-
-window.handleTextColor = function(enabled) {
-    return '<span style=\"opacity: 0.8; color:' + (enabled ? 'green;\">enabled' : 'red;\">disabled') + '</span>';
-};
 
 // Loop for running the bot
 window.loop = function() {
@@ -860,41 +863,41 @@ window.loop = function() {
     window.requestAnimationFrame = requestAnimationFrame;
 
     // Load preferences
-    window.loadPreference('logDebugging', false);
-    window.loadPreference('visualDebugging', false);
-    window.loadPreference('autoRespawn', false);
-    window.loadPreference('mobileRender', false);
-    window.loadPreference('huntPrey', true);
-    window.loadPreference('collisionDetection', true);
-    window.loadPreference('collisionRadiusMultiplier', 8);
-    window.loadPreference('defence', false);
-    window.loadPreference('autoMobileRender', true);
-    window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
+    userInterface.loadPreference('logDebugging', false);
+    userInterface.loadPreference('visualDebugging', false);
+    userInterface.loadPreference('autoRespawn', false);
+    userInterface.loadPreference('mobileRender', false);
+    userInterface.loadPreference('huntPrey', true);
+    userInterface.loadPreference('collisionDetection', true);
+    userInterface.loadPreference('collisionRadiusMultiplier', 8);
+    userInterface.loadPreference('defence', false);
+    userInterface.loadPreference('autoMobileRender', true);
+    window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
     // Overlays
 
     // Top left
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; z-index: 7;';
-    window.appendDiv('botstatus_overlay', 'nsi', window.generalstyle + 'left: 30; top: 65px;');
-    window.appendDiv('visualdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 80px;');
-    window.appendDiv('logdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 95px;');
-    window.appendDiv('autorespawn_overlay', 'nsi', window.generalstyle + 'left: 30; top: 110px;');
-    window.appendDiv('rendermode_overlay', 'nsi', window.generalstyle + 'left: 30; top: 125px;');
-    window.appendDiv('automobilerender_overlay', 'nsi', window.generalstyle + 'left: 30; top: 140px;');
-    window.appendDiv('collision_detection_overlay', 'nsi', window.generalstyle + 'left: 30; top: 155px;');
-    window.appendDiv('collision_radius_multiplier_overlay', 'nsi', window.generalstyle + 'left: 30; top: 170px;');
-    window.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 185px;');
-    window.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 200px;');
-    window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 215px;');
-    window.appendDiv('scroll_overlay', 'nsi', window.generalstyle + 'left: 30; top: 230px;');
-    window.appendDiv('quickResp_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
-    window.appendDiv('changeskin_overlay', 'nsi', window.generalstyle + 'left: 30; top: 260px;');
-    window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 275px;');
+    userInterface.appendDiv('botstatus_overlay', 'nsi', window.generalstyle + 'left: 30; top: 65px;');
+    userInterface.appendDiv('visualdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 80px;');
+    userInterface.appendDiv('logdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 95px;');
+    userInterface.appendDiv('autorespawn_overlay', 'nsi', window.generalstyle + 'left: 30; top: 110px;');
+    userInterface.appendDiv('rendermode_overlay', 'nsi', window.generalstyle + 'left: 30; top: 125px;');
+    userInterface.appendDiv('automobilerender_overlay', 'nsi', window.generalstyle + 'left: 30; top: 140px;');
+    userInterface.appendDiv('collision_detection_overlay', 'nsi', window.generalstyle + 'left: 30; top: 155px;');
+    userInterface.appendDiv('collision_radius_multiplier_overlay', 'nsi', window.generalstyle + 'left: 30; top: 170px;');
+    userInterface.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 185px;');
+    userInterface.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 200px;');
+    userInterface.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 215px;');
+    userInterface.appendDiv('scroll_overlay', 'nsi', window.generalstyle + 'left: 30; top: 230px;');
+    userInterface.appendDiv('quickResp_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
+    userInterface.appendDiv('changeskin_overlay', 'nsi', window.generalstyle + 'left: 30; top: 260px;');
+    userInterface.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 275px;');
 
     // Bottom right
-    window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
-    window.appendDiv('ip_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 150px;');
-    window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
+    userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
+    userInterface.appendDiv('ip_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 150px;');
+    userInterface.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
 
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', canvas.setZoom);
