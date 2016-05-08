@@ -719,34 +719,42 @@ window.playDefence = function(dir) {
 
 // Actual bot code
 window.thinkAboutGoals = function() {
+
     // If no enemies or obstacles, go after what you are going after
     if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
-        // Current food
-        window.computeFoodGoal();
 
-        var coordinatesOfClosestFood = window.mapToMouse(window.currentFoodX, window.currentFoodY);
-        window.goalCoordinates = coordinatesOfClosestFood;
-        // Sprint
-        window.setAcceleration(window.foodAcceleration);
-        // Check for preys, enough "length"
-        if (window.preys.length > 0 && window.huntPrey) {
-            // Sort preys based on their distance relative to player's snake
-            window.sortedPrey = window.getSortedPrey();
-            // Current prey
-            window.currentPrey = window.sortedPrey[0];
-            // Convert coordinates of the closest prey using mapToMouse
-            var coordinatesOfClosestPrey = window.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
-            // Check for the distance
-            if (window.currentPrey.distance <= Math.pow(window.getSnakeLength(), 2) / 2) {
-                // Set the mouse coordinates to the coordinates of the closest prey
-                window.goalCoordinates = coordinatesOfClosestPrey;
-                // "Sprint" enabled
-                window.setAcceleration(1);
+        // Save CPU by only calculating every Nth frame
+        window.tickCounter++;
+        if (window.tickCounter > 25) {
+            window.tickCounter = 0;
+
+            // Current food
+            window.computeFoodGoal();
+
+            var coordinatesOfClosestFood = window.mapToMouse(window.currentFoodX, window.currentFoodY);
+            window.goalCoordinates = coordinatesOfClosestFood;
+            // Sprint
+            window.setAcceleration(window.foodAcceleration);
+            // Check for preys, enough "length"
+            if (window.preys.length > 0 && window.huntPrey) {
+                // Sort preys based on their distance relative to player's snake
+                window.sortedPrey = window.getSortedPrey();
+                // Current prey
+                window.currentPrey = window.sortedPrey[0];
+                // Convert coordinates of the closest prey using mapToMouse
+                var coordinatesOfClosestPrey = window.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
+                // Check for the distance
+                if (window.currentPrey.distance <= Math.pow(window.getSnakeLength(), 2) / 2) {
+                    // Set the mouse coordinates to the coordinates of the closest prey
+                    window.goalCoordinates = coordinatesOfClosestPrey;
+                    // "Sprint" enabled
+                    window.setAcceleration(1);
+                }
             }
+            window.kd_l = false;
+            window.kd_r = false;
+            window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
         }
-        window.kd_l = false;
-        window.kd_r = false;
-        window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
     }
 }
 
@@ -755,6 +763,7 @@ window.loop = function() {
     // If the game and the bot are running
     if (window.playing && window.isBotEnabled) {
         window.ranOnce = true;
+
         // TODO: Check some condition to see if we should play defence
         // Right now this just uses the manual toggle
         if (window.defence) {
@@ -762,12 +771,7 @@ window.loop = function() {
             return;
         }
 
-        // Save CPU by only calculating every Nth frame
-        window.tickCounter++;
-        if (window.tickCounter > 25) {
-            window.tickCounter = 0;
-            window.thinkAboutGoals();
-        }
+        window.thinkAboutGoals();
 
     } else {
         if (window.ranOnce) {
