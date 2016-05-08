@@ -46,7 +46,7 @@ window.getSnakeLength = function() {
     return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
 window.getSnakeWidth = function() {
-    return window.snake.sc * 15 * graphics.getScale();
+    return window.snake.sc * 15 * canvas.getScale();
 };
 
 window.getX = function() {
@@ -56,7 +56,7 @@ window.getY = function() {
     return window.snake.yy;
 };
 
-var graphics = (function() {
+var canvas = (function() {
     return {
         // Ratio of screen size divided by canvas size.
         canvasRatio: [window.mc.width / window.getWidth(), window.mc.height / window.getHeight()],
@@ -76,8 +76,8 @@ var graphics = (function() {
 
         // Convert screen coordinates to canvas coordinates.
         screenToCanvas: function(x, y) {
-            var canvasX = window.csc * (x * graphics.canvasRatio[0]) - parseInt(window.mc.style.left);
-            var canvasY = window.csc * (y * graphics.canvasRatio[1]) - parseInt(window.mc.style.top);
+            var canvasX = window.csc * (x * canvas.canvasRatio[0]) - parseInt(window.mc.style.left);
+            var canvasY = window.csc * (y * canvas.canvasRatio[1]) - parseInt(window.mc.style.top);
             return [canvasX, canvasY];
         },
 
@@ -120,10 +120,10 @@ var graphics = (function() {
             window.savePreference('mobileRender', window.mobileRender);
             // Set render mode
             if (window.mobileRender) {
-                graphics.setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+                canvas.setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
                 window.render_mode = 1;
             } else {
-                graphics.setBackground();
+                canvas.setBackground();
                 window.render_mode = 2;
             }
         },
@@ -133,7 +133,7 @@ var graphics = (function() {
             if (window.autoMobileRender) {
                 // Set interval to check the fps and if it is below 20, turn on mobile rendering
                 window.mobileRenderInterval = setInterval(function() {
-                    graphics.toggleMobileRendering(window.framesPerSecond.getFPS() <= 20);
+                    canvas.toggleMobileRendering(window.framesPerSecond.getFPS() <= 20);
                 }, 5000);
                 window.autoMobileRender = false;
                 // When more than 20, turn it off
@@ -150,7 +150,7 @@ var graphics = (function() {
             var context = window.mc.getContext('2d');
             context.beginPath();
             context.strokeStyle = '#00FF00';
-            context.arc(x, y, radius * graphics.getScale(), 0, Math.PI * 2);
+            context.arc(x, y, radius * canvas.getScale(), 0, Math.PI * 2);
             context.closePath();
             if (fill) {
                 context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
@@ -182,18 +182,14 @@ var graphics = (function() {
         drawLine: function(x2, y2, colour) {
             var context = window.mc.getContext('2d');
             var center = [window.mc.height / 2, window.mc.width / 2];
-            context.lineWidth = 5 * graphics.getScale();
+            context.lineWidth = 5 * canvas.getScale();
             context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
             context.moveTo(center[1], center[0]);
             context.lineTo(x2, y2);
             context.stroke();
             context.strokeStyle = '#000000';
-        }
-    };
-})();
+        },
 
-var shapeMath = (function() {
-    return {
         // Check if a point is between two vectors.
         // The vectors have to be anticlockwise (sectorEnd on the left of sectorStart).
         isBetweenVectors: function(point, sectorStart, sectorEnd) {
@@ -204,8 +200,8 @@ var shapeMath = (function() {
                     x: point.xx - center[0],
                     y: point.yy - center[1]
                 };
-                return (!shapeMath.areClockwise(sectorStart, relPoint) &&
-                        shapeMath.areClockwise(sectorEnd, relPoint));
+                return (!canvas.areClockwise(sectorStart, relPoint) &&
+                        canvas.areClockwise(sectorEnd, relPoint));
             }
             return false;
         },
@@ -223,7 +219,7 @@ var shapeMath = (function() {
                 y: Math.sin(endAngle)
             };
             // Use isBetweenVectors to check if the point belongs to the angle
-            return shapeMath.isBetweenVectors(point, startAngleVector, endAngleVector);
+            return canvas.isBetweenVectors(point, startAngleVector, endAngleVector);
         },
 
         // Given two vectors, return a truthy/falsy value depending on their position relative to each other.
@@ -236,7 +232,7 @@ var shapeMath = (function() {
         // return the object with an additional property 'distance'.
         getDistanceFromSnake: function(point) {
             if (point === null) return null;
-            point.distance = shapeMath.getDistance(window.getX(), window.getY(),
+            point.distance = canvas.getDistance(window.getX(), window.getY(),
                                                 point.xx, point.yy);
             return point;
         },
@@ -258,9 +254,9 @@ var shapeMath = (function() {
 
         // Screen to Canvas coordinate conversion - used for collision detection
         collisionScreenToCanvas: function(circle) {
-            var newCircle = graphics.mapToMouse(circle.x, circle.y);
-            newCircle = graphics.mouseToScreen(newCircle[0], newCircle[1]);
-            newCircle = graphics.screenToCanvas(newCircle[0], newCircle[1]);
+            var newCircle = canvas.mapToMouse(circle.x, circle.y);
+            newCircle = canvas.mouseToScreen(newCircle[0], newCircle[1]);
+            newCircle = canvas.screenToCanvas(newCircle[0], newCircle[1]);
             return {
                 x: newCircle[0],
                 y: newCircle[1],
@@ -285,8 +281,8 @@ var shapeMath = (function() {
                     if (window.visualDebugging) {
                         var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
                         var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii;
-                        graphics.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
-                        graphics.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
+                        canvas.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
+                        canvas.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
                     }
                     return true;
                 }
@@ -387,9 +383,9 @@ var bot = (function() {
         changeGoalCoords: function(circle1) {
             if ((circle1.x != bot.collisionPoint.x || circle1.y != bot.collisionPoint.y)) {
                 bot.collisionPoint = circle1;
-                window.goalCoordinates = graphics.mapToMouse(window.snake.xx + (window.snake.xx - bot.collisionPoint.x), window.snake.yy + (window.snake.yy - bot.collisionPoint.y));
+                window.goalCoordinates = canvas.mapToMouse(window.snake.xx + (window.snake.xx - bot.collisionPoint.x), window.snake.yy + (window.snake.yy - bot.collisionPoint.y));
                 window.setAcceleration(0);
-                graphics.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
+                canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
             }
         },
 
@@ -406,13 +402,13 @@ var bot = (function() {
         // Checks to see if you are going to collide with anything in the collision detection radius
         checkCollision: function(x, y, r) {
             if (!window.collisionDetection) return false;
-            var circle1 = shapeMath.collisionScreenToCanvas({
+            var circle1 = canvas.collisionScreenToCanvas({
                 x: x,
                 y: y,
                 radius: r
             });
             if (window.visualDebugging) {
-                graphics.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
+                canvas.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
             }
             var shortest_distance = Number.MAX_VALUE;
             var avoid = false;
@@ -427,10 +423,10 @@ var bot = (function() {
                             circle2 = {
                                 x: xx,
                                 y: yy,
-                                radius: 15 * window.snakes[snake].sc * graphics.getScale()
+                                radius: 15 * window.snakes[snake].sc * canvas.getScale()
                             };
-                            if (shapeMath.circleIntersect(circle1, shapeMath.collisionScreenToCanvas(circle2))) {
-                                var distance = shapeMath.getDistance(window.getX(), window.getY(), xx, yy);
+                            if (canvas.circleIntersect(circle1, canvas.collisionScreenToCanvas(circle2))) {
+                                var distance = canvas.getDistance(window.getX(), window.getY(), xx, yy);
                                 if (distance < shortest_distance) {
                                     bot.changeGoalCoords(circle2);
                                     avoid = true;
@@ -449,9 +445,9 @@ var bot = (function() {
             // Filters the nearest food by getting the distance
             return window.foods.filter(function(val) {
                 return val !== null && val !== undefined;
-            }).map(shapeMath.getDistanceFromSnake).filter(function(val) {
-                var isInsideDangerAngles = shapeMath.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
-                isInsideDangerAngles = isInsideDangerAngles || shapeMath.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
+            }).map(canvas.getDistanceFromSnake).filter(function(val) {
+                var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
+                isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
                 return !(isInsideDangerAngles && (val.distance <= 150));
             }).sort(bot.sortFood);
         },
@@ -461,7 +457,7 @@ var bot = (function() {
             // Filters the nearest food by getting the distance
             return window.preys.filter(function(val) {
                 return val !== null;
-            }).map(shapeMath.getDistanceFromSnake).sort(bot.sortPrey);
+            }).map(canvas.getDistanceFromSnake).sort(bot.sortPrey);
         },
 
         computeFoodGoal: function() {
@@ -485,7 +481,7 @@ var bot = (function() {
                 var p1 = sortedFood[i];
                 for (var j = 0; j < nIter; ++j) {
                     var p2 = sortedFood[j];
-                    var dist = shapeMath.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
+                    var dist = canvas.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
                     if (dist < 100) {
                         clusterScore += p2.sz;
                         clusterSumX += p2.xx * p2.sz;
@@ -519,7 +515,7 @@ var bot = (function() {
         playDefence: function(dir) {
             window.kd_l = (dir === 'l');
             window.kd_r = (dir === 'r');
-            graphics.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
+            canvas.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
         },
 
         // Called by the window loop, this is the main logic of the bot.
@@ -535,7 +531,7 @@ var bot = (function() {
                     // Current food
                     bot.computeFoodGoal();
 
-                    var coordinatesOfClosestFood = graphics.mapToMouse(window.currentFoodX, window.currentFoodY);
+                    var coordinatesOfClosestFood = canvas.mapToMouse(window.currentFoodX, window.currentFoodY);
                     window.goalCoordinates = coordinatesOfClosestFood;
                     // Sprint
                     window.setAcceleration(window.foodAcceleration);
@@ -557,7 +553,7 @@ var bot = (function() {
                     }
                     window.kd_l = false;
                     window.kd_r = false;
-                    graphics.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
+                    canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
                 }
             }
         }
@@ -670,11 +666,11 @@ document.onkeydown = function(e) {
         }
         // Letter 'O' to set automatic mobile rendering
         if (e.keyCode === 79) {
-            graphics.toggleMobileRendering(!window.mobileRender);
+            canvas.toggleMobileRendering(!window.mobileRender);
         }
         // Letter 'M' to manually set mobile rendering
         if (e.keyCode === 77) {
-            graphics.toggleAutomaticMobileRendering();
+            canvas.toggleAutomaticMobileRendering();
         }
         // Letter 'P' to toggle hunting Prey
         if (e.keyCode === 80) {
@@ -714,7 +710,7 @@ document.onkeydown = function(e) {
         }
         // Letter 'Z' to reset zoom
         if (e.keyCode === 90) {
-            graphics.resetZoom();
+            canvas.resetZoom();
         }
         // Letter 'Q' to quit to main menu
         if (e.keyCode == 81) {
@@ -762,7 +758,7 @@ window.onmousedown = function(e) {
 window.onresize = function() {
     window.resize();
     // Canvas different size from the screen (often bigger).
-    graphics.canvasRatio = [window.mc.width / window.getWidth(),
+    canvas.canvasRatio = [window.mc.width / window.getWidth(),
                           window.mc.height / window.getHeight()];
 };
 
@@ -819,12 +815,12 @@ window.onFrameUpdate = function() {
     if (window.playing && window.visualDebugging && bot.isBotRunning) {
         // Only draw the goal when a bot has a goal.
         if (window.goalCoordinates && window.goalCoordinates.length == 2) {
-            var drawGoalCoordinates = graphics.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
-            drawGoalCoordinates = graphics.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
-            graphics.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
-            graphics.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
-            graphics.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
-            graphics.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
+            var drawGoalCoordinates = canvas.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
+            drawGoalCoordinates = canvas.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
+            canvas.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
+            canvas.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
+            canvas.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
+            canvas.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
         }
     }
 };
@@ -901,15 +897,15 @@ window.loop = function() {
     window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
 
     // Listener for mouse wheel scroll - used for setZoom function
-    document.body.addEventListener('mousewheel', graphics.setZoom);
-    document.body.addEventListener('DOMMouseScroll', graphics.setZoom);
+    document.body.addEventListener('mousewheel', canvas.setZoom);
+    document.body.addEventListener('DOMMouseScroll', canvas.setZoom);
 
     // Set render mode
     if (window.mobileRender) {
-        graphics.setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+        canvas.setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
         window.render_mode = 1;
     } else {
-        graphics.setBackground();
+        canvas.setBackground();
         window.render_mode = 2;
     }
 
