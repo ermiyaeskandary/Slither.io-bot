@@ -1,0 +1,14 @@
+approve_by_comment: true
+approve_regex: ^Approved
+reject_regex: ^Rejected
+reset_on_push: false
+reviewers:
+  members:
+  - ChadSki
+  - Drflash55
+  - ErmiyaEskandary
+  - Evanito
+  - FliiFe
+  - K00sKlust
+  name: default
+  required: 2
