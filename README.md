@@ -12,6 +12,7 @@ Goal : make a bot for slither.io
 # Installation instructions
 ## Videos
 https://youtu.be/mlEKp-ZAi7w - Created by http://slithere.com/
+
 https://youtu.be/QF9JBMi-fLo?t=38s - Created by SeppeTutorials
 
 If you are on chrome, download the [TamperMonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en) extension.
