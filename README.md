@@ -38,7 +38,7 @@ Mouse wheel | Zoom in/out
 
 # Contributing
 
-Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/).
+Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/). Your pull request needs to be approved by at least 2 people in the MAINTAINERS file.
 
 # Authors
 Ermiya Eskandary & Théophile Cailliau (ErmiyaEskandary & FliiFe)
