@@ -368,7 +368,7 @@ var bot = (function() {
         },
 
         changeSkin: function() {
-            if (window.playing && window.snake != null) {
+            if (window.playing && window.snake !== null) {
                 var skin = window.snake.rcv,
                     max = window.max_skin_cv || 27;
                 skin++;
@@ -542,7 +542,7 @@ var bot = (function() {
                         // Current prey
                         window.currentPrey = window.sortedPrey[0];
                         // Convert coordinates of the closest prey using mapToMouse
-                        var coordinatesOfClosestPrey = window.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
+                        var coordinatesOfClosestPrey = canvas.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
                         // Check for the distance
                         if (window.currentPrey.distance <= Math.pow(window.getSnakeLength(), 2) / 2) {
                             // Set the mouse coordinates to the coordinates of the closest prey
