@@ -465,13 +465,10 @@ window.checkCollision = function(x, y, r) {
     }
 	
 	if (window.collisionPoints[0] != null && snake.dead_amt === 0){
-		collisionCircle = window.collisionPoints[0].circle
-		if (window.collisionCheck(headCircle, collisionCircle)) {
-				window.changeGoalCoords();
-				if (window.visualDebugging) {
-					window.drawDot(collisionCircle.x, collisionCircle.y, collisionCircle.radius, 'blue', false);
-				}
-				return true;
+		collisionCircle = window.collisionPoints[0].circle;
+		if (window.circleIntersect(headCircle, collisionCircle)) {
+			window.changeGoalCoords();
+			return true;
 		}
 	}
 	return false;
@@ -482,13 +479,40 @@ window.changeGoalCoords = function() {
 	window.setAcceleration(0);
 	window.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
 };
+// Check if circles intersect
+window.circleIntersect = function(circle1, circle2) {
+    // Only do the expensive check if we need to
+    if (window.quickCollisionCheck(circle1, circle2)) {
+        return window.slowCollisionCheck(circle1, circle2);
+    } else {
+        return false;
+    }
+};
 // Very quick collision check that pretends the circles are squares. Subject to false-positives.
-window.collisionCheck = function(circle1, circle2) {
+window.quickCollisionCheck = function(circle1, circle2) {
     var bothRadii = circle1.radius + circle2.radius;
     return (circle1.x + bothRadii > circle2.x &&
             circle1.y + bothRadii > circle2.y &&
             circle1.x < circle2.x + bothRadii &&
             circle1.y < circle2.y + bothRadii);
+};
+
+// Collision check
+window.slowCollisionCheck = function(circle1, circle2) {
+    var distance = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) +
+                             Math.pow(circle1.y - circle2.y, 2));
+    var bothRadii = circle1.radius + circle2.radius;
+    if (distance < bothRadii) {
+        if (window.visualDebugging) {
+            var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
+            var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii;
+            window.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
+            window.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
+        }
+        return true;
+    } else {
+        return false;
+    }
 };
 // Screen to Canvas coordinate conversion - used for collision detection
 window.collisionScreenToCanvas = function(circle) {
@@ -586,13 +610,13 @@ window.computeFoodGoal = function() {
 		
 		if (clusterScore > bestClusterScore) {
 			//good path checks for a line intersection with collisionParts, if an intersection is there it's a bad path.
-			if (window.goodPath({xx: clusterSumX / clusterAbsScore, yy: clusterSumY / clusterAbsScore})){
+			//if (window.goodPath({xx: clusterSumX / clusterAbsScore, yy: clusterSumY / clusterAbsScore})){
 				bestClusterScore = clusterScore;
 				bestClusterAbsScore = clusterAbsScore;
 				bestClusterX = clusterSumX / clusterAbsScore;
 				bestClusterY = clusterSumY / clusterAbsScore;
 				bestClusterIndx = i;
-			}
+			//}
 		}
 	}
 	
@@ -718,15 +742,10 @@ function interceptOnCircle(p1, p2, c) {
     var underRadical = Math.pow(c.radius,2)*Math.pow(m,2) + Math.pow(c.radius,2) - Math.pow(b,2); //the value under the square root sign 
 
     if (underRadical < 0) {
-        //line completely missed
-		//console.log("missed");
+        //line missed
         return false;
     } else {
-        //var t1 = (-m*b + Math.sqrt(underRadical))/(Math.pow(m,2) + 1); //one of the intercept x's
-        //var t2 = (-m*b - Math.sqrt(underRadical))/(Math.pow(m,2) + 1); //other intercept's x
-        //var i1 = {x:t1+c.x, y:m*t1+b+c.y}; //intercept point 1
-       // var i2 = {x:t2+c.x, y:m*t2+b+c.y}; //intercept point 2
-		//console.log("hit");
+		//line hit
         return true;
 		
     }
@@ -742,7 +761,7 @@ window.goodPath = function(point){
 	lineEnd = window.screenToCanvas(lineEnd[0], lineEnd[1]);
 	if (window.collisionPoints[0] !== null){
 		for (var points in window.collisionPoints){
-			collisionCircle = window.collisionPoints[points].circle
+			collisionCircle = window.collisionPoints[points].circle;
 			if(interceptOnCircle({x: lineStart[0], y: lineStart[1]},{x: lineEnd[0], y: lineEnd[1]}, collisionCircle)){
 				return false;
 			}
@@ -753,14 +772,17 @@ window.goodPath = function(point){
 };
 
 // Actual bot code
-window.updateListLoop = function(){
-	
-	if (window.updateLoopCounter % 25 == 0) {
+window.updateLoop = function(){
+	if (window.updateLoopCounter > 5)
 		window.updateLoopCounter = 0;
-		window.collisionPoints = window.getCollisionPoints();
+	
+	if (window.updateLoopCounter == 0){
 		window.computeFoodGoal();
+		// Sort preys based on their distance relative to player's snake
+		window.sortedPrey = window.getSortedPrey();
 	}
 	
+	window.collisionPoints = window.getCollisionPoints();
 	window.updateLoopCounter++;
 };
 
@@ -768,6 +790,7 @@ window.updateListLoop = function(){
 window.loop = function() {
     // If the game and the bot are running
     if (window.playing && window.isBotEnabled) {
+				window.updateLoop();
         window.ranOnce = true;
         // TODO: Check some condition to see if we should play defence
         // Right now this just uses the manual toggle
@@ -775,8 +798,6 @@ window.loop = function() {
             window.playDefence('l');
             return;
         }
-
-		window.updateListLoop();
         //increase dodge radius when using speed
 		var speedingMultiplier = (window.snake.sp > 10) ? 1.5 : 1.0;
 		speedingMultiplier = (window.foodAcceleration) ? 0.75 : speedingMultiplier;
@@ -790,8 +811,6 @@ window.loop = function() {
             window.setAcceleration(window.foodAcceleration);
             // Check for preys, enough "length"
             if (window.preys.length > 0 && window.huntPrey) {
-                // Sort preys based on their distance relative to player's snake
-                window.sortedPrey = window.getSortedPrey();
                 // Current prey
                 window.currentPrey = window.sortedPrey[0];
                 // Convert coordinates of the closest prey using mapToMouse
@@ -838,7 +857,7 @@ window.initBot = function() {
     window.ranOnce = false;
     window.isBotRunning = false;
     window.isBotEnabled = true;
-	window.updateLoopCounter = 25;
+	window.updateLoopCounter = 0;
     window.collisionPoint = {
         x: 0,
         y: 0,
