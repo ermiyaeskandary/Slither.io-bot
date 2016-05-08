@@ -570,27 +570,27 @@ window.computeFoodGoal = function() {
         var nIter = Math.min(window.sortedFood.length, 300);
         for (var i = 0; i < nIter; i += 2) {
 			var p1 = window.sortedFood[i];
-			if (window.goodPath(p1)) {
-				var clusterScore = 0;
-				var clusterSize = 0;
-				var clusterAbsScore = 0;
-				var clusterSumX = 0;
-				var clusterSumY = 0;
+			var clusterScore = 0;
+			var clusterSize = 0;
+			var clusterAbsScore = 0;
+			var clusterSumX = 0;
+			var clusterSumY = 0;
 
-				for (var j = 0; j < nIter; ++j) {
-					var p2 = window.sortedFood[j];
-					var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
-					if (dist < 100) {
-						clusterScore += p2.sz;
-						clusterSumX += p2.xx * p2.sz;
-						clusterSumY += p2.yy * p2.sz;
-						clusterSize += 1;
-					}
+			for (var j = 0; j < nIter; ++j) {
+				var p2 = window.sortedFood[j];
+				var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
+				if (dist < 100) {
+					clusterScore += p2.sz;
+					clusterSumX += p2.xx * p2.sz;
+					clusterSumY += p2.yy * p2.sz;
+					clusterSize += 1;
 				}
-				clusterAbsScore = clusterScore;
-				clusterScore /= Math.pow(p1.distance, 1.5);
-				
-				if (clusterSize > 2 && clusterScore > bestClusterScore) {
+			}
+			clusterAbsScore = clusterScore;
+			clusterScore /= Math.pow(p1.distance, 1.5);
+			
+			if (clusterSize > 2 && clusterScore > bestClusterScore) {
+				if (window.goodPath({xx: clusterSumX / clusterAbsScore, yy: clusterSumY / clusterAbsScore})){
 					bestClusterScore = clusterScore;
 					bestClusterAbsScore = clusterAbsScore;
 					bestClusterX = clusterSumX / clusterAbsScore;
@@ -598,15 +598,19 @@ window.computeFoodGoal = function() {
 					bestClusterIndx = i;
 				}
 			}
-				
-			// if see a large cluster then use acceleration
-			if (bestClusterAbsScore > 50) {
-				window.foodAcceleration = 1;
-			} else {
-				window.foodAcceleration = 0;
-			}
+		}
+		
+		window.currentFoodX = bestClusterX;
+		window.currentFoodY = bestClusterY;
+	
+		// if see a large cluster then use acceleration
+		if (bestClusterAbsScore > 50) {
+			window.foodAcceleration = 1;
+		} else {
+			window.foodAcceleration = 0;
 		}
     }
+	
     window.foodIndx += 1;
 };
 
