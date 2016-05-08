@@ -515,7 +515,7 @@ window.getCollisionPoints = function() {
 					circle: collisionScreenToCanvas({
 						x: window.snakes[snake].pts[pts].xx,
 						y: window.snakes[snake].pts[pts].yy,
-						radius: 15 * window.snakes[snake].sc * window.getScale()}),
+						radius: 20 * window.snakes[snake].sc * window.getScale()}),
 					 sp: window.snakes[snake].sp
 					 };
 
@@ -579,7 +579,8 @@ window.computeFoodGoal = function() {
 			for (var j = 0; j < nIter; ++j) {
 				var p2 = window.sortedFood[j];
 				var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
-				if (dist < 100) {
+				
+				if (dist < getSnakeWidth() * 5) {
 					clusterScore += p2.sz;
 					clusterSumX += p2.xx * p2.sz;
 					clusterSumY += p2.yy * p2.sz;
@@ -589,7 +590,7 @@ window.computeFoodGoal = function() {
 			clusterAbsScore = clusterScore;
 			clusterScore /= Math.pow(p1.distance, 1.5);
 			
-			if (clusterSize > 2 && clusterScore > bestClusterScore) {
+			if (clusterScore > bestClusterScore) {
 				//good path checks for a line intersection with collisionParts, if an intersection is there it's a bad path.
 				if (window.goodPath({xx: clusterSumX / clusterAbsScore, yy: clusterSumY / clusterAbsScore})){
 					bestClusterScore = clusterScore;
