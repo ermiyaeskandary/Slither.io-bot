@@ -58,6 +58,9 @@ window.getY = function() {
 
 var graphics = (function() {
     return {
+        // Ratio of screen size divided by canvas size.
+        canvasRatio: [window.mc.width / window.getWidth(), window.mc.height / window.getHeight()],
+
         // Spoofs moving the mouse to the provided coordinates.
         setMouseCoordinates: function(x, y) {
             window.xm = x;
@@ -73,8 +76,8 @@ var graphics = (function() {
 
         // Convert screen coordinates to canvas coordinates.
         screenToCanvas: function(x, y) {
-            var canvasX = window.csc * (x * window.canvasRatio[0]) - parseInt(window.mc.style.left);
-            var canvasY = window.csc * (y * window.canvasRatio[1]) - parseInt(window.mc.style.top);
+            var canvasX = window.csc * (x * graphics.canvasRatio[0]) - parseInt(window.mc.style.left);
+            var canvasY = window.csc * (y * graphics.canvasRatio[1]) - parseInt(window.mc.style.top);
             return [canvasX, canvasY];
         },
 
@@ -298,15 +301,26 @@ var bot = (function() {
     var original_onmousemove = window.onmousemove;
 
     return {
+        ranOnce: false,
+        tickCounter: 0,
+        foodIndx: 0,
+        isBotRunning: false,
+        isBotEnabled: true,
+        collisionPoint: {
+            x: 0,
+            y: 0,
+            radius: 0
+        },
+
         startBot: function() {
-            if (window.autoRespawn && !window.playing && window.isBotEnabled && window.ranOnce && !window.isBotRunning) {
+            if (window.autoRespawn && !window.playing && bot.isBotEnabled && bot.ranOnce && !bot.isBotRunning) {
                 bot.connectBot();
             }
         },
 
         launchBot: function() {
             window.log('Starting Bot.');
-            window.isBotRunning = true;
+            bot.isBotRunning = true;
             // Removed the onmousemove listener so we can move the snake manually by setting coordinates
             window.onmousemove = function() {};
         },
@@ -315,7 +329,7 @@ var bot = (function() {
         stopBot: function() {
             window.log('Stopping Bot.');
             window.setAcceleration(0);  // Disable the "sprint"
-            window.isBotRunning = false;
+            bot.isBotRunning = false;
             // Re-enable the original onmousemove function
             window.onmousemove = original_onmousemove;
         },
@@ -337,9 +351,9 @@ var bot = (function() {
         },
 
         changeGoalCoords: function(circle1) {
-            if ((circle1.x != window.collisionPoint.x || circle1.y != window.collisionPoint.y)) {
-                window.collisionPoint = circle1;
-                window.goalCoordinates = graphics.mapToMouse(window.snake.xx + (window.snake.xx - window.collisionPoint.x), window.snake.yy + (window.snake.yy - window.collisionPoint.y));
+            if ((circle1.x != bot.collisionPoint.x || circle1.y != bot.collisionPoint.y)) {
+                bot.collisionPoint = circle1;
+                window.goalCoordinates = graphics.mapToMouse(window.snake.xx + (window.snake.xx - bot.collisionPoint.x), window.snake.yy + (window.snake.yy - bot.collisionPoint.y));
                 window.setAcceleration(0);
                 graphics.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
             }
@@ -480,9 +494,9 @@ var bot = (function() {
             if (!bot.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
 
                 // Save CPU by only calculating every Nth frame
-                window.tickCounter++;
-                if (window.tickCounter > 25) {
-                    window.tickCounter = 0;
+                bot.tickCounter++;
+                if (bot.tickCounter > 25) {
+                    bot.tickCounter = 0;
 
                     // Current food
                     bot.computeFoodGoal();
@@ -594,12 +608,12 @@ document.onkeydown = function(e) {
     if (document.activeElement.parentElement !== window.nick_holder) {
         // Letter `T` to toggle bot
         if (e.keyCode === 84) {
-            if (window.isBotRunning) {
+            if (bot.isBotRunning) {
                 bot.stopBot();
-                window.isBotEnabled = false;
+                bot.isBotEnabled = false;
             } else {
-                bot.launchBot(5);
-                window.isBotEnabled = true;
+                bot.launchBot();
+                bot.isBotEnabled = true;
             }
         }
         // Letter 'U' to toggle debugging (console)
@@ -690,12 +704,12 @@ window.onmousedown = function(e) {
                 break;
                 // "Right click" to toggle bot in addition to the letter "T"
             case 3:
-                if (window.isBotRunning) {
+                if (bot.isBotRunning) {
                     bot.stopBot();
-                    window.isBotEnabled = false;
+                    bot.isBotEnabled = false;
                 } else {
-                    bot.launchBot(5);
-                    window.isBotEnabled = true;
+                    bot.launchBot();
+                    bot.isBotEnabled = true;
                 }
                 break;
         }
@@ -706,7 +720,7 @@ window.onmousedown = function(e) {
 window.onresize = function() {
     window.resize();
     // Canvas different size from the screen (often bigger).
-    window.canvasRatio = [window.mc.width / window.getWidth(),
+    graphics.canvasRatio = [window.mc.width / window.getWidth(),
                           window.mc.height / window.getHeight()];
 };
 
@@ -728,14 +742,14 @@ window.oef = function() {
     // Original slither.io oef function + whatever is under it
     // requestAnimationFrame(window.loop);
     window.oldOef();
-    if (window.isBotRunning) window.loop();
+    if (bot.isBotRunning) window.loop();
     window.onFrameUpdate();
 };
 
 window.onFrameUpdate = function() {
     // Botstatus overlay
     var generalStyle = '<span style = "opacity: 0.35";>';
-    window.botstatus_overlay.innerHTML = generalStyle + '(T / Right Click) Bot: </span>' + window.handleTextColor(window.isBotRunning);
+    window.botstatus_overlay.innerHTML = generalStyle + '(T / Right Click) Bot: </span>' + window.handleTextColor(bot.isBotRunning);
     window.visualdebugging_overlay.innerHTML = generalStyle + '(Y) Visual debugging: </span>' + window.handleTextColor(window.visualDebugging);
     window.logdebugging_overlay.innerHTML = generalStyle + '(U) Log debugging: </span>' + window.handleTextColor(window.logDebugging);
     window.autorespawn_overlay.innerHTML = generalStyle + '(I) Auto respawning: </span>' + window.handleTextColor(window.autoRespawn);
@@ -756,7 +770,7 @@ window.onFrameUpdate = function() {
     }
 
     // If playing
-    if (window.playing && window.visualDebugging && window.isBotRunning) {
+    if (window.playing && window.visualDebugging && bot.isBotRunning) {
         if (window.goalCoordinates && window.goalCoordinates.length == 2) {
             var drawGoalCoordinates = graphics.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
             drawGoalCoordinates = graphics.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
@@ -775,8 +789,8 @@ window.handleTextColor = function(enabled) {
 // Loop for running the bot
 window.loop = function() {
     // If the game and the bot are running
-    if (window.playing && window.isBotEnabled) {
-        window.ranOnce = true;
+    if (window.playing && bot.isBotEnabled) {
+        bot.ranOnce = true;
 
         // TODO: Check some condition to see if we should play defence
         // Right now this just uses the manual toggle
@@ -786,34 +800,22 @@ window.loop = function() {
         }
         bot.thinkAboutGoals();
     } else {
-        if (window.ranOnce) {
+        if (bot.ranOnce) {
             //window.startInterval = setInterval(bot.startBot, 1000);
             bot.stopBot();
         }
     }
 };
 
-// Target the user's browser.
+// Main
 (function() {
+    // Target the user's browser.
     var requestAnimationFrame = window.requestAnimationFrame ||
         window.mozRequestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.msRequestAnimationFrame;
-
     window.requestAnimationFrame = requestAnimationFrame;
-})();
 
-// Initial setup
-window.initBot = function() {
-    window.ranOnce = false;
-    window.tickCounter = 0;
-    window.isBotRunning = false;
-    window.isBotEnabled = true;
-    window.collisionPoint = {
-        x: 0,
-        y: 0,
-        radius: 0
-    };
     // Load preferences
     window.loadPreference('logDebugging', false);
     window.loadPreference('visualDebugging', false);
@@ -825,7 +827,9 @@ window.initBot = function() {
     window.loadPreference('defence', false);
     window.loadPreference('autoMobileRender', true);
     window.nick.value = window.loadPreference('savedNick', 'Slither.io-bot');
+
     // Overlays
+
     // Top left
     window.generalstyle = 'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; z-index: 7;';
     window.appendDiv('botstatus_overlay', 'nsi', window.generalstyle + 'left: 30; top: 65px;');
@@ -841,12 +845,15 @@ window.initBot = function() {
     window.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 215px;');
     window.appendDiv('scroll_overlay', 'nsi', window.generalstyle + 'left: 30; top: 230px;');
     window.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
+
     // Bottom right
     window.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
     window.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
+
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', graphics.setZoom);
     document.body.addEventListener('DOMMouseScroll', graphics.setZoom);
+
     // Set render mode
     if (window.mobileRender) {
         graphics.setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
@@ -855,15 +862,14 @@ window.initBot = function() {
         graphics.setBackground();
         window.render_mode = 2;
     }
-    // Canvas Ratio
-    window.canvasRatio = [window.mc.width / window.getWidth(), window.mc.height / window.getHeight()];
+
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
+
     // Remove social
     window.social.remove();
+
     // Start!
-    bot.launchBot(50);
+    bot.launchBot();
     window.startInterval = setInterval(bot.startBot, 1000);
-    window.foodIndx = 0;
-};
-window.initBot();
+})();
