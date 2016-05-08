@@ -39,6 +39,7 @@ D | Defense mode - bot turns around in a circle
 C | Enemy avoidance / Collision prevention
 A / S | Collision radius multiplier increase / decrease
 Z | Reset zoom
+ESC | Quick respawn
 Q | Quit to menu
 Mouse wheel | Zoom in/out
 
