@@ -590,6 +590,7 @@ window.computeFoodGoal = function() {
 			clusterScore /= Math.pow(p1.distance, 1.5);
 			
 			if (clusterSize > 2 && clusterScore > bestClusterScore) {
+				//good path checks for a line intersection with collisionParts, if an intersection is there it's a bad path.
 				if (window.goodPath({xx: clusterSumX / clusterAbsScore, yy: clusterSumY / clusterAbsScore})){
 					bestClusterScore = clusterScore;
 					bestClusterAbsScore = clusterAbsScore;
