@@ -796,7 +796,7 @@ window.loop = function() {
         if (!window.checkCollision(window.headCircle)) {
             window.setAcceleration(0);
             // Current food	
-			for (index in window.sortedFood){
+			for (var index = 0;index < 70; index++){
 				if(window.goodPath({xx: window.sortedFood[index].clusterxx, yy: window.sortedFood[index].clusteryy})){
 					window.currentFood = window.sortedFood[index]; 
 					break;
