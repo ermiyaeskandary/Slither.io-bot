@@ -572,62 +572,54 @@ window.getSortedPrey = function() {
 
 
 window.computeFoodGoal = function() {
+    window.sortedFood = window.getSortedFood();
 
-    // recompute food goal every 25th frame
-    if (window.foodIndx > 25)
-        window.foodIndx = 0;
+    var bestClusterIndx = 0;
+    var bestClusterScore = 0;
+    var bestClusterAbsScore = 0;
+    var bestClusterX = 0;
+    var bestClusterY = 0;
 
-    if (window.foodIndx == 0) {
-        window.sortedFood = window.getSortedFood();
+    // there is no need to view more points (for performance)
+    var nIter = Math.min(window.sortedFood.length, 300);
+    for (var i = 0; i < nIter; i += 2) {
+        var clusterScore = 0;
+        var clusterSize = 0;
+        var clusterAbsScore = 0;
+        var clusterSumX = 0;
+        var clusterSumY = 0;
 
-        var bestClusterIndx = 0;
-        var bestClusterScore = 0;
-        var bestClusterAbsScore = 0;
-        var bestClusterX = 0;
-        var bestClusterY = 0;
-
-        // there is no need to view more points (for performance)
-        var nIter = Math.min(window.sortedFood.length, 300);
-        for (var i = 0; i < nIter; i += 2) {
-            var clusterScore = 0;
-            var clusterSize = 0;
-            var clusterAbsScore = 0;
-            var clusterSumX = 0;
-            var clusterSumY = 0;
-
-            var p1 = window.sortedFood[i];
-            for (var j = 0; j < nIter; ++j) {
-                var p2 = window.sortedFood[j];
-                var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
-                if (dist < 100) {
-                    clusterScore += p2.sz;
-                    clusterSumX += p2.xx * p2.sz;
-                    clusterSumY += p2.yy * p2.sz;
-                    clusterSize += 1;
-                }
-            }
-            clusterAbsScore = clusterScore;
-            clusterScore /= Math.pow(p1.distance, 1.5);
-            if (clusterSize > 2 && clusterScore > bestClusterScore) {
-                bestClusterScore = clusterScore;
-                bestClusterAbsScore = clusterAbsScore;
-                bestClusterX = clusterSumX / clusterAbsScore;
-                bestClusterY = clusterSumY / clusterAbsScore;
-                bestClusterIndx = i;
+        var p1 = window.sortedFood[i];
+        for (var j = 0; j < nIter; ++j) {
+            var p2 = window.sortedFood[j];
+            var dist = window.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
+            if (dist < 100) {
+                clusterScore += p2.sz;
+                clusterSumX += p2.xx * p2.sz;
+                clusterSumY += p2.yy * p2.sz;
+                clusterSize += 1;
             }
         }
-
-        window.currentFoodX = bestClusterX;
-        window.currentFoodY = bestClusterY;
-
-        // if see a large cluster then use acceleration
-        if (bestClusterAbsScore > 50) {
-            window.foodAcceleration = 1;
-        } else {
-            window.foodAcceleration = 0;
+        clusterAbsScore = clusterScore;
+        clusterScore /= Math.pow(p1.distance, 1.5);
+        if (clusterSize > 2 && clusterScore > bestClusterScore) {
+            bestClusterScore = clusterScore;
+            bestClusterAbsScore = clusterAbsScore;
+            bestClusterX = clusterSumX / clusterAbsScore;
+            bestClusterY = clusterSumY / clusterAbsScore;
+            bestClusterIndx = i;
         }
     }
-    window.foodIndx += 1;
+
+    window.currentFoodX = bestClusterX;
+    window.currentFoodY = bestClusterY;
+
+    // if see a large cluster then use acceleration
+    if (bestClusterAbsScore > 50) {
+        window.foodAcceleration = 1;
+    } else {
+        window.foodAcceleration = 0;
+    }
 };
 
 // Draw dots on the canvas
@@ -724,22 +716,18 @@ window.playDefence = function(dir) {
     window.kd_r = (dir === 'r');
     window.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
 };
+
 // Actual bot code
+window.thinkAboutGoals = function() {
 
-// Loop for running the bot
-window.loop = function() {
-    // If the game and the bot are running
-    if (window.playing && window.isBotEnabled) {
-        window.ranOnce = true;
-        // TODO: Check some condition to see if we should play defence
-        // Right now this just uses the manual toggle
-        if (window.defence) {
-            window.playDefence('l');
-            return;
-        }
+    // If no enemies or obstacles, go after what you are going after
+    if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
 
-        // If no enemies or obstacles, go after what you are going after
-        if (!window.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
+        // Save CPU by only calculating every Nth frame
+        window.tickCounter++;
+        if (window.tickCounter > 25) {
+            window.tickCounter = 0;
+
             // Current food
             window.computeFoodGoal();
 
@@ -767,6 +755,24 @@ window.loop = function() {
             window.kd_r = false;
             window.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
         }
+    }
+}
+
+// Loop for running the bot
+window.loop = function() {
+    // If the game and the bot are running
+    if (window.playing && window.isBotEnabled) {
+        window.ranOnce = true;
+
+        // TODO: Check some condition to see if we should play defence
+        // Right now this just uses the manual toggle
+        if (window.defence) {
+            window.playDefence('l');
+            return;
+        }
+
+        window.thinkAboutGoals();
+
     } else {
         if (window.ranOnce) {
             //window.startInterval = setInterval(window.startBot, 1000);
@@ -795,6 +801,7 @@ window.startBot = function() {
 // Initialises the bot
 window.initBot = function() {
     window.ranOnce = false;
+    window.tickCounter = 0;
     window.isBotRunning = false;
     window.isBotEnabled = true;
     window.collisionPoint = {
