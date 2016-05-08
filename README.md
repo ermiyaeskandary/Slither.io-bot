@@ -15,6 +15,8 @@ https://youtu.be/mlEKp-ZAi7w - Created by http://slithere.com/
 
 https://youtu.be/QF9JBMi-fLo?t=38s - Created by SeppeTutorials
 
+https://youtu.be/IpsAazbVIcw - Created by TheFlyingPlatypus
+
 If you are on chrome, download the [TamperMonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en) extension.
 
 On other browsers, use the [GreaseMonkey](https://addons.mozilla.org/en-GB/firefox/addon/greasemonkey/) extension.
