@@ -35,6 +35,7 @@ window.log = function() {
     }
 };
 
+
 window.getWidth = function() {
     return window.ww;
 };
