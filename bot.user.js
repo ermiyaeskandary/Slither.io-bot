@@ -150,16 +150,13 @@ var canvas = (function() {
             var context = window.mc.getContext('2d');
             context.beginPath();
             context.strokeStyle = colour;
-            //context.lineWidth = 5 * canvas.getScale();
             context.arc(x, y, radius, 0, Math.PI * 2);
             context.closePath();
-            context.stroke();
             if (fill) {
                 context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
                 context.fill();
             }
-            context.fillStyle = 'black';
-            context.strokeStyle = '#000000';
+            context.stroke();
         },
 
         // Draw an angle.
@@ -176,20 +173,21 @@ var canvas = (function() {
             context.closePath();
             context.fillStyle = (danger) ? 'red' : 'green';
             context.fill();
+            context.stroke();
             context.globalAlpha = 1;
-            context.fillStyle = 'black';
         },
 
         // Draw a line on the canvas.
         drawLine: function(x2, y2, colour) {
             var context = window.mc.getContext('2d');
             var center = [window.mc.height / 2, window.mc.width / 2];
+            context.beginPath();
             context.lineWidth = 5 * canvas.getScale();
             context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
             context.moveTo(center[1], center[0]);
             context.lineTo(x2, y2);
             context.stroke();
-            context.strokeStyle = '#000000';
+            context.lineWidth = 1;
         },
 
         // Check if a point is between two vectors.
@@ -871,10 +869,10 @@ var userInterface = (function() {
                 if (window.goalCoordinates && window.goalCoordinates.length == 2) {
                     var drawGoalCoordinates = canvas.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
                     drawGoalCoordinates = canvas.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
-                    //canvas.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
-                    canvas.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 15, 'red', true);
-                    //canvas.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
-                    //canvas.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
+                    canvas.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
+                    canvas.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
+                    canvas.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
+                    canvas.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
                 }
             }
         },
