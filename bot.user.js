@@ -131,15 +131,14 @@ var canvas = (function() {
         drawDot: function(x, y, radius, colour, fill) {
             var context = window.mc.getContext('2d');
             context.beginPath();
-            context.strokeStyle = '#00FF00';
+            context.strokeStyle = colour;
             context.arc(x, y, radius, 0, Math.PI * 2);
             context.closePath();
             if (fill) {
                 context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
                 context.fill();
             }
-            context.fillStyle = 'black';
-            context.strokeStyle = '#000000';
+            context.stroke();
         },
 
         // Draw an angle.
@@ -156,20 +155,21 @@ var canvas = (function() {
             context.closePath();
             context.fillStyle = (danger) ? 'red' : 'green';
             context.fill();
+            context.stroke();
             context.globalAlpha = 1;
-            context.fillStyle = 'black';
         },
 
         // Draw a line on the canvas.
         drawLine: function(x2, y2, colour) {
             var context = window.mc.getContext('2d');
             var center = [window.mc.height / 2, window.mc.width / 2];
+            context.beginPath();
             context.lineWidth = 5 * canvas.getScale();
             context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
             context.moveTo(center[1], center[0]);
             context.lineTo(x2, y2);
             context.stroke();
-            context.strokeStyle = '#000000';
+            context.lineWidth = 1;
         },
 
         // Check if a point is between two vectors.
