@@ -18,7 +18,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.7.7
+// @version      0.7.8
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -27,7 +27,6 @@
 // @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
 // @grant        none
 // ==/UserScript==
-
 // Custom logging function - disabled by default
 window.log = function() {
     if (window.logDebugging) {
@@ -128,23 +127,6 @@ var canvas = (function() {
             }
         },
 
-        // Auto mobile rendering.
-        toggleAutomaticMobileRendering: function() {
-            if (window.autoMobileRender) {
-                // Set interval to check the fps and if it is below 20, turn on mobile rendering
-                window.mobileRenderInterval = setInterval(function() {
-                    canvas.toggleMobileRendering(userInterface.framesPerSecond.getFPS() <= 20);
-                }, 5000);
-                window.autoMobileRender = false;
-                // When more than 20, turn it off
-            } else {
-                clearInterval(window.mobileRenderInterval);
-                window.autoMobileRender = true;
-            }
-            window.log('Automatic mobile rendering set to: ' + window.autoMobileRender);
-            userInterface.savePreference('autoMobileRender', window.autoMobileRender);
-        },
-
         // Draw a dot on the canvas.
         drawDot: function(x, y, radius, colour, fill) {
             var context = window.mc.getContext('2d');
@@ -201,7 +183,7 @@ var canvas = (function() {
                     y: point.yy - center[1]
                 };
                 return (!canvas.areClockwise(sectorStart, relPoint) &&
-                        canvas.areClockwise(sectorEnd, relPoint));
+                    canvas.areClockwise(sectorEnd, relPoint));
             }
             return false;
         },
@@ -233,7 +215,7 @@ var canvas = (function() {
         getDistanceFromSnake: function(point) {
             if (point === null) return null;
             point.distance = canvas.getDistance(window.getX(), window.getY(),
-                                                point.xx, point.yy);
+                point.xx, point.yy);
             return point;
         },
 
@@ -276,7 +258,7 @@ var canvas = (function() {
                 circle1.y < circle2.y + bothRadii) {
 
                 var distance = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) +
-                                         Math.pow(circle1.y - circle2.y, 2));
+                    Math.pow(circle1.y - circle2.y, 2));
                 if (distance < bothRadii) {
                     if (window.visualDebugging) {
                         var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
@@ -324,7 +306,7 @@ var bot = (function() {
         // Stops the bot
         stopBot: function() {
             window.log('Stopping Bot.');
-            window.setAcceleration(0);  // Disable the "sprint"
+            window.setAcceleration(0); // Disable the "sprint"
             bot.isBotRunning = false;
             // Re-enable the original onmousemove function
             window.onmousemove = original_onmousemove;
@@ -333,7 +315,7 @@ var bot = (function() {
         // Connects the bot
         connectBot: function() {
             if (!window.autoRespawn) return;
-            bot.stopBot();  // Just in case
+            bot.stopBot(); // Just in case
             window.log('Connecting...');
             window.connect();
 
@@ -370,13 +352,21 @@ var bot = (function() {
         changeSkin: function() {
             if (window.playing && window.snake !== null) {
                 var skin = window.snake.rcv,
-                    max = window.max_skin_cv || 27;
+                    max = window.max_skin_cv || 30;
                 skin++;
                 if (skin > max) {
                     skin = 0;
                 }
                 window.setSkin(window.snake, skin);
             }
+        },
+
+        rotateSkin: function() {
+            if (!window.rotateskin) {
+                return;
+            }
+            bot.changeSkin();
+            setTimeout(bot.rotateSkin, 500);
         },
 
         // Adjust goal direction
@@ -663,13 +653,16 @@ var userInterface = (function() {
                     console.log('Automatic Respawning set to: ' + window.autoRespawn);
                     userInterface.savePreference('autoRespawn', window.autoRespawn);
                 }
-                // Letter 'O' to set automatic mobile rendering
-                if (e.keyCode === 79) {
-                    canvas.toggleMobileRendering(!window.mobileRender);
+                // Letter 'W' to auto rotate skin
+                if (e.keyCode == 87) {
+                    window.rotateskin = !window.rotateskin;
+                    console.log('Auto skin rotator set to: ' + window.rotateskin);
+                    userInterface.savePreference('rotateskin', window.rotateskin);
+                    bot.rotateSkin();
                 }
-                // Letter 'M' to manually set mobile rendering
-                if (e.keyCode === 77) {
-                    canvas.toggleAutomaticMobileRendering();
+                // Letter 'O' to change rendermode (visual)
+                if (e.keyCode === 79) {
+                    window.toggleMobileRendering(!window.mobileRender);
                 }
                 // Letter 'P' to toggle hunting Prey
                 if (e.keyCode === 80) {
@@ -758,7 +751,7 @@ var userInterface = (function() {
             window.visualdebugging_overlay.innerHTML = generalStyle + '(Y) Visual debugging: </span>' + userInterface.handleTextColor(window.visualDebugging);
             window.logdebugging_overlay.innerHTML = generalStyle + '(U) Log debugging: </span>' + userInterface.handleTextColor(window.logDebugging);
             window.autorespawn_overlay.innerHTML = generalStyle + '(I) Auto respawning: </span>' + userInterface.handleTextColor(window.autoRespawn);
-            window.automobilerender_overlay.innerHTML = generalStyle + '(M) Auto mobile rendering: </span>' + userInterface.handleTextColor(window.autoMobileRender);
+            window.rotateskin_overlay.innerHTML = generalStyle + '(W) Auto skin rotator: </span>' + userInterface.handleTextColor(window.rotateskin);
             window.rendermode_overlay.innerHTML = generalStyle + '(O) Mobile rendering: </span>' + userInterface.handleTextColor(window.mobileRender);
             window.huntprey_overlay.innerHTML = generalStyle + '(P) Prey hunting: </span>' + userInterface.handleTextColor(window.huntPrey);
             window.collision_detection_overlay.innerHTML = generalStyle + '(C) Collision detection: </span>' + userInterface.handleTextColor(window.collisionDetection);
@@ -817,7 +810,8 @@ var userInterface = (function() {
             window.resize();
             // Canvas different size from the screen (often bigger).
             canvas.canvasRatio = [window.mc.width / window.getWidth(),
-                                  window.mc.height / window.getHeight()];
+                window.mc.height / window.getHeight()
+            ];
         },
 
         handleTextColor: function(enabled) {
@@ -871,7 +865,7 @@ window.loop = function() {
     userInterface.loadPreference('collisionDetection', true);
     userInterface.loadPreference('collisionRadiusMultiplier', 8);
     userInterface.loadPreference('defence', false);
-    userInterface.loadPreference('autoMobileRender', true);
+    userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
     // Overlays
@@ -883,7 +877,7 @@ window.loop = function() {
     userInterface.appendDiv('logdebugging_overlay', 'nsi', window.generalstyle + 'left: 30; top: 95px;');
     userInterface.appendDiv('autorespawn_overlay', 'nsi', window.generalstyle + 'left: 30; top: 110px;');
     userInterface.appendDiv('rendermode_overlay', 'nsi', window.generalstyle + 'left: 30; top: 125px;');
-    userInterface.appendDiv('automobilerender_overlay', 'nsi', window.generalstyle + 'left: 30; top: 140px;');
+    userInterface.appendDiv('rotateskin_overlay', 'nsi', window.generalstyle + 'left: 30; top: 140px;');
     userInterface.appendDiv('collision_detection_overlay', 'nsi', window.generalstyle + 'left: 30; top: 155px;');
     userInterface.appendDiv('collision_radius_multiplier_overlay', 'nsi', window.generalstyle + 'left: 30; top: 170px;');
     userInterface.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 185px;');
