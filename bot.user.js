@@ -435,7 +435,7 @@ var bot = (function() {
                 var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
                 isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
                 return !(isInsideDangerAngles && (val.distance <= 150));
-            }).map(bot.foodClusters).sort(bot.sortDistance);
+            }).map(bot.foodClusters).sort(bot.sortFood);
         },
 		
 		foodClusters: function(food){
