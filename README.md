@@ -1,14 +1,6 @@
 # Slither.io bot
 Goal : make a bot for slither.io
 
-## Join us on Gitter (team communication)
-[![Gitter](https://badges.gitter.im/ErmiyaEskandary/Slither.io-bot.svg)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-
-## Check us out on waffle.io (project management)
-[![Issues being worked on](https://badge.waffle.io/ErmiyaEskandary/Slither.io-bot.svg?label=Work%20in%20progress&title=Being%20Worked%20On)](http://waffle.io/ErmiyaEskandary/Slither.io-bot)
-
-[Check out the wiki for more information](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki)
-
 # Installation instructions
 ## Videos
 https://youtu.be/mlEKp-ZAi7w - Created by http://slithere.com/
@@ -44,9 +36,17 @@ X | Change skin
 Q | Quit to menu
 Mouse wheel | Zoom in/out
 
+# Join us on Gitter (team communication)
+[![Gitter](https://badges.gitter.im/ErmiyaEskandary/Slither.io-bot.svg)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+# Check us out on waffle.io (project management)
+[![Issues being worked on](https://badge.waffle.io/ErmiyaEskandary/Slither.io-bot.svg?label=Work%20in%20progress&title=Being%20Worked%20On)](http://waffle.io/ErmiyaEskandary/Slither.io-bot)
+
 # Contributing
 
-Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/). Your pull request needs to be approved by at least 2 people in the MAINTAINERS file.
+Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/). Your pull request needs to be approved by at least 2 people until it is merged.
+
+[Check out the wiki for more information](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki)
 
 # Authors
 Ermiya Eskandary & Théophile Cailliau (ErmiyaEskandary & FliiFe)
