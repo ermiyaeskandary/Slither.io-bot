@@ -150,7 +150,7 @@ var canvas = (function() {
             var context = window.mc.getContext('2d');
             context.beginPath();
             context.strokeStyle = '#00FF00';
-            context.arc(x, y, radius * canvas.getScale(), 0, Math.PI * 2);
+            context.arc(x, y, radius, 0, Math.PI * 2);
             context.closePath();
             if (fill) {
                 context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
