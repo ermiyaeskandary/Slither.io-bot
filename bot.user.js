@@ -493,8 +493,6 @@ var bot = (function() {
             
             for (var i = 0; i < bot.collisionPoints.length; i++)
             {
-                if(bot.collisionPoints.distance > r) continue;
-                
                 var collisionCircle = canvas.collisionScreenToCanvas({
                     x: bot.collisionPoints[i].xx,
                     y: bot.collisionPoints[i].yy,
@@ -523,7 +521,7 @@ var bot = (function() {
                     if (bot.collisionPoints[i].sp > 8) {
                         window.setAcceleration(1);
                     }
-                    bot.avoidCollisionPoint({xx: bot.collisionPoints[i].headxx, yy: bot.collisionPoints[i].headyy, sp: bot.collisionPoints[i].sp});
+                    bot.avoidCollisionPoint({xx: bot.collisionPoints[i].headxx, yy: bot.collisionPoints[i].headyy});
                     return true;
                 }         
             }
