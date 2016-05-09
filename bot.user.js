@@ -849,12 +849,6 @@ window.loop = function() {
 
 // Main
 (function() {
-    // Target the user's browser.
-    var requestAnimationFrame = window.requestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.msRequestAnimationFrame;
-    window.requestAnimationFrame = requestAnimationFrame;
 
     // Load preferences
     userInterface.loadPreference('logDebugging', false);
