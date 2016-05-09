@@ -589,7 +589,7 @@ var bot = (function() {
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
             if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
-
+                window.setAcceleration(0);
                 // Save CPU by only calculating every Nth frame
                 if (++bot.tickCounter > 15) {
                     bot.tickCounter = 0;
