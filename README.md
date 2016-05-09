@@ -1,6 +1,17 @@
 # Slither.io bot
 Goal : make a bot for slither.io
 
+# Table of Contents
+- [Installation instructions](https://github.com/ErmiyaEskandary/Slither.io-bot#installation-instructions)
+	- [Visual tutorial](https://github.com/ErmiyaEskandary/Slither.io-bot#visual-tutorial)
+	- [Text tutorial](https://github.com/ErmiyaEskandary/Slither.io-bot#text-tutorial)
+- [Hotkeys](https://github.com/ErmiyaEskandary/Slither.io-bot#hotkeys)
+- [Contributing](https://github.com/ErmiyaEskandary/Slither.io-bot#contributing)
+	- [Join us on Gitter (team communication)](https://github.com/ErmiyaEskandary/Slither.io-bot#join-us-on-gitter-team-communication)
+	- [Check us out on waffle.io (project management)](https://github.com/ErmiyaEskandary/Slither.io-bot#check-us-out-on-waffleio-project-management)
+- [Authors](https://github.com/ErmiyaEskandary/Slither.io-bot#authors)
+- [License](https://github.com/ErmiyaEskandary/Slither.io-bot#license)
+
 # Installation instructions
 ## Visual tutorial
 https://youtu.be/mlEKp-ZAi7w - Created by http://slithere.com/
