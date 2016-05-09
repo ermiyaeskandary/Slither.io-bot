@@ -591,8 +591,7 @@ var bot = (function() {
             if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
 
                 // Save CPU by only calculating every Nth frame
-                bot.tickCounter++;
-                if (bot.tickCounter > 15) {
+                if (++bot.tickCounter > 15) {
                     bot.tickCounter = 0;
 
                     window.sortedFood = bot.getSortedFood();
@@ -604,9 +603,11 @@ var bot = (function() {
 					//use speed to go to larger clusters
 					if (window.currentFood.clusterScore >= 70){
 						if(window.currentFood.distance <= Math.pow(window.getSnakeLength(), 2) / 2){
-							setAcceleration(1);
+							window.setAcceleration(1);
 						}
-					} 
+					} else {
+                        window.setAcceleration(0);
+                    }
 					
                     // Check for preys, enough "length", dont go after prey if current cluster is large
                     if (window.preys.length > 0 && window.huntPrey && window.currentFood.clusterScore < 70) {
