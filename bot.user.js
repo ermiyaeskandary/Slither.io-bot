@@ -149,9 +149,11 @@ var canvas = (function() {
         drawDot: function(x, y, radius, colour, fill) {
             var context = window.mc.getContext('2d');
             context.beginPath();
-            context.strokeStyle = '#00FF00';
-            context.arc(x, y, radius * canvas.getScale(), 0, Math.PI * 2);
+            context.strokeStyle = colour;
+            //context.lineWidth = 5 * canvas.getScale();
+            context.arc(x, y, radius, 0, Math.PI * 2);
             context.closePath();
+            context.stroke();
             if (fill) {
                 context.fillStyle = ('green red white yellow black cyan blue'.indexOf(colour) < 0) ? 'white' : colour;
                 context.fill();
@@ -239,16 +241,7 @@ var canvas = (function() {
 
         // Get a distance from point (x1; y1) to point (x2; y2).
         getDistance: function(x1, y1, x2, y2) {
-            // Calculate the vector coordinates.
-            var xDistance = (x1 - x2);
-            var yDistance = (y1 - y2);
-            // Get the absolute value of each coordinate
-            xDistance = xDistance < 0 ? xDistance * -1 : xDistance;
-            yDistance = yDistance < 0 ? yDistance * -1 : yDistance;
-            //Add the coordinates of the vector to get a distance. Not the real distance, but reliable for distance comparison.
-            var distance = xDistance + yDistance;
-            // Real distance but not needed. Here for reference -
-            // var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+            var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
             return distance;
         },
 
@@ -302,12 +295,8 @@ var bot = (function() {
         foodIndx: 0,
         isBotRunning: false,
         isBotEnabled: true,
-        collisionPoint: {
-            x: 0,
-            y: 0,
-            radius: 0
-        },
-
+        collisionPoints: [],
+        
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled && bot.ranOnce && !bot.isBotRunning) {
                 bot.connectBot();
@@ -379,6 +368,49 @@ var bot = (function() {
             }
         },
 
+        // Avoid collison point
+        avoidCollisionPoint: function(collisionPoint)
+        {
+            window.goalCoordinates = canvas.mapToMouse(window.snake.xx + (window.snake.xx - collisionPoint.xx), window.snake.yy + (window.snake.yy - collisionPoint.yy));
+            canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
+            if(collisionPoint.sp > 8)
+            {
+                window.setAcceleration(1);
+            } else {
+                window.setAcceleration(0);
+            }
+        },
+
+        // Avoid collision using collision points
+        avoidCollision: function(distance) {
+            var cpts = bot.collisionPoints;
+            var x = 0;
+            var y = 0;
+            
+            for (var i = 0 ; i < cpts.length ; i++)
+            {
+                if (Math.abs(cpts[0].distance - cpts[i].distance) <= distance) {
+                    x += cpts[i].xx;
+                    y += cpts[i].yy;
+                } else {
+                    i--;
+                    break;
+                }
+            }
+            
+            x = x / (i+1);
+            y = y / (i+1);
+                   
+            window.goalCoordinates = canvas.mapToMouse(Math.round(window.snake.xx + (window.snake.xx - x)), Math.round(window.snake.yy + (window.snake.yy - y)));
+            if(cpts[0].sp > 8) {
+                window.setAcceleration(1);
+            } else {
+                window.setAcceleration(0);
+            }
+            
+            canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
+        },
+
         // Adjust goal direction
         changeGoalCoords: function(circle1) {
             if ((circle1.x != bot.collisionPoint.x || circle1.y != bot.collisionPoint.y)) {
@@ -389,8 +421,8 @@ var bot = (function() {
             }
         },
 
-        // Sorting function for food, from property 'distance'
-        sortFood: function(a, b) {
+        // Sorting by  property 'distance'
+        sortDistance: function(a, b) {
             return a.distance - b.distance;
         },
 
@@ -398,46 +430,78 @@ var bot = (function() {
         sortPrey: function(a, b) {
             return a.distance - b.distance;
         },
-
-        // Checks to see if you are going to collide with anything in the collision detection radius
-        checkCollision: function(x, y, r) {
-            if (!window.collisionDetection) return false;
-            var circle1 = canvas.collisionScreenToCanvas({
-                x: x,
-                y: y,
-                radius: r
-            });
-            if (window.visualDebugging) {
-                canvas.drawDot(circle1.x, circle1.y, circle1.radius, 'blue', false);
-            }
-            var shortest_distance = Number.MAX_VALUE;
-            var avoid = false;
-            var circle2;
-
-            for (var snake in window.snakes) {
+        
+        // Get closest collision point per snake.
+        getCollisionPoints: function() {
+            bot.collisionPoints = [];
+            
+            for (var snake in window.snakes){
                 if (window.snakes[snake].nk != window.snake.nk) {
-                    for (y = window.snakes[snake].pts.length - 1; 0 <= y; y--) {
-                        if (!window.snakes[snake].pts[y].dying) {
-                            var xx = window.snakes[snake].pts[y].xx + window.snakes[snake].fx;
-                            var yy = window.snakes[snake].pts[y].yy + window.snakes[snake].fy;
-                            circle2 = {
-                                x: xx,
-                                y: yy,
-                                radius: 15 * window.snakes[snake].sc * canvas.getScale()
+                    for (var pts in window.snakes[snake].pts) {
+                        if(!window.snakes[snake].pts[pts].dying){
+                            var collisionPoint = {
+                                xx: window.snakes[snake].pts[pts].xx + window.snakes[snake].fx,                                
+                                yy: window.snakes[snake].pts[pts].yy + window.snakes[snake].fy,
+                                sc: window.snakes[snake].sc,
+                                sp: window.snakes[snake].sp,
+                                ang: window.snakes[snake].ang,
                             };
-                            if (canvas.circleIntersect(circle1, canvas.collisionScreenToCanvas(circle2))) {
-                                var distance = canvas.getDistance(window.getX(), window.getY(), xx, yy);
-                                if (distance < shortest_distance) {
-                                    bot.changeGoalCoords(circle2);
-                                    avoid = true;
-                                    shortest_distance = distance;
-                                }
+
+                            canvas.getDistanceFromSnake(collisionPoint);
+                            
+                            if (bot.collisionPoints[snake] === undefined || bot.collisionPoints[snake].distance > collisionPoint.distance)
+                            {
+                                bot.collisionPoints[snake] = collisionPoint;
                             }
                         }
                     }
                 }
             }
-            return avoid;
+            bot.collisionPoints = bot.collisionPoints.filter(function(n) { return n !== undefined; });
+            bot.collisionPoints.sort(bot.sortDistance);
+        },
+
+        // Checks to see if you are going to collide with anything in the collision detection radius
+        checkCollision: function(r) {
+            if (!window.collisionDetection) return false;
+            
+            var headCircle = canvas.collisionScreenToCanvas({
+                x: window.getX(),
+                y: window.getY(),
+                radius: r * .6
+            });
+            
+            var forwardCircle = canvas.collisionScreenToCanvas({
+                x: window.getX() + Math.cos(window.snake.ang) * r / 2,
+                y: window.getY() + Math.sin(window.snake.ang) * r / 2,
+                radius: r * .5
+            });
+       
+            canvas.drawDot(headCircle.x, headCircle.y, headCircle.radius, 'blue', false);
+            canvas.drawDot(forwardCircle.x, forwardCircle.y, forwardCircle.radius, 'blue', false);
+            
+            
+            bot.getCollisionPoints();
+            if (bot.collisionPoints.length === 0) return false;
+            
+            for (var i = 0; i < bot.collisionPoints.length; i++)
+            {
+                if(bot.collisionPoints.distance > r) continue;
+                
+                var collisionCircle = canvas.collisionScreenToCanvas({
+                    x: bot.collisionPoints[i].xx,
+                    y: bot.collisionPoints[i].yy,
+                    radius: 15 * bot.collisionPoints[0].sc * canvas.getScale()
+                });
+                
+                if (canvas.circleIntersect(headCircle,collisionCircle) || canvas.circleIntersect(forwardCircle,collisionCircle))
+                {
+                    bot.avoidCollisionPoint(bot.collisionPoints[i]);
+                    return true;
+                }
+                
+            }
+            return false;
         },
 
         // Sort food based on distance
@@ -449,7 +513,7 @@ var bot = (function() {
                 var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
                 isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
                 return !(isInsideDangerAngles && (val.distance <= 150));
-            }).sort(bot.sortFood);
+            }).sort(bot.sortDistance);
         },
 
         // Sort prey based on distance
@@ -457,7 +521,7 @@ var bot = (function() {
             // Filters the nearest food by getting the distance
             return window.preys.filter(function(val) {
                 return val !== null;
-            }).map(canvas.getDistanceFromSnake).sort(bot.sortPrey);
+            }).map(canvas.getDistanceFromSnake).sort(bot.sortDistance);
         },
 
         computeFoodGoal: function() {
@@ -521,11 +585,10 @@ var bot = (function() {
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
-            if (!bot.checkCollision(window.getX(), window.getY(), window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
+            if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
 
                 // Save CPU by only calculating every Nth frame
-                bot.tickCounter++;
-                if (bot.tickCounter > 25) {
+                if (bot.tickCounter++ > 2) {
                     bot.tickCounter = 0;
 
                     // Current food
@@ -534,7 +597,7 @@ var bot = (function() {
                     var coordinatesOfClosestFood = canvas.mapToMouse(window.currentFoodX, window.currentFoodY);
                     window.goalCoordinates = coordinatesOfClosestFood;
                     // Sprint
-                    window.setAcceleration(window.foodAcceleration);
+                    window.setAcceleration(0);
                     // Check for preys, enough "length"
                     if (window.preys.length > 0 && window.huntPrey) {
                         // Sort preys based on their distance relative to player's snake
@@ -784,10 +847,10 @@ var userInterface = (function() {
                 if (window.goalCoordinates && window.goalCoordinates.length == 2) {
                     var drawGoalCoordinates = canvas.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
                     drawGoalCoordinates = canvas.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
-                    canvas.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
-                    canvas.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
-                    canvas.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
-                    canvas.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
+                    //canvas.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
+                    canvas.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 15, 'red', true);
+                    //canvas.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
+                    //canvas.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
                 }
             }
         },
