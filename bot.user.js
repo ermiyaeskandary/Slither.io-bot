@@ -27,7 +27,6 @@
 // @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
 // @grant        none
 // ==/UserScript==
-
 // Custom logging function - disabled by default
 window.log = function() {
     if (window.logDebugging) {
@@ -127,6 +126,7 @@ var canvas = (function() {
                 window.render_mode = 2;
             }
         },
+
         // Draw a dot on the canvas.
         drawDot: function(x, y, radius, colour, fill) {
             var context = window.mc.getContext('2d');
@@ -359,6 +359,7 @@ var bot = (function() {
                 window.setSkin(window.snake, skin);
             }
         },
+		
 		rotateSkin: function() {
              if (!window.rotateskin) {
                  return;
@@ -366,6 +367,7 @@ var bot = (function() {
              bot.changeSkin();
              setTimeout(bot.rotateSkin, 500);
          },
+
         // Adjust goal direction
         changeGoalCoords: function(circle1) {
             if ((circle1.x != bot.collisionPoint.x || circle1.y != bot.collisionPoint.y)) {
@@ -643,10 +645,6 @@ var userInterface = (function() {
                     console.log('Automatic Respawning set to: ' + window.autoRespawn);
                     userInterface.savePreference('autoRespawn', window.autoRespawn);
                 }
-                // Letter 'O' to set automatic mobile rendering
-                if (e.keyCode === 79) {
-                    canvas.toggleMobileRendering(!window.mobileRender);
-                }
 				// Letter 'W' to auto rotate skin
                 if (e.keyCode == 87) {
                     window.rotateskin = !window.rotateskin;
@@ -654,6 +652,10 @@ var userInterface = (function() {
                     userInterface.savePreference('rotateskin', window.rotateskin);
                     bot.rotateSkin();
                  }
+                // Letter 'O' to change rendermode (visual)
+                if (e.keyCode === 79) {
+                    window.toggleMobileRendering(!window.mobileRender);
+                }
                 // Letter 'P' to toggle hunting Prey
                 if (e.keyCode === 80) {
                     window.huntPrey = !window.huntPrey;
@@ -741,7 +743,7 @@ var userInterface = (function() {
             window.visualdebugging_overlay.innerHTML = generalStyle + '(Y) Visual debugging: </span>' + userInterface.handleTextColor(window.visualDebugging);
             window.logdebugging_overlay.innerHTML = generalStyle + '(U) Log debugging: </span>' + userInterface.handleTextColor(window.logDebugging);
             window.autorespawn_overlay.innerHTML = generalStyle + '(I) Auto respawning: </span>' + userInterface.handleTextColor(window.autoRespawn);
-			window.rotateskin_overlay.innerHTML = generalStyle + '(W) Auto skin rotator: </span>' + userInterface.handleTextColor(window.rotateskin);
+            window.rotateskin_overlay.innerHTML = generalStyle + '(W) Auto skin rotator: </span>' + userInterface.handleTextColor(window.rotateskin);
             window.rendermode_overlay.innerHTML = generalStyle + '(O) Mobile rendering: </span>' + userInterface.handleTextColor(window.mobileRender);
             window.huntprey_overlay.innerHTML = generalStyle + '(P) Prey hunting: </span>' + userInterface.handleTextColor(window.huntPrey);
             window.collision_detection_overlay.innerHTML = generalStyle + '(C) Collision detection: </span>' + userInterface.handleTextColor(window.collisionDetection);
@@ -800,7 +802,8 @@ var userInterface = (function() {
             window.resize();
             // Canvas different size from the screen (often bigger).
             canvas.canvasRatio = [window.mc.width / window.getWidth(),
-                                  window.mc.height / window.getHeight()];
+                window.mc.height / window.getHeight()
+            ];
         },
 
         handleTextColor: function(enabled) {
@@ -838,6 +841,7 @@ window.loop = function() {
 
 // Main
 (function() {
+
     // Load preferences
     userInterface.loadPreference('logDebugging', false);
     userInterface.loadPreference('visualDebugging', false);

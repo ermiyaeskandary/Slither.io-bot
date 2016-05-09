@@ -45,6 +45,7 @@ A / S | Collision radius multiplier increase / decrease
 Z | Reset zoom
 ESC | Quick respawn
 X | Change skin
+W | Auto skin rotator
 Q | Quit to menu
 Mouse wheel | Zoom in/out
 
