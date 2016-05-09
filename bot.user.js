@@ -299,7 +299,6 @@ var bot = (function() {
     return {
         ranOnce: false,
         tickCounter: 0,
-        foodIndx: 0,
         isBotRunning: false,
         isBotEnabled: true,
         collisionPoint: {
@@ -389,10 +388,10 @@ var bot = (function() {
             }
         },
 
-        // Sorting function for food, from property 'distance'
-        sortFood: function(a, b) {
-            return a.distance - b.distance;
-        },
+        // Sorting function for food, from property 'clusterCount'
+		sortFood: function(a, b) {
+			return (a.clusterScore == b.clusterScore ? 0 : a.clusterScore / a.distance  >  b.clusterScore / b.distance  ? -1 : 1);
+		},
 
         // Sorting function for prey, from property 'distance'
         sortPrey: function(a, b) {
@@ -440,7 +439,7 @@ var bot = (function() {
             return avoid;
         },
 
-        // Sort food based on distance
+         // Sort food based on distance
         getSortedFood: function() {
             // Filters the nearest food by getting the distance
             return window.foods.filter(function(val) {
@@ -449,8 +448,46 @@ var bot = (function() {
                 var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
                 isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
                 return !(isInsideDangerAngles && (val.distance <= 150));
-            }).sort(bot.sortFood);
+            }).map(bot.foodClusters).sort(bot.sortFood);
         },
+		
+		foodClusters: function(food){
+			if (!food.clustered){
+				food.clusterScore = 0;
+				food.clusterxx = food.xx;
+				food.clusteryy = food.yy;
+				
+				var clusterSumX = 0;
+				var clusterSumY = 0;
+				var count = 0;
+				
+				for (var index in window.foods){
+					nearFood = window.foods[index];
+					if (nearFood !== null && nearFood.id !== food.id){
+						foodDistance = canvas.getDistance(food.xx,food.yy, nearFood.xx, nearFood.yy);
+						
+						if(foodDistance <= window.getSnakeWidth()*5){
+							count++;
+							food.clusterScore += nearFood.sz;
+							clusterSumX += nearFood.xx * nearFood.sz;
+							clusterSumY += nearFood.yy * nearFood.sz;
+							nearFood.clusterxx = nearFood.xx;
+							nearFood.clusteryy = nearFood.yy;
+							nearFood.clusterScore = nearFood.sz;
+							nearFood.clustered = true;
+						}
+					}
+				}
+				
+				if(count > 0){
+					food.clusterxx = clusterSumX / food.clusterScore;
+					food.clusteryy = clusterSumY / food.clusterScore;
+				}
+			}
+		
+		food.clustered = true;
+		return food;
+		},
 
         // Sort prey based on distance
         getSortedPrey: function() {
@@ -458,57 +495,6 @@ var bot = (function() {
             return window.preys.filter(function(val) {
                 return val !== null;
             }).map(canvas.getDistanceFromSnake).sort(bot.sortPrey);
-        },
-
-        computeFoodGoal: function() {
-            var sortedFood = bot.getSortedFood();
-
-            var bestClusterIndx = 0;
-            var bestClusterScore = 0;
-            var bestClusterAbsScore = 0;
-            var bestClusterX = 0;
-            var bestClusterY = 0;
-
-            // there is no need to view more points (for performance)
-            var nIter = Math.min(sortedFood.length, 300);
-            for (var i = 0; i < nIter; i += 2) {
-                var clusterScore = 0;
-                var clusterSize = 0;
-                var clusterAbsScore = 0;
-                var clusterSumX = 0;
-                var clusterSumY = 0;
-
-                var p1 = sortedFood[i];
-                for (var j = 0; j < nIter; ++j) {
-                    var p2 = sortedFood[j];
-                    var dist = canvas.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
-                    if (dist < 100) {
-                        clusterScore += p2.sz;
-                        clusterSumX += p2.xx * p2.sz;
-                        clusterSumY += p2.yy * p2.sz;
-                        clusterSize += 1;
-                    }
-                }
-                clusterAbsScore = clusterScore;
-                clusterScore /= Math.pow(p1.distance, 1.5);
-                if (clusterSize > 2 && clusterScore > bestClusterScore) {
-                    bestClusterScore = clusterScore;
-                    bestClusterAbsScore = clusterAbsScore;
-                    bestClusterX = clusterSumX / clusterAbsScore;
-                    bestClusterY = clusterSumY / clusterAbsScore;
-                    bestClusterIndx = i;
-                }
-            }
-
-            window.currentFoodX = bestClusterX;
-            window.currentFoodY = bestClusterY;
-
-            // if see a large cluster then use acceleration
-            if (bestClusterAbsScore > 50) {
-                window.foodAcceleration = 1;
-            } else {
-                window.foodAcceleration = 0;
-            }
         },
 
         // Defense mode - bot turns around in a circle
@@ -525,18 +511,24 @@ var bot = (function() {
 
                 // Save CPU by only calculating every Nth frame
                 bot.tickCounter++;
-                if (bot.tickCounter > 25) {
+                if (bot.tickCounter > 15) {
                     bot.tickCounter = 0;
 
-                    // Current food
-                    bot.computeFoodGoal();
-
-                    var coordinatesOfClosestFood = canvas.mapToMouse(window.currentFoodX, window.currentFoodY);
-                    window.goalCoordinates = coordinatesOfClosestFood;
+                    window.sortedFood = bot.getSortedFood();
+					window.currentFood = window.sortedFood[0]; 
+					
+                    var coordinatesOfClosestFood = canvas.mapToMouse(window.currentFood.clusterxx, window.currentFood.clusteryy);
+					window.goalCoordinates = coordinatesOfClosestFood;
                     // Sprint
-                    window.setAcceleration(window.foodAcceleration);
-                    // Check for preys, enough "length"
-                    if (window.preys.length > 0 && window.huntPrey) {
+					//use speed to go to larger clusters
+					if (window.currentFood.clusterScore >= 70){
+						if(window.currentFood.distance <= Math.pow(window.getSnakeLength(), 2) / 2){
+							setAcceleration(1);
+						}
+					} 
+					
+                    // Check for preys, enough "length", dont go after prey if current cluster is large
+                    if (window.preys.length > 0 && window.huntPrey && window.currentFood.clusterScore < 70) {
                         // Sort preys based on their distance relative to player's snake
                         window.sortedPrey = bot.getSortedPrey();
                         // Current prey
@@ -855,13 +847,6 @@ window.loop = function() {
 
 // Main
 (function() {
-    // Target the user's browser.
-    var requestAnimationFrame = window.requestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.msRequestAnimationFrame;
-    window.requestAnimationFrame = requestAnimationFrame;
-
     // Load preferences
     userInterface.loadPreference('logDebugging', false);
     userInterface.loadPreference('visualDebugging', false);
