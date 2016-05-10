@@ -70,6 +70,6 @@ Started as a collaborative and fun project between me and FliiFe on 2016/04/20, 
 
 # License
 
-**Licensed under MIT.**
+**Licensed under GNU General Public License V3.**
 
 Read LICENSE.md for more info.
