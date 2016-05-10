@@ -222,30 +222,30 @@ var canvas = (function() {
             // Real distance but not needed. Here for reference -
             // var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
 
-            var approxSqrt = function(num) {
+            var appSqrt = function(num) {
                 var diff = 1;
-                var closestSquare = 1;
+                var cSquare = 1;
                 
                 //Looks for the closest number below the num that has roots
                 while (diff > 0) {
-                    diff = num - (closestSquare * closestSquare);
+                    diff = num - (cSquare * cSquare);
                     if (diff < 0) {
                         break;
                     } else if (diff === 0) {
-                        closestSquare++;
+                        cSquare++;
                         break;
                     } else {
-                        closestSquare++;
+                        cSquare++;
                     }
                 }
 
-                closestSquare--;
-                diff = num - (closestSquare * closestSquare);
+                cSquare--;
+                diff = num - (cSquare * cSquare);
 
-                return closestSquare + (diff / (closestSquare * 2));
+                return cSquare + (diff / (cSquare * 2));
             };
 
-            var distance = approxSqrt((xDistance * xDistance) + (yDistance * yDistance));
+            var distance = appSqrt((xDistance * xDistance) + (yDistance * yDistance));
             
             return distance;
         },
