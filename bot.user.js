@@ -113,10 +113,7 @@ var canvas = (function() {
         },
 
         // Manual mobile rendering
-        toggleMobileRendering: function(mobileRendering) {
-            window.mobileRender = mobileRendering;
-            window.log('Mobile rendering set to: ' + window.mobileRender);
-            userInterface.savePreference('mobileRender', window.mobileRender);
+        mobileRendering: function() {
             // Set render mode
             if (window.mobileRender) {
                 canvas.setBackground('data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
@@ -640,56 +637,59 @@ var userInterface = (function() {
                 // Letter 'Y' to toggle debugging (visual)
                 if (e.keyCode === 89) {
                     window.visualDebugging = !window.visualDebugging;
-                    console.log('Visual debugging set to: ' + window.visualDebugging);
+                    window.log('Visual debugging set to: ' + window.visualDebugging);
                     userInterface.savePreference('visualDebugging', window.visualDebugging);
                 }
                 // Letter 'I' to toggle autorespawn
                 if (e.keyCode === 73) {
                     window.autoRespawn = !window.autoRespawn;
-                    console.log('Automatic Respawning set to: ' + window.autoRespawn);
+                    window.log('Automatic Respawning set to: ' + window.autoRespawn);
                     userInterface.savePreference('autoRespawn', window.autoRespawn);
                 }
                 // Letter 'W' to auto rotate skin
                 if (e.keyCode == 87) {
                     window.rotateskin = !window.rotateskin;
-                    console.log('Auto skin rotator set to: ' + window.rotateskin);
+                    window.log('Auto skin rotator set to: ' + window.rotateskin);
                     userInterface.savePreference('rotateskin', window.rotateskin);
                     bot.rotateSkin();
                 }
                 // Letter 'O' to change rendermode (visual)
                 if (e.keyCode === 79) {
-                    window.toggleMobileRendering(!window.mobileRender);
+                    window.mobileRender = !window.mobileRender;
+                    window.log('Mobile rendering set to: ' + window.mobileRender);
+                    userInterface.savePreference('mobileRender', window.mobileRender);
+                    canvas.mobileRendering();
                 }
                 // Letter 'P' to toggle hunting Prey
                 if (e.keyCode === 80) {
                     window.huntPrey = !window.huntPrey;
-                    console.log('Prey hunting set to: ' + window.huntPrey);
+                    window.log('Prey hunting set to: ' + window.huntPrey);
                     userInterface.savePreference('huntPrey', window.huntPrey);
                 }
                 // Letter 'C' to toggle Collision detection / enemy avoidance
                 if (e.keyCode === 67) {
                     window.collisionDetection = !window.collisionDetection;
-                    console.log('collisionDetection set to: ' + window.collisionDetection);
+                    window.log('collisionDetection set to: ' + window.collisionDetection);
                     userInterface.savePreference('collisionDetection', window.collisionDetection);
                 }
                 // Letter 'A' to increase collision detection radius
                 if (e.keyCode === 65) {
                     window.collisionRadiusMultiplier++;
-                    console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
+                    window.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
                     userInterface.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
                 }
                 // Letter 'S' to decrease collision detection radius
                 if (e.keyCode === 83) {
                     if (window.collisionRadiusMultiplier > 1) {
                         window.collisionRadiusMultiplier--;
-                        console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
+                        window.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
                         userInterface.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
                     }
                 }
                 // Letter 'D' to toggle defence mode
                 if (e.keyCode === 68) {
                     window.defence = !window.defence;
-                    console.log('Defence set to: ' + window.defence);
+                    window.log('Defence set to: ' + window.defence);
                     userInterface.savePreference('defence', window.defence);
                 }
                 // Letter 'Z' to reset zoom
