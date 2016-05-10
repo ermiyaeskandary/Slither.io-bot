@@ -736,7 +736,6 @@ var userInterface = (function() {
                             bot.isBotEnabled = true;
                         }
                         break;
-                        break;
                 }
             }
         },
