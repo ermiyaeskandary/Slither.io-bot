@@ -477,18 +477,19 @@ var bot = (function() {
         checkCollision: function(r) {
             if (!window.collisionDetection) return false;
             
-            if (window.snake.sp > 8) r *= 2;
+            var ra = r;
+            if (window.snake.sp > 8) ra = r * 2;
             
             var headCircle = canvas.collisionScreenToCanvas({
                 x: window.getX(),
                 y: window.getY(),
-                radius: r * .6 * canvas.getScale()
+                radius: ra * .6 * canvas.getScale()
             });
             
             var forwardCircle = canvas.collisionScreenToCanvas({
                 x: window.getX() + Math.cos(window.snake.ang) * r / 2,
                 y: window.getY() + Math.sin(window.snake.ang) * r / 2,
-                radius: r * .6 * canvas.getScale()
+                radius: ra * .6 * canvas.getScale()
             });
        
             if (window.visualDebugging) {
@@ -527,13 +528,14 @@ var bot = (function() {
                 }
                 
                 if (canvas.circleIntersect(fullHeadCircle,eHeadCircle)) {
-                    if (bot.collisionPoints[i].sp > 8) {
+                    if (bot.collisionPoints[i].sp > 8 && Math.abs(bot.collisionPoints[i].ang - window.snake.ang) > Math.PI) {
                         window.setAcceleration(1);
                     }
                     bot.avoidCollisionPoint({xx: bot.collisionPoints[i].headxx, yy: bot.collisionPoints[i].headyy});
                     return true;
                 }         
             }
+            window.setAcceleration(0);
             return false;
         },
 
