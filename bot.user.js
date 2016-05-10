@@ -504,7 +504,7 @@ var bot = (function() {
                     radius: 15 * bot.collisionPoints[0].sc * canvas.getScale()
                 });
                 
-                var fullHeadCircle = {x: headCircle.x, y: headCircle.y, radius: r * 1.2 * canvas.getScale()};
+                var fullHeadCircle = {x: headCircle.x, y: headCircle.y, radius: r * 1.5 * canvas.getScale()};
                 
                 if (window.visualDebugging) {
                     canvas.drawDot(fullHeadCircle.x,fullHeadCircle.y,fullHeadCircle.radius,'red');
@@ -632,6 +632,8 @@ var bot = (function() {
                     window.kd_r = false;
                     canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
                 }
+            } else {
+                bot.tickCounter -= userInterface.framesPerSecond.getFPS() / 2 * -1;
             }
         }
     };
