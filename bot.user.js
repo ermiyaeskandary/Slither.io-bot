@@ -841,7 +841,7 @@ var userInterface = (function() {
             window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
             window.changeskin_overlay.innerHTML = generalStyle + '(X) Change skin </span>';
 
-            window.clusteringchange_overlay.innerHTML = generalStyle + '(F) Switch clustering algorithm (current: ' + (bot.foodClusteringMode == 0 ? 'chancity' : 'ksofiyuk') + ') </span>';
+            window.clusteringchange_overlay.innerHTML = generalStyle + '(F) Switch clustering algorithm: ' + (bot.foodClusteringMode == 0 ? 'chancity' : 'ksofiyuk') + '</span>';
             window.quickResp_overlay.innerHTML = generalStyle + '(ESC) Quick Respawn </span>';
             window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + userInterface.framesPerSecond.getFPS() + '</span>';
 
