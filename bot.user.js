@@ -45,7 +45,7 @@ window.getSnakeLength = function() {
     return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
 window.getSnakeWidth = function() {
-    return window.snake.sc * 15 * canvas.getScale();
+    return window.snake.sc * 29 * canvas.getScale();
 };
 
 window.getX = function() {
