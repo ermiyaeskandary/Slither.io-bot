@@ -51,7 +51,6 @@ Mouse wheel | Zoom in/out
 
 # Contributing
 
-To get started, <a href="https://www.clahub.com/agreements/ErmiyaEskandary/Slither.io-bot">sign the Contributor License Agreement</a>.
 
 Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/). **Please review the guidelines for contributing to this project before making an issue or submitting a pull request.Your pull request needs to be approved by at least 2 people until it is merged.**
 
