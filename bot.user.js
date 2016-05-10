@@ -504,7 +504,7 @@ var bot = (function() {
                     radius: 15 * bot.collisionPoints[0].sc * canvas.getScale()
                 });
                 
-                var fullHeadCircle = {x: headCircle.x, y: headCircle.y, radius: r * canvas.getScale()};
+                var fullHeadCircle = {x: headCircle.x, y: headCircle.y, radius: r * 1.2 * canvas.getScale()};
                 
                 if (window.visualDebugging) {
                     canvas.drawDot(fullHeadCircle.x,fullHeadCircle.y,fullHeadCircle.radius,'red');
@@ -530,7 +530,7 @@ var bot = (function() {
                 var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
                 isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
                 return !(isInsideDangerAngles && (val.distance <= 150));
-            }).sort(bot.sortFood);
+            }).sort(bot.sortDistance);
         },
 
         // Sort prey based on distance
