@@ -11,7 +11,7 @@ If not, see <http://www.gnu.org/licenses/>./gpl-howto.html
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.8.0
+// @version      0.8.1
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -366,6 +366,10 @@ var bot = (function() {
             }
         },
 
+        changeClusteringAlgorithm: function() {
+            bot.foodClusteringMode = 1 - bot.foodClusteringMode;
+        },
+
         rotateSkin: function() {
             if (!window.rotateskin) {
                 return;
@@ -381,8 +385,13 @@ var bot = (function() {
             canvas.setMouseCoordinates(goalCoordinates[0], goalCoordinates[1]);
         },
 
+        // Sorting function for food
+        sortFoodDistance: function(a, b) {
+            return a.distance - b.distance;
+        },
+
         // Sorting function for food, from property 'clusterCount'
-        sortFood: function(a, b) {
+        sortFoodClusters: function(a, b) {
             return (a.clusterScore == b.clusterScore ? 0 : a.clusterScore / a.distance > b.clusterScore / b.distance ? -1 : 1);
         },
 
@@ -438,7 +447,7 @@ var bot = (function() {
         },
 
         // Sort food based on distance
-        getSortedFood: function() {
+        getFood: function() {
             // Filters the nearest food by getting the distance
             return window.foods.filter(function(val) {
                 return val !== null && val !== undefined;
@@ -446,8 +455,54 @@ var bot = (function() {
                 var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
                 isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
                 return !(isInsideDangerAngles && (val.distance <= 150));
-            }).map(bot.foodClusters).sort(bot.sortFood);
+            });
         },
+
+        computeFoodGoal: function() {
+            var sortedFood = bot.getFood().sort(bot.sortFoodDistance);
+
+            var bestClusterIndx = 0;
+            var bestClusterScore = 0;
+            var bestClusterAbsScore = 0;
+            var bestClusterX = 0;
+            var bestClusterY = 0;
+
+            // there is no need to view more points (for performance)
+            var nIter = Math.min(sortedFood.length, 250);
+            for (var i = 0; i < nIter; i += 3) {
+                var clusterScore = 0;
+                var clusterSize = 0;
+                var clusterAbsScore = 0;
+                var clusterSumX = 0;
+                var clusterSumY = 0;
+
+                var p1 = sortedFood[i];
+                for (var j = 0; j < nIter; ++j) {
+                    var p2 = sortedFood[j];
+                    var dist = canvas.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
+                    if (dist < 150) {
+                        clusterScore += p2.sz;
+                        clusterSumX += p2.xx * p2.sz;
+                        clusterSumY += p2.yy * p2.sz;
+                        clusterSize += 1;
+                    }
+                }
+                clusterAbsScore = clusterScore;
+                clusterScore /= Math.pow(p1.distance, 1.5);
+                if (clusterSize > 2 && clusterScore > bestClusterScore) {
+                    bestClusterScore = clusterScore;
+                    bestClusterAbsScore = clusterAbsScore;
+                    bestClusterX = clusterSumX / clusterAbsScore;
+                    bestClusterY = clusterSumY / clusterAbsScore;
+                    bestClusterIndx = i;
+                }
+            }
+
+            window.currentFoodX = bestClusterX;
+            window.currentFoodY = bestClusterY;
+            window.currentFoodScore = bestClusterAbsScore;
+        },
+
 
         foodClusters: function(food) {
             if (!food.clustered) {
@@ -521,18 +576,28 @@ var bot = (function() {
                 if (bot.tickCounter > 15) {
                     bot.tickCounter = 0;
 
-                    window.sortedFood = bot.getSortedFood();
-                    window.currentFood = window.sortedFood[0];
+                    var accelerationClusterSize;
+                    if (bot.foodClusteringMode == 1) {
+                        bot.computeFoodGoal();
+                        accelerationClusterSize = 120;
+                    } else {
+                        window.sortedFood = bot.getFood().map(bot.foodClusters).sort(bot.sortFoodClusters);
+                        window.currentFood = window.sortedFood[0];
+                        window.currentFoodX = window.currentFood.clusterxx;
+                        window.currentFoodY = window.currentFood.clusteryy;
+                        window.currentFoodScore = window.currentFood.clusterScore;
+                        accelerationClusterSize = 70;
+                    }
 
-                    var coordinatesOfClosestFood = canvas.mapToMouse(window.currentFood.clusterxx, window.currentFood.clusteryy);
+
+                    var coordinatesOfClosestFood = canvas.mapToMouse(window.currentFoodX, window.currentFoodY);
                     window.goalCoordinates = coordinatesOfClosestFood;
                     // Sprint
                     //use speed to go to larger clusters
-                    setAcceleration((window.currentFood.clusterScore >= 70) ? (window.currentFood.distance <= Math.pow(window.getSnakeLength(), 2) / 2 && window.currentFood.distance > 500) ? 1 : 0 : 0);
-
+                    setAcceleration((window.currentFoodScore >= accelerationClusterSize) ? 1 : 0);
 
                     // Check for preys, enough "length", dont go after prey if current cluster is large
-                    if (window.preys.length > 0 && window.huntPrey && window.currentFood.clusterScore < 100) {
+                    if (window.preys.length > 0 && window.huntPrey && window.currentFoodScore < 100) {
                         // Sort preys based on their distance relative to player's snake
                         window.sortedPrey = bot.getSortedPrey();
                         // Current prey
@@ -722,6 +787,10 @@ var userInterface = (function() {
                 if (e.keyCode == 88) {
                     bot.changeSkin();
                 }
+
+                if (e.keyCode == 70) {
+                    bot.changeClusteringAlgorithm();
+                }
                 // Save nickname when you press "Enter"
                 if (e.keyCode == 13) {
                     userInterface.saveNick();
@@ -770,6 +839,8 @@ var userInterface = (function() {
             window.scroll_overlay.innerHTML = generalStyle + '(Mouse Wheel) Zoom in/out </span>';
             window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
             window.changeskin_overlay.innerHTML = generalStyle + '(X) Change skin </span>';
+
+            window.clusteringchange_overlay.innerHTML = generalStyle + '(F) Switch clustering algorithm (current: ' + (bot.foodClusteringMode == 0 ? 'chancity' : 'ksofiyuk') + ') </span>';
             window.quickResp_overlay.innerHTML = generalStyle + '(ESC) Quick Respawn </span>';
             window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + userInterface.framesPerSecond.getFPS() + '</span>';
 
@@ -887,7 +958,8 @@ window.loop = function() {
     userInterface.appendDiv('scroll_overlay', 'nsi', window.generalstyle + 'left: 30; top: 230px;');
     userInterface.appendDiv('quickResp_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
     userInterface.appendDiv('changeskin_overlay', 'nsi', window.generalstyle + 'left: 30; top: 260px;');
-    userInterface.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 275px;');
+    userInterface.appendDiv('clusteringchange_overlay', 'nsi', window.generalstyle + 'left: 30; top: 275px;');
+    userInterface.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 290px;');
 
     // Bottom right
     userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
@@ -907,6 +979,7 @@ window.loop = function() {
         window.render_mode = 2;
     }
 
+    bot.foodClusteringMode = 0;
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
 
