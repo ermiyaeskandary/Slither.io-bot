@@ -581,7 +581,8 @@ var bot = (function() {
                         bot.computeFoodGoal();
                         accelerationClusterSize = 120;
                     } else {
-                        window.sortedFood = bot.getFood().map(bot.foodClusters).sort(bot.sortFoodClusters);
+                        var foods = bot.getFood();
+                        window.sortedFood = foods.map(bot.foodClusters).sort(bot.sortFoodClusters);
                         window.currentFood = window.sortedFood[0];
                         window.currentFoodX = window.currentFood.clusterxx;
                         window.currentFoodY = window.currentFood.clusteryy;
