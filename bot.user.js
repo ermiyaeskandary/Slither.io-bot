@@ -225,6 +225,19 @@ var canvas = (function() {
             var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
             return distance;
         },
+        
+        // Get distance squared
+        getDistance2: function(x1, y1, x2, y2) {
+            var distance2 = Math.pow(x1-x2,2) + Math.pow(y1 - y2, 2);
+            return distance2;
+        },
+        
+        getDistance2FromSnake: function(point) {
+            if (point === null) return null;
+            point.distance = canvas.getDistance2(window.getX(), window.getY(),
+                point.xx, point.yy);
+            return point;
+        },
 
         // Screen to Canvas coordinate conversion - used for collision detection
         collisionScreenToCanvas: function(circle) {
@@ -249,9 +262,9 @@ var canvas = (function() {
                 circle1.x < circle2.x + bothRadii &&
                 circle1.y < circle2.y + bothRadii) {
 
-                var distance = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) +
-                    Math.pow(circle1.y - circle2.y, 2));
-                if (distance < bothRadii) {
+                var distance2 = canvas.getDistance2(circle1.x,circle1.y,circle2.x,circle2.y);
+
+                if (distance2 < bothRadii*bothRadii) {
                     if (window.visualDebugging) {
                         var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
                         var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii;
@@ -446,7 +459,7 @@ var bot = (function() {
                                 ang: window.snakes[snake].ang,
                             };
 
-                            canvas.getDistanceFromSnake(collisionPoint);
+                            canvas.getDistance2FromSnake(collisionPoint);
                             
                             if (bot.collisionPoints[snake] === undefined || bot.collisionPoints[snake].distance > collisionPoint.distance)
                             {
@@ -529,10 +542,10 @@ var bot = (function() {
             // Filters the nearest food by getting the distance
             return window.foods.filter(function(val) {
                 return val !== null && val !== undefined;
-            }).map(canvas.getDistanceFromSnake).filter(function(val) {
+            }).map(canvas.getDistance2FromSnake).filter(function(val) {
                 var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
                 isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
-                return !(isInsideDangerAngles && (val.distance <= 150));
+                return !(isInsideDangerAngles && (val.distance <= 150*150));
             }).sort(bot.sortDistance);
         },
 
@@ -541,7 +554,7 @@ var bot = (function() {
             // Filters the nearest food by getting the distance
             return window.preys.filter(function(val) {
                 return val !== null;
-            }).map(canvas.getDistanceFromSnake).sort(bot.sortDistance);
+            }).map(canvas.getDistance2FromSnake).sort(bot.sortDistance);
         },
 
         computeFoodGoal: function() {
@@ -565,8 +578,8 @@ var bot = (function() {
                 var p1 = sortedFood[i];
                 for (var j = 0; j < nIter; ++j) {
                     var p2 = sortedFood[j];
-                    var dist = canvas.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
-                    if (dist < 100) {
+                    var dist = canvas.getDistance2(p1.xx, p1.yy, p2.xx, p2.yy);
+                    if (dist < 100*100) {
                         clusterScore += p2.sz;
                         clusterSumX += p2.xx * p2.sz;
                         clusterSumY += p2.yy * p2.sz;
@@ -574,7 +587,7 @@ var bot = (function() {
                     }
                 }
                 clusterAbsScore = clusterScore;
-                clusterScore /= Math.pow(p1.distance, 1.5);
+                clusterScore /= p1.distance;
                 if (clusterSize > 2 && clusterScore > bestClusterScore) {
                     bestClusterScore = clusterScore;
                     bestClusterAbsScore = clusterAbsScore;
