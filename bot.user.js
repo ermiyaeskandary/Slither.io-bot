@@ -568,7 +568,11 @@ var bot = (function() {
                     window.goalCoordinates = coordinatesOfClosestFood;
                     // Sprint
                     //use speed to go to larger clusters
-					setAcceleration((window.currentFood.clusterScore >= accelerationClusterSize) ? (window.currentFood.distance <= Math.pow(window.getSnakeLength(), 2) / 2 && window.currentFood.distance > 400) ? 1 : 0 : 0);
+					setAcceleration((window.currentFood.clusterScore >= accelerationClusterSize) 
+					?
+					(canvas.getDistance(window.getX(),window.getY(),window.currentFoodX,window.currentFoodY) <= Math.pow(window.getSnakeLength(), 2) / 2 && window.currentFood.distance > 375) 
+					? 
+					1 : 0 : 0);
 
                     // Check for preys, enough "length", dont go after prey if current cluster is large
                     if (window.preys.length > 0 && window.huntPrey && window.currentFoodScore < accelerationClusterSize) {
