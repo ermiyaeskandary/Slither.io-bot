@@ -621,7 +621,7 @@ var bot = (function() {
             if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier * canvas.getScale()) ) {
                 window.setAcceleration(0);
                 // Save CPU by only calculating every Nth frame
-                if (++bot.tickCounter > 15) {
+                if (++bot.tickCounter >= 15) {
                     bot.tickCounter = 0;
                     // Current food
                     bot.computeFoodGoal();
