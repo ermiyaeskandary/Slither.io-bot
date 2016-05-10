@@ -225,7 +225,8 @@ var canvas = (function() {
             var approxSqrt = function(num) {
                 var diff = 1;
                 var closestSquare = 1;
-
+                
+                //Looks for the closest number below the num that has roots
                 while (diff > 0) {
                     diff = num - (closestSquare * closestSquare);
                     if (diff < 0) {
