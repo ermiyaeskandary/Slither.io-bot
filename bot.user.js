@@ -44,8 +44,9 @@ window.getHeight = function() {
 window.getSnakeLength = function() {
     return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
-window.getSnakeWidth = function() {
-    return window.snake.sc * 15 * canvas.getScale();
+window.getSnakeWidth = function(sc) {
+    if (sc === undefined) sc = window.snake.sc;
+    return sc * 29 / 2;
 };
 
 window.getX = function() {
@@ -428,7 +429,7 @@ var bot = (function() {
                         var hCircle = canvas.collisionScreenToCanvas({
                             x: window.snakes[snake].xx,
                             y: window.snakes[snake].yy,
-                            radius: 15 * window.snakes[snake].sc * canvas.getScale()
+                            radius: window.getSnakeWidth(window.snakes[snake].sc) * canvas.getScale()
                         });
                         canvas.drawDot(hCircle.x, hCircle.y, hCircle.radius, 'red', false);
                     }
@@ -489,7 +490,7 @@ var bot = (function() {
                 var collisionCircle = canvas.collisionScreenToCanvas({
                     x: bot.collisionPoints[i].xx,
                     y: bot.collisionPoints[i].yy,
-                    radius: 15 * bot.collisionPoints[0].sc * canvas.getScale()
+                    radius: window.getSnakeWidth(bot.collisionPoints[i].sc) * canvas.getScale()
                 });
                 
                 if (canvas.circleIntersect(headCircle,collisionCircle) || canvas.circleIntersect(forwardCircle,collisionCircle))
@@ -501,7 +502,7 @@ var bot = (function() {
                 var eHeadCircle = canvas.collisionScreenToCanvas({
                     x: bot.collisionPoints[i].headxx,
                     y: bot.collisionPoints[i].headyy,
-                    radius: 15 * bot.collisionPoints[0].sc * canvas.getScale()
+                    radius: window.getSnakeWidth(bot.collisionPoints[i].sc) * canvas.getScale()
                 });
                 
                 var fullHeadCircle = {x: headCircle.x, y: headCircle.y, radius: r * 1.5 * canvas.getScale()};
@@ -602,7 +603,7 @@ var bot = (function() {
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
-            if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier)) {
+            if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier * canvas.getScale()) ) {
                 window.setAcceleration(0);
                 // Save CPU by only calculating every Nth frame
                 if (++bot.tickCounter > 15) {
