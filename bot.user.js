@@ -218,9 +218,34 @@ var canvas = (function() {
             xDistance = xDistance < 0 ? xDistance * -1 : xDistance;
             yDistance = yDistance < 0 ? yDistance * -1 : yDistance;
             //Add the coordinates of the vector to get a distance. Not the real distance, but reliable for distance comparison.
-            var distance = xDistance + yDistance;
+            //var distance = xDistance + yDistance;
             // Real distance but not needed. Here for reference -
             // var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+
+            var approxSqrt = function(num) {
+                var diff = 1;
+                var closestSquare = 1;
+
+                while (diff > 0) {
+                    diff = num - (closestSquare * closestSquare);
+                    if (diff < 0) {
+                        break;
+                    } else if (diff === 0) {
+                        closestSquare++;
+                        break;
+                    } else {
+                        closestSquare++;
+                    }
+                }
+
+                closestSquare--;
+                diff = num - (closestSquare * closestSquare);
+
+                return closestSquare + (diff / (closestSquare * 2));
+            };
+
+            var distance = approxSqrt((xDistance * xDistance) + (yDistance * yDistance));
+            
             return distance;
         },
 
