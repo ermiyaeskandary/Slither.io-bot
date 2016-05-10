@@ -229,24 +229,18 @@ var canvas = (function() {
                 //Looks for the closest number below the num that has roots
                 while (diff > 0) {
                     diff = num - (cSquare * cSquare);
-                    if (diff < 0) {
-                        break;
-                    } else if (diff === 0) {
+                    if (diff === 0) {
                         cSquare++;
                         break;
-                    } else {
-                        cSquare++;
                     }
+                    cSquare++;
                 }
-
                 cSquare--;
                 diff = num - (cSquare * cSquare);
-
                 return cSquare + (diff / (cSquare * 2));
             };
-
             var distance = appSqrt((xDistance * xDistance) + (yDistance * yDistance));
-            
+           
             return distance;
         },
 
