@@ -464,6 +464,8 @@ var bot = (function() {
         checkCollision: function(r) {
             if (!window.collisionDetection) return false;
             
+            if (window.snake.sp > 8) r *= 2;
+            
             var headCircle = canvas.collisionScreenToCanvas({
                 x: window.getX(),
                 y: window.getY(),
@@ -634,7 +636,7 @@ var bot = (function() {
                     canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
                 }
             } else {
-                bot.tickCounter -= userInterface.framesPerSecond.getFPS() / 2 * -1;
+                bot.tickCounter = -(userInterface.framesPerSecond.getFPS() / 2);
             }
         }
     };
