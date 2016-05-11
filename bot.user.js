@@ -28,6 +28,8 @@
 // @grant        none
 // ==/UserScript==
 // Custom logging function - disabled by default
+window.scores = [];
+
 window.log = function() {
     if (window.logDebugging) {
         console.log.apply(console, arguments);
@@ -292,6 +294,10 @@ var bot = (function() {
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled && bot.ranOnce && !bot.isBotRunning) {
                 bot.connectBot();
+                if(document.querySelector('div#lastscore').childNodes.length > 1)
+                {
+                    window.scores.push(document.querySelector('div#lastscore').childNodes[1].innerHTML);
+                }
             }
         },
 
@@ -511,6 +517,7 @@ var bot = (function() {
                 
                 if (canvas.circleIntersect(headCircle,collisionCircle) || canvas.circleIntersect(forwardCircle,collisionCircle))
                 {
+                    window.setAcceleration(0);
                     bot.avoidCollisionPoint(bot.collisionPoints[i]);
                     return true;
                 }
@@ -534,6 +541,8 @@ var bot = (function() {
                 if (canvas.circleIntersect(fullHeadCircle,eHeadCircle)) {
                     if (bot.collisionPoints[i].sp > 10) {
                         window.setAcceleration(1);
+                    } else {
+                        window.setAcceleration(0);
                     }
                     bot.avoidCollisionPoint({xx: bot.collisionPoints[i].headxx, yy: bot.collisionPoints[i].headyy});
                     return true;
