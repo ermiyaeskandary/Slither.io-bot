@@ -1,7 +1,7 @@
 # Slither.io bot
 A slither.io bot
 
-Forked from https://github.com/ErmiyaEskandary/Slither.io-bot @ 70fd8271f1476c0dc574f516b3ff6730b99163bb
+Forked from [ErmiyaEskandary](https://github.com/ErmiyaEskandary/Slither.io-bot) @ [70fd8271](https://github.com/ErmiyaEskandary/Slither.io-bot/commit/70fd8271f1476c0dc574f516b3ff6730b99163bb)
 
 # Table of Contents
 - [Installation instructions](https://github.com/j-c-m/Slither.io-bot#installation-instructions)
