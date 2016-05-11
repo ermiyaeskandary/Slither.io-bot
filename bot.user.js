@@ -307,7 +307,7 @@ var bot = (function() {
                 bot.connectBot();
                 if(document.querySelector('div#lastscore').childNodes.length > 1)
                 {
-                    window.scores.push(document.querySelector('div#lastscore').childNodes[1].innerHTML);
+                    window.scores.push(parseInt(document.querySelector('div#lastscore').childNodes[1].innerHTML));
                 }
             }
         },
