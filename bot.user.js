@@ -384,60 +384,14 @@ var bot = (function() {
             bot.changeSkin();
             setTimeout(bot.rotateSkin, 500);
         },
-
+        
         // Avoid collison point 180 degree
         avoidCollisionPoint: function(collisionPoint)
         {
             window.goalCoordinates = canvas.mapToMouse(window.snake.xx + (window.snake.xx - collisionPoint.xx), window.snake.yy + (window.snake.yy - collisionPoint.yy));
             canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
         },
-        
-        // Avoid collision point 90 degree
-        avoidCollisionPoint90: function(collisionPoint) 
-        {
-            var end = { 
-                x: window.snake.xx + collisionPoint.distance*Math.cos(window.snake.ang),
-                y: window.snake.yy + collisionPoint.distance*Math.sin(window.snake.ang),
-            };
-            
-            var sin = 1;
-            
-            if (canvas.isLeft(
-                { x: window.snake.xx, y: window.snake.yy }, end,
-                { x: collisionPoint.xx, y: collisionPoint.yy })) {
-                sin = -1;
-            }
-
-            var goal_x = -sin*(collisionPoint.yy-window.snake.yy) + window.snake.xx;
-            var goal_y = sin*(collisionPoint.xx-window.snake.xx) + window.snake.yy;
-            
-            window.goalCoordinates = canvas.mapToMouse(goal_x,goal_y);
-            canvas.setMouseCoordinates(window.goalCoordinates[0],window.goalCoordinates[1]);
-        },
-        
-        // Avoid collision point 135 degree
-        avoidCollisionPoint135: function (collisionPoint) {
-            var end = {
-                x: window.snake.xx + collisionPoint.distance * Math.cos(window.snake.ang),
-                y: window.snake.yy + collisionPoint.distance * Math.sin(window.snake.ang),
-            };
-
-            var cos = -0.7071;
-            var sin = 0.7071;
-
-            if (canvas.isLeft(
-                { x: window.snake.xx, y: window.snake.yy }, end,
-                { x: collisionPoint.xx, y: collisionPoint.yy })) {
-                sin = -sin;
-            }
-
-            var goal_x = cos * (collisionPoint.xx - window.snake.xx) - sin * (collisionPoint.yy - window.snake.yy) + window.snake.xx;
-            var goal_y = sin * (collisionPoint.xx - window.snake.xx) + cos * (collisionPoint.yy - window.snake.yy) + window.snake.yy;
-
-            window.goalCoordinates = canvas.mapToMouse(goal_x, goal_y);
-            canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
-        },
-
+                
         // Avoid collision using collision points
         avoidCollision: function(distance) {
             var cpts = bot.collisionPoints;
@@ -540,12 +494,6 @@ var bot = (function() {
             
             var ra = r;
             if (window.snake.sp > 8) ra = r * 2;
-            
-            if (window.visualDebugging) {
-                var headCoord = canvas.mapToCanvas({x: window.snake.xx, y: window.snake.yy});
-                canvas.drawLine(headCoord.x, headCoord.y, headCoord.x + r*2*Math.cos(window.snake.ang), headCoord.y + r*2*Math.sin(window.snake.ang), 'orange', 1);
-            }
-
             
             var headCircle = canvas.collisionScreenToCanvas({
                 x: window.getX(),
