@@ -291,6 +291,18 @@ var bot = (function() {
         isBotEnabled: true,
         collisionPoints: [],
         
+        hideTop: function () {
+            console.log('hideTop');
+            var nsidivs = document.querySelectorAll('div.nsi');
+            for (var i = 0; i < nsidivs.length; i++) {
+                if (nsidivs[i].style.top == '4px' && nsidivs[i].style.width == '300px') {
+                    nsidivs[i].style.visibility = 'hidden';
+                    nsidivs[i].style.zIndex = -1;
+                    bot.isTopHidden = true;
+                }
+            }
+        },
+        
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled && bot.ranOnce && !bot.isBotRunning) {
                 bot.connectBot();
@@ -306,6 +318,7 @@ var bot = (function() {
             bot.isBotRunning = true;
             // Removed the onmousemove listener so we can move the snake manually by setting coordinates
             window.onmousemove = function() {};
+            bot.hideTop();
         },
 
         // Stops the bot
@@ -351,7 +364,7 @@ var bot = (function() {
         quickRespawn: function() {
             window.dead_mtm = 0;
             window.login_fr = 0;
-            window.forceConnect();
+            bot.forceConnect();
         },
 
         changeSkin: function() {
