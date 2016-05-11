@@ -444,11 +444,6 @@ var bot = (function() {
 			return (a.clusterScore == b.clusterScore ? 0 : a.clusterScore / a.distance  >  b.clusterScore / b.distance  ? -1 : 1);
 		},
 
-        // Sorting function for prey, from property 'distance'
-        sortPrey: function(a, b) {
-            return a.distance - b.distance;
-        },
-        
         // Get closest collision point per snake.
         getCollisionPoints: function () {
             bot.collisionPoints = [];
@@ -577,14 +572,6 @@ var bot = (function() {
             }).sort(bot.sortDistance);
         },
 
-        // Sort prey based on distance
-        getSortedPrey: function() {
-            // Filters the nearest food by getting the distance
-            return window.preys.filter(function(val) {
-                return val !== null;
-            }).map(canvas.getDistance2FromSnake).sort(bot.sortDistance);
-        },
-
         computeFoodGoal: function() {
             var sortedFood = bot.getSortedFood();
 
@@ -641,13 +628,6 @@ var bot = (function() {
             }
         },
 
-        // Defense mode - bot turns around in a circle
-        playDefence: function(dir) {
-            window.kd_l = (dir === 'l');
-            window.kd_r = (dir === 'r');
-            canvas.setMouseCoordinates(window.ww / 2, window.hh / 2);
-        },
-
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
@@ -661,24 +641,6 @@ var bot = (function() {
 
                     var coordinatesOfClosestFood = canvas.mapToMouse(window.currentFoodX, window.currentFoodY);
                     window.goalCoordinates = coordinatesOfClosestFood;
-                    // Check for preys, enough "length"
-                    if (window.preys.length > 0 && window.huntPrey) {
-                        // Sort preys based on their distance relative to player's snake
-                        window.sortedPrey = bot.getSortedPrey();
-                        // Current prey
-                        window.currentPrey = window.sortedPrey[0];
-                        // Convert coordinates of the closest prey using mapToMouse
-                        var coordinatesOfClosestPrey = canvas.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
-                        // Check for the distance
-                        if (window.currentPrey.distance <= Math.pow(window.getSnakeLength(), 2) / 2) {
-                            // Set the mouse coordinates to the coordinates of the closest prey
-                            window.goalCoordinates = coordinatesOfClosestPrey;
-                            // "Sprint" enabled
-                            window.setAcceleration(1);
-                        }
-                    }
-                    window.kd_l = false;
-                    window.kd_r = false;
                     canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
                 }
             } else {
@@ -802,12 +764,6 @@ var userInterface = (function() {
                 if (e.keyCode === 79) {
                     canvas.toggleMobileRendering(!window.mobileRender);
                 }
-                // Letter 'P' to toggle hunting Prey
-                if (e.keyCode === 80) {
-                    window.huntPrey = !window.huntPrey;
-                    console.log('Prey hunting set to: ' + window.huntPrey);
-                    userInterface.savePreference('huntPrey', window.huntPrey);
-                }
                 // Letter 'C' to toggle Collision detection / enemy avoidance
                 if (e.keyCode === 67) {
                     window.collisionDetection = !window.collisionDetection;
@@ -827,12 +783,6 @@ var userInterface = (function() {
                         console.log('collisionRadiusMultiplier set to: ' + window.collisionRadiusMultiplier);
                         userInterface.savePreference('collisionRadiusMultiplier', window.collisionRadiusMultiplier);
                     }
-                }
-                // Letter 'D' to toggle defence mode
-                if (e.keyCode === 68) {
-                    window.defence = !window.defence;
-                    console.log('Defence set to: ' + window.defence);
-                    userInterface.savePreference('defence', window.defence);
                 }
                 // Letter 'Z' to reset zoom
                 if (e.keyCode === 90) {
@@ -891,10 +841,8 @@ var userInterface = (function() {
             window.autorespawn_overlay.innerHTML = generalStyle + '(I) Auto respawning: </span>' + userInterface.handleTextColor(window.autoRespawn);
             window.rotateskin_overlay.innerHTML = generalStyle + '(W) Auto skin rotator: </span>' + userInterface.handleTextColor(window.rotateskin);
             window.rendermode_overlay.innerHTML = generalStyle + '(O) Mobile rendering: </span>' + userInterface.handleTextColor(window.mobileRender);
-            window.huntprey_overlay.innerHTML = generalStyle + '(P) Prey hunting: </span>' + userInterface.handleTextColor(window.huntPrey);
             window.collision_detection_overlay.innerHTML = generalStyle + '(C) Collision detection: </span>' + userInterface.handleTextColor(window.collisionDetection);
             window.collision_radius_multiplier_overlay.innerHTML = generalStyle + '(A/S) Collision radius multiplier: ' + window.collisionRadiusMultiplier + ' </span>';
-            window.defence_overlay.innerHTML = generalStyle + '(D) Defence: </span>' + userInterface.handleTextColor(window.defence);
             window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
             window.scroll_overlay.innerHTML = generalStyle + '(Mouse Wheel) Zoom in/out </span>';
             window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
@@ -970,17 +918,9 @@ window.loop = function() {
     // If the game and the bot are running
     if (window.playing && bot.isBotEnabled) {
         bot.ranOnce = true;
-
-        // TODO: Check some condition to see if we should play defence
-        // Right now this just uses the manual toggle
-        if (window.defence) {
-            bot.playDefence('l');
-            return;
-        }
         bot.thinkAboutGoals();
     } else {
         if (bot.ranOnce) {
-            //window.startInterval = setInterval(bot.startBot, 1000);
             bot.stopBot();
         }
     }
@@ -994,10 +934,8 @@ window.loop = function() {
     userInterface.loadPreference('visualDebugging', false);
     userInterface.loadPreference('autoRespawn', false);
     userInterface.loadPreference('mobileRender', false);
-    userInterface.loadPreference('huntPrey', true);
     userInterface.loadPreference('collisionDetection', true);
     userInterface.loadPreference('collisionRadiusMultiplier', 8);
-    userInterface.loadPreference('defence', false);
     userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
@@ -1013,13 +951,11 @@ window.loop = function() {
     userInterface.appendDiv('rotateskin_overlay', 'nsi', window.generalstyle + 'left: 30; top: 140px;');
     userInterface.appendDiv('collision_detection_overlay', 'nsi', window.generalstyle + 'left: 30; top: 155px;');
     userInterface.appendDiv('collision_radius_multiplier_overlay', 'nsi', window.generalstyle + 'left: 30; top: 170px;');
-    userInterface.appendDiv('huntprey_overlay', 'nsi', window.generalstyle + 'left: 30; top: 185px;');
-    userInterface.appendDiv('defence_overlay', 'nsi', window.generalstyle + 'left: 30; top: 200px;');
-    userInterface.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 215px;');
-    userInterface.appendDiv('scroll_overlay', 'nsi', window.generalstyle + 'left: 30; top: 230px;');
-    userInterface.appendDiv('quickResp_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
-    userInterface.appendDiv('changeskin_overlay', 'nsi', window.generalstyle + 'left: 30; top: 260px;');
-    userInterface.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 275px;');
+    userInterface.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle + 'left: 30; top: 185px;');
+    userInterface.appendDiv('scroll_overlay', 'nsi', window.generalstyle + 'left: 30; top: 200px;');
+    userInterface.appendDiv('quickResp_overlay', 'nsi', window.generalstyle + 'left: 30; top: 215px;');
+    userInterface.appendDiv('changeskin_overlay', 'nsi', window.generalstyle + 'left: 30; top: 230px;');
+    userInterface.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
 
     // Bottom right
     userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
