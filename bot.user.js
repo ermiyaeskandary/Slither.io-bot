@@ -209,13 +209,13 @@ var canvas = (function() {
         // return the object with an additional property 'distance'.
         getDistanceFromSnake: function(point) {
             if (point === null) return null;
-            point.distance = canvas.getDistance(window.getX(), window.getY(),
+            point.distance = canvas.getDistanceSqr(window.getX(), window.getY(),
                 point.xx, point.yy);
             return point;
         },
 
         // Get a distance from point (x1; y1) to point (x2; y2).
-        getDistance: function(x1, y1, x2, y2) {
+        getDistanceSqr: function(x1, y1, x2, y2) {
             // Calculate the vector coordinates.
             var xDistance = (x1 - x2);
             var yDistance = (y1 - y2);
@@ -452,7 +452,7 @@ var bot = (function() {
                 var p1 = sortedFood[i];
                 for (var j = 0; j < nIter; ++j) {
                     var p2 = sortedFood[j];
-                    var dist = canvas.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
+                    var dist = canvas.getDistanceSqr(p1.xx, p1.yy, p2.xx, p2.yy);
                     if (dist < 22500) {
                         clusterScore += p2.sz;
                         clusterSumX += p2.xx * p2.sz;
@@ -490,7 +490,7 @@ var bot = (function() {
                 for (var index in window.foods) {
                     nearFood = window.foods[index];
                     if (nearFood !== null && nearFood.id !== food.id) {
-                        foodDistance = canvas.getDistance(food.xx, food.yy, nearFood.xx, nearFood.yy);
+                        foodDistance = canvas.getDistanceSqr(food.xx, food.yy, nearFood.xx, nearFood.yy);
 
                         if (foodDistance <= window.getSnakeWidthSqr() * 5) {
                             count++;
