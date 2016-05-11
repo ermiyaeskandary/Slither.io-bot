@@ -292,7 +292,6 @@ var bot = (function() {
         collisionPoints: [],
         
         hideTop: function () {
-            console.log('hideTop');
             var nsidivs = document.querySelectorAll('div.nsi');
             for (var i = 0; i < nsidivs.length; i++) {
                 if (nsidivs[i].style.top == '4px' && nsidivs[i].style.width == '300px') {
@@ -843,11 +842,6 @@ var userInterface = (function() {
             window.rendermode_overlay.innerHTML = generalStyle + '(O) Mobile rendering: </span>' + userInterface.handleTextColor(window.mobileRender);
             window.collision_detection_overlay.innerHTML = generalStyle + '(C) Collision detection: </span>' + userInterface.handleTextColor(window.collisionDetection);
             window.collision_radius_multiplier_overlay.innerHTML = generalStyle + '(A/S) Collision radius multiplier: ' + window.collisionRadiusMultiplier + ' </span>';
-            window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
-            window.scroll_overlay.innerHTML = generalStyle + '(Mouse Wheel) Zoom in/out </span>';
-            window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
-            window.changeskin_overlay.innerHTML = generalStyle + '(X) Change skin </span>';
-            window.quickResp_overlay.innerHTML = generalStyle + '(ESC) Quick Respawn </span>';
             window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + userInterface.framesPerSecond.getFPS() + '</span>';
 
             if (window.position_overlay && window.playing) {
@@ -956,6 +950,15 @@ window.loop = function() {
     userInterface.appendDiv('quickResp_overlay', 'nsi', window.generalstyle + 'left: 30; top: 215px;');
     userInterface.appendDiv('changeskin_overlay', 'nsi', window.generalstyle + 'left: 30; top: 230px;');
     userInterface.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle + 'left: 30; top: 245px;');
+    
+    // Set static display options here.
+    var generalStyle = '<span style = "opacity: 0.35";>';
+    window.resetzoom_overlay.innerHTML = generalStyle + '(Z) Reset zoom </span>';
+    window.scroll_overlay.innerHTML = generalStyle + '(Mouse Wheel) Zoom in/out </span>';
+    window.quittomenu_overlay.innerHTML = generalStyle + '(Q) Quit to menu </span>';
+    window.changeskin_overlay.innerHTML = generalStyle + '(X) Change skin </span>';
+    window.quickResp_overlay.innerHTML = generalStyle + '(ESC) Quick Respawn </span>';
+    
 
     // Bottom right
     userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
