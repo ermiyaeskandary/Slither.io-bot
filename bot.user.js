@@ -479,7 +479,7 @@ var bot = (function() {
             if (!window.collisionDetection) return false;
             
             var ra = r;
-            if (window.snake.sp > 8) ra = r * 2;
+            if (window.snake.sp > 7) ra = r * 2;
             
             var headCircle = canvas.collisionScreenToCanvas({
                 x: window.snake.xx,
@@ -513,6 +513,7 @@ var bot = (function() {
                 if (canvas.circleIntersect(headCircle,collisionCircle) || canvas.circleIntersect(forwardCircle,collisionCircle))
                 {
                     bot.avoidCollisionPoint(bot.collisionPoints[i]);
+                    return true;
                 }
                 
                 var eHeadCircle = canvas.collisionScreenToCanvas({
@@ -532,7 +533,7 @@ var bot = (function() {
                 }
                 
                 if (canvas.circleIntersect(fullHeadCircle,eHeadCircle)) {
-                    if (bot.collisionPoints[i].sp > 8) {
+                    if (bot.collisionPoints[i].sp > 10) {
                         window.setAcceleration(1);
                     }
                     bot.avoidCollisionPoint({xx: bot.collisionPoints[i].headxx, yy: bot.collisionPoints[i].headyy});
