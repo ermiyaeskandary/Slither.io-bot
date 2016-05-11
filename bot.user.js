@@ -21,7 +21,7 @@ The MIT License (MIT)
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    https://github.com/j-c-m/Slither.io-bot
-// @version      1.0.0
+// @version      1.0.1
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @contributor  Jesse Miller
@@ -455,7 +455,7 @@ var bot = (function() {
                         canvas.drawDot(hCircle.x, hCircle.y, hCircle.radius, 'red', false);
                     }
 
-                    for (var pts = 0, lp = window.snakes[snake].pts.length; pts < lp; pts++ ) {
+                    for (var pts = 0, lp = window.snakes[snake].pts.length; pts < lp; pts++) {
                         if (!window.snakes[snake].pts[pts].dying) {
                             var collisionPoint = {
                                 headxx: window.snakes[snake].xx,
@@ -475,80 +475,110 @@ var bot = (function() {
                         }
                     }
                 }
-                if (scPoint !== undefined) bot.collisionPoints.push(scPoint);
+                if (scPoint !== undefined) {
+                    bot.collisionPoints.push(scPoint);
+                    if (window.visualDebugging) {
+                        var cCircle = canvas.collisionScreenToCanvas({
+                            x: scPoint.xx,
+                            y: scPoint.yy,
+                            radius: window.getSnakeWidth(scPoint.sc) * canvas.getScale()
+                        });
+                        canvas.drawDot(cCircle.x, cCircle.y, cCircle.radius, 'red', false);
+                    }
+                }
             }
             bot.collisionPoints.sort(bot.sortDistance);
         },
 
         // Checks to see if you are going to collide with anything in the collision detection radius
-        checkCollision: function(r) {
+        checkCollision: function (r) {
             if (!window.collisionDetection) return false;
-            
+
+            window.snake.cos = Math.cos(window.snake.ang);
+            window.snake.sin = Math.sin(window.snake.ang);
+
             var ra = r;
+            var inBigCircle = 0;
+
             if (window.snake.sp > 7) ra = r * 2;
-            
+
             var headCircle = canvas.collisionScreenToCanvas({
                 x: window.snake.xx,
                 y: window.snake.yy,
                 radius: ra * .6 * canvas.getScale()
             });
-            
+
             var forwardCircle = canvas.collisionScreenToCanvas({
-                x: window.snake.xx + Math.cos(window.snake.ang) * r / 2,
-                y: window.snake.yy + Math.sin(window.snake.ang) * r / 2,
+                x: window.snake.xx + window.snake.cos * ra * .6,
+                y: window.snake.yy + window.snake.sin * ra * .6,
                 radius: ra * .6 * canvas.getScale()
             });
-       
+
+            var forwardBigCircle = canvas.collisionScreenToCanvas({
+                x: window.snake.xx + window.snake.cos * r * 2.75,
+                y: window.snake.yy + window.snake.sin * r * 2.75,
+                radius: r * 3.25 * canvas.getScale()
+            });
+
             if (window.visualDebugging) {
                 canvas.drawDot(headCircle.x, headCircle.y, headCircle.radius, 'blue', false);
                 canvas.drawDot(forwardCircle.x, forwardCircle.y, forwardCircle.radius, 'blue', false);
+                canvas.drawDot(forwardBigCircle.x, forwardBigCircle.y, forwardBigCircle.radius, 'yellow', false);
             }
-            
-            
+
+
             bot.getCollisionPoints();
             if (bot.collisionPoints.length === 0) return false;
-            
-            for (var i = 0; i < bot.collisionPoints.length; i++)
-            {
+
+            for (var i = 0; i < bot.collisionPoints.length; i++) {
                 var collisionCircle = canvas.collisionScreenToCanvas({
                     x: bot.collisionPoints[i].xx,
                     y: bot.collisionPoints[i].yy,
                     radius: window.getSnakeWidth(bot.collisionPoints[i].sc) * canvas.getScale()
                 });
-                
-                if (canvas.circleIntersect(headCircle,collisionCircle) || canvas.circleIntersect(forwardCircle,collisionCircle))
-                {
+
+                if (canvas.circleIntersect(headCircle, collisionCircle) || canvas.circleIntersect(forwardCircle, collisionCircle)) {
                     window.setAcceleration(0);
                     bot.avoidCollisionPoint(bot.collisionPoints[i]);
                     return true;
                 }
-                
+
                 var eHeadCircle = canvas.collisionScreenToCanvas({
                     x: bot.collisionPoints[i].headxx,
                     y: bot.collisionPoints[i].headyy,
                     radius: window.getSnakeWidth(bot.collisionPoints[i].sc) * canvas.getScale()
                 });
-                                
+
                 var fullHeadCircle = canvas.collisionScreenToCanvas({
-                    x: window.snake.xx + Math.cos(window.snake.ang) * r / 2 * 1.2,
-                    y: window.snake.yy + Math.sin(window.snake.ang) * r / 2 * 1.2,
+                    x: window.snake.xx + window.snake.cos * r / 2 * 1.2,
+                    y: window.snake.yy + window.snake.sin * r / 2 * 1.2,
                     radius: r * 1.2 * canvas.getScale()
                 });
-                
+
                 if (window.visualDebugging) {
-                    canvas.drawDot(fullHeadCircle.x,fullHeadCircle.y,fullHeadCircle.radius,'red');
+                    canvas.drawDot(fullHeadCircle.x, fullHeadCircle.y, fullHeadCircle.radius, 'red');
                 }
-                
-                if (canvas.circleIntersect(fullHeadCircle,eHeadCircle)) {
+
+                if (canvas.circleIntersect(fullHeadCircle, eHeadCircle)) {
                     if (bot.collisionPoints[i].sp > 10) {
                         window.setAcceleration(1);
                     } else {
                         window.setAcceleration(0);
                     }
-                    bot.avoidCollisionPoint({xx: bot.collisionPoints[i].headxx, yy: bot.collisionPoints[i].headyy});
+                    bot.avoidCollisionPoint({ xx: bot.collisionPoints[i].headxx, yy: bot.collisionPoints[i].headyy });
                     return true;
-                }         
+                }
+
+                if (canvas.circleIntersect(forwardBigCircle, collisionCircle)) {
+                    inBigCircle++;
+                }
             }
+
+            if (inBigCircle > 2) {
+                bot.avoidCollisionPoint({ xx: window.snake.xx + window.snake.cos * 50, yy: window.snake.yy + window.snake.sin * 50 });
+                return true;
+            }
+
             window.setAcceleration(0);
             return false;
         },
