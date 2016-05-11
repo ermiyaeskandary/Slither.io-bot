@@ -1,4 +1,6 @@
-/*The MIT License (MIT)
+/*
+The MIT License (MIT)
+ Copyright (c) 2016 Jesse Miller <jmiller@jmiller.com>
  Copyright (c) 2016 Ermiya Eskandary & Théophile Cailliau and other contributors
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -14,17 +16,19 @@
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.*/
+ SOFTWARE.
+ */
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.8.0
+// @version      1.0.0
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
+// @contributors Jesse Miller
 // @match        http://slither.io/
-// @updateURL    https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
-// @downloadURL  https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
-// @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
+// @updateURL    https://github.com/j-c-m/Slither.io-bot/raw/master/bot.user.js
+// @downloadURL  https://github.com/j-c-m/Slither.io-bot/raw/master/bot.user.js
+// @supportURL   https://github.com/j-c-m/Slither.io-bot/issues
 // @grant        none
 // ==/UserScript==
 // Custom logging function - disabled by default
