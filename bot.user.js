@@ -34,13 +34,6 @@ window.log = function() {
     }
 };
 
-window.getWidth = function() {
-    return window.ww;
-};
-window.getHeight = function() {
-    return window.hh;
-};
-
 window.getSnakeLength = function() {
     return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
@@ -49,17 +42,10 @@ window.getSnakeWidth = function(sc) {
     return sc * 29 / 2;
 };
 
-window.getX = function() {
-    return window.snake.xx;
-};
-window.getY = function() {
-    return window.snake.yy;
-};
-
 var canvas = (function() {
     return {
         // Ratio of screen size divided by canvas size.
-        canvasRatio: [window.mc.width / window.getWidth(), window.mc.height / window.getHeight()],
+        canvasRatio: [window.mc.width / window.ww, window.mc.height / window.hh],
 
         // Spoofs moving the mouse to the provided coordinates.
         setMouseCoordinates: function(x, y) {
@@ -69,8 +55,8 @@ var canvas = (function() {
 
         // Convert snake-relative coordinates to absolute screen coordinates.
         mouseToScreen: function(x, y) {
-            var screenX = x + (window.getWidth() / 2);
-            var screenY = y + (window.getHeight() / 2);
+            var screenX = x + (window.ww / 2);
+            var screenY = y + (window.hh / 2);
             return [screenX, screenY];
         },
 
@@ -83,8 +69,8 @@ var canvas = (function() {
 
         // Convert map coordinates to mouse coordinates.
         mapToMouse: function(x, y) {
-            var mouseX = (x - window.getX()) * window.gsc;
-            var mouseY = (y - window.getY()) * window.gsc;
+            var mouseX = (x - window.snake.xx) * window.gsc;
+            var mouseY = (y - window.snake.yy) * window.gsc;
             return [mouseX, mouseY];
         },
         
@@ -229,7 +215,7 @@ var canvas = (function() {
         // Given an object (of which properties xx and yy are not null),
         // return the object with an additional property 'distance'.
         getDistanceFromSnake: function(point) {
-            point.distance = canvas.getDistance(window.getX(), window.getY(),
+            point.distance = canvas.getDistance(window.snake.xx, window.snake.yy,
                 point.xx, point.yy);
             return point;
         },
@@ -247,7 +233,7 @@ var canvas = (function() {
         },
         
         getDistance2FromSnake: function(point) {
-            point.distance = canvas.getDistance2(window.getX(), window.getY(),
+            point.distance = canvas.getDistance2(window.snake.xx, window.snake.yy,
                 point.xx, point.yy);
             return point;
         },
@@ -496,14 +482,14 @@ var bot = (function() {
             if (window.snake.sp > 8) ra = r * 2;
             
             var headCircle = canvas.collisionScreenToCanvas({
-                x: window.getX(),
-                y: window.getY(),
+                x: window.snake.xx,
+                y: window.snake.yy,
                 radius: ra * .6 * canvas.getScale()
             });
             
             var forwardCircle = canvas.collisionScreenToCanvas({
-                x: window.getX() + Math.cos(window.snake.ang) * r / 2,
-                y: window.getY() + Math.sin(window.snake.ang) * r / 2,
+                x: window.snake.xx + Math.cos(window.snake.ang) * r / 2,
+                y: window.snake.yy + Math.sin(window.snake.ang) * r / 2,
                 radius: ra * .6 * canvas.getScale()
             });
        
@@ -634,7 +620,7 @@ var bot = (function() {
         playDefence: function(dir) {
             window.kd_l = (dir === 'l');
             window.kd_r = (dir === 'r');
-            canvas.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
+            canvas.setMouseCoordinates(window.ww / 2, window.hh / 2);
         },
 
         // Called by the window loop, this is the main logic of the bot.
@@ -937,8 +923,8 @@ var userInterface = (function() {
         onresize: function() {
             window.resize();
             // Canvas different size from the screen (often bigger).
-            canvas.canvasRatio = [window.mc.width / window.getWidth(),
-                window.mc.height / window.getHeight()
+            canvas.canvasRatio = [window.mc.width / window.ww,
+                window.mc.height / window.hh
             ];
         },
 
