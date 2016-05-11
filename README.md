@@ -15,6 +15,9 @@ Goal : make a bot for slither.io
 - [License](https://github.com/ErmiyaEskandary/Slither.io-bot#license)
 
 # Installation instructions
+## Interactive tutorial
+http://slither.jlynx.net/
+
 ## Visual tutorial
 https://youtu.be/mlEKp-ZAi7w - Created by http://slithere.com/
 
