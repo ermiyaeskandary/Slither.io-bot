@@ -87,6 +87,14 @@ var canvas = (function() {
             var mouseY = (y - window.getY()) * window.gsc;
             return [mouseX, mouseY];
         },
+        
+        // Map cordinates to Canvas cordinate shortcut
+        mapToCanvas: function(point) {
+            var c = canvas.mapToMouse(point.x,point.y);
+            c = canvas.mouseToScreen(c[0],c[1]);
+            c = canvas.screenToCanvas(c[0],c[1]);
+            return {x: c[0], y: c[1]};
+        },
 
         // Adjusts zoom in response to the mouse wheel.
         setZoom: function(e) {
@@ -161,13 +169,13 @@ var canvas = (function() {
         },
 
         // Draw a line on the canvas.
-        drawLine: function(x2, y2, colour) {
+        drawLine: function(x1, y1, x2, y2, colour, width) {
+            if (width === undefined) width = 5;
             var context = window.mc.getContext('2d');
-            var center = [window.mc.height / 2, window.mc.width / 2];
             context.beginPath();
-            context.lineWidth = 5 * canvas.getScale();
-            context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
-            context.moveTo(center[1], center[0]);
+            context.lineWidth = width * canvas.getScale();
+            context.strokeStyle = colour;
+            context.moveTo(x1, y1);
             context.lineTo(x2, y2);
             context.stroke();
             context.lineWidth = 1;
@@ -209,6 +217,13 @@ var canvas = (function() {
         areClockwise: function(vector1, vector2) {
             //Calculate the dot product.
             return -vector1.x * vector2.y + vector1.y * vector2.x > 0;
+        },
+        
+        // Given the start and end of a line, is point left.
+        isLeft: function(start, end, point)
+        {
+            return ((end.x - start.x)*(point.y - start.y) - (end.y - start.y)*(point.x - start.x)) > 0;
+            
         },
 
         // Given an object (of which properties xx and yy are not null),
@@ -370,10 +385,56 @@ var bot = (function() {
             setTimeout(bot.rotateSkin, 500);
         },
 
-        // Avoid collison point
+        // Avoid collison point 180 degree
         avoidCollisionPoint: function(collisionPoint)
         {
             window.goalCoordinates = canvas.mapToMouse(window.snake.xx + (window.snake.xx - collisionPoint.xx), window.snake.yy + (window.snake.yy - collisionPoint.yy));
+            canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
+        },
+        
+        // Avoid collision point 90 degree
+        avoidCollisionPoint90: function(collisionPoint) 
+        {
+            var end = { 
+                x: window.snake.xx + collisionPoint.distance*Math.cos(window.snake.ang),
+                y: window.snake.yy + collisionPoint.distance*Math.sin(window.snake.ang),
+            };
+            
+            var sin = 1;
+            
+            if (canvas.isLeft(
+                { x: window.snake.xx, y: window.snake.yy }, end,
+                { x: collisionPoint.xx, y: collisionPoint.yy })) {
+                sin = -1;
+            }
+
+            var goal_x = -sin*(collisionPoint.yy-window.snake.yy) + window.snake.xx;
+            var goal_y = sin*(collisionPoint.xx-window.snake.xx) + window.snake.yy;
+            
+            window.goalCoordinates = canvas.mapToMouse(goal_x,goal_y);
+            canvas.setMouseCoordinates(window.goalCoordinates[0],window.goalCoordinates[1]);
+        },
+        
+        // Avoid collision point 135 degree
+        avoidCollisionPoint135: function (collisionPoint) {
+            var end = {
+                x: window.snake.xx + collisionPoint.distance * Math.cos(window.snake.ang),
+                y: window.snake.yy + collisionPoint.distance * Math.sin(window.snake.ang),
+            };
+
+            var cos = -0.7071;
+            var sin = 0.7071;
+
+            if (canvas.isLeft(
+                { x: window.snake.xx, y: window.snake.yy }, end,
+                { x: collisionPoint.xx, y: collisionPoint.yy })) {
+                sin = -sin;
+            }
+
+            var goal_x = cos * (collisionPoint.xx - window.snake.xx) - sin * (collisionPoint.yy - window.snake.yy) + window.snake.xx;
+            var goal_y = sin * (collisionPoint.xx - window.snake.xx) + cos * (collisionPoint.yy - window.snake.yy) + window.snake.yy;
+
+            window.goalCoordinates = canvas.mapToMouse(goal_x, goal_y);
             canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
         },
 
@@ -480,6 +541,12 @@ var bot = (function() {
             var ra = r;
             if (window.snake.sp > 8) ra = r * 2;
             
+            if (window.visualDebugging) {
+                var headCoord = canvas.mapToCanvas({x: window.snake.xx, y: window.snake.yy});
+                canvas.drawLine(headCoord.x, headCoord.y, headCoord.x + r*2*Math.cos(window.snake.ang), headCoord.y + r*2*Math.sin(window.snake.ang), 'orange', 1);
+            }
+
+            
             var headCircle = canvas.collisionScreenToCanvas({
                 x: window.getX(),
                 y: window.getY(),
@@ -528,7 +595,7 @@ var bot = (function() {
                 }
                 
                 if (canvas.circleIntersect(fullHeadCircle,eHeadCircle)) {
-                    if (bot.collisionPoints[i].sp > 8 && Math.abs(bot.collisionPoints[i].ang - window.snake.ang) > Math.PI) {
+                    if (bot.collisionPoints[i].sp > 8) {
                         window.setAcceleration(1);
                     }
                     bot.avoidCollisionPoint({xx: bot.collisionPoints[i].headxx, yy: bot.collisionPoints[i].headyy});
@@ -884,7 +951,8 @@ var userInterface = (function() {
                 if (window.goalCoordinates && window.goalCoordinates.length == 2) {
                     var drawGoalCoordinates = canvas.mouseToScreen(window.goalCoordinates[0], window.goalCoordinates[1]);
                     drawGoalCoordinates = canvas.screenToCanvas(drawGoalCoordinates[0], drawGoalCoordinates[1]);
-                    canvas.drawLine(drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
+                    var headCoord = canvas.mapToCanvas({x: window.snake.xx, y: window.snake.yy});
+                    canvas.drawLine(headCoord.x, headCoord.y, drawGoalCoordinates[0], drawGoalCoordinates[1], 'green');
                     canvas.drawDot(drawGoalCoordinates[0], drawGoalCoordinates[1], 5, 'red', true);
                     canvas.drawAngle(window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4, true);
                     canvas.drawAngle(window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4, true);
