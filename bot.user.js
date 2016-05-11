@@ -267,8 +267,8 @@ var canvas = (function() {
                     if (window.visualDebugging) {
                         var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
                         var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii;
-                        canvas.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
                         canvas.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
+                        canvas.drawDot(collisionPointX, collisionPointY, 2, 'cyan', true)
                     }
                     return true;
                 }
@@ -513,7 +513,6 @@ var bot = (function() {
                 if (canvas.circleIntersect(headCircle,collisionCircle) || canvas.circleIntersect(forwardCircle,collisionCircle))
                 {
                     bot.avoidCollisionPoint(bot.collisionPoints[i]);
-                    return true;
                 }
                 
                 var eHeadCircle = canvas.collisionScreenToCanvas({
@@ -521,8 +520,12 @@ var bot = (function() {
                     y: bot.collisionPoints[i].headyy,
                     radius: window.getSnakeWidth(bot.collisionPoints[i].sc) * canvas.getScale()
                 });
-                
-                var fullHeadCircle = {x: headCircle.x, y: headCircle.y, radius: r * 1.5 * canvas.getScale()};
+                                
+                var fullHeadCircle = canvas.collisionScreenToCanvas({
+                    x: window.snake.xx + Math.cos(window.snake.ang) * r / 2 * 1.2,
+                    y: window.snake.yy + Math.sin(window.snake.ang) * r / 2 * 1.2,
+                    radius: r * 1.2 * canvas.getScale()
+                });
                 
                 if (window.visualDebugging) {
                     canvas.drawDot(fullHeadCircle.x,fullHeadCircle.y,fullHeadCircle.radius,'red');
@@ -566,8 +569,8 @@ var bot = (function() {
             var bestClusterIndx = 0;
             var bestClusterScore = 0;
             var bestClusterAbsScore = 0;
-            var bestClusterX = 0;
-            var bestClusterY = 0;
+            var bestClusterX = 20000;
+            var bestClusterY = 20000;
             var clusterScore = 0;
             var clusterSize = 0;
             var clusterAbsScore = 0;
