@@ -436,7 +436,7 @@ var bot = (function() {
             bot.collisionPoints = [];
             var scPoint;
 
-            for (var snake in window.snakes) {
+            for (var snake = 0, ls = window.snakes.length; snake < ls; snake++) {
                 scPoint = undefined;
 
                 if (window.snakes[snake].nk != window.snake.nk) {
@@ -449,7 +449,7 @@ var bot = (function() {
                         canvas.drawDot(hCircle.x, hCircle.y, hCircle.radius, 'red', false);
                     }
 
-                    for (var pts in window.snakes[snake].pts) {
+                    for (var pts = 0, lp = window.snakes[snake].pts.length; pts < lp; pts++ ) {
                         if (!window.snakes[snake].pts[pts].dying) {
                             var collisionPoint = {
                                 headxx: window.snakes[snake].xx,
