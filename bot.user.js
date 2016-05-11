@@ -423,16 +423,6 @@ var bot = (function() {
             canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
         },
 
-        // Adjust goal direction
-        changeGoalCoords: function(circle1) {
-            if ((circle1.x != bot.collisionPoint.x || circle1.y != bot.collisionPoint.y)) {
-                bot.collisionPoint = circle1;
-                window.goalCoordinates = canvas.mapToMouse(window.snake.xx + (window.snake.xx - bot.collisionPoint.x), window.snake.yy + (window.snake.yy - bot.collisionPoint.y));
-                window.setAcceleration(0);
-                canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
-            }
-        },
-
         // Sorting by  property 'distance'
         sortDistance: function(a, b) {
             return a.distance - b.distance;
