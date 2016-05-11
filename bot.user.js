@@ -787,7 +787,7 @@ var userInterface = (function() {
                 }
                 // Letter 'O' to change rendermode (visual)
                 if (e.keyCode === 79) {
-                    window.toggleMobileRendering(!window.mobileRender);
+                    canvas.toggleMobileRendering(!window.mobileRender);
                 }
                 // Letter 'P' to toggle hunting Prey
                 if (e.keyCode === 80) {
