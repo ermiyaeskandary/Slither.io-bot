@@ -43,7 +43,8 @@ I | Automatic Respawning
 P | Hunt prey - Moving food
 D | Defense mode - bot turns around in a circle
 C | Enemy avoidance / Collision prevention
-A / S | Collision radius multiplier increase / decrease
+A / S | Head collision radius multiplier increase / decrease
+E / R | Body collision radius multiplier increase / decrease
 Z | Reset zoom
 ESC | Quick respawn
 X | Change skin
