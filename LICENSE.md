@@ -1,6 +1,7 @@
 The MIT License (MIT)
 
 Copyright (c) 2016 Jesse Miller <jmiller@jmiller.com>
+
 Copyright (c) 2016 Ermiya Eskandary & Théophile Cailliau and (other contributors)[https://github.com/ErmiyaEskandary/slither.io-bot/contributors]
 
 
