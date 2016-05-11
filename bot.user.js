@@ -11,7 +11,7 @@ If not, see <http://www.gnu.org/licenses/>./gpl-howto.html
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.8.1
+// @version      0.8.2
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
