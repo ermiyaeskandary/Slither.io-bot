@@ -560,7 +560,7 @@ var bot = (function() {
                 }
 
                 if (canvas.circleIntersect(fullHeadCircle, eHeadCircle)) {
-                    if (bot.collisionPoints[i].sp > 10) {
+                    if (bot.collisionPoints[i].sp > 9) {
                         window.setAcceleration(1);
                     } else {
                         window.setAcceleration(0);
