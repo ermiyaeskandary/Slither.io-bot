@@ -1,6 +1,6 @@
 ## How to contribute to Slither.io-bot
 
-To get started, <a href="https://www.clahub.com/agreements/ErmiyaEskandary/Slither.io-bot">sign the Contributor License Agreement</a>.
+To get started, <a href="">sign the Contributor License Agreement</a>.
 
 #### **Did you find a bug?**
 
