@@ -18,7 +18,7 @@
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.7.8
+// @version      0.8.0
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -548,7 +548,7 @@ var bot = (function() {
             window.setAcceleration(0);
             return false;
         },
-
+		
         // Sort food based on distance
         getSortedFood: function() {
             // Filters the nearest food by getting the distance
@@ -840,7 +840,6 @@ var userInterface = (function() {
             }
             if (window.playing && window.ip_overlay) {
                 window.ip_overlay.innerHTML = generalStyle + 'Server: ' + window.bso.ip + ':' + window.bso.po;
-                '</span>';
             }
             if (window.playing && window.visualDebugging && bot.isBotRunning) {
                 // Only draw the goal when a bot has a goal.
@@ -912,7 +911,6 @@ window.loop = function() {
 
 // Main
 (function() {
-
     // Load preferences
     userInterface.loadPreference('logDebugging', false);
     userInterface.loadPreference('visualDebugging', false);
