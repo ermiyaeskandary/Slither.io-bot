@@ -229,7 +229,6 @@ var canvas = (function() {
         // Given an object (of which properties xx and yy are not null),
         // return the object with an additional property 'distance'.
         getDistanceFromSnake: function(point) {
-            if (point === null) return null;
             point.distance = canvas.getDistance(window.getX(), window.getY(),
                 point.xx, point.yy);
             return point;
@@ -248,7 +247,6 @@ var canvas = (function() {
         },
         
         getDistance2FromSnake: function(point) {
-            if (point === null) return null;
             point.distance = canvas.getDistance2(window.getX(), window.getY(),
                 point.xx, point.yy);
             return point;
@@ -448,10 +446,13 @@ var bot = (function() {
         },
         
         // Get closest collision point per snake.
-        getCollisionPoints: function() {
+        getCollisionPoints: function () {
             bot.collisionPoints = [];
-            
-            for (var snake in window.snakes){
+            var scPoint;
+
+            for (var snake in window.snakes) {
+                scPoint = undefined;
+
                 if (window.snakes[snake].nk != window.snake.nk) {
                     if (window.visualDebugging) {
                         var hCircle = canvas.collisionScreenToCanvas({
@@ -461,13 +462,13 @@ var bot = (function() {
                         });
                         canvas.drawDot(hCircle.x, hCircle.y, hCircle.radius, 'red', false);
                     }
-                    
+
                     for (var pts in window.snakes[snake].pts) {
-                        if(!window.snakes[snake].pts[pts].dying){
+                        if (!window.snakes[snake].pts[pts].dying) {
                             var collisionPoint = {
                                 headxx: window.snakes[snake].xx,
                                 headyy: window.snakes[snake].yy,
-                                xx: window.snakes[snake].pts[pts].xx,                                
+                                xx: window.snakes[snake].pts[pts].xx,
                                 yy: window.snakes[snake].pts[pts].yy,
                                 sc: window.snakes[snake].sc,
                                 sp: window.snakes[snake].sp,
@@ -475,16 +476,15 @@ var bot = (function() {
                             };
 
                             canvas.getDistance2FromSnake(collisionPoint);
-                            
-                            if (bot.collisionPoints[snake] === undefined || bot.collisionPoints[snake].distance > collisionPoint.distance)
-                            {
-                                bot.collisionPoints[snake] = collisionPoint;
+
+                            if (scPoint === undefined || scPoint.distance > collisionPoint.distance) {
+                                scPoint = collisionPoint;
                             }
                         }
                     }
                 }
+                if (scPoint !== undefined) bot.collisionPoints.push(scPoint);
             }
-            bot.collisionPoints = bot.collisionPoints.filter(function(n) { return n !== undefined; });
             bot.collisionPoints.sort(bot.sortDistance);
         },
 
@@ -582,15 +582,20 @@ var bot = (function() {
             var bestClusterAbsScore = 0;
             var bestClusterX = 0;
             var bestClusterY = 0;
+            var clusterScore = 0;
+            var clusterSize = 0;
+            var clusterAbsScore = 0;
+            var clusterSumX = 0;
+            var clusterSumY = 0;
 
             // there is no need to view more points (for performance)
             var nIter = Math.min(sortedFood.length, 300);
             for (var i = 0; i < nIter; i += 2) {
-                var clusterScore = 0;
-                var clusterSize = 0;
-                var clusterAbsScore = 0;
-                var clusterSumX = 0;
-                var clusterSumY = 0;
+                clusterScore = 0;
+                clusterSize = 0;
+                clusterAbsScore = 0;
+                clusterSumX = 0;
+                clusterSumY = 0;
 
                 var p1 = sortedFood[i];
                 for (var j = 0; j < nIter; ++j) {
