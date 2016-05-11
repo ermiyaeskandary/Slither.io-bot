@@ -285,7 +285,6 @@ var bot = (function() {
     return {
         ranOnce: false,
         tickCounter: 0,
-        foodIndx: 0,
         isBotRunning: false,
         isBotEnabled: true,
         collisionPoints: [],
@@ -661,7 +660,7 @@ var bot = (function() {
                     canvas.setMouseCoordinates(window.goalCoordinates[0], window.goalCoordinates[1]);
                 }
             } else {
-                bot.tickCounter = -(userInterface.framesPerSecond.getFPS() / 2);
+                bot.tickCounter = -userInterface.framesPerSecond.getFPS();
             }
         }
     };
