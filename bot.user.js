@@ -929,7 +929,7 @@ window.loop = function() {
     userInterface.loadPreference('autoRespawn', false);
     userInterface.loadPreference('mobileRender', false);
     userInterface.loadPreference('collisionDetection', true);
-    userInterface.loadPreference('collisionRadiusMultiplier', 8);
+    userInterface.loadPreference('collisionRadiusMultiplier', 10);
     userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
