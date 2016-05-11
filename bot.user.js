@@ -41,11 +41,6 @@ window.getSnakeWidth = function() {
     return window.snake.sc * 29 * canvas.getScale();
 };
 
-window.getSnakeWidthSqr = function() {
-	var w = window.getSnakeWidth();
-    return w*w;
-};
-
 window.getX = function() {
     return window.snake.xx;
 };
@@ -219,8 +214,34 @@ var canvas = (function() {
             // Calculate the vector coordinates.
             var xDistance = (x1 - x2);
             var yDistance = (y1 - y2);
-			
-			return xDistance*xDistance + yDistance*yDistance;
+            // Get the absolute value of each coordinate
+            xDistance = xDistance < 0 ? xDistance * -1 : xDistance;
+            yDistance = yDistance < 0 ? yDistance * -1 : yDistance;
+            //Add the coordinates of the vector to get a distance. Not the real distance, but reliable for distance comparison.
+            //var distance = xDistance + yDistance;
+            // Real distance but not needed. Here for reference -
+            // var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+
+            var appSqrt = function(num) {
+                var diff = 1;
+                var cSquare = 1;
+                
+                //Looks for the closest number below the num that has roots
+                while (diff > 0) {
+                    diff = num - (cSquare * cSquare);
+                    if (diff === 0) {
+                        cSquare++;
+                        break;
+                    }
+                    cSquare++;
+                }
+                cSquare--;
+                diff = num - (cSquare * cSquare);
+                return cSquare + (diff / (cSquare * 2));
+            };
+            var distance = appSqrt((xDistance * xDistance) + (yDistance * yDistance));
+           
+            return distance;
         },
 
         // Screen to Canvas coordinate conversion - used for collision detection
@@ -238,20 +259,26 @@ var canvas = (function() {
         // Check if circles intersect
         circleIntersect: function(circle1, circle2) {
             var bothRadii = circle1.radius + circle2.radius;
-			var bothRadiiSqr = bothRadii*bothRadii;
-			var xDist = circle1.x - circle2.x;
-			var yDist = circle1.y - circle2.y;
-			var distance = xDist*xDist + yDist*yDist;
-			
-			if (distance < bothRadiiSqr) {
-			    if (window.visualDebugging) {
-				    var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
-				    var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii;
-				    canvas.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
-				    canvas.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
-				}
-				return true;
-			}
+
+            // Pretends the circles are squares for a quick collision check.
+            // If it collides, do the more expensive circle check.
+            if (circle1.x + bothRadii > circle2.x &&
+                circle1.y + bothRadii > circle2.y &&
+                circle1.x < circle2.x + bothRadii &&
+                circle1.y < circle2.y + bothRadii) {
+
+                var distance = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) +
+                    Math.pow(circle1.y - circle2.y, 2));
+                if (distance < bothRadii) {
+                    if (window.visualDebugging) {
+                        var collisionPointX = ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii;
+                        var collisionPointY = ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii;
+                        canvas.drawDot(collisionPointX, collisionPointY, circle2.radius, 'cyan', true);
+                        canvas.drawDot(circle2.x, circle2.y, circle2.radius, 'red', true);
+                    }
+                    return true;
+                }
+            }
             return false;
         }
     };
@@ -427,7 +454,7 @@ var bot = (function() {
             }).map(canvas.getDistanceFromSnake).filter(function(val) {
                 var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
                 isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
-                return !(isInsideDangerAngles && (val.distance <= 22500));
+                return !(isInsideDangerAngles && (val.distance <= 150));
             });
         },
 
@@ -453,7 +480,7 @@ var bot = (function() {
                 for (var j = 0; j < nIter; ++j) {
                     var p2 = sortedFood[j];
                     var dist = canvas.getDistance(p1.xx, p1.yy, p2.xx, p2.yy);
-                    if (dist < 22500) {
+                    if (dist < 150) {
                         clusterScore += p2.sz;
                         clusterSumX += p2.xx * p2.sz;
                         clusterSumY += p2.yy * p2.sz;
@@ -492,7 +519,7 @@ var bot = (function() {
                     if (nearFood !== null && nearFood.id !== food.id) {
                         foodDistance = canvas.getDistance(food.xx, food.yy, nearFood.xx, nearFood.yy);
 
-                        if (foodDistance <= window.getSnakeWidthSqr() * 5) {
+                        if (foodDistance <= window.getSnakeWidth() * 5) {
                             count++;
                             food.clusterScore += nearFood.sz;
                             clusterSumX += nearFood.xx * nearFood.sz;
