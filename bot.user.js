@@ -267,6 +267,7 @@ var bot = (function() {
         isBotRunning: false,
         isBotEnabled: true,
         collisionPoints: [],
+        speedingMultiplierIncreaseValue: 4.0,
 
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled && bot.ranOnce && !bot.isBotRunning) {
@@ -792,14 +793,14 @@ var userInterface = (function() {
                 }
                 // Letter 'E' to increase body collision detection radius
                 if (e.keyCode === 69) {
-                    window.bodyCollisionRadiusMultiplier++;
+                    window.bodyCollisionRadiusMultiplier += 0.25;
                     window.log('bodyCollisionRadiusMultiplier set to: ' + window.bodyCollisionRadiusMultiplier);
                     userInterface.savePreference('bodyCollisionRadiusMultiplier', window.bodyCollisionRadiusMultiplier);
                 }
                 // Letter 'R' to decrease collision detection radius
                 if (e.keyCode === 82) {
-                    if (window.bodyCollisionRadiusMultiplier > 1) {
-                        window.bodyCollisionRadiusMultiplier--;
+                    if (window.bodyCollisionRadiusMultiplier > 0.25) {
+                        window.bodyCollisionRadiusMultiplier -= 0.25;
                         window.log('bodyCollisionRadiusMultiplier set to: ' + window.bodyCollisionRadiusMultiplier);
                         userInterface.savePreference('bodyCollisionRadiusMultiplier', window.bodyCollisionRadiusMultiplier);
                     }
@@ -977,10 +978,14 @@ window.loop = function() {
     userInterface.loadPreference('huntPrey', true);
     userInterface.loadPreference('collisionDetection', true);
     userInterface.loadPreference('headCollisionRadiusMultiplier', 8);
-    userInterface.loadPreference('bodyCollisionRadiusMultiplier', 2);
+    userInterface.loadPreference('bodyCollisionRadiusMultiplier', 2.0);
     userInterface.loadPreference('defence', false);
     userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
+
+    window.bodyCollisionRadiusMultiplier = Number(window.bodyCollisionRadiusMultiplier);
+    if (isNaN(window.bodyCollisionRadiusMultiplier))
+        window.bodyCollisionRadiusMultiplier = 2.0;
 
     // Overlays
 
