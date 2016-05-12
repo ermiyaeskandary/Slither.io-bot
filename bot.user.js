@@ -34,8 +34,8 @@ window.getHeight = function() {
     return window.hh;
 };
 
-window.getSnakeLength = function() {
-    return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
+window.getSnakeLength = function(snake) {
+    return (Math.floor(150 * (window.fpsls[snake.sct] + window.snake.fam / window.fmlts[snake.sct] - 1) - 50) / 10);
 };
 window.getSnakeWidth = function() {
     return window.snake.sc * 29 * canvas.getScale();
@@ -214,6 +214,10 @@ var canvas = (function() {
             return point;
         },
 
+        getDistanceFromSnake: function(x1, y1){
+            return canvas.getDistance(window.getX(), window.getY(), x1, y1);
+        },
+        
         // Get a distance from point (x1; y1) to point (x2; y2).
         getDistance: function(x1, y1, x2, y2) {
             // Calculate the vector coordinates.
@@ -223,10 +227,6 @@ var canvas = (function() {
 			return xDistance*xDistance + yDistance*yDistance;
         },
 
-        getDistanceFromSnake: function(x1, y1){
-            return getDistance(window.getX(), window.getY(), x1, y1);
-        },
-        
         // Screen to Canvas coordinate conversion - used for collision detection
         collisionScreenToCanvas: function(circle) {
             var newCircle = canvas.mapToMouse(circle.x, circle.y);
@@ -378,6 +378,27 @@ var bot = (function() {
             return a.distance - b.distance;
         },
 
+        canAccelerate: function() {
+            if (!window.collisionDetection)
+                return true;
+
+            if (bot.collisionPoints.length===0)
+                return true;
+
+            var extendedBodyCircle = canvas.collisionScreenToCanvas({
+                x: window.getX(),
+                y: window.getY(),
+                radius: window.getSnakeWidth() * (window.bodyCollisionRadiusMultiplier + bot.speedingMultiplierIncreaseValue)
+            });
+
+            var somethingInTheArea = bot.checkCollision2(extendedBodyCircle, bot.collisionPoints[0]);
+
+            if (somethingInTheArea)
+                return false;
+            else
+                return true;
+        },
+        
         checkCollision2: function(circle, collisionPoint){
             var collisionCircle = canvas.collisionScreenToCanvas({
                 x: collisionPoint.xx,
@@ -412,8 +433,14 @@ var bot = (function() {
 
                 // then check if a snake head is inside the outer circle.
                 if (bot.closestHeadPoint !== null)
-                    if (bot.checkCollision2(headCircle, bot.closestHeadPoint))
+                    if (bot.checkCollision2(headCircle, bot.closestHeadPoint)) {
+                        // accelereate if the other snake is bigger (and is more likely to circle us), and there is room to accelerate.
+                        if (window.getSnakeLength(bot.closestHeadPoint.snake) > window.getSnakeLength(window.snake) && bot.canAccelerate())
+                            window.setAcceleration(1);
+                        else
+                            window.setAcceleration(0);
                         return true;
+                    }
             }
 
             return false;
@@ -437,7 +464,8 @@ var bot = (function() {
                         xx: snake.xx,
                         yy: snake.yy,
                         sc: snake.sc,
-                        sp: snake.sp
+                        sp: snake.sp,
+                        snake: snake
                     };
                     canvas.setDistanceFromSnake(headPoint);
                     if (headPoint.distance < closestHeadPointDistance){
@@ -585,27 +613,6 @@ var bot = (function() {
         },
 
         
-        canAccelerate: function() {
-            if (!window.collisionDetection)
-                return true;
-
-            if (bot.collisionPoints.length===0)
-                return true;
-
-            var extendedBodyCircle = canvas.collisionScreenToCanvas({
-                x: window.getX(),
-                y: window.getY(),
-                radius: window.getSnakeWidth() * (window.bodyCollisionRadiusMultiplier + bot.speedingMultiplierIncreaseValue)
-            });
-
-            var somethingInTheArea = bot.checkCollision2(extendedBodyCircle, bot.collisionPoints[0]);
-
-            if (somethingInTheArea)
-                return false;
-            else
-                return true;
-        },
-        
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
@@ -654,7 +661,7 @@ var bot = (function() {
                     var doSpeed = 1;
                     if (window.currentFood.clusterScore < accelerationClusterSize) // It's too little food
                         doSpeed = 0;
-                    else if (canvas.getDistanceFromSnake(window.currentFoodX,window.currentFoodY) > Math.pow(window.getSnakeLength(), 2) / 2) // It's too far away (how?)
+                    else if (canvas.getDistanceFromSnake(window.currentFoodX,window.currentFoodY) > Math.pow(window.getSnakeLength(window.snake), 2) / 2) // It's too far away (how?)
                         doSpeed = 0;
                     else if (window.currentFood.distance >= 375) // it's too far away
                         doSpeed = 0;
@@ -663,7 +670,7 @@ var bot = (function() {
 
                     if (doSpeed==1)
                         console.log("Accelerating");
-		    setAcceleration(doSpeed);
+		    window.setAcceleration(doSpeed);
 
                     // Check for preys, enough "length", dont go after prey if current cluster is large
                     if (window.preys.length > 0 && window.huntPrey && window.currentFoodScore < accelerationClusterSize) {
@@ -674,7 +681,7 @@ var bot = (function() {
                         // Convert coordinates of the closest prey using mapToMouse
                         var coordinatesOfClosestPrey = canvas.mapToMouse(window.currentPrey.xx, window.currentPrey.yy);
                         // Check for the distance
-                        if (window.currentPrey.distance <= Math.pow(window.getSnakeLength(), 2) / 2) {
+                        if (window.currentPrey.distance <= Math.pow(window.getSnakeLength(window.snake), 2) / 2) {
                             // Set the mouse coordinates to the coordinates of the closest prey
                             window.goalCoordinates = coordinatesOfClosestPrey;
                             // "Sprint" enabled
@@ -836,14 +843,14 @@ var userInterface = (function() {
                 }
                 // Letter 'E' to increase body collision detection radius
                 if (e.keyCode === 69) {
-                    window.bodyCollisionRadiusMultiplier+=0.25;
+                    window.bodyCollisionRadiusMultiplier++;
                     window.log('bodyCollisionRadiusMultiplier set to: ' + window.bodyCollisionRadiusMultiplier);
                     userInterface.savePreference('bodyCollisionRadiusMultiplier', window.bodyCollisionRadiusMultiplier);
                 }
                 // Letter 'R' to decrease collision detection radius
                 if (e.keyCode === 82) {
                     if (window.bodyCollisionRadiusMultiplier > 1) {
-                        window.bodyCollisionRadiusMultiplier-=0.25;
+                        window.bodyCollisionRadiusMultiplier--;
                         window.log('bodyCollisionRadiusMultiplier set to: ' + window.bodyCollisionRadiusMultiplier);
                         userInterface.savePreference('bodyCollisionRadiusMultiplier', window.bodyCollisionRadiusMultiplier);
                     }
