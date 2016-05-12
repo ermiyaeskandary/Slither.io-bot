@@ -21,7 +21,7 @@ The MIT License (MIT)
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    https://github.com/j-c-m/Slither.io-bot
-// @version      1.0.6
+// @version      1.0.7
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @contributor  Jesse Miller
@@ -306,21 +306,22 @@ var bot = (function() {
             }
         },
         
-        startBot: function() {
+        startBot: function () {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled && bot.ranOnce && !bot.isBotRunning) {
                 bot.connectBot();
-                if(document.querySelector('div#lastscore').childNodes.length > 1)
-                {
+                if (document.querySelector('div#lastscore').childNodes.length > 1) {
                     window.scores.push(parseInt(document.querySelector('div#lastscore').childNodes[1].innerHTML));
                 }
             }
+            var generalStyle = '<span style = "opacity: 0.35";>';
+            window.ip_overlay.innerHTML = generalStyle + 'Server: ' + window.bso.ip + ':' + window.bso.po;
         },
 
-        launchBot: function() {
+        launchBot: function () {
             window.log('Starting Bot.');
             bot.isBotRunning = true;
             // Removed the onmousemove listener so we can move the snake manually by setting coordinates
-            window.onmousemove = function() {};
+            window.onmousemove = function () { };
             bot.hideTop();
         },
 
@@ -334,14 +335,14 @@ var bot = (function() {
         },
 
         // Connects the bot
-        connectBot: function() {
+        connectBot: function () {
             if (!window.autoRespawn) return;
             bot.stopBot(); // Just in case
             window.log('Connecting...');
             window.connect();
-
+            
             // Wait until we're playing to start the bot
-            window.botCanStart = setInterval(function() {
+            window.botCanStart = setInterval(function () {
                 if (window.playing) {
                     bot.launchBot();
                     clearInterval(window.botCanStart);
@@ -854,6 +855,7 @@ var userInterface = (function() {
                 if (e.keyCode == 13) {
                     userInterface.saveNick();
                 }
+                userInterface.onPrefChange();
             }
         },
 
@@ -880,9 +882,8 @@ var userInterface = (function() {
                 }
             }
         },
-
-        onFrameUpdate: function() {
-            // Botstatus overlay
+        
+        onPrefChange: function() {
             var generalStyle = '<span style = "opacity: 0.35";>';
             window.botstatus_overlay.innerHTML = generalStyle + '(T / Right Click) Bot: </span>' + userInterface.handleTextColor(bot.isBotRunning);
             window.visualdebugging_overlay.innerHTML = generalStyle + '(Y) Visual debugging: </span>' + userInterface.handleTextColor(window.visualDebugging);
@@ -891,16 +892,19 @@ var userInterface = (function() {
             window.rotateskin_overlay.innerHTML = generalStyle + '(W) Auto skin rotator: </span>' + userInterface.handleTextColor(window.rotateskin);
             window.rendermode_overlay.innerHTML = generalStyle + '(O) Mobile rendering: </span>' + userInterface.handleTextColor(window.mobileRender);
             window.collision_detection_overlay.innerHTML = generalStyle + '(C) Collision detection: </span>' + userInterface.handleTextColor(window.collisionDetection);
-            window.collision_radius_multiplier_overlay.innerHTML = generalStyle + '(A/S) Collision radius multiplier: ' + window.collisionRadiusMultiplier + ' </span>';
+            window.collision_radius_multiplier_overlay.innerHTML = generalStyle + '(A/S) Collision radius multiplier: ' + window.collisionRadiusMultiplier + ' </span>';  
+        },
+
+        onFrameUpdate: function() {
+            // Botstatus overlay
+            var generalStyle = '<span style = "opacity: 0.35";>';
             window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + userInterface.framesPerSecond.getFPS() + '</span>';
 
             if (window.position_overlay && window.playing) {
                 // Display the X and Y of the snake
                 window.position_overlay.innerHTML = generalStyle + 'X: ' + (Math.round(window.snake.xx) || 0) + ' Y: ' + (Math.round(window.snake.yy) || 0) + '</span>';
             }
-            if (window.playing && window.ip_overlay) {
-                window.ip_overlay.innerHTML = generalStyle + 'Server: ' + window.bso.ip + ':' + window.bso.po;
-            }
+            
             if (window.playing && window.visualDebugging && bot.isBotRunning) {
                 // Only draw the goal when a bot has a goal.
                 if (window.goalCoordinates && window.goalCoordinates.length == 2) {
@@ -1008,6 +1012,9 @@ window.loop = function() {
     window.changeskin_overlay.innerHTML = generalStyle + '(X) Change skin </span>';
     window.quickResp_overlay.innerHTML = generalStyle + '(ESC) Quick Respawn </span>';
     window.version_overlay.innerHTML = generalStyle + 'Version: ' + GM_info.script.version;
+    
+    // Pref display
+    userInterface.onPrefChange();
     
     // Bottom right
     userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
