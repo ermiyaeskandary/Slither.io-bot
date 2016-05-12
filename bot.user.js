@@ -1,40 +1,28 @@
 /*
-The MIT License (MIT)
- Copyright (c) 2016 Jesse Miller <jmiller@jmiller.com>
- Copyright (c) 2016 Ermiya Eskandary & Théophile Cailliau and other contributors
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
+Copyright (c) 2016 Ermiya Eskandary & Théophile Cailliau and other contributors
+ 
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 // ==UserScript==
 // @name         Slither.io-bot
-// @namespace    https://github.com/j-c-m/Slither.io-bot
-// @version      1.0.7
+// @namespace    http://slither.io/
+// @version      0.9.0
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
-// @contributor  Jesse Miller
 // @match        http://slither.io/
-// @updateURL    https://github.com/j-c-m/Slither.io-bot/raw/master/bot.user.js
-// @downloadURL  https://github.com/j-c-m/Slither.io-bot/raw/master/bot.user.js
-// @supportURL   https://github.com/j-c-m/Slither.io-bot/issues
+// @updateURL    https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
+// @downloadURL  https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
+// @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
 // @grant        none
 // ==/UserScript==
 // Custom logging function - disabled by default
 
 window.scores = [];
 
+// Custom logging function - disabled by default
 window.log = function() {
     if (window.logDebugging) {
         console.log.apply(console, arguments);
