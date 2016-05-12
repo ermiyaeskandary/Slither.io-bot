@@ -490,9 +490,8 @@ var bot = (function() {
 
                             canvas.setDistanceFromSnake(collisionPoint);
 
-                            if (onlyNeedOneCollisionPoint)
-                                if (collisionPoints.length==1 && collisionPoint.distance < collisionPoints[0].distance)
-                                    collisionPoints[0] = collisionPoint;
+                            if (onlyNeedOneCollisionPoint && collisionPoints.length==1 && collisionPoint.distance < collisionPoints[0].distance)
+                                collisionPoints[0] = collisionPoint;
                             else
                                 collisionPoints.push(collisionPoint);
                         }
