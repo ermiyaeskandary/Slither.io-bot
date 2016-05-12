@@ -223,6 +223,10 @@ var canvas = (function() {
 			return xDistance*xDistance + yDistance*yDistance;
         },
 
+        getDistanceFromSnake: function(x1, y1){
+            return getDistance(window.getX(), window.getY(), x1, y1);
+        },
+        
         // Screen to Canvas coordinate conversion - used for collision detection
         collisionScreenToCanvas: function(circle) {
             var newCircle = canvas.mapToMouse(circle.x, circle.y);
@@ -267,7 +271,8 @@ var bot = (function() {
         isBotRunning: false,
         isBotEnabled: true,
         collisionPoints: [],
-
+        speedingMultiplierIncreaseValue: 3.0,
+        
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled && bot.ranOnce && !bot.isBotRunning) {
                 bot.connectBot();
@@ -401,7 +406,7 @@ var bot = (function() {
 
             if (bot.collisionPoints.length > 0) {
 
-                // first check if anything is in the inner circle
+                // first check if anything is in the inner circle. TODO: We need longer distance the more the collisionPoint is straight ahead of us. If the collision point is in the back, we don't have to care at all.
                 if (bot.checkCollision2(bodyCircle, bot.collisionPoints[0]))
                     return true;
 
@@ -572,10 +577,32 @@ var bot = (function() {
             canvas.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
         },
 
+        
+        canAccelerate: function() {
+            if (!window.collisionDetection)
+                return true;
+
+            if (bot.collisionPoints.length===0)
+                return true;
+
+            var extendedBodyCircle = canvas.collisionScreenToCanvas({
+                x: window.getX(),
+                y: window.getY(),
+                radius: window.getSnakeWidth() * (window.bodyCollisionRadiusMultiplier + bot.speedingMultiplierIncreaseValue)
+            });
+
+            var somethingInTheArea = bot.checkCollision2(extendedBodyCircle, bot.collisionPoints[0]);
+
+            if (somethingInTheArea)
+                return false;
+            else
+                return true;
+        },
+        
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
-            var speedingMultiplierAdd = (window.snake.sp > 10) ? 3.0 : 0.0;
+            var speedingMultiplierAdd = (window.snake.sp > 10) ? bot.speedingMultiplierIncreaseValue : 0.0;
             
             var headCircle = canvas.collisionScreenToCanvas({
                 x: window.getX(),
@@ -614,13 +641,22 @@ var bot = (function() {
 
                     var coordinatesOfClosestFood = canvas.mapToMouse(window.currentFoodX, window.currentFoodY);
                     window.goalCoordinates = coordinatesOfClosestFood;
+                    
                     // Sprint
                     //use speed to go to larger clusters
-					setAcceleration((window.currentFood.clusterScore >= accelerationClusterSize) 
-					?
-					(canvas.getDistance(window.getX(),window.getY(),window.currentFoodX,window.currentFoodY) <= Math.pow(window.getSnakeLength(), 2) / 2 && window.currentFood.distance > 375) 
-					? 
-					1 : 0 : 0);
+                    var doSpeed = 1;
+                    if (window.currentFood.clusterScore < accelerationClusterSize) // It's too little food
+                        doSpeed = 0;
+                    else if (canvas.getDistanceFromSnake(window.currentFoodX,window.currentFoodY) > Math.pow(window.getSnakeLength(), 2) / 2) // It's too far away (how?)
+                        doSpeed = 0;
+                    else if (window.currentFood.distance >= 375) // it's too far away
+                        doSpeed = 0;
+                    else if (!bot.canAccelerate()) // There's another snake very close
+                        doSpeed = 0;
+
+                    if (doSpeed==1)
+                        console.log("Accelerating");
+		    setAcceleration(doSpeed);
 
                     // Check for preys, enough "length", dont go after prey if current cluster is large
                     if (window.preys.length > 0 && window.huntPrey && window.currentFoodScore < accelerationClusterSize) {
@@ -793,14 +829,14 @@ var userInterface = (function() {
                 }
                 // Letter 'E' to increase body collision detection radius
                 if (e.keyCode === 69) {
-                    window.bodyCollisionRadiusMultiplier++;
+                    window.bodyCollisionRadiusMultiplier+=0.25;
                     window.log('bodyCollisionRadiusMultiplier set to: ' + window.bodyCollisionRadiusMultiplier);
                     userInterface.savePreference('bodyCollisionRadiusMultiplier', window.bodyCollisionRadiusMultiplier);
                 }
                 // Letter 'R' to decrease collision detection radius
                 if (e.keyCode === 82) {
                     if (window.bodyCollisionRadiusMultiplier > 1) {
-                        window.bodyCollisionRadiusMultiplier--;
+                        window.bodyCollisionRadiusMultiplier-=0.25;
                         window.log('bodyCollisionRadiusMultiplier set to: ' + window.bodyCollisionRadiusMultiplier);
                         userInterface.savePreference('bodyCollisionRadiusMultiplier', window.bodyCollisionRadiusMultiplier);
                     }
@@ -978,7 +1014,7 @@ window.loop = function() {
     userInterface.loadPreference('huntPrey', true);
     userInterface.loadPreference('collisionDetection', true);
     userInterface.loadPreference('headCollisionRadiusMultiplier', 8);
-    userInterface.loadPreference('bodyCollisionRadiusMultiplier', 2);
+    userInterface.loadPreference('bodyCollisionRadiusMultiplier', 3.0);
     userInterface.loadPreference('defence', false);
     userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
