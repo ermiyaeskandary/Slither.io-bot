@@ -209,8 +209,7 @@ var canvas = (function() {
         // return the object with an additional property 'distance'.
         setDistanceFromSnake: function(point) {
             if (point === null) return null;
-            point.distance = canvas.getDistance(window.getX(), window.getY(),
-                point.xx, point.yy);
+            point.distance = canvas.getDistanceFromSnake(point.xx, point.yy);
             return point;
         },
 
@@ -695,7 +694,8 @@ var bot = (function() {
                             // Set the mouse coordinates to the coordinates of the closest prey
                             window.goalCoordinates = coordinatesOfClosestPrey;
                             // "Sprint" enabled
-                            window.setAcceleration(1);
+                            if (bot.canAccelerate())
+                                window.setAcceleration(1);
                         }
                     }
                     window.kd_l = false;
