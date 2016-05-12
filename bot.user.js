@@ -21,7 +21,7 @@ The MIT License (MIT)
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    https://github.com/j-c-m/Slither.io-bot
-// @version      1.0.8
+// @version      1.0.9
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @contributor  Jesse Miller
