@@ -575,7 +575,8 @@ var bot = (function() {
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
-            var speedingMultiplier = (window.snake.sp > 10) ? 2.0 : 1.0;
+            var speedingMultiplierAdd = (window.snake.sp > 10) ? 3.0 : 0.0;
+            
             var headCircle = canvas.collisionScreenToCanvas({
                 x: window.getX(),
                 y: window.getY(), 
@@ -584,7 +585,7 @@ var bot = (function() {
             var bodyCircle = canvas.collisionScreenToCanvas({
                 x: window.getX(),
                 y: window.getY(),
-                radius: window.getSnakeWidth() * (window.bodyCollisionRadiusMultiplier * speedingMultiplier)
+                radius: window.getSnakeWidth() * (window.bodyCollisionRadiusMultiplier + speedingMultiplierAdd)
             });
 
             bot.setCollisionPoints();
