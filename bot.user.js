@@ -528,8 +528,9 @@ var bot = (function() {
 
 
         computeFoodGoal: function() {
-            var sortedFood = bot.getFood().sort(bot.sortFoodDistance);
 
+            var sortedFood = bot.getFood().sort(bot.sortFoodDistance);
+            
             var bestClusterIndx = 0;
             var bestClusterScore = 0;
             var bestClusterAbsScore = 0;
@@ -573,7 +574,7 @@ var bot = (function() {
         },
 
 
-        foodClusters: function(food) {
+        foodClusters: function(food, allNearFood) {
             if (!food.clustered) {
                 food.clusterScore = 0;
                 food.clusterxx = food.xx;
@@ -583,8 +584,8 @@ var bot = (function() {
                 var clusterSumY = 0;
                 var count = 0;
 
-                for (var index in window.foods) {
-                    nearFood = window.foods[index];
+                for (var index in allNearFood) {
+                    nearFood = allNearFood[index];
                     if (nearFood !== null && nearFood.id !== food.id) {
                         foodDistance = canvas.getDistance(food.xx, food.yy, nearFood.xx, nearFood.yy);
 
@@ -657,7 +658,10 @@ var bot = (function() {
                         bot.computeFoodGoal();
                         accelerationClusterSize = 120;
                     } else {
-                        var foodClusters = bot.getFood().map(bot.foodClusters);
+                        var allNearFood = bot.getFood().sort(bot.sortFoodDistance).slice(0,150);  // To avoid lagging, we only use the closest 150 food bites
+                        var foodClusters = allNearFood.map(function(food){
+                            return bot.foodClusters(food, allNearFood);
+                        });
                         window.sortedFood = foodClusters.sort(bot.sortFoodClusters);
                         window.currentFood = window.sortedFood[0];
                         window.currentFoodX = window.currentFood.clusterxx;
