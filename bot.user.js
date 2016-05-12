@@ -434,8 +434,9 @@ var bot = (function() {
                 // then check if a snake head is inside the outer circle.
                 if (bot.closestHeadPoint !== null)
                     if (bot.checkCollision2(headCircle, bot.closestHeadPoint)) {
-                        // accelereate if the other snake is bigger (and is more likely to circle us), and there is room to accelerate.
-                        if (window.getSnakeLength(bot.closestHeadPoint.snake) > window.getSnakeLength(window.snake) && bot.canAccelerate())
+                        // accelereate if there is room to accelerate. <strike>and the other snake is bigger</strike>
+                        // Note that it seems to also make sense to run screaming away from smaller snakes.
+                        if (bot.canAccelerate())
                             window.setAcceleration(1);
                         else
                             window.setAcceleration(0);
@@ -464,8 +465,7 @@ var bot = (function() {
                         xx: snake.xx,
                         yy: snake.yy,
                         sc: snake.sc,
-                        sp: snake.sp,
-                        snake: snake
+                        sp: snake.sp
                     };
                     canvas.setDistanceFromSnake(headPoint);
                     if (headPoint.distance < closestHeadPointDistance){
