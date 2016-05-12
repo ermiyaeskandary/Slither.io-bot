@@ -108,11 +108,6 @@ var canvas = (function() {
             window.ii.src = url;
         },
 
-        // TODO what does window scale mean?
-        getScale: function() {
-            return window.gsc;
-        },
-
         // Manual mobile rendering
         toggleMobileRendering: function(mobileRendering) {
             window.mobileRender = mobileRendering;
@@ -129,8 +124,10 @@ var canvas = (function() {
         },
 
         // Draw a dot on the canvas.
-        drawDot: function(x, y, radius, colour, fill) {
+        drawDot: function(x, y, radius, colour, fill, alpha) {
+            if (alpha === undefined) alpha = 1;
             var context = window.mc.getContext('2d');
+            context.globalAlpha = alpha;
             context.beginPath();
             context.strokeStyle = colour;
             context.arc(x, y, radius, 0, Math.PI * 2);
@@ -140,6 +137,7 @@ var canvas = (function() {
                 context.fill();
             }
             context.stroke();
+            context.globalAlpha = 1;
         },
 
         // Draw an angle.
@@ -165,7 +163,7 @@ var canvas = (function() {
             if (width === undefined) width = 5;
             var context = window.mc.getContext('2d');
             context.beginPath();
-            context.lineWidth = width * canvas.getScale();
+            context.lineWidth = width * window.gsc;
             context.strokeStyle = colour;
             context.moveTo(x1, y1);
             context.lineTo(x2, y2);
@@ -450,7 +448,7 @@ var bot = (function() {
                         var hCircle = canvas.collisionScreenToCanvas({
                             x: window.snakes[snake].xx,
                             y: window.snakes[snake].yy,
-                            radius: window.getSnakeWidth(window.snakes[snake].sc) * canvas.getScale()
+                            radius: window.getSnakeWidth(window.snakes[snake].sc) * window.gsc
                         });
                         canvas.drawDot(hCircle.x, hCircle.y, hCircle.radius, 'red', false);
                     }
@@ -481,7 +479,7 @@ var bot = (function() {
                         var cCircle = canvas.collisionScreenToCanvas({
                             x: scPoint.xx,
                             y: scPoint.yy,
-                            radius: window.getSnakeWidth(scPoint.sc) * canvas.getScale()
+                            radius: window.getSnakeWidth(scPoint.sc) * window.gsc
                         });
                         canvas.drawDot(cCircle.x, cCircle.y, cCircle.radius, 'red', false);
                     }
@@ -505,22 +503,29 @@ var bot = (function() {
             var headCircle = canvas.collisionScreenToCanvas({
                 x: window.snake.xx,
                 y: window.snake.yy,
-                radius: ra * .6 * canvas.getScale()
+                radius: ra / 2 * window.gsc
             });
 
             var forwardCircle = canvas.collisionScreenToCanvas({
-                x: window.snake.xx + window.snake.cos * ra * .6,
-                y: window.snake.yy + window.snake.sin * ra * .6,
-                radius: ra * .6 * canvas.getScale()
+                x: window.snake.xx + window.snake.cos * ra / 2,
+                y: window.snake.yy + window.snake.sin * ra / 2,
+                radius: ra / 2 * window.gsc
             });
 
             var forwardBigCircle = canvas.collisionScreenToCanvas({
-                x: window.snake.xx + window.snake.cos * r * 2.75,
-                y: window.snake.yy + window.snake.sin * r * 2.75,
-                radius: r * 3.25 * canvas.getScale()
+                x: window.snake.xx + window.snake.cos * r * 1.9 / window.getSnakeWidth() * window.getSnakeWidth(1),
+                y: window.snake.yy + window.snake.sin * r * 1.9 / window.getSnakeWidth() * window.getSnakeWidth(1),
+                radius: r * 2.4 / window.getSnakeWidth() * window.getSnakeWidth(1) * window.gsc
+            });
+            
+            var fullHeadCircle = canvas.collisionScreenToCanvas({
+                x: window.snake.xx + window.snake.cos * r / 2,
+                y: window.snake.yy + window.snake.sin * r / 2,
+                radius: r * window.gsc
             });
 
             if (window.visualDebugging) {
+                canvas.drawDot(fullHeadCircle.x, fullHeadCircle.y, fullHeadCircle.radius, 'red');
                 canvas.drawDot(headCircle.x, headCircle.y, headCircle.radius, 'blue', false);
                 canvas.drawDot(forwardCircle.x, forwardCircle.y, forwardCircle.radius, 'blue', false);
                 canvas.drawDot(forwardBigCircle.x, forwardBigCircle.y, forwardBigCircle.radius, 'yellow', false);
@@ -534,29 +539,24 @@ var bot = (function() {
                 var collisionCircle = canvas.collisionScreenToCanvas({
                     x: bot.collisionPoints[i].xx,
                     y: bot.collisionPoints[i].yy,
-                    radius: window.getSnakeWidth(bot.collisionPoints[i].sc) * canvas.getScale()
+                    radius: window.getSnakeWidth(bot.collisionPoints[i].sc) * window.gsc
+                });
+                
+                 var eHeadCircle = canvas.collisionScreenToCanvas({
+                    x: bot.collisionPoints[i].headxx,
+                    y: bot.collisionPoints[i].headyy,
+                    radius: window.getSnakeWidth(bot.collisionPoints[i].sc) * window.gsc
                 });
 
                 if (canvas.circleIntersect(headCircle, collisionCircle) || canvas.circleIntersect(forwardCircle, collisionCircle)) {
-                    window.setAcceleration(0);
+                    if(bot.collisionPoints[i].sp > 9 && (canvas.circleIntersect(headCircle, eHeadCircle) || canvas.circleIntersect(forwardCircle, eHeadCircle))) {
+                        window.setAcceleration(1);
+                    } else {
+                        window.setAcceleration(0);
+                    }
+                    
                     bot.avoidCollisionPoint(bot.collisionPoints[i]);
                     return true;
-                }
-
-                var eHeadCircle = canvas.collisionScreenToCanvas({
-                    x: bot.collisionPoints[i].headxx,
-                    y: bot.collisionPoints[i].headyy,
-                    radius: window.getSnakeWidth(bot.collisionPoints[i].sc) * canvas.getScale()
-                });
-
-                var fullHeadCircle = canvas.collisionScreenToCanvas({
-                    x: window.snake.xx + window.snake.cos * r / 2 * 1.2,
-                    y: window.snake.yy + window.snake.sin * r / 2 * 1.2,
-                    radius: r * 1.2 * canvas.getScale()
-                });
-
-                if (window.visualDebugging) {
-                    canvas.drawDot(fullHeadCircle.x, fullHeadCircle.y, fullHeadCircle.radius, 'red');
                 }
 
                 if (canvas.circleIntersect(fullHeadCircle, eHeadCircle)) {
@@ -576,6 +576,10 @@ var bot = (function() {
 
             if (inBigCircle > 2) {
                 bot.avoidCollisionPoint({ xx: window.snake.xx + window.snake.cos * 50, yy: window.snake.yy + window.snake.sin * 50 });
+                if (window.visualDebugging)
+                {
+                    canvas.drawDot(forwardBigCircle.x, forwardBigCircle.y, forwardBigCircle.radius, 'yellow', true, .3);
+                }
                 return true;
             }
 
@@ -654,7 +658,7 @@ var bot = (function() {
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
-            if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier * canvas.getScale()) ) {
+            if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier) ) {
                 window.setAcceleration(0);
                 // Save CPU by only calculating every Nth frame
                 if (++bot.tickCounter >= 15) {
