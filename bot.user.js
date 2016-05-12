@@ -504,12 +504,20 @@ var bot = (function() {
         // Sort food based on distance
         getFood: function() {
             // Filters the nearest food by getting the distance
-            return window.foods.filter(function(val) {
-                return val !== null && val !== undefined;
-            }).map(canvas.setDistanceFromSnake).filter(function(val) {
-                var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
-                isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
-                return !(isInsideDangerAngles && (val.distance <= 22500));
+            return window.foods.filter(function(food) {
+                if (food === null || food === undefined)
+                    return false;
+                
+                var distance = canvas.getDistanceFromSnake(food);
+                if (distance > 22500)
+                    return false;
+                
+                food.distance = distance;
+
+                // What is happening here? What's a danger angle?
+                var isInsideDangerAngles = canvas.isInsideAngle(food, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
+                isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(food, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
+                return !(isInsideDangerAngles)
             });
         },
 
