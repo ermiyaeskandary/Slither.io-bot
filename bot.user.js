@@ -301,14 +301,17 @@ var bot = (function() {
                     window.scores.push(parseInt(document.querySelector('div#lastscore').childNodes[1].innerHTML));
                 }
             }
-            var generalStyle = '<span style = "opacity: 0.35";>';
-            window.ip_overlay.innerHTML = generalStyle + 'Server: ' + window.bso.ip + ':' + window.bso.po;
+            if (window.bso !== undefined) {
+                var generalStyle = '<span style = "opacity: 0.35";>';
+                window.ip_overlay.innerHTML = generalStyle + 'Server: ' + window.bso.ip + ':' + window.bso.po;
+            }
         },
 
         launchBot: function () {
             window.log('Starting Bot.');
             bot.isBotRunning = true;
             // Removed the onmousemove listener so we can move the snake manually by setting coordinates
+            userInterface.onPrefChange();
             window.onmousemove = function () { };
             bot.hideTop();
         },
