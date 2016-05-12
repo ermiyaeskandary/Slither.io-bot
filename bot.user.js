@@ -21,7 +21,7 @@ The MIT License (MIT)
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    https://github.com/j-c-m/Slither.io-bot
-// @version      1.0.9
+// @version      1.0.10
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @contributor  Jesse Miller
@@ -32,8 +32,6 @@ The MIT License (MIT)
 // @grant        none
 // ==/UserScript==
 // Custom logging function - disabled by default
-
-GM_info.script.lastUpdated = 0;
 
 window.scores = [];
 
