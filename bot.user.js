@@ -1047,7 +1047,7 @@ window.loop = function() {
     userInterface.loadPreference('huntPrey', true);
     userInterface.loadPreference('collisionDetection', true);
     userInterface.loadPreference('headCollisionRadiusMultiplier', 8);
-    userInterface.loadPreference('bodyCollisionRadiusMultiplier', 2);
+    userInterface.loadPreference('bodyCollisionRadiusMultiplier', 3);
     userInterface.loadPreference('defence', false);
     userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
