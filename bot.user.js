@@ -270,7 +270,7 @@ var bot = (function() {
         isBotRunning: false,
         isBotEnabled: true,
         collisionPoints: [],
-        speedingMultiplierIncreaseValue: 3.0,
+        speedingMultiplierIncreaseValue: 4.0,
         
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled && bot.ranOnce && !bot.isBotRunning) {
@@ -1047,7 +1047,7 @@ window.loop = function() {
     userInterface.loadPreference('huntPrey', true);
     userInterface.loadPreference('collisionDetection', true);
     userInterface.loadPreference('headCollisionRadiusMultiplier', 8);
-    userInterface.loadPreference('bodyCollisionRadiusMultiplier', 3);
+    userInterface.loadPreference('bodyCollisionRadiusMultiplier', 2);
     userInterface.loadPreference('defence', false);
     userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
