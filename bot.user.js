@@ -1052,6 +1052,10 @@ window.loop = function() {
     userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
+    window.bodyCollisionRadiusMultiplier = Number(window.bodyCollisionRadiusMultiplier);
+    if (isNaN(window.bodyCollisionRadiusMultiplier))
+        window.bodyCollisionRadiusMultiplier = 2;
+
     // Overlays
 
     // Top left
