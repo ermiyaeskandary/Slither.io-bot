@@ -422,6 +422,8 @@ var bot = (function() {
         setCollisionPoints: function() {
             bot.closestHeadPoint = null;
 
+            var onlyNeedOneCollisionPoint = true;
+            
             var closestHeadPointDistance = Number.MAX_VALUE;
             var collisionPoints = [];
 
@@ -456,7 +458,12 @@ var bot = (function() {
                             };
 
                             canvas.setDistanceFromSnake(collisionPoint);
-                            collisionPoints.push(collisionPoint);
+
+                            if (onlyNeedOneCollisionPoint)
+                                if (collisionPoints.length==1 && collisionPoint.distance < collisionPoints[0].distance)
+                                    collisionPoints[0] = collisionPoint;
+                            else
+                                collisionPoints.push(collisionPoint);
                         }
                     }
                 }
