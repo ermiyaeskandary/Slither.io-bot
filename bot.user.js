@@ -508,19 +508,24 @@ var bot = (function() {
             return window.foods.filter(function(food) {
                 if (food === null || food === undefined)
                     return false;
-                
-                var distance = canvas.getDistanceFromSnake(food);
-                if (distance > 22500)
-                    return false;
-                
-                food.distance = distance;
 
-                // What is happening here? What's a danger angle?
-                var isInsideDangerAngles = canvas.isInsideAngle(food, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
-                isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(food, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
-                return !(isInsideDangerAngles)
+                canvas.setDistanceFromSnake(food);
+                
+                if (food.distance <= 22500){
+                    
+                    // Missing comment. What is happening in here?
+                    
+                    if (canvas.isInsideAngle(food, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4))
+                        return false;
+                    
+                    if (canvas.isInsideAngle(food, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4))
+                        return false;
+                }
+
+                return true;
             });
         },
+
 
         computeFoodGoal: function() {
             var sortedFood = bot.getFood().sort(bot.sortFoodDistance);
