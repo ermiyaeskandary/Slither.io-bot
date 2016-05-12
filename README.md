@@ -79,6 +79,6 @@ Started as a collaborative and fun project between me and FliiFe on 2016/04/20, 
 
 # License
 
-**Licensed under GNU General Public License V3.**
+**Licensed under the Mozilla Public License, v. 2.0**
 
 Read LICENSE.md for more info.
