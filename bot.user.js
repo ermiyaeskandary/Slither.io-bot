@@ -270,7 +270,7 @@ var bot = (function() {
         isBotRunning: false,
         isBotEnabled: true,
         collisionPoints: [],
-        speedingMultiplierIncreaseValue: 3.0,
+        speedingMultiplierIncreaseValue: 4.0,
         
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled && bot.ranOnce && !bot.isBotRunning) {
