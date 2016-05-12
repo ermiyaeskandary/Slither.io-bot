@@ -15,7 +15,12 @@ Goal : make a bot for slither.io
 - [License](https://github.com/ErmiyaEskandary/Slither.io-bot#license)
 
 # Installation instructions
+## Interactive tutorial
+http://slither.jlynx.net/
+
 ## Visual tutorial
+https://www.youtube.com/watch?v=d7mkAgQNuCA - Created by http://slither.jlynx.net/
+
 https://youtu.be/mlEKp-ZAi7w - Created by http://slithere.com/
 
 https://youtu.be/QF9JBMi-fLo?t=38s - Created by SeppeTutorials
@@ -27,7 +32,7 @@ If you are on chrome, download the [TamperMonkey](https://chrome.google.com/webs
 
 On other browsers, use the [GreaseMonkey](https://addons.mozilla.org/en-GB/firefox/addon/greasemonkey/) extension.
 
-Once installed, click on [this](https://github.com/ErmiyaEskandary/slither.io-bot/raw/master/bot.user.js), and choose **Install**.
+Once installed, click on [this](https://github.com/ErmiyaEskandary/slither.io-bot/raw/master/loader.user.js), and choose **Install**.
 
 Go to [slither.io](http://slither.io/), and enjoy !
 
@@ -43,7 +48,8 @@ I | Automatic Respawning
 P | Hunt prey - Moving food
 D | Defense mode - bot turns around in a circle
 C | Enemy avoidance / Collision prevention
-A / S | Collision radius multiplier increase / decrease
+A / S | Head collision radius multiplier increase / decrease
+E / R | Body collision radius multiplier increase / decrease
 Z | Reset zoom
 ESC | Quick respawn
 X | Change skin
