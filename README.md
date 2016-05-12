@@ -19,6 +19,8 @@ Goal : make a bot for slither.io
 http://slither.jlynx.net/
 
 ## Visual tutorial
+https://www.youtube.com/watch?v=d7mkAgQNuCA - Created by http://slither.jlynx.net/
+
 https://youtu.be/mlEKp-ZAi7w - Created by http://slithere.com/
 
 https://youtu.be/QF9JBMi-fLo?t=38s - Created by SeppeTutorials
