@@ -378,6 +378,7 @@ var bot = (function() {
             return a.distance - b.distance;
         },
 
+
         canAccelerate: function() {
             if (!window.collisionDetection)
                 return true;
@@ -427,12 +428,14 @@ var bot = (function() {
 
             if (bot.collisionPoints.length > 0) {
 
+
                 // first check if anything is in the inner circle. TODO: We need longer distance the more the collisionPoint is straight ahead of us. If the collision point is in the back, we don't have to care at all.
                 if (bot.checkCollision2(bodyCircle, bot.collisionPoints[0]))
                     return true;
 
                 // then check if a snake head is inside the outer circle.
                 if (bot.closestHeadPoint !== null)
+
                     if (bot.checkCollision2(headCircle, bot.closestHeadPoint)) {
                         // accelereate if there is room to accelerate. <strike>and the other snake is bigger</strike>
                         // Note that it seems to also make sense to run screaming away from smaller snakes.
@@ -1036,7 +1039,7 @@ window.loop = function() {
     userInterface.loadPreference('huntPrey', true);
     userInterface.loadPreference('collisionDetection', true);
     userInterface.loadPreference('headCollisionRadiusMultiplier', 8);
-    userInterface.loadPreference('bodyCollisionRadiusMultiplier', 3.0);
+    userInterface.loadPreference('bodyCollisionRadiusMultiplier', 3);
     userInterface.loadPreference('defence', false);
     userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
