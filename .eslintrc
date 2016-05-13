@@ -181,7 +181,7 @@
     /* ECMAScript 6 */
     "constructor-super": 1,
     "no-this-before-super": 1,
-    "no-var": 1,
+    "no-var": 0,
     "prefer-const": 1,
 
     /* Legacy */
