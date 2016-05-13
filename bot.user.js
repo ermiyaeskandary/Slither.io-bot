@@ -29,18 +29,53 @@ window.log = function() {
     }
 };
 
+window.getWidth = function() {
+    return window.ww;
+};
+window.getHeight = function() {
+    return window.hh;
+};
+window.getX = function() {
+    return window.snake.xx;
+};
+window.getY = function() {
+    return window.snake.yy;
+};
+
 window.getSnakeLength = function() {
     return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
 window.getSnakeWidth = function(sc) {
-    if (sc === undefined) sc = window.snake.sc;
-    return sc * 29 / 2;
+    sc = sc || window.snake.sc;
+    return sc * 14.5;
 };
 
 var canvas = (function() {
     return {
         // Ratio of screen size divided by canvas size.
         canvasRatio: [window.mc.width / window.ww, window.mc.height / window.hh],
+
+        getScale: function() {
+            return window.gsc;
+        },
+
+
+
+        //Screen coordinates
+        // X = (0->WindowWidth)
+        // Y = (0->WindowHeight)
+        //
+        //Mouse Coordinates
+        // X = -Width  -> snake.xx -> Width
+        // Y = -Height -> snake.yy -> Height
+        //
+        //Map Coordinates
+        // X = 0 -> MapWidth
+        // Y = 0 -> MapHeight
+        //
+        //Canvas Coordinates
+        // X = 0 -> CanvasWidth
+        // Y = 0 -> CanvasHeight
 
         // Spoofs moving the mouse to the provided coordinates.
         setMouseCoordinates: function(point) {
@@ -182,10 +217,10 @@ var canvas = (function() {
         },
 
         // Draw a line on the canvas.
-        drawLine2: function(x1, y1, x2, y2, colour) {
+        drawLine2: function(x1, y1, x2, y2, width, colour) {
             var context = window.mc.getContext('2d');
             context.beginPath();
-            context.lineWidth = 5 * canvas.getScale();
+            context.lineWidth = width * canvas.getScale();
             context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
             context.moveTo(x1, y1);
             context.lineTo(x2, y2);
@@ -238,16 +273,6 @@ var canvas = (function() {
             
         },
 
-        // Screen to Canvas coordinate conversion - used for collision detection
-        collisionScreenToCanvas: function(circle) {
-            var newCircle = canvas.mapToMouse(circle.x, circle.y);
-            newCircle = canvas.mouseToScreen(newCircle[0], newCircle[1]);
-            newCircle = canvas.screenToCanvas(newCircle[0], newCircle[1]);
-            return {
-                x: newCircle[0],
-                y: newCircle[1],
-                radius: circle.radius
-            };
 
         getDistance: function(x1, y1, x2, y2) {
             var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
@@ -287,7 +312,7 @@ var canvas = (function() {
                             radius: 5
                         };
                         canvas.drawCircle(canvas.circleMapToCanvas(circle2), 'red', true);
-                        canvas.drawCircle(canvas.circleMapToCanvas(collisionPointCircle), 'cyan', true)
+                        canvas.drawCircle(canvas.circleMapToCanvas(collisionPointCircle), 'cyan', true);
                     }
                     return true;
                 }
@@ -298,409 +323,6 @@ var canvas = (function() {
 })();
 
 
-var collisionHelper = (function() {
-    return {
-        unitTable: [],
-        toRad: Math.PI / 180,
-        toDeg: 180 / Math.PI,
-
-        init: function() {
-            collisionHelper.generateUnitTable();
-            
-        },
-
-        /**
-         *  Build the unit table grouping opposite angles and in 22.5 degree increments
-         *
-         */
-        generateUnitTable: function() {
-            var offset = 0;
-            for(var a=0;a<4;a++) {
-                collisionHelper.unitTable[a] = [];
-                for(var b=0; b<4; b++) {
-                    var angle = collisionHelper.toRad * (b*90+offset);
-                    collisionHelper.unitTable[a].push([Math.cos(angle), Math.sin(angle)]);
-                }
-                offset+=22.5;
-            }
-        },
-
-        /** 
-         * Performs line scans in the E,N,W,S directions and rotates by 22.5 degrees * rotateCount
-         *
-         */
-        surroundScan: function(rotateCount, scanDist) {
-            var x = window.getX();
-            var y = window.getY();
-
-            var results = [];
-
-            for(var dir=0; dir<4; dir++) {
-                var pos = collisionHelper.unitTable[rotateCount][dir];
-                var x2 = x+pos[0]*scanDist;
-                var y2 = y+pos[1]*scanDist;
-
-                var cell = collisionGrid.lineTest(x,y,x2,y2);
-                if( cell )
-                    results.push(cell);
-
-                if( window.visualDebugging ) {
-                    
-                    var canvasPosA = canvas.collisionScreenToCanvas({
-                        x: x,
-                        y: y,
-                        radius: 1
-                    });
-                    var canvasPosB = canvas.collisionScreenToCanvas({
-                        x: x2,
-                        y: y2,
-                        radius: 1
-                    });
-                    
-                    canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, cell ? 'red' : 'green');
-                }
-                
-            }
-            return results;
-        }
-    }
-})();
-/**
- * A 2d collision grid system for fast line to box collision
- * 
- * - Flagged cells are occupied by object(s)
- * - Non-flagged cells are empty
- * - Cells are world space cut up into squares of X size
- */
-var collisionGrid = (function() {
-    collisionHelper.init();
-
-    return {
-        width: window.getWidth(),
-        height: window.getHeight(),
-
-        //clone for fast slicing
-        grid: [],
-        bgrid: [],
-        cellSize: 20,
-        startX: 0,
-        startY: 0,
-        gridWidth: 0,
-        gridHeight: 0,
-        endX: 0,
-        endY: 0,
-        astarGraph: 0,
-        astarResult: 0,
-        
-        dirty: [],
-
-        initGrid: function(sx, sy, w, h, cellsz) {
-            sx = sx - (sx % cellsz);
-            sy = sy - (sy % cellsz);
-            collisionGrid.startX = sx - w/2;
-            collisionGrid.startY = sy - h/2;
-            collisionGrid.endX = collisionGrid.startX + w;
-            collisionGrid.endY = collisionGrid.startY + h;
-
-            collisionGrid.gridWidth = w;
-            collisionGrid.gridHeight = h;
-            collisionGrid.height = h * cellsz;
-            collisionGrid.width = w * cellsz;
-            collisionGrid.cellSize = cellsz;
-            
-            collisionGrid.booleanGrid = [];
-            //collisionGrid.grid = [];
-
-            if( !collisionGrid.grid.length ) {
-                for(var x=0; x<w; x++) {
-                    for(var y=0; y<h; y++) {
-                        if( y == 0 ) {
-                            collisionGrid.grid[x] = [];
-                            collisionGrid.bgrid[x] = [];
-                        }
-                        collisionGrid.grid[x][y] = [];
-                        collisionGrid.bgrid[x][y] = 1;
-                    }
-                }
-            }
-            else {
-                for(var i=0; i<collisionGrid.dirty.length; i++) {
-                    var pos = collisionGrid.dirty[i];
-                    collisionGrid.grid[pos[0]][pos[1]] = [];
-                    collisionGrid.bgrid[pos[0]][pos[1]] = 1;
-                }
-                delete dirty;
-                dirty = [];
-            }
-            
-
-            collisionGrid.addSnakes();
-
-            //astarGraph = new Graph(collisionGrid.bgrid);
-            //collisionGrid.setupGrid();
-        },
-
-        setupGrid: function() {
-            
-        },
-
-        // Slice out a portion of the grid for less calculations
-        // callback = function(x, y, gridValue) {}
-        sliceGrid: function(col, row, width, height, callback) {
-            //constrain the values between 0 and width/height
-            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
-            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
-            width = col + Math.min(collisionGrid.gridWidth, Math.max(width, 0));
-            height = row + Math.min(collisionGrid.gridHeight, Math.max(height, 0));
-
-            for(var x=col; x<width; x++) {
-                for(var y=row; y<height; y++) {
-                    callback(x, y, collisionGrid.grid[x][y]);
-                }
-            }
-        },
-
-        // Find specific cell using world-space position
-        getCellByXY: function(x, y) {
-            var col = (x - (x % collisionGrid.cellSize)) - collisionGrid.startX;
-            var row = (y - (y % collisionGrid.cellSize)) - collisionGrid.startY;
-            col = parseInt(Math.floor(col / collisionGrid.cellSize));
-            row = parseInt(Math.floor(row / collisionGrid.cellSize));
-            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
-            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
-            return [col, row, collisionGrid.grid[col][row]];
-        },
-
-        // Get cell world-space position at top left corner of cell
-        getCellByColRow: function(col, row) {
-            var x = collisionGrid.startX + col*collisionGrid.cellSize;
-            var y = collisionGrid.startY + row*collisionGrid.cellSize;
-            return [x, y, collisionGrid.grid[col][row]];
-        },
-
-        // This is used to convert a width or height to the amount of cells it would occupy
-        calculateMaxCellCount: function(sz) {
-            return parseInt(Math.ceil(sz / collisionGrid.cellSize));
-        },
-
-        // set cell size
-        setCellSize: function(sz) {
-            collisionGrid.cellSize = sz;
-        },
-
-        getCell: function(col,row) {
-            return collisionGrid.grid[col][row];
-        },
-
-        markCell: function(col, row, obj) {
-            collisionGrid.grid[col][row].push(obj);
-            collisionGrid.dirty.push([col,row]);
-            return collisionGrid.grid[col][row];
-        },
-
-        debugDraw: function() {
-            if( !window.visualDebugging || !collisionGrid.grid.length ) 
-                return;
-            collisionGrid.sliceGrid(0, 0, collisionGrid.gridWidth, collisionGrid.gridHeight, 
-                function(col, row, val) {
-                    
-
-                    var pos = collisionGrid.getCellByColRow(col,row);
-                    var canvasPos = canvas.collisionScreenToCanvas({
-                        x: pos[0],
-                        y: pos[1],
-                        radius: 1
-                    });
-                    
-                    if( !val ) 
-                        canvas.drawRect(canvasPos.x, canvasPos.y, collisionGrid.cellSize, collisionGrid.cellSize, 'yellow');
-                    else
-                        canvas.drawRect(canvasPos.x, canvasPos.y, collisionGrid.cellSize, collisionGrid.cellSize, 'yellow');
-                }
-            );
-        },
-        // add all snake's collision parts to the grid
-        addSnakes: function() {
-            for (var snakeid in window.snakes) {
-                var snk = window.snakes[snakeid];
-                if (snk.nk == window.snake.nk)
-                    continue;
-                var cnt = 0;
-
-                for (var pts in snk.pts) {
-                    var part = snk.pts[pts];
-
-                    if (part.dying) 
-                        continue;
-
-                    if( part.xx < collisionGrid.startX ||
-                        part.xx > collisionGrid.endX ||
-                        part.yy < collisionGrid.startY ||
-                        part.yy > collisionGrid.endY)
-                        continue;
-                    //if (cnt++ % 2 == 0) 
-                    //    continue;
-
-                    var cell = collisionGrid.getCellByXY(part.xx, part.yy);
-                    var radius = 14.5 * snk.sc;
-                    var radiusSqr = radius*radius;
-                    var cellcount = collisionGrid.calculateMaxCellCount(radius);
-                    cellcount = cellcount;
-                    var cellcount2 = cellcount*2;
-                    //mark cell where part's center is located
-                    collisionGrid.markCell(cell[0], cell[1], part);
-                    if( window.visualDebugging ) {
-                        var pos = collisionGrid.getCellByColRow(cell[0], cell[1]);
-                        var canvasPos = canvas.collisionScreenToCanvas({
-                            x: pos[0],
-                            y: pos[1],
-                            radius: 1
-                        });
-                        
-                        canvas.drawRect(canvasPos.x, canvasPos.y, collisionGrid.cellSize*canvas.getScale(), collisionGrid.cellSize*canvas.getScale(), 'yellow');
-                    }
-                    //mark surrounding cells using part's radius
-                    collisionGrid.sliceGrid(cell[0]-cellcount, cell[1]-cellcount, cellcount2, cellcount2, 
-                        function(col, row, val) {
-                            if( !val || val.length ) return;
-/*
-                            var pos = collisionGrid.getCellByColRow(col,row);
-                            var centerX = pos[0] + collisionGrid.cellSize / 2;
-                            var centerY = pos[1] + collisionGrid.cellSize / 2;
-                            var xDist = centerX - part.xx;
-                            var yDist = centerY - part.yy;
-                            var dist = xDist*xDist + yDist*yDist;
-
-                            if( dist < radiusSqr ) {*/
-                                var marked = collisionGrid.markCell(col, row, part);
-                                if( window.visualDebugging ) {
-                                    var pos = collisionGrid.getCellByColRow(col,row);
-                                    var canvasPos = canvas.collisionScreenToCanvas({
-                                        x: pos[0],
-                                        y: pos[1],
-                                        radius: 1
-                                    });
-                                    canvas.drawRect(canvasPos.x, canvasPos.y, collisionGrid.cellSize*canvas.getScale(), collisionGrid.cellSize*canvas.getScale(), 'yellow');
-                                }
-                            /*}*/
-                        }
-                    );
-                }
-            }
-        },
-
-
-        cellTest: function(col, row) {
-            cell = collisionGrid.getCell(col, row);  // first point 
-            if( cell && cell.length > 0 )
-                return cell;
-            return false;
-        },
-
-        
-        lineTest: function(x1, y1, x2, y2) { 
-            var posA = collisionGrid.getCellByXY(x1,y1);
-            var posB = collisionGrid.getCellByXY(x2,y2);
-            x1 = posA[0], x2 = posB[0];
-            y1 = posA[1], y2 = posB[1];
-            var i;               // loop counter 
-            var cell;
-            var ystep, xstep;    // the step on y and x axis 
-            var error;           // the error accumulated during the increment 
-            var errorprev;       // *vision the previous value of the error variable 
-            var y = y1, x = x1;  // the line points 
-            var ddy, ddx;        // compulsory variables: the double values of dy and dx 
-            var dx = x2 - x1; 
-            var dy = y2 - y1; 
-
-            if( (cell = collisionGrid.cellTest(x1,y1)) !== false ) return cell;
-
-            // NB the last point can't be here, because of its previous point (which has to be verified) 
-            if (dy < 0) { 
-                ystep = -1; 
-                dy = -dy; 
-            } 
-            else 
-                ystep = 1;
-
-            if (dx < 0) { 
-                xstep = -1; 
-                dx = -dx; 
-            }
-            else 
-                xstep = 1; 
-
-            ddy = 2 * dy;  // work with double values for full precision 
-            ddx = 2 * dx; 
-            if (ddx >= ddy) {  // first octant (0 <= slope <= 1) 
-                // compulsory initialization (even for errorprev, needed when dx==dy) 
-                errorprev = error = dx;  // start in the middle of the square 
-                for (i=0 ; i < dx ; i++) {  // do not use the first point (already done) 
-                    x += xstep; 
-                    error += ddy; 
-                    if (error > ddx) {  // increment y if AFTER the middle ( > ) 
-                        y += ystep; 
-                        error -= ddx; 
-                        // three cases (octant == right->right-top for directions below): 
-                        if (error + errorprev < ddx) {  // bottom square also 
-                            //POINT (y-ystep, x); 
-                            if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return cell;
-                        }
-                        else if (error + errorprev > ddx) { // left square also 
-                            //POINT (y, x-xstep); 
-                            if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return cell;
-
-                        }
-                        else {  // corner: bottom and left squares also 
-                            if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return cell;
-                            if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return cell;
-                            //POINT (y-ystep, x); 
-                            //POINT (y, x-xstep); 
-                        } 
-                    } 
-                    //POINT (y, x); 
-                    if( (cell = collisionGrid.cellTest(x, y)) !== false ) return cell;
-                    errorprev = error; 
-                } 
-            }
-            else {  // the same as above 
-                errorprev = error = dy; 
-                for (i=0 ; i < dy ; i++) { 
-                    y += ystep; 
-                    error += ddx; 
-                    if (error > ddy) { 
-                        x += xstep; 
-                        error -= ddy; 
-                        if (error + errorprev < ddy) {
-                            //POINT (y, x-xstep);
-                            if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return cell;
-                        }
-                        else if (error + errorprev > ddy) {
-                            //POINT (y-ystep, x);
-                            if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return cell;
-                        } 
-                        else { 
-                            //POINT (y, x-xstep); 
-                            //POINT (y-ystep, x); 
-                            if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return cell;
-                            if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return cell;
-                        } 
-                    } 
-                    //POINT (y, x); 
-                    if( (cell = collisionGrid.cellTest(x, y)) !== false ) return cell;
-                    errorprev = error; 
-                } 
-            } 
-            return false;
-            // assert ((y == y2) && (x == x2));  // the last point (y2,x2) has to be the same with the last point of the algorithm 
-        }
-        
-        
-
-
-    }
-
-})();
 
 var bot = (function() {
     // Save the original slither.io onmousemove function so we can re enable it back later
@@ -1081,7 +703,7 @@ var bot = (function() {
                 var p1 = sortedFood[i];
                 for (var j = 0; j < nIter; ++j) {
                     var p2 = sortedFood[j];
-                    var dist = canvas.getDistanceSqr(p1.xx, p1.yy, p2.xx, p2.yy);
+                    var dist = canvas.getDistance2(p1.xx, p1.yy, p2.xx, p2.yy);
                     if (dist < 22500) {
 
                         clusterScore += p2.sz;
@@ -1113,38 +735,34 @@ var bot = (function() {
         },
 
         processSurround: function() {
-            collisionGrid.initGrid(window.getX(), window.getY(), 2000, 2000, 40);
+            collisionGrid.initGrid(1000, 1000, 30);
 
-            var results = collisionHelper.surroundScan(0,1500);
-            var rotateCount = 1;
-            while( results.length == 4 && rotateCount < 4 ) {
-                results = collisionHelper.surroundScan(rotateCount, 1500);
-                rotateCount++;
-            }
+            var results = collisionHelper.surroundScan(5,1500);
+            
         },
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
 
-            if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier) ) {
+            //if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier) ) {
                 window.setAcceleration(0);
-
+                bot.processSurround();
                 // Save CPU by only calculating every Nth frame
-                if (++bot.tickCounter >= 15) {
+                //if (++bot.tickCounter >= 15) {
                     bot.tickCounter = 0;
                     // Current food
                     bot.computeFoodGoal();
-                    bot.processSurround();
+                    
 
                     var coordinatesOfClosestFood = {
                         x: window.currentFoodX, y: window.currentFoodY };
-                    
+                    collisionGrid.generatePath(window.getX(), window.getY(), window.currentFoodX, window.currentFoodY);
                     window.goalCoordinates = coordinatesOfClosestFood;
                     canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
-                }
-            } else {
-                bot.tickCounter = -userInterface.framesPerSecond.getFPS();
-            }
+                //}
+            //else {
+            //    bot.tickCounter = -userInterface.framesPerSecond.getFPS();
+            //}
         }
     };
 })();
@@ -1497,6 +1115,28 @@ window.loop = function() {
 
 
 
+
+function GridNode(x, y, weight) {
+  this.x = x;
+  this.y = y;
+  this.weight = weight;
+}
+
+GridNode.prototype.toString = function() {
+  return "[" + this.x + " " + this.y + "]";
+};
+
+GridNode.prototype.getCost = function(fromNeighbor) {
+  // Take diagonal weight into consideration.
+  if (fromNeighbor && fromNeighbor.x != this.x && fromNeighbor.y != this.y) {
+    return this.weight * 1.41421;
+  }
+  return this.weight;
+};
+
+GridNode.prototype.isWall = function() {
+  return this.weight === 0;
+};
 // javascript-astar 0.4.1
 // http://github.com/bgrins/javascript-astar
 // Freely distributable under the MIT License.
@@ -1512,7 +1152,6 @@ window.loop = function() {
   } else {
     var exports = definition();
     window.astar = exports.astar;
-    window.Graph = exports.Graph;
   }
 })(function() {
 
@@ -1546,27 +1185,31 @@ var astar = {
   * @param {Function} [options.heuristic] Heuristic function (see
   *          astar.heuristics).
   */
-  search: function(graph, start, end, options) {
-    graph.cleanDirty();
+  search: function(start, end, options) {
+    //collisionGrid.cleanDirty();
     options = options || {};
     var heuristic = options.heuristic || astar.heuristics.manhattan;
-    var closest = options.closest || false;
+    var closest = options.closest || true;
 
     var openHeap = getHeap();
     var closestNode = start; // set the start node to be the closest if required
 
     start.h = heuristic(start, end);
-    graph.markDirty(start);
+    collisionGrid.markDirty(start);
+    var maxtries = 100;
+    var trynum = 0;
 
     openHeap.push(start);
 
     while (openHeap.size() > 0) {
-
+        if( ++trynum > maxtries ) {
+            return [];
+        }
       // Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
       var currentNode = openHeap.pop();
 
       // End case -- result has been found, return the traced path.
-      if (currentNode === end) {
+      if (currentNode.x == end.x && currentNode.y == end.y) {
         return pathTo(currentNode);
       }
 
@@ -1574,21 +1217,23 @@ var astar = {
       currentNode.closed = true;
 
       // Find all neighbors for the current node.
-      var neighbors = graph.neighbors(currentNode);
+      var neighbors = collisionGrid.neighbors(currentNode.x, currentNode.y);
 
       for (var i = 0, il = neighbors.length; i < il; ++i) {
         var neighbor = neighbors[i];
 
-        if (neighbor.closed || neighbor.isWall()) {
+        if (neighbor.closed || collisionGrid.isWall(neighbor.x, neighbor.y)) {
           // Not a valid node to process, skip to next neighbor.
           continue;
         }
 
         // The g score is the shortest distance from start to current node.
         // We need to check if the path we have arrived at this neighbor is the shortest one we have seen yet.
-        var gScore = currentNode.g + neighbor.getCost(currentNode);
+        var gScore = currentNode.g + neighbor.weight;//getCost(currentNode);
         var beenVisited = neighbor.visited;
-
+        if( beenVisited ) {
+            console.log('visited ('+neighbor.x+','+neighbor.y+')');
+        }
         if (!beenVisited || gScore < neighbor.g) {
 
           // Found an optimal (so far) path to this node.  Take score for node to see how good it is.
@@ -1597,7 +1242,7 @@ var astar = {
           neighbor.h = neighbor.h || heuristic(neighbor, end);
           neighbor.g = gScore;
           neighbor.f = neighbor.g + neighbor.h;
-          graph.markDirty(neighbor);
+          collisionGrid.markDirty(neighbor);
           if (closest) {
             // If the neighbour is closer than the current closestNode or if it's equally close but has
             // a cheaper path than the current closest node then it becomes the closest node
@@ -1654,133 +1299,6 @@ var astar = {
   }
 };
 
-/**
- * A graph memory structure
- * @param {Array} gridIn 2D array of input weights
- * @param {Object} [options]
- * @param {bool} [options.diagonal] Specifies whether diagonal moves are allowed
- */
-function Graph(gridIn, options) {
-  options = options || {};
-  this.nodes = [];
-  this.diagonal = !!options.diagonal;
-  this.grid = [];
-  for (var x = 0; x < gridIn.length; x++) {
-    this.grid[x] = [];
-
-    for (var y = 0, row = gridIn[x]; y < row.length; y++) {
-      var node = new GridNode(x, y, row[y]);
-      this.grid[x][y] = node;
-      this.nodes.push(node);
-    }
-  }
-  this.init();
-}
-
-Graph.prototype.init = function() {
-  this.dirtyNodes = [];
-  for (var i = 0; i < this.nodes.length; i++) {
-    astar.cleanNode(this.nodes[i]);
-  }
-};
-
-Graph.prototype.cleanDirty = function() {
-  for (var i = 0; i < this.dirtyNodes.length; i++) {
-    astar.cleanNode(this.dirtyNodes[i]);
-  }
-  this.dirtyNodes = [];
-};
-
-Graph.prototype.markDirty = function(node) {
-  this.dirtyNodes.push(node);
-};
-
-Graph.prototype.neighbors = function(node) {
-  var ret = [];
-  var x = node.x;
-  var y = node.y;
-  var grid = this.grid;
-
-  // West
-  if (grid[x - 1] && grid[x - 1][y]) {
-    ret.push(grid[x - 1][y]);
-  }
-
-  // East
-  if (grid[x + 1] && grid[x + 1][y]) {
-    ret.push(grid[x + 1][y]);
-  }
-
-  // South
-  if (grid[x] && grid[x][y - 1]) {
-    ret.push(grid[x][y - 1]);
-  }
-
-  // North
-  if (grid[x] && grid[x][y + 1]) {
-    ret.push(grid[x][y + 1]);
-  }
-
-  if (this.diagonal) {
-    // Southwest
-    if (grid[x - 1] && grid[x - 1][y - 1]) {
-      ret.push(grid[x - 1][y - 1]);
-    }
-
-    // Southeast
-    if (grid[x + 1] && grid[x + 1][y - 1]) {
-      ret.push(grid[x + 1][y - 1]);
-    }
-
-    // Northwest
-    if (grid[x - 1] && grid[x - 1][y + 1]) {
-      ret.push(grid[x - 1][y + 1]);
-    }
-
-    // Northeast
-    if (grid[x + 1] && grid[x + 1][y + 1]) {
-      ret.push(grid[x + 1][y + 1]);
-    }
-  }
-
-  return ret;
-};
-
-Graph.prototype.toString = function() {
-  var graphString = [];
-  var nodes = this.grid;
-  for (var x = 0; x < nodes.length; x++) {
-    var rowDebug = [];
-    var row = nodes[x];
-    for (var y = 0; y < row.length; y++) {
-      rowDebug.push(row[y].weight);
-    }
-    graphString.push(rowDebug.join(" "));
-  }
-  return graphString.join("\n");
-};
-
-function GridNode(x, y, weight) {
-  this.x = x;
-  this.y = y;
-  this.weight = weight;
-}
-
-GridNode.prototype.toString = function() {
-  return "[" + this.x + " " + this.y + "]";
-};
-
-GridNode.prototype.getCost = function(fromNeighbor) {
-  // Take diagonal weight into consideration.
-  if (fromNeighbor && fromNeighbor.x != this.x && fromNeighbor.y != this.y) {
-    return this.weight * 1.41421;
-  }
-  return this.weight;
-};
-
-GridNode.prototype.isWall = function() {
-  return this.weight === 0;
-};
 
 function BinaryHeap(scoreFunction) {
   this.content = [];
@@ -1903,8 +1421,482 @@ BinaryHeap.prototype = {
 };
 
 return {
-  astar: astar,
-  Graph: Graph
+  astar: astar
 };
 
 });
+
+
+var collisionHelper = (function() {
+    return {
+        unitTable: [],
+        toRad: Math.PI / 180,
+        toDeg: 180 / Math.PI,
+
+        init: function() {
+            collisionHelper.generateUnitTable();
+            
+        },
+
+        /**
+         *  Build the unit table grouping opposite angles and in 22.5 degree increments
+         *
+         */
+        generateUnitTable: function() {
+            var offset = 0;
+            for(var a=0;a<360; a++) {
+                var angle = collisionHelper.toRad * offset;
+                collisionHelper.unitTable.push([Math.cos(angle), Math.sin(angle)]);
+                offset++;
+            }
+            /*for(var a=0;a<4;a++) {
+                collisionHelper.unitTable[a] = [];
+                for(var b=0; b<4; b++) {
+                    var angle = collisionHelper.toRad * (b*90+offset);
+                    collisionHelper.unitTable[a].push([Math.cos(angle), Math.sin(angle)]);
+                }
+                offset+=22.5;
+            }*/
+        },
+
+        /** 
+         * Performs line scans in the E,N,W,S directions and rotates by 22.5 degrees * rotateCount
+         *
+         */
+        surroundScan: function(angleIncrement,scanDist) {
+            var x = window.getX();
+            var y = window.getY();
+
+            var results = [];
+
+            for(var dir=0; dir<collisionHelper.unitTable.length; dir+=angleIncrement) {
+                var pos = collisionHelper.unitTable[dir];
+                var x2 = x+pos[0]*scanDist;
+                var y2 = y+pos[1]*scanDist;
+
+                var result = collisionGrid.lineTest(x,y,x2,y2);
+                if( result )
+                    results.push(result);
+
+                if( window.visualDebugging ) {
+                    
+                    var canvasPosA = canvas.mapToCanvas({
+                        x: x,
+                        y: y,
+                        radius: 1
+                    });
+                    var canvasPosB = canvas.mapToCanvas({
+                        x: x2,
+                        y: y2,
+                        radius: 1
+                    });
+                    
+
+
+                    var r = 0;
+                    var g = 0;
+                    var b = 0;
+                    var color = 'rgb(' + r + ',' + g + ',' + b + ')';
+                    canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 1, result ? 'red' : 'green');
+                }
+                
+            }
+            return results;
+        }
+    }
+})();
+/**
+ * A 2d collision grid system for fast line to box collision
+ * 
+ * - Flagged cells are occupied by object(s)
+ * - Non-flagged cells are empty
+ * - Cells are world space cut up into squares of X size
+ */
+var collisionGrid = (function() {
+    collisionHelper.init();
+
+    return {
+        width: 0,
+        height: 0,
+
+        //clone for fast slicing
+        grid: [],
+        bgrid: [],
+        cellSize: 20,
+        halfCellSize: 10,
+        startX: 0,
+        startY: 0,
+        gridWidth: 0,
+        gridHeight: 0,
+        endX: 0,
+        endY: 0,
+        astarGraph: 0,
+        astarResult: 0,
+        
+        dirty: [],
+
+        initGrid: function(w, h, cellsz) {
+            sx = Math.floor(window.getX());
+            sy = Math.floor(window.getY());
+            sx = sx - (sx % cellsz);
+            sy = sy - (sy % cellsz);
+
+            collisionGrid.height = h * cellsz;
+            collisionGrid.width = w * cellsz;
+            collisionGrid.gridWidth = w;
+            collisionGrid.gridHeight = h;
+            collisionGrid.cellSize = cellsz;
+            collisionGrid.halfCellSize = cellsz / 2;
+
+            collisionGrid.startX = Math.floor(sx - ((w/2)*cellsz));
+            collisionGrid.startY = Math.floor(sy - ((h/2)*cellsz));
+            //collisionGrid.startX = collisionGrid.startX - (collisionGrid.startX % cellsz);
+            //collisionGrid.startY = collisionGrid.startY - (collisionGrid.startY % cellsz);
+
+            collisionGrid.endX = collisionGrid.startX + collisionGrid.width;
+            collisionGrid.endY = collisionGrid.startY + collisionGrid.height;
+
+            
+            collisionGrid.booleanGrid = [];
+            collisionGrid.grid = [];
+
+            collisionGrid.addSnakes();
+            var cell = collisionGrid.getCellByXY(window.getX(), window.getY());
+            collisionGrid.drawCell(cell[0], cell[1], 'yellow');
+            //canvas.drawRect(window.getX()-collisionGrid.getWidth()/2, window.getY()-collisionGrid.getHeight()/2, collisionGrid.cellSize, collisionGrid.cellSize, 'yellow');
+            //astarGraph = new Graph(collisionGrid.bgrid);
+            //collisionGrid.setupGrid();
+        },
+
+        setupGrid: function() {
+            
+        },
+
+        // Slice out a portion of the grid for less calculations
+        // callback = function(x, y, gridValue) {}
+        sliceGrid: function(col, row, width, height, callback) {
+            //constrain the values between 0 and width/height
+            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
+            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
+            width = col + Math.min(collisionGrid.gridWidth, Math.max(width, 0));
+            height = row + Math.min(collisionGrid.gridHeight, Math.max(height, 0));
+
+            for(var x=col; x<width; x++) {
+                for(var y=row; y<height; y++) {
+                    collisionGrid.grid[x] = collisionGrid.grid[x] || [];
+                    collisionGrid.grid[x][y] = collisionGrid.grid[x][y] || [];
+                    callback(x, y, collisionGrid.grid[x][y]);
+                }
+            }
+        },
+
+        // Find specific cell using map-space position
+        getCellByXY: function(x, y) {
+            x = x - collisionGrid.startX;
+            y = y - collisionGrid.startY;
+            col = parseInt(Math.floor(x / collisionGrid.cellSize));
+            row = parseInt(Math.floor(y / collisionGrid.cellSize));
+            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
+            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
+            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
+            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || [];
+            return [col, row, collisionGrid.grid[col][row]];
+        },
+
+        // Get cell's map-space position at top left corner of cell
+        getCellByColRow: function(col, row) {
+            var x = collisionGrid.startX + (col*collisionGrid.cellSize) + collisionGrid.halfCellSize;
+            var y = collisionGrid.startY + (row*collisionGrid.cellSize) + collisionGrid.halfCellSize;
+            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
+            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || [];
+            return [x, y, collisionGrid.grid[col][row]];
+        },
+
+        // This is used to convert a width or height to the amount of cells it would occupy
+        calculateMaxCellCount: function(sz) {
+            return parseInt(Math.ceil(sz / collisionGrid.cellSize));
+        },
+
+        // set cell size
+        setCellSize: function(sz) {
+            collisionGrid.cellSize = sz;
+        },
+
+        getCell: function(col,row) {
+            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
+            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || [];
+            return collisionGrid.grid[col][row];
+        },
+
+        markCellWall: function(col, row, obj) {
+            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
+            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || [];
+            collisionGrid.grid[col][row].push(obj);
+            //collisionGrid.dirty.push([col,row]);
+            collisionGrid.drawCell(col,row);
+            return collisionGrid.grid[col][row];
+        },
+
+        markCellEmpty: function(col, row, weight) {
+            weight = weight || 1;
+            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
+            var node = collisionGrid.grid[col][row];
+            if(node && !node.length){
+                collisionGrid.grid[col][row] = new GridNode(col, row, weight);
+                astar.cleanNode(collisionGrid.grid[col][row]);
+            }
+            
+            //collisionGrid.dirty.push([col,row]);
+            //collisionGrid.drawCell(col,row, 'red');
+            return collisionGrid.grid[col][row];
+        },
+
+        isWall: function(col, row) {
+            return collisionGrid.grid[col] && collisionGrid.grid[col][row] && collisionGrid.grid[col][row].length;
+        },
+
+        isEmpty: function(col, row) {
+            return !collisionGrid.isWall(col,row);
+        },
+
+        drawCell: function(col, row, color) {
+            
+            if( !window.visualDebugging )
+                return;
+
+            color = color || 'yellow';
+            var pos = collisionGrid.getCellByColRow(col, row);
+            var canvasPos = canvas.mapToCanvas({
+                x: pos[0],
+                y: pos[1]
+            });
+            
+            canvas.drawRect(
+                canvasPos.x, 
+                canvasPos.y, 
+                collisionGrid.cellSize * canvas.getScale(), 
+                collisionGrid.cellSize * canvas.getScale(), 
+                color);
+        },
+
+        addNeighbor: function(x, y, arr) {
+            collisionGrid.grid[x] = collisionGrid.grid[x] || [];
+        
+            var node = collisionGrid.grid[x][y];
+            if( !node || node.length ) {
+                return;
+            }
+            //if( !collisionGrid.grid[x][y] )
+            collisionGrid.markCellEmpty(x,y);
+
+            arr.push(collisionGrid.grid[x][y]);
+        },
+
+        neighbors: function(x, y) {
+            var ret = [];
+            // West
+            collisionGrid.addNeighbor(x-1, y, ret);
+            //East
+            collisionGrid.addNeighbor(x+1, y, ret);
+            //South
+            collisionGrid.addNeighbor(x, y-1, ret);
+            //North
+            collisionGrid.addNeighbor(x, y+1, ret);
+    
+            //if (this.diagonal) {
+            // Southwest
+            collisionGrid.addNeighbor(x-1, y-1, ret);
+            // Southeast
+            collisionGrid.addNeighbor(x+1, y-1, ret);
+            // Northwest
+            collisionGrid.addNeighbor(x-1, y+1, ret);
+            // Northeast
+            collisionGrid.addNeighbor(x+1, y+1, ret);
+            //}
+
+            return ret;
+        },
+
+        cleanDirty: function() {
+           // for (var i = 0; i < collisionGrid.dirtyNodes.length; i++) {
+           //     astar.cleanNode(collisionGrid.dirtyNodes[i]);
+            //}
+           // collisionGrid.dirtyNodes = [];
+        },
+
+        markDirty: function(x, y) {
+            //collisionGrid.dirtyNodes.push([x,y]);
+        },
+
+        generatePath: function(startX, startY, endX, endY) {
+            var startCell = collisionGrid.getCellByXY(startX,startY);
+            var endCell = collisionGrid.getCellByXY(endX,endY);
+            var start = collisionGrid.markCellEmpty(startCell[0], startCell[1]);
+            var end = collisionGrid.markCellEmpty(endCell[0], endCell[1]);
+            var path = astar.search(start, end);
+
+            for(var i=0; i<path.length; i++) {
+                collisionGrid.drawCell(path[i].x, path[i].y, 'red');
+            }
+        },
+
+        // add all snake's collision parts to the grid
+        addSnakes: function() {
+            for (var snakeid in window.snakes) {
+                var snk = window.snakes[snakeid];
+                if (snk.id == window.snake.id)
+                    continue;
+                var cnt = 0;
+
+                for (var pts in snk.pts) {
+                    var part = snk.pts[pts];
+
+                    if (part.dying) 
+                        continue;
+
+                    //only add parts that are within our grid bounds
+                    if( part.xx < collisionGrid.startX ||
+                        part.xx > collisionGrid.endX ||
+                        part.yy < collisionGrid.startY ||
+                        part.yy > collisionGrid.endY)
+                        continue;
+            
+                    //calculate grid width/height of a snake part
+                    var cell = collisionGrid.getCellByXY(part.xx, part.yy);
+                    var radius = window.getSnakeWidth(snk.sc);
+                    var radiusSqr = radius*radius;
+                    var cellcount = collisionGrid.calculateMaxCellCount(radius);
+                    var cellcount2 = cellcount*2;
+
+                    //mark cell where part's center is located
+                    
+
+                    //mark surrounding cells using part's radius
+                    collisionGrid.sliceGrid(cell[0]-cellcount, cell[1]-cellcount, cellcount2, cellcount2, 
+                        function(col, row, val) {
+                            if( !val || val.length ) return;
+                            
+                            /*var pos = collisionGrid.getCellByColRow(col,row);
+                            var centerX = pos[0] + collisionGrid.cellSize / 2;
+                            var centerY = pos[1] + collisionGrid.cellSize / 2;
+                            var xDist = centerX - part.xx;
+                            var yDist = centerY - part.yy;
+                            var dist = xDist*xDist + yDist*yDist;
+                            if( dist < radiusSqr ) {*/
+
+                        }
+                    );
+                }
+            }
+        },
+
+
+        cellTest: function(col, row) {
+            cell = collisionGrid.getCell(col, row);  // first point 
+            if( cell && cell.length > 0 )
+                return cell;
+            return false;
+        },
+
+        
+        lineTest: function(x1, y1, x2, y2) { 
+            var posA = collisionGrid.getCellByXY(x1,y1);
+            var posB = collisionGrid.getCellByXY(x2,y2);
+            x1 = posA[0], x2 = posB[0];
+            y1 = posA[1], y2 = posB[1];
+            var i;               // loop counter 
+            var cell;
+            var ystep, xstep;    // the step on y and x axis 
+            var error;           // the error accumulated during the increment 
+            var errorprev;       // *vision the previous value of the error variable 
+            var y = y1, x = x1;  // the line points 
+            var ddy, ddx;        // compulsory variables: the double values of dy and dx 
+            var dx = x2 - x1; 
+            var dy = y2 - y1; 
+
+            if( (cell = collisionGrid.cellTest(x1,y1)) !== false ) return {pos:[x1, y1], cell:cell};
+
+            // NB the last point can't be here, because of its previous point (which has to be verified) 
+            if (dy < 0) { 
+                ystep = -1; 
+                dy = -dy; 
+            } 
+            else 
+                ystep = 1;
+
+            if (dx < 0) { 
+                xstep = -1; 
+                dx = -dx; 
+            }
+            else 
+                xstep = 1; 
+
+            ddy = 2 * dy;  // work with double values for full precision 
+            ddx = 2 * dx; 
+            if (ddx >= ddy) {  // first octant (0 <= slope <= 1) 
+                // compulsory initialization (even for errorprev, needed when dx==dy) 
+                errorprev = error = dx;  // start in the middle of the square 
+                for (i=0 ; i < dx ; i++) {  // do not use the first point (already done) 
+                    x += xstep; 
+                    error += ddy; 
+                    if (error > ddx) {  // increment y if AFTER the middle ( > ) 
+                        y += ystep; 
+                        error -= ddx; 
+                        // three cases (octant == right->right-top for directions below): 
+                        if (error + errorprev < ddx) {  // bottom square also 
+                            //POINT (y-ystep, x); 
+                            if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return {pos:[x, y-ystep], cell:cell};
+                        }
+                        else if (error + errorprev > ddx) { // left square also 
+                            //POINT (y, x-xstep); 
+                            if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return {pos:[x-xstep, y], cell:cell};
+
+                        }
+                        else {  // corner: bottom and left squares also 
+                            if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return {pos:[x, y-ystep], cell:cell};
+                            if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return {pos:[x-xstep, y], cell:cell};
+                            //POINT (y-ystep, x); 
+                            //POINT (y, x-xstep); 
+                        } 
+                    } 
+                    //POINT (y, x); 
+                    if( (cell = collisionGrid.cellTest(x, y)) !== false ) return {pos:[x, y], cell:cell};
+                    errorprev = error; 
+                } 
+            }
+            else {  // the same as above 
+                errorprev = error = dy; 
+                for (i=0 ; i < dy ; i++) { 
+                    y += ystep; 
+                    error += ddx; 
+                    if (error > ddy) { 
+                        x += xstep; 
+                        error -= ddy; 
+                        if (error + errorprev < ddy) {
+                            //POINT (y, x-xstep);
+                            if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return {pos:[x-xstep, y], cell:cell};
+                        }
+                        else if (error + errorprev > ddy) {
+                            //POINT (y-ystep, x);
+                            if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return {pos:[x, y-ystep], cell:cell};
+                        } 
+                        else { 
+                            //POINT (y, x-xstep); 
+                            //POINT (y-ystep, x); 
+                            if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return {pos:[x-xstep, y], cell:cell};
+                            if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return {pos:[x, y-ystep], cell:cell};
+                        } 
+                    } 
+                    //POINT (y, x); 
+                    if( (cell = collisionGrid.cellTest(x, y)) !== false ) return {pos:[x, y], cell:cell};
+                    errorprev = error; 
+                } 
+            } 
+            return false;
+            // assert ((y == y2) && (x == x2));  // the last point (y2,x2) has to be the same with the last point of the algorithm 
+        }
+
+        
+    }
+})();
+
