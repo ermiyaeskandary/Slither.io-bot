@@ -11,7 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-
+   conversion_algorithms
 
 Indices and tables
 ==================
