@@ -32,7 +32,7 @@
   "rules": {
 
     /*Possible Errors */
-    "comma-dangle": [1, "always-multiline"],
+    "comma-dangle": [1, "never"],
     "no-cond-assign": [1, "except-parens"],
     "no-console": 0,
     "no-constant-condition": 1,
