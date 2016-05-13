@@ -311,7 +311,7 @@ var bot = (function() {
             bot.isBotRunning = true;
             // Removed the onmousemove listener so we can move the snake manually by setting coordinates
             userInterface.onPrefChange();
-            window.onmousemove = function () {};
+            window.onmousemove = function() {};
             bot.hideTop();
         },
 
