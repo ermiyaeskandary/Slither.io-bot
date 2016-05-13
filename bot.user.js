@@ -154,7 +154,7 @@ var canvas = (function() {
                 context.fillStyle = colour;
                 context.fill();
             }        
-           context.restore();
+            context.restore();
         },
 
         // Draw an angle.
