@@ -564,8 +564,8 @@ var bot = (function() {
                 canvas.drawCircle(canvas.circleMapToCanvas(headCircle), 'blue', false);
                 canvas.drawCircle(canvas.circleMapToCanvas(forwardCircle), 'blue', false);
                 canvas.drawCircle(canvas.circleMapToCanvas(forwardBigCircle), 'yellow', false);
-                canvas.drawCircle(canvas.circleMapToCanvas(sidecircle_r), 'orange', true, .3);
-                canvas.drawCircle(canvas.circleMapToCanvas(sidecircle_l), 'orange', true, .3);
+                canvas.drawCircle(canvas.circleMapToCanvas(sidecircle_r), 'orange', true, 0.3);
+                canvas.drawCircle(canvas.circleMapToCanvas(sidecircle_l), 'orange', true, 0.3);
             }
 
 
@@ -615,7 +615,7 @@ var bot = (function() {
             if (inBigCircle > 2) {
                 bot.avoidCollisionPoint({ xx: window.snake.xx + window.snake.cos * 50, yy: window.snake.yy + window.snake.sin * 50 });
                 if (window.visualDebugging) {
-                    canvas.drawCircle(canvas.circleMapToCanvas(forwardBigCircle), 'yellow', true, .3);
+                    canvas.drawCircle(canvas.circleMapToCanvas(forwardBigCircle), 'yellow', true, 0.3);
                 }
                 return true;
             }
@@ -631,7 +631,7 @@ var bot = (function() {
                 }) + 1 > 40) {
                     bot.avoidCollisionPoint({ xx: window.snake.xx + window.snake.cos * 50, yy: window.snake.yy + window.snake.sin * 50 });
                     if (window.visualDebugging) {
-                        canvas.drawCircle(canvas.circleMapToCanvas(forwardBigCircle), 'blue', true, .3);
+                        canvas.drawCircle(canvas.circleMapToCanvas(forwardBigCircle), 'blue', true, 0.3);
                     }
                     return true;
                 }
