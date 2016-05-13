@@ -284,15 +284,6 @@ var canvas = (function() {
 
                 if (distance2 < bothRadii * bothRadii) {
                     if (window.visualDebugging) {
-                        var collisionPointCircle = {
-                            x: ((circle1.x * circle2.radius) +
-                                (circle2.x * circle1.radius)
-                            ) / bothRadii,
-                            y: ((circle1.y * circle2.radius) +
-                                (circle2.y * circle1.radius)
-                            ) / bothRadii,
-                            radius: 5
-                        };
                         canvas.drawCircle(canvas.circleMapToCanvas(
                             circle2), 'red', true);
                     }
