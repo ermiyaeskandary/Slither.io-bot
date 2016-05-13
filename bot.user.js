@@ -575,8 +575,8 @@ var bot = (function() {
                 canvas.drawCircle(canvas.circleMapToCanvas(headCircle), 'blue', false);
                 canvas.drawCircle(canvas.circleMapToCanvas(forwardCircle), 'blue', false);
                 canvas.drawCircle(canvas.circleMapToCanvas(forwardBigCircle), 'yellow', false);
-                canvas.drawCircle(canvas.circleMapToCanvas(sidecircle_r), 'orange', true, .3);
-                canvas.drawCircle(canvas.circleMapToCanvas(sidecircle_l), 'orange', true, .3);
+                canvas.drawCircle(canvas.circleMapToCanvas(sidecircle_r), 'orange', true, 0.3);
+                canvas.drawCircle(canvas.circleMapToCanvas(sidecircle_l), 'orange', true, 0.3);
             }
 
             bot.getCollisionPoints();
