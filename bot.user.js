@@ -153,7 +153,7 @@ var canvas = (function() {
             if (fill) {
                 context.fillStyle = colour;
                 context.fill();
-            }        
+            }
             context.restore();
         },
 
