@@ -176,6 +176,18 @@ var canvas = (function() {
             context.lineWidth = 1;
         },
 
+        // Draw a line on the canvas.
+        drawLine2: function(x1, y1, x2, y2, colour) {
+            var context = window.mc.getContext('2d');
+            context.beginPath();
+            context.lineWidth = 5 * canvas.getScale();
+            context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
+            context.moveTo(x1, y1);
+            context.lineTo(x2, y2);
+            context.stroke();
+            context.lineWidth = 1;
+        },
+
         // Check if a point is between two vectors.
         // The vectors have to be anticlockwise (sectorEnd on the left of sectorStart).
         isBetweenVectors: function(point, sectorStart, sectorEnd) {
@@ -267,6 +279,73 @@ var canvas = (function() {
 })();
 
 
+var collisionHelper = (function() {
+    return {
+        unitTable: [],
+        toRad: Math.PI / 180,
+        toDeg: 180 / Math.PI,
+
+        init: function() {
+            collisionHelper.generateUnitTable();
+            
+        },
+
+        /**
+         *  Build the unit table grouping opposite angles and in 22.5 degree increments
+         *
+         */
+        generateUnitTable: function() {
+            var offset = 0;
+            for(var a=0;a<4;a++) {
+                collisionHelper.unitTable[a] = [];
+                for(var b=0; b<4; b++) {
+                    var angle = collisionHelper.toRad * (b*90+offset);
+                    collisionHelper.unitTable[a].push([Math.cos(angle), Math.sin(angle)]);
+                }
+                offset+=22.5;
+            }
+        },
+
+        /** 
+         * Performs line scans in the E,N,W,S directions and rotates by 22.5 degrees * rotateCount
+         *
+         */
+        surroundScan: function(rotateCount, scanDist) {
+            var x = window.getX();
+            var y = window.getY();
+
+            var results = [];
+
+            for(var dir=0; dir<4; dir++) {
+                var pos = collisionHelper.unitTable[rotateCount][dir];
+                var x2 = x+pos[0]*scanDist;
+                var y2 = y+pos[1]*scanDist;
+
+                var cell = collisionGrid.lineTest(x,y,x2,y2);
+                if( cell )
+                    results.push(cell);
+
+                if( window.visualDebugging ) {
+                    
+                    var canvasPosA = canvas.collisionScreenToCanvas({
+                        x: x,
+                        y: y,
+                        radius: 1
+                    });
+                    var canvasPosB = canvas.collisionScreenToCanvas({
+                        x: x2,
+                        y: y2,
+                        radius: 1
+                    });
+                    
+                    canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, cell ? 'red' : 'green');
+                }
+                
+            }
+            return results;
+        }
+    }
+})();
 /**
  * A 2d collision grid system for fast line to box collision
  * 
@@ -275,6 +354,7 @@ var canvas = (function() {
  * - Cells are world space cut up into squares of X size
  */
 var collisionGrid = (function() {
+    collisionHelper.init();
 
     return {
         width: window.getWidth(),
@@ -282,7 +362,7 @@ var collisionGrid = (function() {
 
         //clone for fast slicing
         grid: [],
-
+        bgrid: [],
         cellSize: 20,
         startX: 0,
         startY: 0,
@@ -290,26 +370,59 @@ var collisionGrid = (function() {
         gridHeight: 0,
         endX: 0,
         endY: 0,
+        astarGraph: 0,
+        astarResult: 0,
+        
+        dirty: [],
 
-        initGrid: function(sx, sy, width, height, cellsz) {
+        initGrid: function(sx, sy, w, h, cellsz) {
             sx = sx - (sx % cellsz);
             sy = sy - (sy % cellsz);
-            collisionGrid.startX = sx - width/2;
-            collisionGrid.startY = sy - height/2;
-            collisionGrid.gridWidth = width;
-            collisionGrid.gridHeight = height;
+            collisionGrid.startX = sx - w/2;
+            collisionGrid.startY = sy - h/2;
+            collisionGrid.endX = collisionGrid.startX + w;
+            collisionGrid.endY = collisionGrid.startY + h;
+
+            collisionGrid.gridWidth = w;
+            collisionGrid.gridHeight = h;
+            collisionGrid.height = h * cellsz;
+            collisionGrid.width = w * cellsz;
             collisionGrid.cellSize = cellsz;
-            /*for(var x=0; x<width; x++) {
-                var column = [];
-                for(var y=0; y<height; y++) {
-                    column[y] = 0;
+            
+            collisionGrid.booleanGrid = [];
+            //collisionGrid.grid = [];
+
+            if( !collisionGrid.grid.length ) {
+                for(var x=0; x<w; x++) {
+                    for(var y=0; y<h; y++) {
+                        if( y == 0 ) {
+                            collisionGrid.grid[x] = [];
+                            collisionGrid.bgrid[x] = [];
+                        }
+                        collisionGrid.grid[x][y] = [];
+                        collisionGrid.bgrid[x][y] = 1;
+                    }
                 }
-                collisionGrid.grid[x] = column;
-            }*/
-            collisionGrid.grid = [[]];
-            collisionGrid.endX = collisionGrid.startX + width;
-            collisionGrid.endY = collisionGrid.startY + height;
+            }
+            else {
+                for(var i=0; i<collisionGrid.dirty.length; i++) {
+                    var pos = collisionGrid.dirty[i];
+                    collisionGrid.grid[pos[0]][pos[1]] = [];
+                    collisionGrid.bgrid[pos[0]][pos[1]] = 1;
+                }
+                delete dirty;
+                dirty = [];
+            }
+            
+
             collisionGrid.addSnakes();
+
+            //astarGraph = new Graph(collisionGrid.bgrid);
+            //collisionGrid.setupGrid();
+        },
+
+        setupGrid: function() {
+            
         },
 
         // Slice out a portion of the grid for less calculations
@@ -323,8 +436,6 @@ var collisionGrid = (function() {
 
             for(var x=col; x<width; x++) {
                 for(var y=row; y<height; y++) {
-                    collisionGrid.grid[x] = collisionGrid.grid[x] || [];
-                    collisionGrid.grid[x][y] = collisionGrid.grid[x][y] || [];
                     callback(x, y, collisionGrid.grid[x][y]);
                 }
             }
@@ -332,14 +443,12 @@ var collisionGrid = (function() {
 
         // Find specific cell using world-space position
         getCellByXY: function(x, y) {
-            var col = x - collisionGrid.startX;
-            var row = y - collisionGrid.startY;
+            var col = (x - (x % collisionGrid.cellSize)) - collisionGrid.startX;
+            var row = (y - (y % collisionGrid.cellSize)) - collisionGrid.startY;
             col = parseInt(Math.floor(col / collisionGrid.cellSize));
             row = parseInt(Math.floor(row / collisionGrid.cellSize));
             col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
             row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
-            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || [];
             return [col, row, collisionGrid.grid[col][row]];
         },
 
@@ -347,8 +456,6 @@ var collisionGrid = (function() {
         getCellByColRow: function(col, row) {
             var x = collisionGrid.startX + col*collisionGrid.cellSize;
             var y = collisionGrid.startY + row*collisionGrid.cellSize;
-            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || [];
             return [x, y, collisionGrid.grid[col][row]];
         },
 
@@ -363,15 +470,12 @@ var collisionGrid = (function() {
         },
 
         getCell: function(col,row) {
-            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || [];
             return collisionGrid.grid[col][row];
         },
 
         markCell: function(col, row, obj) {
-            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || [];
             collisionGrid.grid[col][row].push(obj);
+            collisionGrid.dirty.push([col,row]);
             return collisionGrid.grid[col][row];
         },
 
@@ -750,10 +854,10 @@ var bot = (function() {
                 var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
                 isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
 
-                var collision = collisionGrid.lineTest(window.getX(), window.getY(), val.xx, val.yy);
-                if( collision !== false ) {
-                    return false;
-                }
+                //var collision = collisionGrid.lineTest(window.getX(), window.getY(), val.xx, val.yy);
+                //if( collision !== false ) {
+                //    return false;
+                //}
 
                 return !(isInsideDangerAngles && (val.distance <= 22500));
             });
@@ -858,6 +962,16 @@ var bot = (function() {
             canvas.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
         },
 
+        processSurround: function() {
+            collisionGrid.initGrid(window.getX(), window.getY(), 2000, 2000, 40);
+
+            var results = collisionHelper.surroundScan(0,1500);
+            var rotateCount = 1;
+            while( results.length == 4 && rotateCount < 4 ) {
+                results = collisionHelper.surroundScan(rotateCount, 1500);
+                rotateCount++;
+            }
+        },
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
@@ -882,7 +996,7 @@ var bot = (function() {
                 if (bot.tickCounter > 15) {
                     bot.tickCounter = 0;
 
-                    collisionGrid.initGrid(window.getX(), window.getY(), 2000, 2000, 40);
+                    bot.processSurround();
 
                     var accelerationClusterSize;
                     if (bot.foodClusteringMode == 1) {
@@ -1330,6 +1444,8 @@ function pathTo(node) {
   var path = [];
   while (curr.parent) {
     path.unshift(curr);
+
+
     curr = curr.parent;
   }
   return path;
@@ -1440,10 +1556,15 @@ var astar = {
     },
     diagonal: function(pos0, pos1) {
       var D = 1;
-      var D2 = Math.sqrt(2);
+      var D2 = 1.41421; // 1.41421 == Math.sqrt(2)
       var d1 = Math.abs(pos1.x - pos0.x);
       var d2 = Math.abs(pos1.y - pos0.y);
       return (D * (d1 + d2)) + ((D2 - (2 * D)) * Math.min(d1, d2));
+    },
+    chebyshev: function(pos0, pos1) {
+        var d1 = Math.abs(pos1.x - pos0.x);
+        var d2 = Math.abs(pos1.y - pos0.y);
+        return Math.max(d1,d2);
     }
   },
   cleanNode: function(node) {
