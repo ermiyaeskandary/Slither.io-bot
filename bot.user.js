@@ -966,26 +966,26 @@ var userInterface = (function() {
             }
         },
 
-        onmousedown: function (e) {
+        onmousedown: function(e) {
             original_onmouseDown(e);
             e = e || window.event;
             if (window.playing) {
                 switch (e.which) {
                     // "Left click" to manually speed up the slither
-                    case 1:
-                        window.setAcceleration(1);
-                        window.log('Manual boost...');
-                        break;
-                    // "Right click" to toggle bot in addition to the letter "T"
-                    case 3:
-                        if (bot.isBotRunning) {
-                            bot.stopBot();
-                            bot.isBotEnabled = false;
-                        } else {
-                            bot.launchBot();
-                            bot.isBotEnabled = true;
-                        }
-                        break;
+                case 1:
+                    window.setAcceleration(1);
+                    window.log('Manual boost...');
+                    break;
+                        // "Right click" to toggle bot in addition to the letter "T"
+                case 3:
+                    if (bot.isBotRunning) {
+                        bot.stopBot();
+                        bot.isBotEnabled = false;
+                    } else {
+                        bot.launchBot();
+                        bot.isBotEnabled = true;
+                    }
+                    break;
                 }
             }
         },
