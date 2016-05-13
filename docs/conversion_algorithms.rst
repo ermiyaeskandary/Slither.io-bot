@@ -31,8 +31,8 @@ Less used (and also less popular), these are used to avoid things inside certain
 The coordinate system looks like this :
 
 .. image:: http://i.imgur.com/LFEHUSe.png
-   :height: 300px
-   :width: 300px
+   :height: 600px
+   :width: 600px
 
 In Link Conf 1 <http://i.imgur.com/REyG3an.png>, we have the following coordinates :
 * ``A(3.60555, 56.30993°)``
