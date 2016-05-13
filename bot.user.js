@@ -1046,3 +1046,823 @@ window.loop = function() {
     bot.launchBot();
     window.startInterval = setInterval(bot.startBot, 1000);
 })();
+
+var original_redraw = window.redraw;
+window.redraw = function() {
+    fps++;
+    var c = mc.getContext("2d");
+    if (animating) {
+        if (snake) {
+            var f = .5 + .4 / Math.max(1, (snake.sct + 16) / 36);
+            gsc != f && (gsc < f ? (gsc += 2E-4,
+            gsc >= f && (gsc = f)) : (gsc -= 2E-4,
+            gsc <= f && (gsc = f)))
+        }
+        var f = view_xx
+          , b = view_yy;
+        null  != snake && (0 < fvtg && (fvtg--,
+        fvx = fvxs[fvpos],
+        fvy = fvys[fvpos],
+        fvxs[fvpos] = 0,
+        fvys[fvpos] = 0,
+        fvpos++,
+        fvpos >= vfc && (fvpos = 0)),
+        view_xx = snake.xx + snake.fx + fvx,
+        view_yy = snake.yy + snake.fy + fvy,
+        choosing_skin && (view_xx -= 104,
+        gsc = 1),
+        view_ang = Math.atan2(view_yy - grd, view_xx - grd),
+        view_dist =
+        Math.sqrt((view_xx - grd) * (view_xx - grd) + (view_yy - grd) * (view_yy - grd)),
+        bpx1 = view_xx - (mww2 / gsc + 84),
+        bpy1 = view_yy - (mhh2 / gsc + 84),
+        bpx2 = view_xx + (mww2 / gsc + 84),
+        bpy2 = view_yy + (mhh2 / gsc + 84),
+        fpx1 = view_xx - (mww2 / gsc + 24),
+        fpy1 = view_yy - (mhh2 / gsc + 24),
+        fpx2 = view_xx + (mww2 / gsc + 24),
+        fpy2 = view_yy + (mhh2 / gsc + 24),
+        apx1 = view_xx - (mww2 / gsc + 210),
+        apy1 = view_yy - (mhh2 / gsc + 210),
+        apx2 = view_xx + (mww2 / gsc + 210),
+        apy2 = view_yy + (mhh2 / gsc + 210));
+        bgx2 -= 1 * (view_xx - f) / bgw2;
+        bgy2 -= 1 * (view_yy - b) / bgh2;
+        bgx2 %= 1;
+        0 > bgx2 && (bgx2 += 1);
+        bgy2 %= 1;
+        0 > bgy2 && (bgy2 += 1);
+        ggbg &&
+        (high_quality || 0 < gla) ? (c.save(),
+        c.fillStyle = "#000000",
+        c.fillRect(0, 0, mww, mhh),
+        c.globalAlpha = .3 * gla,
+        c.drawImage(gbgmc, 0, 0),
+        c.restore()) : (c.fillStyle = "#000000",
+        c.fillRect(0, 0, mww, mhh));
+        if (bgp2) {
+            c.save();
+            c.fillStyle = bgp2;
+            c.translate(mww2, mhh2);
+            c.scale(gsc, gsc);
+            c.translate(bgx2 * bgw2, bgy2 * bgh2);
+            c.globalAlpha = .4 + .6 * (1 - gla);
+            c.fillRect(3 * -mww / gsc, 3 * -mhh / gsc, 5 * mww / gsc, 5 * mhh / gsc);
+            if (high_quality || 0 < gla)
+                c.globalCompositeOperation = "lighter",
+                c.globalAlpha = .4 * gla,
+                c.fillRect(3 * -mww / gsc, 3 * -mhh / gsc, 5 * mww / gsc, 5 * mhh /
+                gsc);
+            c.restore()
+        }
+        if (testing)
+            for (f = sectors.length - 1; 0 <= f; f--)
+                b = sectors[f],
+                c.fillStyle = "rgba(0, 255, 0, .1)",
+                c.fillRect(mww2 + (b.xx * sector_size - view_xx) * gsc, mhh2 + (b.yy * sector_size - view_yy) * gsc, sector_size * gsc - 4, sector_size * gsc - 4);
+        if (high_quality || 0 < gla) {
+            var h = 1.75;
+            1 != gla && (h = 1.75 * gla);
+            c.save();
+            for (f = foods_c - 1; 0 <= f; f--)
+                b = foods[f],
+                b.rx >= fpx1 && b.ry >= fpy1 && b.rx <= fpx2 && b.ry <= fpy2 && (1 == b.rad ? (z = mww2 + gsc * (b.rx - view_xx) - b.ofw2,
+                x = mhh2 + gsc * (b.ry - view_yy) - b.ofh2,
+                c.globalAlpha = h * b.fr,
+                c.drawImage(b.ofi, z, x)) : (z =
+                mww2 + gsc * (b.rx - view_xx) - b.ofw2 * b.rad,
+                x = mhh2 + gsc * (b.ry - view_yy) - b.ofh2 * b.rad,
+                c.globalAlpha = h * b.fr,
+                c.drawImage(b.ofi, 0, 0, b.ofw, b.ofh, z, x, b.ofw * b.rad, b.ofh * b.rad)));
+            c.restore()
+        }
+        c.save();
+        c.globalCompositeOperation = "lighter";
+        if (high_quality || 0 < gla) {
+            h = .75;
+            1 != gla && (h = .75 * gla);
+            var u = .75;
+            1 != gla && (u = 1 - .25 * gla);
+            for (f = foods_c - 1; 0 <= f; f--)
+                b = foods[f],
+                b.rx >= fpx1 && b.ry >= fpy1 && b.rx <= fpx2 && b.ry <= fpy2 && (1 == b.rad ? (z = mww2 + gsc * (b.rx - view_xx) - b.fw2,
+                x = mhh2 + gsc * (b.ry - view_yy) - b.fh2,
+                c.globalAlpha = u * b.fr,
+                c.drawImage(b.fi, z,
+                x),
+                c.globalAlpha = h * (.5 + .5 * Math.cos(b.gfr / 13)) * b.fr,
+                c.drawImage(b.fi, z, x)) : (z = mww2 + gsc * (b.rx - view_xx) - b.fw2 * b.rad,
+                x = mhh2 + gsc * (b.ry - view_yy) - b.fh2 * b.rad,
+                c.globalAlpha = u * b.fr,
+                c.drawImage(b.fi, 0, 0, b.fw, b.fh, z, x, b.fw * b.rad, b.fh * b.rad),
+                c.globalAlpha = h * (.5 + .5 * Math.cos(b.gfr / 13)) * b.fr,
+                c.drawImage(b.fi, 0, 0, b.fw, b.fh, z, x, b.fw * b.rad, b.fh * b.rad)))
+        } else
+            for (f = foods_c - 1; 0 <= f; f--)
+                b = foods[f],
+                b.rx >= fpx1 && b.ry >= fpy1 && b.rx <= fpx2 && b.ry <= fpy2 && (1 == b.rad ? (z = mww2 + gsc * (b.rx - view_xx) - b.fw2,
+                x = mhh2 + gsc * (b.ry - view_yy) - b.fh2,
+                c.globalAlpha = b.fr,
+                c.drawImage(b.fi, z, x)) : (z = mww2 + gsc * (b.rx - view_xx) - b.fw2 * b.rad,
+                x = mhh2 + gsc * (b.ry - view_yy) - b.fh2 * b.rad,
+                c.globalAlpha = b.fr,
+                c.drawImage(b.fi, 0, 0, b.fw, b.fh, z, x, b.fw * b.rad, b.fh * b.rad)));
+        c.restore();
+        c.save();
+        c.globalCompositeOperation = "lighter";
+        for (f = preys.length - 1; 0 <= f; f--)
+            if (h = preys[f],
+            e = h.xx + h.fx,
+            w = h.yy + h.fy,
+            px = mww2 + gsc * (e - view_xx),
+            py = mhh2 + gsc * (w - view_yy),
+            -50 <= px && -50 <= py && px <= mwwp50 && py <= mhhp50) {
+                if (h.eaten) {
+                    var b = h.eaten_by
+                      , q = Math.pow(h.eaten_fr, 2)
+                      , e = e + (b.xx + b.fx + Math.cos(b.ang + b.fa) *
+                    (43 - 24 * q) * (1 - q) - e) * q
+                      , w = w + (b.yy + b.fy + Math.sin(b.ang + b.fa) * (43 - 24 * q) * (1 - q) - w) * q;
+                    px = mww2 + gsc * (e - view_xx);
+                    py = mhh2 + gsc * (w - view_yy)
+                }
+                1 == h.rad ? (z = px - h.fw2,
+                x = py - h.fh2,
+                c.globalAlpha = .75 * h.fr,
+                c.drawImage(h.fi, z, x),
+                c.globalAlpha = .75 * (.5 + .5 * Math.cos(h.gfr / 13)) * h.fr,
+                c.drawImage(h.fi, z, x)) : (z = px - h.fw2 * h.rad,
+                x = py - h.fh2 * h.rad,
+                c.globalAlpha = .75 * h.fr,
+                c.drawImage(h.fi, 0, 0, h.fw, h.fh, z, x, h.fw * h.rad, h.fh * h.rad),
+                c.globalAlpha = .75 * (.5 + .5 * Math.cos(h.gfr / 13)) * h.fr,
+                c.drawImage(h.fi, 0, 0, h.fw, h.fh, z, x, h.fw * h.rad, h.fh * h.rad))
+            }
+        c.restore();
+        c.save();
+        c.strokeStyle = "#90C098";
+        for (var e, w, D, f = snakes.length - 1; 0 <= f; f--)
+            b = snakes[f],
+            e = b.xx + b.fx,
+            w = b.yy + b.fy + 40,
+            0 < b.na && e >= bpx1 - 100 && w >= bpy1 && e <= bpx2 + 100 && w <= bpy2 && (b == snake && (b.fnfr++,
+            200 < b.fnfr && (b.na -= .004,
+            0 > b.na && (b.na = 0))),
+            c.save(),
+            c.globalAlpha = .5 * b.na * b.alive_amt * (1 - b.dead_amt),
+            c.font = "12px Arial, Helvetica Neue, Helvetica, sans-serif",
+            c.fillStyle = b.csw,
+            c.textBaseline = "middle",
+            c.textAlign = "center",
+            h = b.xx + b.fx,
+            u = b.yy + b.fy,
+            h = mww2 + (h - view_xx) * gsc,
+            u = mhh2 + (u - view_yy) * gsc,
+            c.fillText(b.nk, h, u + 32 +
+            11 * b.sc * gsc),
+            c.restore());
+        for (f = snakes.length - 1; 0 <= f; f--)
+            for (b = snakes[f],
+            b.iiv = !1,
+            t = b.pts.length - 1; 0 <= t; t--)
+                if (E = b.pts[t],
+                px = E.xx + E.fx,
+                py = E.yy + E.fy,
+                px >= bpx1 && py >= bpy1 && px <= bpx2 && py <= bpy2) {
+                    b.iiv = !0;
+                    break
+                }
+        for (f = snakes.length - 1; 0 <= f; f--)
+            if (b = snakes[f],
+            b.iiv) {
+                h = b.xx + b.fx;
+                u = b.yy + b.fy;
+                px = h;
+                py = u;
+                D = b.ehang;
+                var y = b.sc
+                  , B = 29 * y
+                  , G = b.cfl
+                  , E = b.pts[b.pts.length - 1];
+                if (1 == render_mode) {
+                    c.save();
+                    c.beginPath();
+                    c.moveTo(mww2 + (px - view_xx) * gsc, mhh2 + (py - view_yy) * gsc);
+                    e = !1;
+                    for (var t = b.pts.length - 1; 0 <= t; t--) {
+                        E = b.pts[t];
+                        lpx =
+                        px;
+                        lpy = py;
+                        px = E.xx;
+                        py = E.yy;
+                        var z = E.fx
+                          , x = E.fy;
+                        0 < G && (px += z,
+                        py += x,
+                        lax = ax,
+                        lay = ay,
+                        ax = (px + lpx) / 2,
+                        ay = (py + lpy) / 2,
+                        e || (lax = ax,
+                        lay = ay),
+                        1 > G && (q = 1 - G,
+                        lpx += (lax - lpx) * q,
+                        lpy += (lay - lpy) * q,
+                        ax += (lax - ax) * q,
+                        ay += (lay - ay) * q),
+                        e ? G-- : G -= b.chl + b.fchl,
+                        e ? c.quadraticCurveTo(mww2 + (lpx - view_xx) * gsc, mhh2 + (lpy - view_yy) * gsc, mww2 + (ax - view_xx) * gsc, mhh2 + (ay - view_yy) * gsc) : (c.lineTo(mww2 + (ax - view_xx) * gsc, mhh2 + (ay - view_yy) * gsc),
+                        e = !0))
+                    }
+                    c.save();
+                    c.lineJoin = "round";
+                    c.lineCap = "round";
+                    is_firefox ? (b.sp > b.fsp && (t = b.alive_amt * (1 - b.dead_amt) * Math.max(0,
+                    Math.min(1, (b.sp - b.ssp) / (b.msp - b.ssp))),
+                    c.save(),
+                    c.strokeStyle = b.cs,
+                    c.globalAlpha = .3 * t,
+                    c.lineWidth = (B + 6) * gsc,
+                    c.stroke(),
+                    c.lineWidth = (B + 9) * gsc,
+                    c.stroke(),
+                    c.lineWidth = (B + 12) * gsc,
+                    c.stroke(),
+                    c.restore()),
+                    c.globalAlpha = 1 * b.alive_amt * (1 - b.dead_amt),
+                    c.strokeStyle = "#000000",
+                    c.lineWidth = (B + 5) * gsc) : (b.sp > b.fsp && (t = b.alive_amt * (1 - b.dead_amt) * Math.max(0, Math.min(1, (b.sp - b.ssp) / (b.msp - b.ssp))),
+                    c.save(),
+                    c.lineWidth = (B - 2) * gsc,
+                    c.shadowBlur = 30 * gsc,
+                    c.shadowColor = "rgba(" + b.rr + "," + b.gg + "," + b.bb + ", " + Math.round(1E4 * t) /
+                    1E4 + ")",
+                    c.stroke(),
+                    c.stroke(),
+                    c.restore()),
+                    c.globalAlpha = .4 * b.alive_amt * (1 - b.dead_amt),
+                    c.strokeStyle = "#000000",
+                    c.lineWidth = (B + 5) * gsc,
+                    c.stroke(),
+                    c.strokeStyle = b.cs,
+                    c.lineWidth = B * gsc,
+                    c.strokeStyle = "#000000",
+                    c.globalAlpha = 1 * b.alive_amt * (1 - b.dead_amt));
+                    c.stroke();
+                    c.strokeStyle = b.cs;
+                    c.globalAlpha = .8 * b.alive_amt * (1 - b.dead_amt);
+                    c.lineWidth = B * gsc;
+                    c.stroke();
+                    c.restore();
+                    c.strokeStyle = b.cs;
+                    b.dead && (x = (.5 + .5 * Math.abs(Math.sin(5 * Math.PI * b.dead_amt))) * Math.sin(Math.PI * b.dead_amt),
+                    c.save(),
+                    c.lineJoin = "round",
+                    c.lineCap =
+                    "round",
+                    c.globalCompositeOperation = "lighter",
+                    c.lineWidth = (B - 3) * gsc,
+                    c.globalAlpha = x,
+                    c.strokeStyle = "#FFCC99",
+                    c.stroke(),
+                    c.restore());
+                    c.restore()
+                }
+                if (2 == render_mode) {
+                    var B = .5 * B, J, M, F, A, I, L, N, C, z = 0;
+                    px = h;
+                    py = u;
+                    I = px;
+                    L = py;
+                    I >= bpx1 && L >= bpy1 && I <= bpx2 && L <= bpy2 ? (pbx[0] = I,
+                    pby[0] = L,
+                    pba[0] = Math.atan2(u - (E.yy + E.fy), h - (E.xx + E.fx)) + Math.PI,
+                    pbu[0] = 1) : pbu[0] = 0;
+                    z = 1;
+                    n = (b.chl + b.fchl) % .25;
+                    0 > n && (n += .25);
+                    n = .25 - n;
+                    G += 1 - .25 * Math.ceil((b.chl + b.fchl) / .25);
+                    ax = px;
+                    ay = py;
+                    b.sep != b.wsep && (b.sep < b.wsep ? (b.sep += .01,
+                    b.sep >= b.wsep && (b.sep =
+                    b.wsep)) : b.sep > b.wsep && (b.sep -= .01,
+                    b.sep <= b.wsep && (b.sep = b.wsep)));
+                    for (var O = b.sep * qsm, K = 0, x = per_color_imgs[b.cv].kmcs, H, t = b.pts.length - 1; 0 <= t; t--)
+                        if (E = b.pts[t],
+                        lpx = px,
+                        lpy = py,
+                        px = E.xx + E.fx,
+                        py = E.yy + E.fy,
+                        -.25 < G) {
+                            F = I;
+                            A = L;
+                            I = (px + lpx) / 2;
+                            L = (py + lpy) / 2;
+                            N = lpx;
+                            C = lpy;
+                            for (q = 0; 1 > q; q += .25) {
+                                E = n + q;
+                                e = F + (N - F) * E;
+                                w = A + (C - A) * E;
+                                J = N + (I - N) * E;
+                                M = C + (L - C) * E;
+                                lax = ax;
+                                lay = ay;
+                                ax = e + (J - e) * E;
+                                ay = w + (M - w) * E;
+                                0 > G && (ax += -(lax - ax) * G / .25,
+                                ay += -(lay - ay) * G / .25);
+                                J = Math.sqrt(Math.pow(ax - lax, 2) + Math.pow(ay - lay, 2));
+                                if (K + J < O)
+                                    K += J;
+                                else {
+                                    K = -K;
+                                    for (E = (J - K) /
+                                    O; 1 <= E; E--)
+                                        K += O,
+                                        pax = lax + (ax - lax) * K / J,
+                                        pay = lay + (ay - lay) * K / J,
+                                        pax >= bpx1 && pay >= bpy1 && pax <= bpx2 && pay <= bpy2 ? (pbx[z] = pax,
+                                        pby[z] = pay,
+                                        pbu[z] = 1,
+                                        e = ax - lax,
+                                        w = ay - lay,
+                                        pba[z] = -15 <= e && -15 <= w && 15 > e && 15 > w ? at2lt[8 * w + 128 << 8 | 8 * e + 128] : -127 <= e && -127 <= w && 127 > e && 127 > w ? at2lt[w + 128 << 8 | e + 128] : Math.atan2(w, e)) : pbu[z] = 0,
+                                        z++;
+                                    K = J - K
+                                }
+                                if (1 > G && (G -= .25,
+                                -.25 >= G))
+                                    break
+                            }
+                            1 <= G && G--
+                        }
+                    ax >= bpx1 && ay >= bpy1 && ax <= bpx2 && ay <= bpy2 ? (pbu[z] = 1,
+                    pbx[z] = ax,
+                    pby[z] = ay,
+                    pba[z] = Math.atan2(ay - lay, ax - lax)) : pbu[z] = 0;
+                    z++;
+                    c.save();
+                    c.translate(mww2, mhh2);
+                    q = gsc * B * 52 / 32;
+                    I = gsc * B * 62 / 32;
+                    G = b.alive_amt * (1 - b.dead_amt);
+                    G *= G;
+                    E = 1;
+                    if (b.tsp > b.fsp) {
+                        E = b.alive_amt * (1 - b.dead_amt) * Math.max(0, Math.min(1, (b.tsp - b.ssp) / (b.msp - b.ssp)));
+                        H = .37 * E;
+                        K = Math.pow(E, .5);
+                        F = gsc * B * (1 + .9375 * K);
+                        w = per_color_imgs[b.cv].kfmc;
+                        c.save();
+                        c.globalCompositeOperation = "lighter";
+                        if (b.rbcs)
+                            for (L = b.rbcs,
+                            O = L.length,
+                            t = z - 1; 0 <= t; t--)
+                                1 == pbu[t] && (px = pbx[t],
+                                py = pby[t],
+                                w = per_color_imgs[L[t % O]],
+                                w = w.kfmc,
+                                c.save(),
+                                c.globalAlpha = G * K * .38 * (.6 + .4 * Math.cos(t / 4 - 1.15 * b.sfr)),
+                                c.translate((px - view_xx) * gsc, (py - view_yy) * gsc),
+                                4 > t ? (e =
+                                F * (1 + (4 - t) * b.swell),
+                                c.drawImage(w, -e, -e, 2 * e, 2 * e)) : c.drawImage(w, -F, -F, 2 * F, 2 * F),
+                                c.restore());
+                        else
+                            for (t = z - 1; 0 <= t; t--)
+                                1 == pbu[t] && (px = pbx[t],
+                                py = pby[t],
+                                c.save(),
+                                c.globalAlpha = G * K * .38 * (.6 + .4 * Math.cos(t / 4 - 1.15 * b.sfr)),
+                                c.translate((px - view_xx) * gsc, (py - view_yy) * gsc),
+                                4 > t ? (e = F * (1 + (4 - t) * b.swell),
+                                c.drawImage(w, -e, -e, 2 * e, 2 * e)) : c.drawImage(w, -F, -F, 2 * F, 2 * F),
+                                c.restore());
+                        c.restore();
+                        E = 1 - E
+                    }
+                    E *= G;
+                    if (high_quality || 0 < gla)
+                        for (w = E,
+                        1 != gla && (w = E * gla),
+                        c.globalAlpha = w,
+                        t = z - 1; 0 <= t; t--)
+                            1 == pbu[t] && (px = pbx[t],
+                            py = pby[t],
+                            c.save(),
+                            c.translate((px - view_xx) * gsc, (py - view_yy) * gsc),
+                            c.drawImage(komc, -q, -q, 2 * q, 2 * q),
+                            9 > t && (c.globalAlpha = w * (1 - t / 9),
+                            4 > t ? (e = I * (1 + (4 - t) * b.swell),
+                            c.drawImage(ksmc, -e, -e, 2 * e, 2 * e)) : c.drawImage(ksmc, -I, -I, 2 * I, 2 * I),
+                            c.globalAlpha = w),
+                            c.restore());
+                    c.globalAlpha = E;
+                    if (b.rbcs) {
+                        L = b.rbcs;
+                        O = L.length;
+                        for (t = z - 1; 0 <= t; t--)
+                            1 == pbu[t] && (px = pbx[t],
+                            py = pby[t],
+                            2 <= t && (q = t - 2,
+                            1 == pbu[q] && (e = pbx[q],
+                            w = pby[q],
+                            c.save(),
+                            c.translate((e - view_xx) * gsc, (w - view_yy) * gsc),
+                            9 > q ? (c.globalAlpha = q / 9 * E,
+                            4 > q ? (e = I * (1 + (4 - q) * b.swell),
+                            c.drawImage(ksmc, -e, -e,
+                            2 * e, 2 * e)) : c.drawImage(ksmc, -I, -I, 2 * I, 2 * I)) : (c.globalAlpha = E,
+                            c.drawImage(ksmc, -I, -I, 2 * I, 2 * I)),
+                            c.restore())),
+                            c.save(),
+                            c.globalAlpha = G,
+                            c.translate((px - view_xx) * gsc, (py - view_yy) * gsc),
+                            c.rotate(pba[t]),
+                            q = t % (2 * x.length),
+                            q >= x.length && (q = 2 * x.length - (q + 1)),
+                            w = per_color_imgs[L[t % O]],
+                            4 > t ? (e = B * (1 + (4 - t) * b.swell),
+                            c.drawImage(w.kmcs[q], -gsc * e, -gsc * e, 2 * gsc * e, 2 * gsc * e)) : c.drawImage(w.kmcs[q], -gsc * B, -gsc * B, 2 * gsc * B, 2 * gsc * B),
+                            c.restore());
+                        if (b.tsp > b.fsp && (high_quality || 0 < gla)) {
+                            c.save();
+                            c.globalCompositeOperation = "lighter";
+                            for (t = z - 1; 0 <= t; t--)
+                                1 == pbu[t] && (px = pbx[t],
+                                py = pby[t],
+                                c.save(),
+                                c.translate((px - view_xx) * gsc, (py - view_yy) * gsc),
+                                c.rotate(pba[t]),
+                                c.globalAlpha = G * H * gla * (.5 + .5 * Math.cos(t / 4 - b.sfr)),
+                                q = t % (2 * x.length),
+                                q >= x.length && (q = 2 * x.length - (q + 1)),
+                                4 > t ? (e = B * (1 + (4 - t) * b.swell),
+                                c.drawImage(per_color_imgs[L[t % O]].kmcs[q], -gsc * e, -gsc * e, 2 * gsc * e, 2 * gsc * e)) : c.drawImage(per_color_imgs[L[t % O]].kmcs[q], -gsc * B, -gsc * B, 2 * gsc * B, 2 * gsc * B),
+                                c.restore());
+                            c.restore()
+                        }
+                    } else {
+                        for (t = z - 1; 0 <= t; t--)
+                            1 == pbu[t] && (px = pbx[t],
+                            py = pby[t],
+                            2 <= t && (q = t - 2,
+                            1 == pbu[q] &&
+                            (e = pbx[q],
+                            w = pby[q],
+                            c.save(),
+                            c.translate((e - view_xx) * gsc, (w - view_yy) * gsc),
+                            9 > q ? (c.globalAlpha = q / 9 * E,
+                            4 > q ? (e = I * (1 + (4 - q) * b.swell),
+                            c.drawImage(ksmc, -e, -e, 2 * e, 2 * e)) : c.drawImage(ksmc, -I, -I, 2 * I, 2 * I)) : (c.globalAlpha = E,
+                            c.drawImage(ksmc, -I, -I, 2 * I, 2 * I)),
+                            c.restore())),
+                            c.save(),
+                            c.globalAlpha = G,
+                            c.translate((px - view_xx) * gsc, (py - view_yy) * gsc),
+                            c.rotate(pba[t]),
+                            q = t % (2 * x.length),
+                            q >= x.length && (q = 2 * x.length - (q + 1)),
+                            4 > t ? (e = B * (1 + (4 - t) * b.swell),
+                            c.drawImage(x[q], -gsc * e, -gsc * e, 2 * gsc * e, 2 * gsc * e)) : c.drawImage(x[q], -gsc * B, -gsc * B,
+                            2 * gsc * B, 2 * gsc * B),
+                            c.restore());
+                        if (b.tsp > b.fsp && (high_quality || 0 < gla)) {
+                            c.save();
+                            c.globalCompositeOperation = "lighter";
+                            for (t = z - 1; 0 <= t; t--)
+                                1 == pbu[t] && (px = pbx[t],
+                                py = pby[t],
+                                q = t % (2 * x.length),
+                                q >= x.length && (q = 2 * x.length - (q + 1)),
+                                c.save(),
+                                c.translate((px - view_xx) * gsc, (py - view_yy) * gsc),
+                                c.rotate(pba[t]),
+                                c.globalAlpha = G * H * gla * (.5 + .5 * Math.cos(t / 4 - b.sfr)),
+                                4 > t ? (e = B * (1 + (4 - t) * b.swell),
+                                c.drawImage(x[q], -gsc * e, -gsc * e, 2 * gsc * e, 2 * gsc * e)) : c.drawImage(x[q], -gsc * B, -gsc * B, 2 * gsc * B, 2 * gsc * B),
+                                c.restore());
+                            c.restore()
+                        }
+                    }
+                    if (b.antenna)
+                        if (e =
+                        Math.cos(b.ang),
+                        w = Math.sin(b.ang),
+                        ax = h - 8 * e * b.sc,
+                        ay = u - 8 * w * b.sc,
+                        2 <= z && ax >= apx1 && ay >= apy1 && ax <= apx2 && ay <= apy2) {
+                            b.atx[0] = ax;
+                            b.aty[0] = ay;
+                            E = b.sc * gsc;
+                            fj = b.atx.length - 1;
+                            if (choosing_skin)
+                                for (t = 1; t <= fj; t++)
+                                    b.atvx[t] -= .3,
+                                    b.atvy[t] += .14 * Math.cos(fr / 23 - 7 * t / fj);
+                            else if (!b.antenna_shown)
+                                for (b.antenna_shown = !0,
+                                t = 1; t <= fj; t++)
+                                    b.atx[t] = ax - e * t * 4 * b.sc,
+                                    b.aty[t] = ay - w * t * 4 * b.sc;
+                            for (t = 1; t <= fj; t++)
+                                xx = b.atx[t - 1],
+                                yy = b.aty[t - 1],
+                                xx += 2 * Math.random() - 1,
+                                yy += 2 * Math.random() - 1,
+                                e = b.atx[t] - xx,
+                                w = b.aty[t] - yy,
+                                ang = -4 <= e && -4 <= w && 4 > e && 4 > w ?
+                                at2lt[32 * w + 128 << 8 | 32 * e + 128] : -8 <= e && -8 <= w && 8 > e && 8 > w ? at2lt[16 * w + 128 << 8 | 16 * e + 128] : -16 <= e && -16 <= w && 16 > e && 16 > w ? at2lt[8 * w + 128 << 8 | 8 * e + 128] : -127 <= e && -127 <= w && 127 > e && 127 > w ? at2lt[w + 128 << 8 | e + 128] : Math.atan2(w, e),
+                                xx += 4 * Math.cos(ang) * b.sc,
+                                yy += 4 * Math.sin(ang) * b.sc,
+                                b.atvx[t] += .1 * (xx - b.atx[t]),
+                                b.atvy[t] += .1 * (yy - b.aty[t]),
+                                b.atx[t] += b.atvx[t],
+                                b.aty[t] += b.atvy[t],
+                                b.atvx[t] *= .88,
+                                b.atvy[t] *= .88,
+                                e = b.atx[t] - b.atx[t - 1],
+                                w = b.aty[t] - b.aty[t - 1],
+                                J = Math.sqrt(e * e + w * w),
+                                J > 4 * b.sc && (ang = -4 <= e && -4 <= w && 4 > e && 4 > w ? at2lt[32 * w + 128 << 8 | 32 *
+                                e + 128] : -8 <= e && -8 <= w && 8 > e && 8 > w ? at2lt[16 * w + 128 << 8 | 16 * e + 128] : -16 <= e && -16 <= w && 16 > e && 16 > w ? at2lt[8 * w + 128 << 8 | 8 * e + 128] : -127 <= e && -127 <= w && 127 > e && 127 > w ? at2lt[w + 128 << 8 | e + 128] : Math.atan2(w, e),
+                                b.atx[t] = b.atx[t - 1] + 4 * Math.cos(ang) * b.sc,
+                                b.aty[t] = b.aty[t - 1] + 4 * Math.sin(ang) * b.sc);
+                            c.globalAlpha = G;
+                            c.strokeStyle = b.atc1;
+                            c.lineWidth = 5 * E;
+                            c.lineCap = "round";
+                            c.lineJoin = "round";
+                            c.beginPath();
+                            fj = b.atx.length - 1;
+                            e = (b.atx[fj] - view_xx) * gsc;
+                            w = (b.aty[fj] - view_yy) * gsc;
+                            c.moveTo(e, w);
+                            for (t = fj - 1; 1 <= t; t--)
+                                xx = (b.atx[t] - view_xx) * gsc,
+                                yy = (b.aty[t] -
+                                view_yy) * gsc,
+                                1 <= Math.abs(xx - e) + Math.abs(yy - w) && (e = xx,
+                                w = yy,
+                                c.lineTo(e, w));
+                            xx = (.5 * (b.atx[1] + b.atx[0]) - view_xx) * gsc;
+                            yy = (.5 * (b.aty[1] + b.aty[0]) - view_yy) * gsc;
+                            1 <= Math.abs(xx - e) + Math.abs(yy - w) && (e = xx,
+                            w = yy,
+                            c.lineTo(e, w));
+                            c.stroke();
+                            c.globalAlpha = b.atia * G;
+                            c.strokeStyle = b.atc2;
+                            c.lineWidth = 4 * E;
+                            c.beginPath();
+                            fj = b.atx.length - 1;
+                            e = (b.atx[fj] - view_xx) * gsc;
+                            w = (b.aty[fj] - view_yy) * gsc;
+                            c.moveTo(e, w);
+                            for (t = fj - 1; 0 <= t; t--)
+                                xx = (b.atx[t] - view_xx) * gsc,
+                                yy = (b.aty[t] - view_yy) * gsc,
+                                1 <= Math.abs(xx - e) + Math.abs(yy - w) && (e = xx,
+                                w = yy,
+                                c.lineTo(e,
+                                w));
+                            c.stroke();
+                            b.atwg && (c.lineWidth = 3 * E,
+                            c.stroke(),
+                            c.lineWidth = 2 * E,
+                            c.stroke());
+                            c.globalAlpha = G * b.blba;
+                            if (b.abrot) {
+                                c.save();
+                                c.translate((b.atx[fj] - view_xx) * gsc, (b.aty[fj] - view_yy) * gsc);
+                                vang = Math.atan2(b.aty[fj] - b.aty[fj - 1], b.atx[fj] - b.atx[fj - 1]) - b.atba;
+                                if (0 > vang || vang >= pi2)
+                                    vang %= pi2;
+                                vang < -Math.PI ? vang += pi2 : vang > Math.PI && (vang -= pi2);
+                                b.atba = (b.atba + .15 * vang) % pi2;
+                                c.rotate(b.atba);
+                                c.drawImage(b.bulb, b.blbx * b.bsc * E, b.blby * b.bsc * E, b.blbw * b.bsc * E, b.blbh * b.bsc * E);
+                                c.restore()
+                            } else
+                                c.drawImage(b.bulb, (b.atx[fj] -
+                                view_xx + b.blbx * b.bsc * b.sc) * gsc, (b.aty[fj] - view_yy + b.blby * b.bsc * b.sc) * gsc, b.blbw * b.bsc * E, b.blbh * b.bsc * E);
+                            b.apbs && (c.globalAlpha = .5 * G,
+                            c.lineWidth = 3 * E,
+                            c.stroke(),
+                            c.lineWidth = 2 * E,
+                            c.stroke())
+                        } else
+                            b.antenna_shown && (b.antenna_shown = !1);
+                    if (b.dead) {
+                        c.save();
+                        c.globalCompositeOperation = "lighter";
+                        x = (.15 + .15 * Math.abs(Math.sin(5 * Math.PI * b.dead_amt))) * Math.sin(Math.PI * b.dead_amt);
+                        B *= gsc;
+                        for (t = z - 1; 0 <= t; t--)
+                            1 == pbu[t] && (px = pbx[t],
+                            py = pby[t],
+                            c.save(),
+                            c.globalAlpha = x * (.6 + .4 * Math.cos(t / 4 - 15 * b.dead_amt)),
+                            c.translate((px -
+                            view_xx) * gsc, (py - view_yy) * gsc),
+                            4 > t ? (e = B * (1 + (4 - t) * b.swell),
+                            c.drawImage(kdmc, -e, -e, 2 * e, 2 * e)) : c.drawImage(kdmc, -B, -B, 2 * B, 2 * B),
+                            c.restore());
+                        c.restore()
+                    }
+                    c.restore()
+                }
+                b.one_eye ? (t = 3 * y,
+                B = Math.cos(D) * t,
+                z = Math.sin(D) * t,
+                x = y * b.ebisz,
+                c.drawImage(b.ebi, 0, 0, b.ebiw, b.ebih, mww2 + (B + h - x / 2 - view_xx) * gsc, mhh2 + (z + u - x / 2 - view_yy) * gsc, x * gsc, x * gsc),
+                B = Math.cos(D) * (t + .15) + b.rex * y,
+                z = Math.sin(D) * (t + .15) + b.rey * y,
+                x = y * b.episz,
+                c.drawImage(b.epi, 0, 0, b.epiw, b.epih, mww2 + (B + h - x / 2 - view_xx) * gsc, mhh2 + (z + u - x / 2 - view_yy) * gsc, x * gsc, x * gsc)) : (t =
+                1 == render_mode ? 4 * y : 6 * y,
+                x = 6 * y,
+                B = Math.cos(D) * t + Math.cos(D - Math.PI / 2) * (x + .5),
+                z = Math.sin(D) * t + Math.sin(D - Math.PI / 2) * (x + .5),
+                c.fillStyle = b.ec,
+                c.globalAlpha = b.eca * b.alive_amt,
+                c.beginPath(),
+                c.arc(mww2 + (B + h - view_xx) * gsc, mhh2 + (z + u - view_yy) * gsc, b.er * y * gsc, 0, pi2),
+                c.closePath(),
+                c.fill(),
+                c.globalAlpha = b.ppa,
+                B = Math.cos(D) * (t + .5) + b.rex * y + Math.cos(D - Math.PI / 2) * x,
+                z = Math.sin(D) * (t + .5) + b.rey * y + Math.sin(D - Math.PI / 2) * x,
+                c.fillStyle = b.ppc,
+                c.beginPath(),
+                c.arc(mww2 + (B + h - view_xx) * gsc, mhh2 + (z + u - view_yy) * gsc, 3.5 * y * gsc, 0, pi2),
+                c.closePath(),
+                c.fill(),
+                B = Math.cos(D) * t + Math.cos(D + Math.PI / 2) * (x + .5),
+                z = Math.sin(D) * t + Math.sin(D + Math.PI / 2) * (x + .5),
+                c.fillStyle = b.ec,
+                c.globalAlpha = b.eca * b.alive_amt,
+                c.beginPath(),
+                c.arc(mww2 + (B + h - view_xx) * gsc, mhh2 + (z + u - view_yy) * gsc, b.er * y * gsc, 0, pi2),
+                c.closePath(),
+                c.fill(),
+                c.globalAlpha = b.ppa,
+                B = Math.cos(D) * (t + .5) + b.rex * y + Math.cos(D + Math.PI / 2) * x,
+                z = Math.sin(D) * (t + .5) + b.rey * y + Math.sin(D + Math.PI / 2) * x,
+                c.fillStyle = b.ppc,
+                c.beginPath(),
+                c.arc(mww2 + (B + h - view_xx) * gsc, mhh2 + (z + u - view_yy) * gsc, 3.5 * y * gsc, 0, pi2),
+                c.closePath(),
+                c.fill());
+                c.globalAlpha = 1
+            }
+        if (high_quality || 0 < gla) {
+            c.save();
+            c.globalCompositeOperation = "lighter";
+            for (f = foods_c - 1; 0 <= f; f--)
+                b = foods[f],
+                b.rx >= fpx1 && b.ry >= fpy1 && b.rx <= fpx2 && b.ry <= fpy2 && (e = b.rx - view_xx,
+                w = b.ry - view_yy,
+                h = e * e + w * w,
+                fs = 1 + .06 * b.rad,
+                z = e * fs,
+                x = w * fs,
+                H = .005 + .09 * (1 - h / (86E3 + h)),
+                1 != b.rad && (H *= Math.pow(b.rad, .25)),
+                1 != gla && (H *= gla),
+                z = z * gsc + mww2,
+                x = x * gsc + mhh2,
+                1 == b.rad ? (z -= b.gfw2,
+                x -= b.gfh2,
+                c.globalAlpha = H * b.fr,
+                c.drawImage(b.gfi, z, x),
+                c.globalAlpha = H * (.5 + .5 * Math.cos(b.gfr / 13)) * b.fr,
+                c.drawImage(b.gfi, z, x)) : (z -=
+                b.gfw2 * b.rad,
+                x -= b.gfh2 * b.rad,
+                c.globalAlpha = H * b.fr,
+                c.drawImage(b.gfi, 0, 0, b.gfw, b.gfh, z, x, b.gfw * b.rad, b.gfh * b.rad),
+                c.globalAlpha = H * (.5 + .5 * Math.cos(b.gfr / 13)) * b.fr,
+                c.drawImage(b.gfi, 0, 0, b.gfw, b.gfh, z, x, b.gfw * b.rad, b.gfh * b.rad)),
+                fs = 1 + .32 * b.rad,
+                z = e * fs,
+                x = w * fs,
+                H = .085 * (1 - h / (16500 + h)),
+                1 != b.rad && (H *= Math.pow(b.rad, .25)),
+                1 != gla && (H *= gla),
+                z = z * gsc + mww2,
+                x = x * gsc + mhh2,
+                1 == b.rad ? (z -= b.g2fw2,
+                x -= b.g2fh2,
+                c.globalAlpha = H * b.fr,
+                c.drawImage(b.g2fi, z, x),
+                c.globalAlpha = H * (.5 + .5 * Math.cos(b.gfr / 13)) * b.fr,
+                c.drawImage(b.g2fi, z,
+                x)) : (z -= b.g2fw2 * b.rad,
+                x -= b.g2fh2 * b.rad,
+                c.globalAlpha = H * b.fr,
+                c.drawImage(b.g2fi, 0, 0, b.g2fw, b.g2fh, z, x, b.g2fw * b.rad, b.g2fh * b.rad),
+                c.globalAlpha = H * (.5 + .5 * Math.cos(b.gfr / 13)) * b.fr,
+                c.drawImage(b.g2fi, 0, 0, b.g2fw, b.g2fh, z, x, b.g2fw * b.rad, b.g2fh * b.rad)));
+            c.restore()
+        }
+        c.save();
+        c.globalCompositeOperation = "lighter";
+        for (f = preys.length - 1; 0 <= f; f--)
+            h = preys[f],
+            e = h.xx + h.fx,
+            w = h.yy + h.fy,
+            h.eaten && (b = h.eaten_by,
+            q = Math.pow(h.eaten_fr, 2),
+            e += (b.xx + b.fx + Math.cos(b.ang + b.fa) * (43 - 24 * q) * (1 - q) - e) * q,
+            w += (b.yy + b.fy + Math.sin(b.ang +
+            b.fa) * (43 - 24 * q) * (1 - q) - w) * q),
+            e -= view_xx,
+            w -= view_yy,
+            b = e * e + w * w,
+            fs = 1 + .08 * h.rad,
+            px = e * fs,
+            py = w * fs,
+            H = .4 * (1 - b / (176E3 + b)),
+            1 != h.rad && (H *= Math.pow(h.rad, .25)),
+            px = px * gsc + mww2,
+            py = py * gsc + mhh2,
+            1 == h.rad ? -150 <= px && -150 <= py && px <= mwwp150 && py <= mhhp150 && (px -= h.gfw2,
+            py -= h.gfh2,
+            c.globalAlpha = H * h.fr,
+            c.drawImage(h.gfi, px, py),
+            c.globalAlpha = H * (.5 + .5 * Math.cos(h.gfr / 13)) * h.fr,
+            c.drawImage(h.gfi, px, py)) : -150 <= px && -150 <= py && px <= mwwp150 && py <= mhhp150 && (px -= h.gfw2 * h.rad,
+            py -= h.gfh2 * h.rad,
+            c.globalAlpha = H * h.fr,
+            c.drawImage(h.gfi, 0, 0, h.gfw,
+            h.gfh, px, py, h.gfw * h.rad, h.gfh * h.rad),
+            c.globalAlpha = H * (.5 + .5 * Math.cos(h.gfr / 13)) * h.fr,
+            c.drawImage(h.gfi, 0, 0, h.gfw, h.gfh, px, py, h.gfw * h.rad, h.gfh * h.rad)),
+            fs = 1 + .32 * h.rad,
+            px = e * fs,
+            py = w * fs,
+            H = .35 * (1 - b / (46500 + b)),
+            1 != h.rad && (H *= Math.pow(h.rad, .25)),
+            b = 2 * h.rad,
+            px = px * gsc + mww2,
+            py = py * gsc + mhh2,
+            -150 <= px && -150 <= py && px <= mwwp150 && py <= mhhp150 && (px -= h.gfw2 * b,
+            py -= h.gfh2 * b,
+            c.globalAlpha = H * h.fr,
+            c.drawImage(h.gfi, 0, 0, h.gfw, h.gfh, px, py, h.gfw * b, h.gfh * b),
+            c.globalAlpha = H * (.5 + .5 * Math.cos(h.gfr / 13)) * h.fr,
+            c.drawImage(h.gfi, 0, 0, h.gfw,
+            h.gfh, px, py, h.gfw * b, h.gfh * b));
+        c.restore();
+        if (4E3 > Math.abs(grd - view_dist)) {
+            c.save();
+            c.lineWidth = 23 * gsc;
+            c.strokeStyle = "#800000";
+            c.fillStyle = "#300000";
+            c.beginPath();
+            xx = grd + Math.cos(view_ang - 2E3 / grd) * grd * .98;
+            yy = grd + Math.sin(view_ang - 2E3 / grd) * grd * .98;
+            c.moveTo(mww2 + (xx - view_xx) * gsc, mhh2 + (yy - view_yy) * gsc);
+            for (t = -2E3; 2E3 >= t; t += 100)
+                xx = grd + Math.cos(view_ang + t / grd) * grd * .98,
+                yy = grd + Math.sin(view_ang + t / grd) * grd * .98,
+                c.lineTo(mww2 + (xx - view_xx) * gsc, mhh2 + (yy - view_yy) * gsc);
+            xx = grd + Math.cos(view_ang + 2E3 / grd) * (grd + 4E3);
+            yy = grd + Math.sin(view_ang + 2E3 / grd) * (grd + 4E3);
+            c.lineTo(mww2 + (xx - view_xx) * gsc, mhh2 + (yy - view_yy) * gsc);
+            xx = grd + Math.cos(view_ang - 2E3 / grd) * (grd + 4E3);
+            yy = grd + Math.sin(view_ang - 2E3 / grd) * (grd + 4E3);
+            c.lineTo(mww2 + (xx - view_xx) * gsc, mhh2 + (yy - view_yy) * gsc);
+            c.closePath();
+            c.stroke();
+            c.fill();
+            c.restore()
+        }
+        wumsts && 0 < rank && 0 < snake_count && playing && (wumsts = !1,
+        b = "Your length",
+        f = "of",
+        H = "Your rank",
+        "DE" == country ? (b = "Deine L\u00e4nge",
+        f = "von",
+        H = "Dein rang") : "FR" == country ? (b = "Votre longueur",
+        f = "de",
+        H = "Ton rang") : "BR" == country &&
+        (b = "Seu comprimento",
+        f = "do",
+        H = "Seu classifica\u00e7\u00e3o"),
+        b = "" + ('<span style="font-size: 14px;"><span style="opacity: .4;">' + b + ': </span><span style="opacity: .8; font-weight: bold;">' + Math.floor(15 * (fpsls[snake.sct] + snake.fam / fmlts[snake.sct] - 1) - 5) / 1 + "</span></span>"),
+        b += '<BR><span style="opacity: .3;">' + H + ': </span><span style="opacity: .35;">' + rank + '</span><span style="opacity: .3;"> ' + f + ' </span><span style="opacity: .35;">' + snake_count + "</span>",
+        lbf.innerHTML = b);
+        c.restore()
+    }
+}
