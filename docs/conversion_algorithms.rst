@@ -26,7 +26,7 @@ Less used (and also less popular), these are used to avoid things inside certain
 
 **Important notes** :
 * In the game, the angles are reversed, they go clockwise. *i.e* positive angles are under the ``x`` axis, and negative ones are above.
-* We only use angles up to :math:``\pi`` radians (:math:``180°``). That means we use negative angles to access the other side of a circle.
+* We only use angles up to :math:`\pi` radians (:math:`180°`). That means we use negative angles to access the other side of a circle.
 
 The coordinate system looks like this :
 
@@ -40,4 +40,4 @@ In Link Conf 1 <http://i.imgur.com/REyG3an.png>, we have the following coordinat
 
 The above coordinates are approximative.
 
-In the bot, every polar coordinate is converted from cartesian coordinates. Also, we don't use the :math:``r`` value, only the angle is important. That helps reducing computing expensiveness. Please refer to the conversion section below.
+In the bot, every polar coordinate is converted from cartesian coordinates. Also, we don't use the :math:`r` value, only the angle is important. That helps reducing computing expensiveness. Please refer to the conversion section below.
