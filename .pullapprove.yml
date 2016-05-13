@@ -1,5 +1,5 @@
 approve_by_comment: true
-approve_regex: '^(Approved|:shipit:|:\+1:)'
+approve_regex: '^(Approved|:shipit:|:\+1:|LGTM)'
 reject_regex: '^(Rejected|:-1:)'
 reset_on_push: false
 reviewers:
@@ -11,4 +11,4 @@ reviewers:
   - FliiFe
   - K00sKlust
   name: default
-  required: 2
+  required: 3
