@@ -33,8 +33,7 @@ window.getSnakeLength = function() {
         window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
 window.getSnakeWidth = function(sc) {
-    if (sc === undefined) sc = window.snake.sc;
-    return sc * 29 / 2;
+    return window.snake.sc * 29 / 2;
 };
 
 var canvas = (function() {
@@ -296,9 +295,6 @@ var canvas = (function() {
                         };
                         canvas.drawCircle(canvas.circleMapToCanvas(
                             circle2), 'red', true);
-                        canvas.drawCircle(canvas.circleMapToCanvas(
-                                collisionPointCircle), 'cyan',
-                            true);
                     }
                     return true;
                 }
@@ -446,6 +442,57 @@ var bot = (function() {
                 a.distance > b.clusterScore / b.distance ? -1 :
                 1);
         },
+		
+		 // Sort food based on distance
+         setCurrentFood: function() {
+			 if(window.playing && bot.isBotEnabled){
+				// Filters the nearest food by getting the distance
+				window.sortedFood = window.foods.filter(function(val) {
+					return val !== null;
+				}).map(canvas.getDistance2FromSnake).filter(function(val) {
+					var isInsideDangerAngles = canvas.isInsideAngle(val, window.snake.ang - 3 * Math.PI / 4, window.snake.ang - Math.PI / 4);
+					isInsideDangerAngles = isInsideDangerAngles || canvas.isInsideAngle(val, window.snake.ang + Math.PI / 4, window.snake.ang + 3 * Math.PI / 4);
+					return !(isInsideDangerAngles && (val.distance <= 22500));
+				}).map(bot.computeFoodClusterScores).sort(bot.sortFood);
+				
+				//sets the high/closet food to currentFoodX and currentFoodY
+				window.currentFoodX = window.sortedFood[0].xx
+				window.currentFoodY = window.sortedFood[0].yy
+			 }
+        },
+		//computes a cluster score for each food
+        computeFoodClusterScores: function(currentFood) {
+			//if already clustered don't do it again
+			if(!currentFood.clustered){
+				//compute this here because getSnakeWidth cuts actually snake width in half
+				myWidth = snake.sc*29
+				//set initial score to the foods size
+				currentFood.clusterScore = food.sz;
+
+				//iterate through each food on map
+				for (var index = window.foods.length - 1;0 < index;index--) {
+					nearFood = window.foods[index];
+					if (nearFood !== null) {
+						//see if nearFood is within the bounds around currentFood, box width and height are snakes current width
+						if (nearFood.xx >=  currentFood.xx - myWidth && nearFood.xx <= currentFood.xx + myWidth && 
+							nearFood.yy >= currentFood.yy - myWidth && nearFood.yy <= currentFood.yy + myWidth) {
+							
+							//increase clusterscore for each nearfood
+							currentFood.clusterScore += nearFood.sz;
+							//set nearfood cluster score to its size
+							nearFood.clusterScore = nearFood.sz;
+							
+							//this has been clustered no reason to cluster again so set to true
+							nearFood.clustered = true;
+						}
+					}
+				}
+				
+				//this has been clustered no reason to cluster again so set to true
+				currentFood.clustered = true;
+			}
+            return food;
+        },
 
         // Get closest collision point per snake.
         getCollisionPoints: function() {
@@ -457,7 +504,7 @@ var bot = (function() {
                 scPoint = undefined;
 
                 if (window.snakes[snake].nk !== window.snake.nk) {
-                    if (window.visualDebugging) {
+                    if (window.visualDebugging && window.botTesting) {
                         var hCircle = {
                             x: window.snakes[snake].xx,
                             y: window.snakes[snake].yy,
@@ -497,7 +544,7 @@ var bot = (function() {
                 }
                 if (scPoint !== undefined) {
                     bot.collisionPoints.push(scPoint);
-                    if (window.visualDebugging) {
+                    if (window.visualDebugging && window.botTesting) {
                         var cCircle = {
                             x: scPoint.xx,
                             y: scPoint.yy,
@@ -557,13 +604,16 @@ var bot = (function() {
             if (window.visualDebugging) {
                 canvas.drawCircle(canvas.circleMapToCanvas(
                     fullHeadCircle), 'red');
-                canvas.drawCircle(canvas.circleMapToCanvas(
-                    headCircle), 'blue', false);
-                canvas.drawCircle(canvas.circleMapToCanvas(
-                    forwardCircle), 'blue', false);
-                canvas.drawCircle(canvas.circleMapToCanvas(
-                    forwardBigCircle), 'yellow', false);
-            }
+					
+					if (window.botTesting) {
+						canvas.drawCircle(canvas.circleMapToCanvas(
+							headCircle), 'blue', false);
+						canvas.drawCircle(canvas.circleMapToCanvas(
+							forwardCircle), 'blue', false);
+						canvas.drawCircle(canvas.circleMapToCanvas(
+							forwardBigCircle), 'yellow', false);
+					}
+            } 
 
             bot.getCollisionPoints();
             if (bot.collisionPoints.length === 0) return false;
@@ -627,7 +677,7 @@ var bot = (function() {
                     yy: window.snake.yy + window.snake.sin *
                         50
                 });
-                if (window.visualDebugging) {
+                if (window.visualDebugging && window.botTesting) {
                     canvas.drawCircle(canvas.circleMapToCanvas(
                             forwardBigCircle), 'yellow', true,
                         0.3);
@@ -653,7 +703,7 @@ var bot = (function() {
                         yy: window.snake.yy + window.snake.sin *
                             50
                     });
-                    if (window.visualDebugging) {
+                    if (window.visualDebugging && window.botTesting) {
                         canvas.drawCircle(canvas.circleMapToCanvas(
                                 forwardBigCircle), 'blue', true,
                             0.3);
@@ -666,82 +716,7 @@ var bot = (function() {
             return false;
         },
 
-        // Sort food based on distance
-        getSortedFood: function() {
-            // Filters the nearest food by getting the distance
-            return window.foods.filter(function(val) {
-                return val !== null && val !== undefined;
-            }).map(canvas.getDistance2FromSnake).filter(
-                function(val) {
-                    var isInsideDangerAngles = canvas.isInsideAngle(
-                        val, window.snake.ang - 3 * Math.PI /
-                        4, window.snake.ang - Math.PI / 4);
-                    isInsideDangerAngles = isInsideDangerAngles ||
-                        canvas.isInsideAngle(val, window.snake.ang +
-                            Math.PI / 4, window.snake.ang + 3 *
-                            Math.PI / 4);
-                    return !(isInsideDangerAngles && (val.distance <=
-                        150 * 150));
-                }).sort(bot.sortDistance);
-        },
 
-        computeFoodGoal: function() {
-            var sortedFood = bot.getSortedFood();
-
-            var bestClusterIndx = 0;
-            var bestClusterScore = 0;
-            var bestClusterAbsScore = 0;
-            var bestClusterX = 20000;
-            var bestClusterY = 20000;
-            var clusterScore = 0;
-            var clusterSize = 0;
-            var clusterAbsScore = 0;
-            var clusterSumX = 0;
-            var clusterSumY = 0;
-
-            // there is no need to view more points (for performance)
-            var nIter = Math.min(sortedFood.length, 300);
-            for (var i = 0; i < nIter; i += 2) {
-                clusterScore = 0;
-                clusterSize = 0;
-                clusterAbsScore = 0;
-                clusterSumX = 0;
-                clusterSumY = 0;
-
-                var p1 = sortedFood[i];
-                for (var j = 0; j < nIter; ++j) {
-                    var p2 = sortedFood[j];
-                    var dist = canvas.getDistance2(p1.xx, p1.yy, p2
-                        .xx, p2.yy);
-                    if (dist < 100 * 100) {
-                        clusterScore += p2.sz;
-                        clusterSumX += p2.xx * p2.sz;
-                        clusterSumY += p2.yy * p2.sz;
-                        clusterSize += 1;
-                    }
-                }
-                clusterAbsScore = clusterScore;
-                clusterScore /= p1.distance;
-                if (clusterSize > 2 && clusterScore >
-                    bestClusterScore) {
-                    bestClusterScore = clusterScore;
-                    bestClusterAbsScore = clusterAbsScore;
-                    bestClusterX = clusterSumX / clusterAbsScore;
-                    bestClusterY = clusterSumY / clusterAbsScore;
-                    bestClusterIndx = i;
-                }
-            }
-
-            window.currentFoodX = bestClusterX;
-            window.currentFoodY = bestClusterY;
-
-            // if see a large cluster then use acceleration
-            if (bestClusterAbsScore > 50) {
-                window.foodAcceleration = 1;
-            } else {
-                window.foodAcceleration = 0;
-            }
-        },
 
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
@@ -749,22 +724,16 @@ var bot = (function() {
             if (!bot.checkCollision(window.getSnakeWidth() * window
                     .collisionRadiusMultiplier)) {
                 window.setAcceleration(0);
-                // Save CPU by only calculating every Nth frame
-                if (++bot.tickCounter >= 15) {
-                    bot.tickCounter = 0;
-                    // Current food
-                    bot.computeFoodGoal();
+				
+				var coordinatesOfClosestFood = {
+					x: window.currentFoodX,
+					y: window.currentFoodY
+				};
 
-                    var coordinatesOfClosestFood = {
-                        x: window.currentFoodX,
-                        y: window.currentFoodY
-                    };
-
-                    window.goalCoordinates =
-                        coordinatesOfClosestFood;
-                    canvas.setMouseCoordinates(canvas.mapToMouse(
-                        window.goalCoordinates));
-                }
+				window.goalCoordinates =
+					coordinatesOfClosestFood;
+				canvas.setMouseCoordinates(canvas.mapToMouse(
+					window.goalCoordinates));
             } else {
                 bot.tickCounter = -userInterface.framesPerSecond.getFPS();
             }
@@ -1032,12 +1001,14 @@ var userInterface = (function() {
                         'green');
                     canvas.drawCircle(canvas.mapToCanvas(window.goalCoordinates),
                         'red', true);
-                    canvas.drawAngle(window.snake.ang + Math.PI / 4,
-                        window.snake.ang + 3 * Math.PI / 4,
-                        true);
-                    canvas.drawAngle(window.snake.ang - 3 * Math.PI /
-                        4, window.snake.ang - Math.PI / 4, true
-                    );
+						if(window.botTesting){
+							canvas.drawAngle(window.snake.ang + Math.PI / 4,
+								window.snake.ang + 3 * Math.PI / 4,
+								true);
+							canvas.drawAngle(window.snake.ang - 3 * Math.PI /
+								4, window.snake.ang - Math.PI / 4, true
+							);
+						}
                 }
             }
         },
@@ -1089,7 +1060,9 @@ window.loop = function() {
     // If the game and the bot are running
     if (window.playing && bot.isBotEnabled) {
         bot.ranOnce = true;
-        bot.thinkAboutGoals();
+		//Do this instead of a counter, it's more consistent, play with values if you experience lag.
+        setTimeout(bot.thinkAboutGoals , 200);
+		setTimeout(bot.setCurrentFood , 500);
     } else {
         bot.stopBot();
     }
@@ -1187,8 +1160,9 @@ window.loop = function() {
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
 
-    // Remove social
+    // Remove social and highscores
     window.social.remove();
+	window.vcm.remove();
 
     // Start!
     bot.launchBot();
