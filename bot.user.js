@@ -321,10 +321,10 @@ var bot = (function() {
         // Stops the bot
         stopBot: function() {
             window.log('Stopping Bot.');
-            window.setAcceleration(0); // Disable the "sprint"
-            bot.isBotRunning = false;
+            window.setAcceleration(0); // Stop boosting
             // Re-enable the original onmousemove function
             window.onmousemove = original_onmousemove;
+            bot.isBotRunning = false;
         },
 
         // Connects the bot
@@ -434,9 +434,9 @@ var bot = (function() {
         },
 
         // Sorting function for food, from property 'clusterCount'
-		sortFood: function(a, b) {
-			return (a.clusterScore == b.clusterScore ? 0 : a.clusterScore / a.distance  >  b.clusterScore / b.distance  ? -1 : 1);
-		},
+        sortFood: function(a, b) {
+            return (a.clusterScore == b.clusterScore ? 0 : a.clusterScore / a.distance  >  b.clusterScore / b.distance  ? -1 : 1);
+        },
 
         // Get closest collision point per snake.
         getCollisionPoints: function () {
@@ -608,7 +608,7 @@ var bot = (function() {
             window.setAcceleration(0);
             return false;
         },
-		
+
         // Sort food based on distance
         getSortedFood: function() {
             // Filters the nearest food by getting the distance
@@ -856,12 +856,11 @@ var userInterface = (function() {
                 if (e.keyCode == 13) {
                     userInterface.saveNick();
                 }
-                userInterface.onPrefChange();
+                userInterface.onPrefChange(); // Update the bot status
             }
         },
 
         onmousedown: function(e) {
-            original_onmouseDown(e);
             e = e || window.event;
             if (window.playing) {
                 switch (e.which) {
@@ -870,7 +869,7 @@ var userInterface = (function() {
                         window.setAcceleration(1);
                         window.log('Manual boost...');
                         break;
-                        // "Right click" to toggle bot in addition to the letter "T"
+                    // "Right click" to toggle bot in addition to the letter "T"
                     case 3:
                         if (bot.isBotRunning) {
                             bot.stopBot();
@@ -881,6 +880,7 @@ var userInterface = (function() {
                         }
                         break;
                 }
+                userInterface.onPrefChange(); // Update the bot status
             }
         },
         
