@@ -15,7 +15,7 @@ The two systems used rely on an orthogonal set. ``x`` represents the horizontal 
 
 These are the most used. As in traditional maths, they are represented by to numbers, each representing the position on an axis. They are represented as ``(x, y)``. ``x`` for the horizontal axis, and ``y`` for the vertical one.
 
-In `Link Conf 1 <http://i.imgur.com/REyG3an.png>`_, we have the following coordinates :
+In `Conf 1 <http://i.imgur.com/REyG3an.png>`_, we have the following coordinates :
 
 * ``A(2, 3)``
 * ``B(-3, 1)``
@@ -36,7 +36,7 @@ The coordinate system looks like this :
    :height: 600px
    :width: 600px
 
-In `Link Conf 1 <http://i.imgur.com/REyG3an.png>`_, we have the following coordinates :
+In `Conf 1 <http://i.imgur.com/REyG3an.png>`_, we have the following coordinates :
 
 * ``A(3.60555, 56.30993°)``
 * ``B(3.16228, 161.56505°)``
@@ -45,5 +45,17 @@ The above coordinates are approximative.
 
 In the bot, every polar coordinate is converted from cartesian coordinates. Also, we don't use the :math:`r` value, only the angle is important. That helps reducing computing expensiveness. Please refer to the conversion section below.
 
-1.2 Conversion functions
+1.2 Different units
 ========================
+
+There are three main units used for the game. Some of them subdivide into others, but overall, we have three units.
+
+1.2.1 Screen unit
+-----------------
+
+This is the unit used by the game for mouse input. Basically, they are cartesian coordinates, relative to the browther window. The origin is the top left corner, starting at :math:`(0, 0)`.
+
+1.2.2 Canvas unit
+-----------------
+
+This is the unit used by the canvas to draw every elements. As before, cartesian coordinates, origin is the top left corner, but the canvas element doesn't start at screen unit :math:`(0, 0)`. Instead, there is an offset relative to window size. Also, the canvas size has not much to do with window size.
