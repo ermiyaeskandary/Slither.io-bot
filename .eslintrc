@@ -10,7 +10,7 @@
     "forOf": true,
     "generators": true,
     "modules": false,
-    "objectLiteralComputedProperties": torue,
+    "objectLiteralComputedProperties": true,
     "objectLiteralDuplicateProperties": false,
     "objectLiteralShorthandMethods": true,
     "objectLiteralShorthandProperties": true,
@@ -76,7 +76,6 @@
     "no-caller": 1,
     "no-div-regex": 1,
     "no-else-return": 1,
-    "no-empty-label": 1,
     "no-eq-null": 0,
     "no-eval": 1,
     "no-extend-native": 1,
@@ -109,7 +108,7 @@
     "no-void": 0,
     "no-warning-comments": [1, { "terms": ["todo", "tofix"], "location": "start" }],
     "no-with": 1,
-    "radix": 1,
+    "radix": 0,
     "vars-on-top": 0,
     "wrap-iife": [1, "inside"],
     "yoda": [1, "never"],
@@ -132,7 +131,7 @@
     /* Stylistic Issues */
     "array-bracket-spacing": [1, "never"],
     "brace-style": [1, "1tbs", { "allowSingleLine": true }],
-    "camelcase": [1, { "properties": "always" }],
+    "camelcase": [0, { "properties": "always" }],
     "comma-spacing": [1, { "before": false, "after": true }],
     "comma-style": [1, "last"],
     "computed-property-spacing": 0,
@@ -173,7 +172,7 @@
     "space-before-function-paren": [1, "never"],
     "space-in-parens": [1, "never"],
     "space-infix-ops": 1,
-    "space-return-throw-case": 1,
+    "keyword-spacing": 1,
     "space-unary-ops": 0,
     "spaced-comment": [1, "always"],
     "wrap-regex": 1,
@@ -186,10 +185,10 @@
 
     /* Legacy */
     "max-depth": [0, 3],
-    "max-len": [1, 80, 4],
+    "max-len": [1, 100, 4],
     "max-params": 0,
     "max-statements": 0,
     "no-bitwise": 1,
-    "no-plusplus": 1,
+    "no-plusplus": 0,
   }
 }
