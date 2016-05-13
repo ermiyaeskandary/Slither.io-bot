@@ -440,7 +440,7 @@ var bot = (function() {
         // Sorting function for food, from property 'clusterCount'
         sortFood: function(a, b) {
             return (a.clusterScore === b.clusterScore ? 0 :
-                a.clusterScore / a.distance  >  b.clusterScore / b.distance  ? -1 :
+                a.clusterScore / a.distance > b.clusterScore / b.distance ? -1 :
                 1);
         },
 
