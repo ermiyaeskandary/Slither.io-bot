@@ -45,8 +45,6 @@ U | Log debugging
 Y | Visual debugging
 I | Automatic Respawning
 **O** | **Mobile rendering - Try this if you experience lag**
-P | Hunt prey - Moving food
-D | Defense mode - bot turns around in a circle
 C | Enemy avoidance / Collision prevention
 A / S | Head collision radius multiplier increase / decrease
 E / R | Body collision radius multiplier increase / decrease
@@ -60,7 +58,7 @@ Mouse wheel | Zoom in/out
 # Contributing
 
 To get started, please sign the [Contributor License Agreement](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot).
-Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/). **Please review the guidelines for contributing to this project before making an issue or submitting a pull request.Your pull request needs to be approved by at least 2 people until it is merged.**
+Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/). **Please review the guidelines for contributing to this project before making an issue or submitting a pull request.Your pull request needs to be approved by at least 3 people until it is merged and all checks need to pass.**
 
 ## Join us on Gitter (team communication)
 [![Gitter](https://badges.gitter.im/ErmiyaEskandary/Slither.io-bot.svg)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
