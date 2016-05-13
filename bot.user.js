@@ -551,27 +551,27 @@ var bot = (function() {
                 y: window.snake.yy + window.snake.sin * r / 2,
                 radius: r
             };
-            
+
             var sidecircle_r = {
                 x: window.snake.lnp.xx -
-                    ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth())
+                ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth())
                     - window.snake.lnp.yy),
                 y: window.snake.lnp.yy +
-                    ((window.snake.lnp.xx + window.snake.cos * window.getSnakeWidth())
+                ((window.snake.lnp.xx + window.snake.cos * window.getSnakeWidth())
                     - window.snake.lnp.xx),
                 radius: window.getSnakeWidth() * window.snake.sp / window.snake.tsp
             };
-            
+
             var sidecircle_l = {
                 x: window.snake.lnp.xx +
-                    ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth())
+                ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth())
                     - window.snake.lnp.yy),
                 y: window.snake.lnp.yy -
-                    ((window.snake.lnp.xx + window.snake.cos * window.getSnakeWidth())
+                ((window.snake.lnp.xx + window.snake.cos * window.getSnakeWidth())
                     - window.snake.lnp.xx),
                 radius: window.getSnakeWidth() * window.snake.sp / window.snake.tsp
             };
-                        
+
             window.snake.sidecircle_r = sidecircle_r;
             window.snake.sidecircle_l = sidecircle_l;
 
