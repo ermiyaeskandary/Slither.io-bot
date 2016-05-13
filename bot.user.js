@@ -33,6 +33,7 @@ window.getSnakeLength = function() {
         window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
 window.getSnakeWidth = function(sc) {
+	if (window.snake.sc == null) return 15
     return window.snake.sc * 29 / 2;
 };
 
