@@ -49,8 +49,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Slither.io-bot'
-copyright = u'2016, FliiFe'
-author = u'FliiFe'
+copyright = u'2016, Théophile Cailliau, Ermiya Eskandary, Contributors'
+author = u'Théophile Cailliau, Ermiya Eskandary, Contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
