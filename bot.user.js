@@ -1769,6 +1769,7 @@ var collisionGrid = (function() {
                     var cellcount2 = cellcount*2;
 
                     //mark cell where part's center is located
+                    collisionGrid.markCellWall(cell[0], cell[1], {snake:snk, part:part});
                     
 
                     //mark surrounding cells using part's radius
@@ -1784,6 +1785,7 @@ var collisionGrid = (function() {
                             var dist = xDist*xDist + yDist*yDist;
                             if( dist < radiusSqr ) {*/
 
+                            var marked = collisionGrid.markCellWall(col, row, {snake:snk, part:part});
                         }
                     );
                 }
