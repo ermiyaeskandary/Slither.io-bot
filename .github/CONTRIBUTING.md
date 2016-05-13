@@ -1,6 +1,6 @@
 ## How to contribute to Slither.io-bot
 
-To get started, <a href="https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot)">sign the Contributor License Agreement</a>.
+To get started, <a href="https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot">sign the Contributor License Agreement</a>.
 
 #### **Did you find a bug?**
 
@@ -25,6 +25,8 @@ When making your report, be sure to mention:
 * Ensure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable.
 
 * Please use the already made pull request template to layout your pull request.
+
+* Adhere to the current code style. Listen to Hound's comments on your PR.
 
 *Pull request are made to be discussed, thus collaborators may want you to change things. Don't make a new PR for these changes. Update your existing PR.*
 
