@@ -458,7 +458,7 @@ var bot = (function() {
 				//compute this here because getSnakeWidth cuts actually snake width in half
 				myWidth = snake.sc*29
 				//set initial score to the foods size
-				currentFood.clusterScore = food.sz;
+				currentFood.clusterScore = currentFood.sz;
 
 				//iterate through each food on map
 				for (var index = window.foods.length - 1;0 < index;index--) {
@@ -482,7 +482,7 @@ var bot = (function() {
 				//this has been clustered no reason to cluster again so set to true
 				currentFood.clustered = true;
 			}
-            return food;
+            return currentFood;
         },
 
         // Get closest collision point per snake.
