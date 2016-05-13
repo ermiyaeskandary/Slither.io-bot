@@ -461,8 +461,6 @@ var bot = (function() {
                         var hCircle = {
                             x: window.snakes[snake].xx,
                             y: window.snakes[snake].yy,
-                            radius: window.getSnakeWidth(window
-                                .snakes[snake].sc)
                             radius: window.getSnakeWidth(window.snakes[snake].sc) / 2
                         };
                         canvas.drawCircle(canvas.circleMapToCanvas(
