@@ -144,18 +144,17 @@ var canvas = (function() {
             if (alpha === undefined) alpha = 1;
             if (circle.radius === undefined) circle.radius = 5;
             var context = window.mc.getContext('2d');
+            context.save();
             context.globalAlpha = alpha;
             context.beginPath();
             context.strokeStyle = colour;
-            context.arc(circle.x, circle.y, circle.radius, 0, Math.PI *
-                2);
-            context.closePath();
+            context.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            context.stroke();
             if (fill) {
                 context.fillStyle = colour;
                 context.fill();
-            }
-            context.stroke();
-            context.globalAlpha = 1;
+            }        
+           context.restore();
         },
 
         // Draw an angle.
@@ -164,6 +163,7 @@ var canvas = (function() {
         // @param {bool} danger -- green if false, red if true
         drawAngle: function(start, angle, danger) {
             var context = window.mc.getContext('2d');
+            context.save();
             context.globalAlpha = 0.6;
             context.beginPath();
             context.moveTo(window.mc.width / 2, window.mc.height /
@@ -176,20 +176,21 @@ var canvas = (function() {
             context.fillStyle = (danger) ? 'red' : 'green';
             context.fill();
             context.stroke();
-            context.globalAlpha = 1;
+            context.restore();
         },
 
         // Draw a line on the canvas.
         drawLine: function(p1, p2, colour, width) {
             if (width === undefined) width = 5;
             var context = window.mc.getContext('2d');
+            context.save();
             context.beginPath();
             context.lineWidth = width * window.gsc;
             context.strokeStyle = colour;
             context.moveTo(p1.x, p1.y);
             context.lineTo(p2.x, p2.y);
             context.stroke();
-            context.lineWidth = 1;
+            context.restore();
         },
 
         // Check if a point is between two vectors.
