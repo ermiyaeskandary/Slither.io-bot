@@ -561,6 +561,7 @@ var bot = (function() {
                     - window.snake.lnp.xx),
                 radius: window.getSnakeWidth() * window.snake.sp / window.snake.tsp
             };
+            
             var sidecircle_l = {
                 x: window.snake.lnp.xx +
                     ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth())
@@ -570,7 +571,7 @@ var bot = (function() {
                     - window.snake.lnp.xx),
                 radius: window.getSnakeWidth() * window.snake.sp / window.snake.tsp
             };
-            
+                        
             window.snake.sidecircle_r = sidecircle_r;
             window.snake.sidecircle_l = sidecircle_l;
 
@@ -760,7 +761,7 @@ var bot = (function() {
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
             if (!bot.checkCollision(window.getSnakeWidth() / 2
-                * window.collisionRadiusMultiplier) ) {
+                * window.collisionRadiusMultiplier)) {
                 window.setAcceleration(0);
                 // Save CPU by only calculating every Nth frame
                 if (++bot.tickCounter >= 15) {
