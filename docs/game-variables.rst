@@ -1,7 +1,7 @@
 1. Game variables
 *****************
 
-.. note:: All the variable names (currently) mean something. For example, ``gsc`` means **g**eneral **sc**ale, ``playing`` is literal, etc...
+.. note:: All the variable names (currently) mean something. For example, ``gsc`` means general scale, ``playing`` is literal, etc...
 
 .. note:: All the variable below are global, and should be accessed using ``window.<variable name>``
 
