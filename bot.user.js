@@ -535,41 +535,45 @@ var bot = (function() {
             if (window.snake.sp > 7) ra = r * 2;
 
             var headCircle = canvas.circle(xx, yy, ra / 2 * window.getSnakeWidth() / 2);
-            
+
             var forwardCircle = canvas.circle(
                 xx + window.snake.cos * ra / 2 * window.getSnakeWidth() / 2,
                 yy + window.snake.sin * ra / 2 * window.getSnakeWidth() / 2,
                 ra / 2 * window.getSnakeWidth() / 2
             );
-            
+
             var forwardBigCircle = canvas.circle(
                 xx + window.snake.cos * r * 1.9 * window.getSnakeWidth(1) / 2,
                 yy + window.snake.sin * r * 1.9 * window.getSnakeWidth(1) / 2,
                 r * 2.4 * window.getSnakeWidth(1) / 2
             );
-       
+
             var fullHeadCircle = canvas.circle(
                 xx + window.snake.cos * r / 2 * window.getSnakeWidth() / 2,
                 yy + window.snake.sin * r / 2 * window.getSnakeWidth() / 2,
                 r * window.getSnakeWidth() / 2
             );
-            
+
             var sidecircle_r = canvas.circle(
-                window.snake.lnp.xx -
-                ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth()) - window.snake.lnp.yy),
+                window.snake.lnp.xx - 
+                ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth())
+                - window.snake.lnp.yy),
                 window.snake.lnp.yy +
-                ((window.snake.lnp.xx + window.snake.cos * window.getSnakeWidth()) - window.snake.lnp.xx),
+                ((window.snake.lnp.xx + window.snake.cos * window.getSnakeWidth())
+                - window.snake.lnp.xx),
                 window.getSnakeWidth() * window.snake.sp / window.snake.tsp
             );
-            
+
             var sidecircle_l = canvas.circle(
                 window.snake.lnp.xx +
-                ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth()) - window.snake.lnp.yy),
+                ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth())
+                - window.snake.lnp.yy),
                  window.snake.lnp.yy -
-                ((window.snake.lnp.xx + window.snake.cos * window.getSnakeWidth()) - window.snake.lnp.xx),
+                ((window.snake.lnp.xx + window.snake.cos * window.getSnakeWidth())
+                - window.snake.lnp.xx),
                 window.getSnakeWidth() * window.snake.sp / window.snake.tsp
             );
-            
+
             window.snake.sidecircle_r = sidecircle_r;
             window.snake.sidecircle_l = sidecircle_l;
 
@@ -636,7 +640,10 @@ var bot = (function() {
             }
 
             if (inBigCircle > 2) {
-                bot.avoidCollisionPoint({ xx: xx + window.snake.cos * 50, yy: yy + window.snake.sin * 50 });
+                bot.avoidCollisionPoint({
+                    xx: xx + window.snake.cos * 50,
+                    yy: yy + window.snake.sin * 50
+                });
                 if (window.visualDebugging) {
                     canvas.drawCircle(forwardBigCircle, 'yellow', true, 0.3);
                 }
@@ -655,7 +662,10 @@ var bot = (function() {
                     return p.distance > forwardBigCircle.radius *
                             forwardBigCircle.radius;
                 }) + 1 > 40) {
-                    bot.avoidCollisionPoint({ xx: xx + window.snake.cos * 50, yy: yy + window.snake.sin * 50 });
+                    bot.avoidCollisionPoint({
+                        xx: xx + window.snake.cos * 50,
+                        yy: yy + window.snake.sin * 50
+                    });
                     if (window.visualDebugging) {
                         canvas.drawCircle(forwardBigCircle, 'blue', true, 0.3);
                     }
@@ -679,7 +689,7 @@ var bot = (function() {
                     window.snake.sidecircle_l) &&
                     canvas.circleIntersect(
                     canvas.circle(val.xx, val.yy, 2),
-                    window.snake.sidecircle_r))
+                    window.snake.sidecircle_r));
             }).sort(bot.sortDistance);
         },
 
@@ -744,7 +754,7 @@ var bot = (function() {
         // Called by the window loop, this is the main logic of the bot.
         thinkAboutGoals: function() {
             // If no enemies or obstacles, go after what you are going after
-            if (!bot.checkCollision(window.collisionRadiusMultiplier) ) {
+            if (!bot.checkCollision(window.collisionRadiusMultiplier)) {
                 window.setAcceleration(0);
                 // Save CPU by only calculating every Nth frame
                 if (++bot.tickCounter >= 15) {
