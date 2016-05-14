@@ -72,7 +72,7 @@ On initialization, an array containing the ratio between the canvas size and the
 
 As you can see, the ratio is the width/height of the canvas (the canvas element is ``window.mc``) divided by the width/height of the screen ( ``window.ww`` or ``window.hh``).
 
-2.2.3 Game unit
+2.2.3 Game/Map unit
 ---------------
 
 This is the unit used by the game, and which is present in every objects. It's origin is the top left corner, or, as the previous units, the snake's head position (center of the screen).
@@ -142,3 +142,36 @@ It takes a object as argument, which contain a value ``x`` and a value ``y``, gi
 .. note:: ``x`` and ``y`` can be negative, if they are on the left part of the screen, because the origin is the center.
 
 The conversion algorithm is simple, take the mouse coordinates, and add the coordinates of the screen's center.
+
+2.3.3 Game unit -> Mouse unit
+-------------------------------
+
+The map unit -> mouse unit is made using this function::
+
+    // Convert map coordinates to mouse coordinates.
+    mapToMouse: function(point) {
+        var mouseX = (point.x - window.snake.xx) * window.gsc;
+        var mouseY = (point.y - window.snake.yy) * window.gsc;
+        return {
+            x: mouseX,
+            y: mouseY
+        };
+    },
+
+Both game unit and mouse unit share the same norm, thus don't need any coordinates scale. Only the general scale variable `window.gsc <http://slitherio-bot.readthedocs.io/en/docs/game-variables.html>`_ is needed to apply zoom.
+
+The game unit is just mouse unit shifted. The origin is the top left corner (of the map), so we just need to take the player's coordinates away from the given coordinates. Then we multiply by the `general scale <http://slitherio-bot.readthedocs.io/en/docs/game-variables.html>`_.
+
+
+2.3.4 Game unit -> Canvas unit
+------------------------------
+
+This function is just a shorthand, using all of the above coordinates conversion, respectively ``Game unit -> Mouse unit``, ``Mouse unit -> Screen unit``, and ``Screen unit -> Canvas unit`` ::
+
+    // Map cordinates to Canvas cordinate shortcut
+    mapToCanvas: function(point) {
+        var c = canvas.mapToMouse(point);
+        c = canvas.mouseToScreen(c);
+        c = canvas.screenToCanvas(c);
+        return c;
+    }
