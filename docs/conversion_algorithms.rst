@@ -56,15 +56,15 @@ There are three main units used for the game. Some of them subdivide into others
 -----------------
 
 This is the unit used by the game for mouse input. Basically, they are cartesian coordinates, relative to the browther window. The origin can either be at the top left corner, starting at :math:`(0, 0)`, or the center of the window.
-.. note::
-    If the origin is the center, then the unit is called **Mouse unit**.
+
+.. note:: If the origin is the center, then the unit is called **Mouse unit**.
 
 2.2.2 Canvas unit
 -----------------
 
 This is the unit used by the canvas to draw every elements. As before, cartesian coordinates, origin is the top left corner or the canvas center, but the canvas element doesn't start at screen unit :math:`(0, 0)`. Instead, there is an offset relative to window size. Also, the canvas size has not much to do with window size.
 
-On initialization, an array containing the ratio between the canvas size and the window size is created. This ratio is stored inside ``canvasRatio[]``, which is defined as follow :::
+On initialization, an array containing the ratio between the canvas size and the window size is created. This ratio is stored inside ``canvasRatio[]``, which is defined as follows ::
 
     var canvasRatio = [window.mc.width / window.ww, window.mc.height /
         window.hh
@@ -85,7 +85,7 @@ Every part will have a title in the form ``Starting unit -> Result unit``
 2.3.1 Screen unit -> Canvas unit
 --------------------------------
 
-The function used for this conversion is this one :::
+The function used for this conversion is this one::
 
     // Convert screen coordinates to canvas coordinates.
     screenToCanvas: function(point) {
@@ -97,7 +97,7 @@ The function used for this conversion is this one :::
        };
     }
 
-It takes a object as argument, which contain a value ``x`` and a value ``y``, given in screen unit. The object can be defined as follow:::
+It takes a object as argument, which contain a value ``x`` and a value ``y``, given in screen unit. Both are positive integers. The object can be defined as follows::
 
     var point = {
        x: 100,
@@ -105,14 +105,40 @@ It takes a object as argument, which contain a value ``x`` and a value ``y``, gi
     }
 
 The conversion process may seem complicated, but it is quite simple.
-Firstly, we multiply the point coordinates and the ratio defined at initialization. (Cf. 2.2.2).::
+Firstly, we multiply the point coordinates and the ratio defined at initialization. (Cf. 2.2.2)::
 
     point.x * canvas.canvasRatio[0]
 
-Then we multiply the result by the canvas scale variable `window.csc <http://slitherio-bot.readthedocs.io/en/docs/game-variables.html>`_:::
+Then we multiply the result by the canvas scale variable `window.csc <http://slitherio-bot.readthedocs.io/en/docs/game-variables.html>`_::
 
     window.csc * (point.x * canvas.canvasRatio[0])
 
-But, as stated in 2.2.2, there is an offset between the canvas and the screen. We solve this issue by taking it away from the result. However, this offset is defined as a String, thus we need to convert it to an integer. The final result looks like :::
+But, as stated in 2.2.2, there is an offset between the canvas and the screen. We solve this issue by taking it away from the result. However, this offset is defined as a String, thus we need to convert it to an integer. The final result looks like::
 
     window.csc * (point.x * canvas.canvasRatio[0]) - parseInt(window.mc.style.left);
+
+2.3.2 Mouse unit -> Screen unit
+-------------------------------
+
+This is the function used for conversion::
+
+    // Convert snake-relative coordinates to absolute screen coordinates.
+    mouseToScreen: function(point) {
+        var screenX = point.x + (window.ww / 2);
+        var screenY = point.y + (window.hh / 2);
+        return {
+            x: screenX,
+            y: screenY
+        };
+    }
+
+It takes a object as argument, which contain a value ``x`` and a value ``y``, given in mouse unit. As for 2.3.1, the object can be defined as follows::
+
+    var point = {
+       x: -100,
+       y: 150
+    }
+
+.. note:: ``x`` and ``y`` can be negative, if they are on the left part of the screen, because the origin is the center.
+
+The conversion algorithm is simple, take the mouse coordinates, and add the coordinates of the screen's center.
