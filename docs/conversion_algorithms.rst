@@ -1,3 +1,5 @@
+.. highlight:: javascript
+
 2. Different units, and coordinates systems
 *******************************************
 
@@ -83,32 +85,32 @@ Every part will have a title in the form ``Starting unit -> Result unit``
 
 The function used for this conversion is this one :
 
-    // Convert screen coordinates to canvas coordinates.
-    screenToCanvas: function(point) {
-        var canvasX = window.csc * (point.x * canvas.canvasRatio[0]) - parseInt(window.mc.style.left);
-        var canvasY = window.csc * (point.y * canvas.canvasRatio[1]) - parseInt(window.mc.style.top);
-        return {
-            x: canvasX,
-            y: canvasY
-        };
-    }
+   // Convert screen coordinates to canvas coordinates.
+   screenToCanvas: function(point) {
+       var canvasX = window.csc * (point.x * canvas.canvasRatio[0]) - parseInt(window.mc.style.left);
+       var canvasY = window.csc * (point.y * canvas.canvasRatio[1]) - parseInt(window.mc.style.top);
+       return {
+           x: canvasX,
+           y: canvasY
+       };
+   }
 
 It takes a object as argument, which contain a value ``x`` and a value ``y``, given in screen unit. The object can be defined as follow:
 
-    var point = {
-        x: 100,
-        y: 200
-    }
+   var point = {
+       x: 100,
+       y: 200
+   }
 
 The conversion process may seem complicated, but it is quite simple.
 Firstly, we multiply the point coordinates and the ratio defined at initialization. (Cf. 2.2.2).
 
-    point.x * canvas.canvasRatio[0]
+   point.x * canvas.canvasRatio[0]
 
-Then we multiply the result by the canvas scale variable `window.csc <http://slitherio-bot.readthedocs.io/en/docs/game-variables.html`_:
+Then we multiply the result by the canvas scale variable `window.csc <http://slitherio-bot.readthedocs.io/en/docs/game-variables.html>`_:
 
-    window.csc * (point.x * canvas.canvasRatio[0])
+   window.csc * (point.x * canvas.canvasRatio[0])
 
 But, as stated in 2.2.2, there is an offset between the canvas and the screen. We solve this issue by taking it away from the result. However, this offset is defined as a String, thus we need to convert it to an integer. The final result looks like :
 
-    window.csc * (point.x * canvas.canvasRatio[0]) - parseInt(window.mc.style.left);
+   window.csc * (point.x * canvas.canvasRatio[0]) - parseInt(window.mc.style.left);

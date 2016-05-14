@@ -12,7 +12,6 @@ Contents:
    :maxdepth: 2
 
    conversion_algorithms
-   game-variables
 
 Indices and tables
 ==================
