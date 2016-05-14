@@ -737,7 +737,7 @@ var bot = (function() {
         processSurround: function() {
             collisionGrid.initGrid(1000, 1000, 30);
 
-            var results = collisionHelper.surroundScan(5,1500);
+            var results = collisionHelper.surroundScan(5,1000);
             
         },
         // Called by the window loop, this is the main logic of the bot.
@@ -746,20 +746,21 @@ var bot = (function() {
 
             //if (!bot.checkCollision(window.getSnakeWidth() * window.collisionRadiusMultiplier) ) {
                 window.setAcceleration(0);
-                bot.processSurround();
+                
                 // Save CPU by only calculating every Nth frame
-                //if (++bot.tickCounter >= 15) {
+                if (++bot.tickCounter >= 15) {
                     bot.tickCounter = 0;
                     // Current food
                     bot.computeFoodGoal();
                     
+                    bot.processSurround();
 
                     var coordinatesOfClosestFood = {
                         x: window.currentFoodX, y: window.currentFoodY };
                     collisionGrid.generatePath(window.getX(), window.getY(), window.currentFoodX, window.currentFoodY);
                     window.goalCoordinates = coordinatesOfClosestFood;
                     canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
-                //}
+                }
             //else {
             //    bot.tickCounter = -userInterface.framesPerSecond.getFPS();
             //}
