@@ -2,6 +2,7 @@
 Goal : make a bot for slither.io
 
 [![CLA assistant](https://cla-assistant.io/readme/badge/ErmiyaEskandary/Slither.io-bot)](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot)
+[![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=docs)](http://slitherio-bot.readthedocs.io/en/docs/?badge=docs)
 
 # Table of Contents
 - [Installation instructions](https://github.com/ErmiyaEskandary/Slither.io-bot#installation-instructions)
@@ -47,7 +48,6 @@ I | Automatic Respawning
 **O** | **Mobile rendering - Try this if you experience lag**
 C | Enemy avoidance / Collision prevention
 A / S | Head collision radius multiplier increase / decrease
-E / R | Body collision radius multiplier increase / decrease
 Z | Reset zoom
 ESC | Quick respawn
 X | Change skin
