@@ -56,6 +56,8 @@ There are three main units used for the game. Some of them subdivide into others
 -----------------
 
 This is the unit used by the game for mouse input. Basically, they are cartesian coordinates, relative to the browther window. The origin can either be at the top left corner, starting at :math:`(0, 0)`, or the center of the window.
+.. note::
+    If the origin is the center, then the unit is called **Mouse unit**.
 
 2.2.2 Canvas unit
 -----------------
