@@ -2,6 +2,7 @@
 Goal : make a bot for slither.io
 
 [![CLA assistant](https://cla-assistant.io/readme/badge/ErmiyaEskandary/Slither.io-bot)](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot)
+[![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=docs)](http://slitherio-bot.readthedocs.io/en/docs/?badge=docs)
 
 # Table of Contents
 - [Installation instructions](https://github.com/ErmiyaEskandary/Slither.io-bot#installation-instructions)
