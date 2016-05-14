@@ -100,16 +100,15 @@ var canvas = (function() {
                 circle.radius * window.gsc
             );
         },
-        
+
         // Constructor for circle type
-        circle: function(x,y,r)
-        {
+        circle: function (x, y, r) {
             var c = {
                 x: Math.round(x),
                 y: Math.round(y),
-                radius: Math.round(r),
+                radius: Math.round(r)
             };
-            
+
             return c;
         },
 
@@ -155,7 +154,7 @@ var canvas = (function() {
         drawCircle: function(circle, colour, fill, alpha) {
             if (alpha === undefined) alpha = 1;
             if (circle.radius === undefined) circle.radius = 5;
-            
+
             var context = window.mc.getContext('2d');
             var drawCircle = canvas.circleMapToCanvas(circle);
             
@@ -163,13 +162,14 @@ var canvas = (function() {
             context.globalAlpha = alpha;
             context.beginPath();
             context.strokeStyle = colour;
-            context.arc(drawCircle.x, drawCircle.y, drawCircle.radius, 0, Math.PI * 2);
+            context.arc(drawCircle.x, drawCircle.y, drawCircle.radius,
+                0, Math.PI * 2);
             context.stroke();
             if (fill) {
                 context.fillStyle = colour;
                 context.fill();
-            }        
-           context.restore();
+            }
+            context.restore();
         },
 
         // Draw an angle.
@@ -302,12 +302,14 @@ var canvas = (function() {
                 if (distance2 < bothRadii * bothRadii) {
                     if (window.visualDebugging) {
                         var collisionPointCircle = canvas.circle(
-                            ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) / bothRadii,
-                            ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) / bothRadii,
+                            ((circle1.x * circle2.radius) + (circle2.x * circle1.radius))
+                            / bothRadii,
+                            ((circle1.y * circle2.radius) + (circle2.y * circle1.radius))
+                            / bothRadii,
                             5
                         );
                         canvas.drawCircle(circle2, 'red', true);
-                        canvas.drawCircle(collisionPointCircle, 'cyan', true)
+                        canvas.drawCircle(collisionPointCircle, 'cyan', true);
                     }
                     return true;
                 }
@@ -465,7 +467,7 @@ var bot = (function() {
                 ls; snake++) {
                 scPoint = undefined;
 
-                if (window.snakes[snake].id != window.snake.id) {
+                if (window.snakes[snake].id !== window.snake.id) {
                     if (window.visualDebugging) {
                         var hCircle = canvas.circle(
                             window.snakes[snake].xx,
@@ -516,7 +518,7 @@ var bot = (function() {
             }
             bot.collisionPoints.sort(bot.sortDistance);
         },
-        
+
         // Checks to see if you are going to collide with anything in the collision detection radius
         checkCollision: function(r) {
             if (!window.collisionDetection) return false;
@@ -527,7 +529,7 @@ var bot = (function() {
 
             window.snake.cos = Math.cos(window.snake.ang).toFixed(3);
             window.snake.sin = Math.sin(window.snake.ang).toFixed(3);
-            
+
             var ra = r;
             var inBigCircle = 0;
             var bigCirclePts = [];
