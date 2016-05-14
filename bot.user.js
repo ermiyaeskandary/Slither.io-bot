@@ -971,6 +971,7 @@ var userInterface = (function() {
                         bot.launchBot();
                         bot.isBotEnabled = true;
                     }
+                    userInterface.onPrefChange();
                     break;
                 }
             }
