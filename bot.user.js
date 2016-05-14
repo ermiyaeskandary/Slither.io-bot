@@ -102,7 +102,7 @@ var canvas = (function() {
         },
 
         // Constructor for circle type
-        circle: function (x, y, r) {
+        circle: function(x, y, r) {
             var c = {
                 x: Math.round(x),
                 y: Math.round(y),
