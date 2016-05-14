@@ -756,46 +756,83 @@ var bot = (function() {
             bot.astarFoodFinder();
         },
 
-        astarFoodFinder: function() {
-            var i;
-            var lines = [];
-            for(i=0; i<bot.radarResults.length; i++) {
-                var line = bot.radarResults[i];
-                if( line.cell ) 
-                    continue;
+        currentState: 'findFood',
 
-                lines.push(line);
-            }
-            var randomLine = parseInt(Math.random() * lines.length);
-            var pct = 0.0;
-            if( bot.radarResults.length )
-                pct = lines.length / bot.radarResults.length;
-            if( !bot.followLine  ) {
-                
+        state: {
+            findFood: function() {
                 if( collisionGrid.foodGroups.length ) {
+                    var i;
+                    var lines = [];
+                    for(i=0; i<bot.radarResults.length; i++) {
+                        var line = bot.radarResults[i];
+                        if( line.cell ) 
+                            continue;
+
+                        lines.push(line);
+                    }
+                    var randomLine = parseInt(Math.random() * lines.length);
+                    var pct = 0.0;
+                    if( bot.radarResults.length )
+                        pct = lines.length / bot.radarResults.length;
+
                     var foodCnt = 0;
                     var bestFood = collisionGrid.foodGroups[foodCnt++];
                     var destpos = collisionGrid.getCellByColRow(bestFood.x, bestFood.y);
-                    while( destpos.cell && destpos.cell.length ) {
+                    while( (destpos.cell && destpos.cell.length) || bot.ignoreCell[bestFood.x+","+bestFood.y] !== undefined ) {
                         bestFood = collisionGrid.foodGroups[foodCnt++];
                         destpos = collisionGrid.getCellByColRow(bestFood.x, bestFood.y);
+                    }
+                    if( !bestFood ) {
+                        return;
                     }
                     window.goalCoordinates = {x: bestFood.x, y:bestFood.y};
                     canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
                     bot.followLine = true;
-                    bot.followTimer = setTimeout(bot.stopFollowLine, 8000*pct);
+                    bot.followTimer = setTimeout(function(){ bot.stopFollowLine(destpos); bot.astarFoodFinder('findFood'); }, 8000*pct);
+                    bot.setNextState('trackFood');
                 }
-            }
-            else {
-
+            },
+            trackFood: function() {
+                var i;
+                var lines = [];
+                var collisions = [];
                 var curpos = {x: window.getX(), y:window.getY()}
-                var dist = canvas.getDistance(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y);
+
+                for(i=0; i<bot.radarResults.length; i++) {
+                    var line = bot.radarResults[i];
+                    if( line.cell ) {
+                        var linePos = collisionGrid.getCellByColRow(line.x,line.y);
+                        var dist = canvas.getDistance(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y);
+
+                        collisions.push({dist:dist, line:line});
+                        continue;
+                    }
+                        
+                    lines.push(line);
+                }
+
+                collisions.sort(function(a,b) {
+                    return a.dist - b.dist;
+                });
+
+                var pct = 0.0;
+                if( bot.radarResults.length )
+                    pct = lines.length / bot.radarResults.length;
+
+                
                 var line = collisionGrid.lineTest(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y);
                 var linePos = collisionGrid.getCellByColRow(line.x,line.y);
-                
-                if( dist < 50 ) {
-                    bot.stopFollowLine();
+                var dist = canvas.getDistance(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y);
+
+                if( dist < 100 ) {
+                    bot.stopFollowLine(0);
+                    bot.setNextState('findFood');
                     return;
+                }
+
+                if( pct <= 0.25 || (collisions.length && collisions[0].dist < 100) ) {
+                    bot.stopFollowLine(0);
+                    bot.setNextState("avoidSurround");
                 }
 
                 var collisionDist = canvas.getDistance(curpos.x, curpos.y, linePos.x, linePos.y);
@@ -807,7 +844,8 @@ var bot = (function() {
                     window.goalCoordinates.x = curpos.x - dir.x;
                     window.goalCoordinates.y = curpos.y - dir.y;
                     canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
-                    bot.stopFollowLine();
+                    bot.stopFollowLine(0);
+                    bot.setNextState('avoidSurround');
                     return;
                 }
 
@@ -829,13 +867,87 @@ var bot = (function() {
                     canvas.setMouseCoordinates(canvas.mapToMouse(cell));
                 }
                 else {
-                    bot.stopFollowLine();
+                    bot.stopFollowLine(0);
+                    bot.setNextState('findFood');
                 }
+            },
+            avoidAggressor: function() {
+
+            },
+
+            avoidSurround: function() {
+                setAcceleration(1);
+
+                var i;
+                var lines = [];
+                var collisions = [];
+                var curpos = {x: window.getX(), y:window.getY()}
+
+                for(i=0; i<bot.radarResults.length; i++) {
+                    var line = bot.radarResults[i];
+                    if( line.cell ) {
+                        var linePos = collisionGrid.getCellByColRow(line.x,line.y);
+                        var dist = canvas.getDistance(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y);
+                        collisions.push({dist:dist, x:linePos.x, y:linePos.y, line:line});
+                        continue;
+                    }
+                    lines.push(line);
+                }
+                collisions.sort(function(a,b) {
+                    return a.dist - b.dist;
+                });
+                var pct = 0.0;
+                if( bot.radarResults.length )
+                    pct = lines.length / bot.radarResults.length;
+
+                if( lines.length == 0 ) {
+
+                    var closest = collisions[0];
+                    var cell = closest.cell;
+                    var newpos = {x:curpos.x,y:curpos.y};
+
+                    if( cell && cell.length ) {
+                        console.log("moving away from snake part");
+                        newpos.x += curpos.x - cell[0].part.x;
+                        newpos.y += curpos.y - cell[0].part.y;
+                        canvas.setMouseCoordinates(canvas.mapToMouse(linePos)); 
+                        var dist = canvas.getDistance(curpos.x, curpos.y, cell[0].part.x, cell[0].part.y);
+                        if( dist > 100 ) {
+                            bot.setNextState('findFood');
+                        }
+                    }
+                    
+                    
+                    
+                } else if( pct > 0.25 ) {
+                    bot.setNextState('findFood');
+                }
+                else {
+                    var randomLine = parseInt(Math.random() * lines.length);
+                    var line = lines[randomLine];
+                    var linePos = collisionGrid.getCellByColRow(line.x,line.y);
+                    canvas.setMouseCoordinates(canvas.mapToMouse(linePos)); 
+                }
+                
 
             }
         },
+
+        setNextState: function(state) {
+            if( state && state != bot.currentState ) {
+                bot.currentState = state;
+            }
+        },
+        astarFoodFinder: function() {
+            setAcceleration(1);
+            
+            bot.state[bot.currentState]();
+        },
+        ignoreCell: {},
+
         followTimer: 0,
-        stopFollowLine: function() {
+        stopFollowLine: function(cell) {
+            bot.ignoreCell[cell.col+","+cell.row] = true;
             bot.followLine = false;
             clearTimeout(bot.followTimer);
         }
@@ -1041,6 +1153,7 @@ var userInterface = (function() {
             // Botstatus overlay
             var generalStyle = '<span style = "opacity: 0.35";>';
             window.fps_overlay.innerHTML = generalStyle + 'FPS: ' + userInterface.framesPerSecond.getFPS() + '</span>';
+            window.state_overlay.innerHTML = generalStyle + "State: " + bot.currentState + '</span>';
 
             if (window.position_overlay && window.playing) {
                 // Display the X and Y of the snake
@@ -1163,6 +1276,7 @@ window.loop = function() {
     userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 120px;');
     userInterface.appendDiv('ip_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 150px;');
     userInterface.appendDiv('fps_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 170px;');
+    userInterface.appendDiv('state_overlay', 'nsi', window.generalstyle + 'right: 30; bottom: 190px;');
 
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', canvas.setZoom);
@@ -1682,8 +1796,8 @@ var collisionGrid = (function() {
            // y = y ;
             x = Math.floor(x) - collisionGrid.startX;
             y = Math.floor(y) - collisionGrid.startY;
-            x = x - (x % collisionGrid.cellSize);
-            y = y - (y % collisionGrid.cellSize);
+            //x = x - (x % collisionGrid.cellSize);
+           // y = y - (y % collisionGrid.cellSize);
 
             col = parseInt(Math.floor(x / collisionGrid.cellSize));
             row = parseInt(Math.floor(y / collisionGrid.cellSize));
@@ -1904,14 +2018,14 @@ var collisionGrid = (function() {
             
                     //calculate grid width/height of a snake part
                     var cell = collisionGrid.getCellByXY(part.xx, part.yy);
-                    var radius = window.getSnakeWidth(snk.sc);
+                    var radius = window.getSnakeWidth(snk.sc)*2;
                     var radiusSqr = radius*radius;
                     var cellcount = collisionGrid.calculateMaxCellCount(radius);
                     var cellcount2 = cellcount*2;
 
                     //mark cell where part's center is located
                     collisionGrid.markCellWall(cell.col, cell.row, {snake:snk, part:part});
-                    
+                    canvas.drawCircle(canvas.mapToCanvas({x:part.xx, y:part.yy}), 'red', true);
 
                     //mark surrounding cells using part's radius
                     collisionGrid.sliceGrid(cell.col-cellcount, cell.row-cellcount, cellcount2, cellcount2, 
