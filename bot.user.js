@@ -157,7 +157,7 @@ var canvas = (function() {
 
             var context = window.mc.getContext('2d');
             var drawCircle = canvas.circleMapToCanvas(circle);
-            
+
             context.save();
             context.globalAlpha = alpha;
             context.beginPath();
@@ -522,7 +522,7 @@ var bot = (function() {
         // Checks to see if you are going to collide with anything in the collision detection radius
         checkCollision: function(r) {
             if (!window.collisionDetection) return false;
-            
+
             r = Number(r);
             var xx = Number(window.snake.xx.toFixed(3));
             var yy = Number(window.snake.yy.toFixed(3));
@@ -557,7 +557,7 @@ var bot = (function() {
             );
 
             var sidecircle_r = canvas.circle(
-                window.snake.lnp.xx - 
+                window.snake.lnp.xx -
                 ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth())
                 - window.snake.lnp.yy),
                 window.snake.lnp.yy +
