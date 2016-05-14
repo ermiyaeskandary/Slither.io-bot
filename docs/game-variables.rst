@@ -63,7 +63,7 @@ The nickname you choose on login screen. In case you forget...
 This is an array containing every snakes, including yours. The content of each object is almost the same as in the ``snake`` object.
 It may contain null or undefined objects.
 
-.. note:: ``snakes[index].pts`` contains
+.. note:: ``snakes[index].pts`` contains every components of the snake.
 
 1.3.3 ``foods`` - Array of objects
 ----------------------------------
