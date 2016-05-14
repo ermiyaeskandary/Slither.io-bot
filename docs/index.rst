@@ -11,7 +11,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   game-variables
    conversion_algorithms
+
 
 Indices and tables
 ==================
