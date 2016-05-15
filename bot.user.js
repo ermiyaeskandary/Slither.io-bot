@@ -123,10 +123,7 @@ var canvas = (function() {
         },
 
         // Manual mobile rendering
-        toggleMobileRendering: function(mobileRendering) {
-            window.mobileRender = mobileRendering;
-            window.log('Mobile rendering set to: ' + window.mobileRender);
-            userInterface.savePreference('mobileRender', window.mobileRender);
+        mobileRendering: function() {
             // Set render mode
             if (window.mobileRender) {
                 canvas.setBackground(
@@ -361,10 +358,10 @@ var bot = (function() {
         // Stops the bot
         stopBot: function() {
             window.log('Stopping Bot.');
-            window.setAcceleration(0); // Disable the "sprint"
-            bot.isBotRunning = false;
+            window.setAcceleration(0); // Stop boosting
             // Re-enable the original onmousemove function
             window.onmousemove = original_onmousemove;
+            bot.isBotRunning = false;
         },
 
         // Connects the bot
@@ -442,8 +439,8 @@ var bot = (function() {
 
         // Sorting function for food, from property 'clusterCount'
         sortFood: function(a, b) {
-            return (a.clusterScore === b.clusterScore ? 0 : a.clusterScore /
-                a.distance > b.clusterScore / b.distance ? -1 :
+            return (a.clusterScore === b.clusterScore ? 0 :
+                a.clusterScore / a.distance > b.clusterScore / b.distance ? -1 :
                 1);
         },
 
@@ -894,7 +891,10 @@ var userInterface = (function() {
                 }
                 // Letter 'O' to change rendermode (visual)
                 if (e.keyCode === 79) {
-                    canvas.toggleMobileRendering(!window.mobileRender);
+                    window.mobileRender = !window.mobileRender;
+                    window.log('Mobile rendering set to: ' + window.mobileRender);
+                    userInterface.savePreference('mobileRender', window.mobileRender);
+                    canvas.mobileRendering();
                 }
                 // Letter 'C' to toggle Collision detection / enemy avoidance
                 if (e.keyCode === 67) {
@@ -948,31 +948,31 @@ var userInterface = (function() {
                 if (e.keyCode === 13) {
                     userInterface.saveNick();
                 }
-                userInterface.onPrefChange();
+                userInterface.onPrefChange(); // Update the bot status
             }
         },
 
         onmousedown: function(e) {
-            original_onmouseDown(e);
             e = e || window.event;
             if (window.playing) {
                 switch (e.which) {
                     // "Left click" to manually speed up the slither
-                case 1:
-                    window.setAcceleration(1);
-                    window.log('Manual boost...');
-                    break;
-                        // "Right click" to toggle bot in addition to the letter "T"
-                case 3:
-                    if (bot.isBotRunning) {
-                        bot.stopBot();
-                        bot.isBotEnabled = false;
-                    } else {
-                        bot.launchBot();
-                        bot.isBotEnabled = true;
-                    }
-                    break;
+                    case 1:
+                        window.setAcceleration(1);
+                        window.log('Manual boost...');
+                        break;
+                    // "Right click" to toggle bot in addition to the letter "T"
+                    case 3:
+                        if (bot.isBotRunning) {
+                            bot.stopBot();
+                            bot.isBotEnabled = false;
+                        } else {
+                            bot.launchBot();
+                            bot.isBotEnabled = true;
+                        }
+                        break;
                 }
+                userInterface.onPrefChange(); // Update the bot status
             }
         },
 
