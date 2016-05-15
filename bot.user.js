@@ -367,7 +367,7 @@ var bot = (function() {
              * Removed the onmousemove listener so we can move the snake
              * manually by setting coordinates
              */
-            window.userInterface.onPrefChange();
+            userInterface.onPrefChange();
             window.onmousemove = function() {};
             bot.hideTop();
         },
@@ -779,7 +779,7 @@ var bot = (function() {
                         window.goalCoordinates));
                 }
             } else {
-                bot.tickCounter = -window.userInterface.framesPerSecond.getFPS();
+                bot.tickCounter = -userInterface.framesPerSecond.getFPS();
             }
         }
     };
