@@ -238,7 +238,10 @@ var canvas = (function() {
                 endAngleVector);
         },
 
-        // Given two vectors, return a truthy/falsy value depending on their position relative to each other.
+        /*
+         * Given two vectors, return a truthy/falsy value depending
+         * on their position relative to each other.
+         */
         areClockwise: function(vector1, vector2) {
             // Calculate the dot product.
             return -vector1.x * vector2.y + vector1.y * vector2.x >
@@ -360,8 +363,11 @@ var bot = (function() {
         launchBot: function() {
             window.log('Starting Bot.');
             bot.isBotRunning = true;
-            // Removed the onmousemove listener so we can move the snake manually by setting coordinates
-            userInterface.onPrefChange();
+            /*
+             * Removed the onmousemove listener so we can move the snake
+             * manually by setting coordinates
+             */
+            window.userInterface.onPrefChange();
             window.onmousemove = function() {};
             bot.hideTop();
         },
@@ -415,7 +421,7 @@ var bot = (function() {
         changeSkin: function() {
             if (window.playing && window.snake !== null) {
                 var skin = window.snake.rcv;
-                max = window.max_skin_cv;
+                var max = window.max_skin_cv;
                 skin++;
                 if (skin > max) {
                     skin = 0;
@@ -695,6 +701,7 @@ var bot = (function() {
         computeFoodGoal: function() {
             var sortedFood = bot.getSortedFood();
 
+            // eslint-disable-next-line no-unused-vars
             var bestClusterIndx = 0;
             var bestClusterScore = 0;
             var bestClusterAbsScore = 0;
@@ -772,7 +779,7 @@ var bot = (function() {
                         window.goalCoordinates));
                 }
             } else {
-                bot.tickCounter = -userInterface.framesPerSecond.getFPS();
+                bot.tickCounter = -window.userInterface.framesPerSecond.getFPS();
             }
         }
     };
@@ -781,6 +788,7 @@ var bot = (function() {
 var userInterface = (function() {
     // Save the original slither.io functions so we can modify them, or reenable them later.
     var original_keydown = document.onkeydown;
+    // eslint-disable-next-line no-unused-vars
     var original_onmouseDown = window.onmousedown;
     var original_oef = window.oef;
 
@@ -1115,7 +1123,8 @@ window.loop = function() {
 
     // Top left
     window.generalstyle =
-        'color: #FFF; font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif; font-size: 14px; position: fixed; z-index: 7;';
+        'color: #FFF; font-family: Arial, \'Helvetica Neue\',' +
+        ' Helvetica, sans-serif; font-size: 14px; position: fixed; z-index: 7;';
     userInterface.appendDiv('version_overlay', 'nsi', window.generalstyle +
         'left: 30; top: 50px;');
     userInterface.appendDiv('botstatus_overlay', 'nsi', window.generalstyle +
@@ -1157,6 +1166,7 @@ window.loop = function() {
         '(X) Change skin </span>';
     window.quickResp_overlay.innerHTML = generalStyle +
         '(ESC) Quick Respawn </span>';
+    // eslint-disable-next-line no-undef
     window.version_overlay.innerHTML = generalStyle + 'Version: ' + GM_info
         .script.version;
 
