@@ -1019,6 +1019,10 @@ var userInterface = (function() {
                     '</span>';
             }
 
+            if (window.playing) {
+                this.setHighScore()
+            }
+
             if (window.playing && window.visualDebugging && bot.isBotRunning) {
                 // Only draw the goal when a bot has a goal.
                 if (window.goalCoordinates) {
@@ -1064,16 +1068,16 @@ var userInterface = (function() {
 
         // Set high score
         setHighScore: function() {
-            var highScore;
-            var scoreHUD;
-            if (!w.snake || !w.fpsls || !w.fmlts) {
+            var highScore = 0;
+            var scoreHUD = 0;
+            if (!window.snake || !window.fpsls || !window.fmlts) {
                 return;
             }
-            var currentScore = Math.floor(150 * (w.fpsls[w.snake.sct] + 
-            w.snake.fam / w.fmlts[w.snake.sct] - 1) - 50) / 10;
+            var currentScore = Math.floor(150 * (window.fpsls[w.snake.sct] + 
+            window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10;
             if (currentScore > highScore) {
                 highScore = currentScore;
-                w.localStorage.setItem('highscore', highScore);
+                window.localStorage.setItem('highscore', highScore);
             }
             if (scoreHUD && highScore > 0) {
                 scoreHUD.textContent = 'Best score: ' + highScore;
