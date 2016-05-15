@@ -1073,7 +1073,7 @@ var userInterface = (function() {
             if (!window.snake || !window.fpsls || !window.fmlts) {
                 return;
             }
-            var currentScore = Math.floor(150 * (window.fpsls[w.snake.sct] + 
+            var currentScore = Math.floor(150 * (window.fpsls[window.snake.sct] + 
             window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10;
             if (currentScore > highScore) {
                 highScore = currentScore;
