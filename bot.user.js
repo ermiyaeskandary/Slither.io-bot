@@ -1015,7 +1015,7 @@ var userInterface = (function() {
             window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10;
             if (currentScore > highScore) {
                 highScore = currentScore;
-                window.localStorage['highScoreLocal'] = highScore
+                window.localStorage.setItem('highScoreLoc', highScore);
                 console.log('Current Score: ' + currentScore);
             }
         },
@@ -1030,7 +1030,7 @@ var userInterface = (function() {
                 // Display Personal High Score
                 userInterface.setHighScore();
                 window.scoreHUD.innerHTML = generalStyle +
-                'Your High Score: ' + window.localStorage['highScoreLocal'];
+                'Your High Score: ' + window.localStorage.getItem('highScoreLoc');
 
                 // Display the X and Y of the snake
                 window.position_overlay.innerHTML = generalStyle +
