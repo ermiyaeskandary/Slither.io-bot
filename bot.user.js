@@ -863,7 +863,7 @@ var userInterface = (function() {
         onkeydown: function(e) {
             // Original slither.io onkeydown function + whatever is under it
             original_keydown(e);
-            if (document.activeElement.parentElement !== window.nick_holder) {
+            if (window.playing) {
                 // Letter `T` to toggle bot
                 if (e.keyCode === 84) {
                     if (bot.isBotRunning) {
