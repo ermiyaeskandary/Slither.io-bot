@@ -44,23 +44,6 @@ var canvas = (function() {
             window.hh
         ],
 
-        // Set high score
-        setHighScore: function() {
-            var highScore;
-            var scoreHUD;
-            if (!w.snake || !w.fpsls || !w.fmlts) {
-               return;
-            }
-            var currentScore = Math.floor(150 * (w.fpsls[w.snake.sct] + w.snake.fam / w.fmlts[w.snake.sct] - 1) - 50) / 10;
-            if (currentScore > highScore) {
-                highScore = currentScore;
-                w.localStorage.setItem("highscore", highScore);
-            }
-            if (scoreHUD && highScore > 0) {
-                scoreHUD.textContent = "Best score: " + highScore;
-            }
-        }
-
         // Spoofs moving the mouse to the provided coordinates.
         setMouseCoordinates: function(point) {
             window.xm = point.x;
@@ -1076,6 +1059,23 @@ var userInterface = (function() {
                     window.play_btn.setEnabled(true);
                 }
                 window.resetGame();
+            }
+        },
+        
+        // Set high score
+        setHighScore: function() {
+            var highScore;
+            var scoreHUD;
+            if (!w.snake || !w.fpsls || !w.fmlts) {
+               return;
+            }
+            var currentScore = Math.floor(150 * (w.fpsls[w.snake.sct] + w.snake.fam / w.fmlts[w.snake.sct] - 1) - 50) / 10;
+            if (currentScore > highScore) {
+                highScore = currentScore;
+                w.localStorage.setItem("highscore", highScore);
+            }
+            if (scoreHUD && highScore > 0) {
+                scoreHUD.textContent = "Best score: " + highScore;
             }
         },
 
