@@ -13,6 +13,8 @@ Contents:
 
    game-variables
    conversion_algorithms
+   bot-variables
+   getters-setters
 
 
 Indices and tables
