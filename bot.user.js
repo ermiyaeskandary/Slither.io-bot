@@ -1196,6 +1196,10 @@ window.loop = function() {
         window.render_mode = 2;
     }
 
+    // Modify the redraw()-function to remove the zoom altering code.
+    var original_redraw = window.redraw.toString();
+    var new_redraw = original_redraw.replace('gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
+    window.redraw = new Function(new_redraw.substring(new_redraw.indexOf('{')+1,new_redraw.lastIndexOf('}')));
 
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
@@ -1207,7 +1211,3 @@ window.loop = function() {
     bot.launchBot();
     window.startInterval = setInterval(bot.startBot, 1000);
 })();
-
-var original_redraw = window.redraw.toString();
-var new_redraw = original_redraw.replace('gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
-window.redraw = new Function(new_redraw.substring(new_redraw.indexOf('{')+1,new_redraw.lastIndexOf('}')));
