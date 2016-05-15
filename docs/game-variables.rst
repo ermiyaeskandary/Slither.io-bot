@@ -31,9 +31,10 @@ This variable tells wether the game has started or not.
 ====================================
 
 The title may not be clear, but these are variables containing a list of snakes, etc..., with game unit.
+
 .. glossary::
     Game unit
-        One of the units used by the bot. Please refer to 2.2.3 of the doc.
+        One of the units used by the bot. Please refer to :ref:`different-units-section`.
 
 1.3.1 ``snake`` - Object
 ------------------------
@@ -115,4 +116,4 @@ They are the window size. They are dynamic read-only values.
 
 They stand for 'x mouse' and 'y mouse' respectively. They are used to control the snake.
 
-.. note:: It should be in mouse coordinates. Please refer to 2.2.1
+.. note:: It should be in mouse coordinates. Please refer to :ref:`different-units-section`
