@@ -1005,6 +1005,21 @@ var userInterface = (function() {
                 ' </span>';
         },
 
+        // Set high score
+        setHighScore: function() {
+            var highScore = 1;
+            if (!window.snake || !window.fpsls || !window.fmlts) {
+                return;
+            }
+            var currentScore = Math.floor(150 * (window.fpsls[window.snake.sct] +
+            window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10;
+            if (currentScore > highScore) {
+                highScore = currentScore;
+                window.localStorage['highScoreLocal'] = highScore
+                console.log('Current Score: ' + currentScore);
+            }
+        },
+
         onFrameUpdate: function() {
             // Botstatus overlay
             var generalStyle = '<span style = "opacity: 0.35";>';
@@ -1012,15 +1027,16 @@ var userInterface = (function() {
                 userInterface.framesPerSecond.getFPS() + '</span>';
 
             if (window.position_overlay && window.playing) {
+                // Display Personal High Score
+                userInterface.setHighScore();
+                window.scoreHUD.innerHTML = generalStyle +
+                'Your High Score: ' + window.localStorage['highScoreLocal'];
+
                 // Display the X and Y of the snake
                 window.position_overlay.innerHTML = generalStyle +
                     'X: ' + (Math.round(window.snake.xx) || 0) +
                     ' Y: ' + (Math.round(window.snake.yy) || 0) +
                     '</span>';
-            }
-
-            if (window.playing) {
-                this.setHighScore();
             }
 
             if (window.playing && window.visualDebugging && bot.isBotRunning) {
@@ -1063,24 +1079,6 @@ var userInterface = (function() {
                     window.play_btn.setEnabled(true);
                 }
                 window.resetGame();
-            }
-        },
-
-        // Set high score
-        setHighScore: function() {
-            var highScore = 0;
-            var scoreHUD = 0;
-            if (!window.snake || !window.fpsls || !window.fmlts) {
-                return;
-            }
-            var currentScore = Math.floor(150 * (window.fpsls[window.snake.sct] +
-            window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10;
-            if (currentScore > highScore) {
-                highScore = currentScore;
-                window.localStorage.setItem('highscore', highScore);
-            }
-            if (scoreHUD && highScore > 0) {
-                scoreHUD.textContent = 'Best score: ' + highScore;
             }
         },
 
@@ -1189,7 +1187,7 @@ window.loop = function() {
         'right: 30; bottom: 150px;');
     userInterface.appendDiv('fps_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 170px;');
-    userInterface.appendDiv('score-hud', 'nsi', window.generalstyle +
+    userInterface.appendDiv('scoreHUD', 'nsi', window.generalstyle +
         'right: 30; bottom: 190px;');
 
     // Listener for mouse wheel scroll - used for setZoom function
