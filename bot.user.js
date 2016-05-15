@@ -1067,7 +1067,7 @@ var userInterface = (function() {
             var highScore;
             var scoreHUD;
             if (!w.snake || !w.fpsls || !w.fmlts) {
-               return;
+                return;
             }
             var currentScore = Math.floor(150 * (w.fpsls[w.snake.sct] + 
             w.snake.fam / w.fmlts[w.snake.sct] - 1) - 50) / 10;
@@ -1185,7 +1185,7 @@ window.loop = function() {
         'right: 30; bottom: 150px;');
     userInterface.appendDiv('fps_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 170px;');
-    userInterface.appendDiv('score-hud', 'nsi', window.generalstyle + 
+    userInterface.appendDiv('score-hud', 'nsi', window.generalstyle +
         'right: 30; bottom: 190px;');
 
     // Listener for mouse wheel scroll - used for setZoom function
