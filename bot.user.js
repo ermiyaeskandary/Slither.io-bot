@@ -1078,7 +1078,7 @@ var userInterface = (function() {
         }
         
         // Set high score
-    function setHighScore() {
+    setHighScore: function(){
         var highScore
             scoreHUD
         if (!w.snake || !w.fpsls || !w.fmlts) {
