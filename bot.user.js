@@ -1020,7 +1020,7 @@ var userInterface = (function() {
             }
 
             if (window.playing) {
-                this.setHighScore()
+                this.setHighScore();
             }
 
             if (window.playing && window.visualDebugging && bot.isBotRunning) {
