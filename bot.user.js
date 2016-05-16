@@ -691,7 +691,7 @@ var bot = (function() {
                 return !(
                     canvas.circleIntersect(
                     canvas.circle(val.xx, val.yy, 2),
-                    window.snake.sidecircle_l) &&
+                    window.snake.sidecircle_l) ||
                     canvas.circleIntersect(
                     canvas.circle(val.xx, val.yy, 2),
                     window.snake.sidecircle_r));
