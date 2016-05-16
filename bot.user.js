@@ -2185,7 +2185,7 @@ var collisionGrid = (function() {
         },
 
         markCellFood: function(col, row, food) {
-            var node = collisionGrid.markCell(col, row, 1/(food.sz*food.sz*food.sz), TYPE_FOOD);
+            var node = collisionGrid.markCell(col, row, -(food.sz*food.sz), TYPE_FOOD);
             node.items.push(food);
             return node;
         },
