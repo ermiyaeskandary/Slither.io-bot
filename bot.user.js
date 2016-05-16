@@ -1538,8 +1538,10 @@ window.sosBackup = sos;
 
     // Modify the redraw()-function to remove the zoom altering code.
     var original_redraw = window.redraw.toString();
-    var new_redraw = original_redraw.replace('gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
-    window.redraw = new Function(new_redraw.substring(new_redraw.indexOf('{')+1,new_redraw.lastIndexOf('}')));
+    var new_redraw = original_redraw.replace(
+        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
+    window.redraw = new Function(new_redraw.substring(
+        new_redraw.indexOf('{') + 1, new_redraw.lastIndexOf('}')));
 
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
