@@ -1327,7 +1327,6 @@ var userInterface = (function() {
                 }
                 userInterface.onPrefChange(); // Update the bot status
             }
-            userInterface.onPrefChange();
         },
 
         onPrefChange: function() {
