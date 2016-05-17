@@ -1192,6 +1192,18 @@ var userInterface = (function() {
                 /* This can be used in the future for multiple score
                 window.scores.push(parseInt(document.querySelector(
                     'div#lastscore').childNodes[1].innerHTML)); */
+                var today = new Date();
+                var dd = today.getDate();
+                var mm = today.getMonth()+1; //January is 0!
+                var yyyy = today.getFullYear();
+                if(dd<10) {
+                    dd='0'+dd;
+                }
+                if(mm<10) {
+                    mm='0'+mm;
+                }
+                today = mm+'/'+dd+'/'+yyyy;
+                window.scores.push([lastScore, today, GM_info.script.version]);
             }
 
         },
@@ -1329,6 +1341,18 @@ var userInterface = (function() {
                 // Save nickname when you press "Enter"
                 if (e.keyCode === 13) {
                     userInterface.saveNick();
+                }
+                if (e.keyCode === 66) {
+                    var tekst = "<table id='score'>" +
+                        "<tr><th>Score</th><th>Date</th><th>bot version</th></tr>";
+                    for (i = 0; i < window.scores.length; i++) { 
+                        tekst += "<tr><td>" + window.scores[i][0] +
+                        "</td><td>" + window.scores[i][1] +
+                        "</td><td>" + window.scores[i][2] + "</td></tr>";
+                    }
+                    tekst += "</table>";
+                    var scores_window = window.open('/', 'Your personal highscores', 'width=300,height=300');
+                    scores_window.document.write(tekst);
                 }
                 userInterface.onPrefChange(); // Update the bot status
             }
