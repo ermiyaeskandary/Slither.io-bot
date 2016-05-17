@@ -1174,13 +1174,14 @@ var userInterface = (function() {
                 var highScore = parseInt(userInterface.loadPreference('highscore', 1));
                 window.log('HighScore: ' + highScore);
                 // Retrieve the last, current score
-                var lastScore = parseInt(document.querySelector('div#lastscore').childNodes[1].innerHTML);
+                var lastScore = parseInt(
+                    document.querySelector('div#lastscore').childNodes[1].innerHTML);
                 window.log('LastScore: ' + lastScore);
                 // Check if the current score is bigger than the highscore
                 if (lastScore > highScore) {
                     // Set the currentscore as the highscore
                     userInterface.savePreference('highscore', lastScore);
-                    window.log("New highscore! Score set to " + lastScore);
+                    window.log('New highscore! Score set to ' + lastScore);
                     // Display Personal HighScore
                     window.highscore_overlay.innerHTML = window.spanstyle +
                         'Your highscore: ' + lastScore + '</span>';
@@ -1548,7 +1549,8 @@ window.sosBackup = sos;
         'Version: ' + GM_info.script.version + '</span>';
 
     // Check for excisting highscore, if not, do not display it
-    if(highScore = parseInt(userInterface.loadPreference('highscore', false))) {
+    var highScore = parseInt(userInterface.loadPreference('highscore', false))
+    if(highScore) {
         window.highscore_overlay.innerHTML = window.spanstyle +
             'Your highscore: ' + highScore + '</span>';
     }
