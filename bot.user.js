@@ -8,7 +8,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.9.3
+// @version      0.9.4
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -162,14 +162,22 @@ var canvas = (function() {
         setZoom: function(e) {
             // Scaling ratio
             if (window.gsc) {
-                window.gsc *= Math.pow(0.9, e.wheelDelta / -120 ||
-                    e.detail / 2 || 0);
+                window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
+                window.desired_gsc = window.gsc;
             }
         },
 
         // Restores zoom to the default value.
         resetZoom: function() {
             window.gsc = 0.9;
+            window.desired_gsc = 0.9;
+        },
+
+        // Maintains Zoom
+        maintainZoom: function() {
+            if (window.desired_gsc !== undefined) {
+                window.gsc = window.desired_gsc;
+            }
         },
 
         // Sets background to the given image URL.
@@ -1352,7 +1360,6 @@ var userInterface = (function() {
                 }
                 userInterface.onPrefChange(); // Update the bot status
             }
-            userInterface.onPrefChange();
         },
 
         onPrefChange: function() {
@@ -1421,6 +1428,7 @@ var userInterface = (function() {
         oef: function() {
             // Original slither.io oef function + whatever is under it
             // requestAnimationFrame(window.loop);
+            canvas.maintainZoom();
             original_oef();
             if (bot.isBotRunning) window.loop();
             userInterface.onFrameUpdate();
@@ -1454,11 +1462,6 @@ var userInterface = (function() {
         }
     };
 })();
-window.play_btn.btnf.addEventListener('click', userInterface.playButtonClickListener);
-document.onkeydown = userInterface.onkeydown;
-window.onmousedown = userInterface.onmousedown;
-window.oef = userInterface.oef;
-window.onresize = userInterface.onresize;
 
 // Loop for running the bot
 window.loop = function() {
@@ -1543,7 +1546,6 @@ window.sosBackup = sos;
     userInterface.onPrefChange();
 
     // Bottom right
-
     userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 120px;');
     userInterface.appendDiv('ip_overlay', 'nsi', window.generalstyle +
@@ -1554,18 +1556,24 @@ window.sosBackup = sos;
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', canvas.setZoom);
     document.body.addEventListener('DOMMouseScroll', canvas.setZoom);
+    // Listener for the play button
+    window.play_btn.btnf.addEventListener('click', userInterface.playButtonClickListener);
+    // Hand over existing event listeners
+    document.onkeydown = userInterface.onkeydown;
+    window.onmousedown = userInterface.onmousedown;
+    window.onresize = userInterface.onresize;
+    // Hand over existing game function
+    window.oef = userInterface.oef;
 
-    // Set render mode
-    if (window.mobileRender) {
-        canvas.setBackground(
-            'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs'
-        );
-        window.render_mode = 1;
-    } else {
-        canvas.setBackground();
-        window.render_mode = 2;
-    }
+    // Apply previous mobile rendering status.
+    canvas.mobileRendering();
 
+    // Modify the redraw()-function to remove the zoom altering code.
+    var original_redraw = window.redraw.toString();
+    var new_redraw = original_redraw.replace(
+        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
+    window.redraw = new Function(new_redraw.substring(
+        new_redraw.indexOf('{') + 1, new_redraw.lastIndexOf('}')));
 
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
@@ -1930,14 +1938,6 @@ var collisionHelper = (function() {
                 collisionHelper.unitTable.push([Math.cos(angle), Math.sin(angle)]);
                 offset++;
             }
-            /*for(var a=0;a<4;a++) {
-                collisionHelper.unitTable[a] = [];
-                for(var b=0; b<4; b++) {
-                    var angle = collisionHelper.toRad * (b*90+offset);
-                    collisionHelper.unitTable[a].push([Math.cos(angle), Math.sin(angle)]);
-                }
-                offset+=22.5;
-            }*/
         },
 
         /**
@@ -2101,15 +2101,6 @@ var collisionGrid = (function() {
             collisionGrid.snakeAggressors = [];
             collisionGrid.addSnakes();
             collisionGrid.addFood();
-
-
-
-            //var cell = collisionGrid.getCellByXY(window.getX(), window.getY());
-            //collisionGrid.drawCell(cell.col, cell.row, 'yellow');
-
-            //canvas.drawRect(window.getX()-collisionGrid.getWidth()/2, window.getY()-collisionGrid.getHeight()/2, collisionGrid.cellSize, collisionGrid.cellSize, 'yellow');
-            //astarGraph = new Graph(collisionGrid.bgrid);
-            //collisionGrid.setupGrid();
         },
 
         setupGrid: function() {
@@ -2192,11 +2183,6 @@ var collisionGrid = (function() {
             if( !node || (type==TYPE_SNAKE && node.type!=TYPE_SNAKE)) {
                 node = new GridNode(col, row, weight, type);
             }
-            //if( node.items.length == 0 && node.type==TYPE_SNAKE)
-            //    collisionGrid.drawCell(col,row);
-                //else if ( type==TYPE_FOOD ){
-                //    node.weight += weight;
-                //}
             collisionGrid.grid[col][row] = node;
             return node;
         },
@@ -2285,7 +2271,6 @@ var collisionGrid = (function() {
 
             return ret;
         },
-
 
         generatePath: function(startX, startY, endX, endY) {
             var startCell = collisionGrid.getCellByXY(startX,startY);
@@ -2516,15 +2501,6 @@ var collisionGrid = (function() {
             collisionGrid.sliceGrid(cell.col-maxcellcount, cell.row-maxcellcount, maxcellcount2, maxcellcount2,
                 function(col, row, val) {
                     if( val && val.type != TYPE_SNAKE && val.type != TYPE_EMPTY ) return;//&& val.type!=TYPE_SNAKE ) return;
-/*
-                    var pos = collisionGrid.getCellByColRow(col,row);
-                    var centerX = pos[0] + collisionGrid.cellSize / 2;
-                    var centerY = pos[1] + collisionGrid.cellSize / 2;
-                    var xDist = centerX - part.xx;
-                    var yDist = centerY - part.yy;
-                    var dist = xDist*xDist + yDist*yDist;
-                    if( dist < radiusSqr ) {
-*/
                     if( col >= (cell.col-t1cellcount) && col <= (cell.col+t1cellcount*2) &&
                         row >= (cell.row-t1cellcount) && row <= (cell.row+t1cellcount*2) ) {
                         var marked = collisionGrid.markCellWall(col, row, {snake:snk, part:part});
@@ -2677,4 +2653,3 @@ var collisionGrid = (function() {
 
     }
 })();
-
