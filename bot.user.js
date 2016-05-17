@@ -8,7 +8,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.9.5
+// @version      0.9.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -1298,7 +1298,7 @@ var astar = {
     var closestNode = start; // set the start node to be the closest if required
 
     start.h = heuristic(start, end);
-    collisionGrid.markDirty(start);
+    // collisionGrid.markDirty(start);
     var maxtries = 10000;
     var trynum = 0;
 
@@ -1345,7 +1345,7 @@ var astar = {
           neighbor.h = neighbor.h || heuristic(neighbor, end);
           neighbor.g = gScore;
           neighbor.f = neighbor.g + neighbor.h;
-          collisionGrid.markDirty(neighbor);
+          // collisionGrid.markDirty(neighbor);
           if (closest) {
             // If the neighbour is closer than the current closestNode or if it's equally close but has
             // a cheaper path than the current closest node then it becomes the closest node
