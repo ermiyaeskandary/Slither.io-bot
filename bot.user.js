@@ -8,7 +8,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.9.3
+// @version      0.9.4
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -1906,14 +1906,6 @@ var collisionHelper = (function() {
                 collisionHelper.unitTable.push([Math.cos(angle), Math.sin(angle)]);
                 offset++;
             }
-            /*for(var a=0;a<4;a++) {
-                collisionHelper.unitTable[a] = [];
-                for(var b=0; b<4; b++) {
-                    var angle = collisionHelper.toRad * (b*90+offset);
-                    collisionHelper.unitTable[a].push([Math.cos(angle), Math.sin(angle)]);
-                }
-                offset+=22.5;
-            }*/
         },
 
         /**
@@ -2079,15 +2071,6 @@ var collisionGrid = (function() {
             collisionGrid.snakeAggressors = [];
             collisionGrid.addSnakes();
             collisionGrid.addFood();
-
-
-
-            //var cell = collisionGrid.getCellByXY(window.getX(), window.getY());
-            //collisionGrid.drawCell(cell.col, cell.row, 'yellow');
-
-            //canvas.drawRect(window.getX()-collisionGrid.getWidth()/2, window.getY()-collisionGrid.getHeight()/2, collisionGrid.cellSize, collisionGrid.cellSize, 'yellow');
-            //astarGraph = new Graph(collisionGrid.bgrid);
-            //collisionGrid.setupGrid();
         },
 
         setupGrid: function() {
@@ -2170,11 +2153,6 @@ var collisionGrid = (function() {
             if( !node || (type==TYPE_SNAKE && node.type!=TYPE_SNAKE)) {
                 node = new GridNode(col, row, weight, type);
             }
-            //if( node.items.length == 0 && node.type==TYPE_SNAKE)
-            //    collisionGrid.drawCell(col,row);
-                //else if ( type==TYPE_FOOD ){
-                //    node.weight += weight;
-                //}
             collisionGrid.grid[col][row] = node;
             return node;
         },
@@ -2262,17 +2240,6 @@ var collisionGrid = (function() {
             //}
 
             return ret;
-        },
-
-        cleanDirty: function() {
-           // for (var i = 0; i < collisionGrid.dirtyNodes.length; i++) {
-           //     astar.cleanNode(collisionGrid.dirtyNodes[i]);
-            //}
-           // collisionGrid.dirtyNodes = [];
-        },
-
-        markDirty: function(x, y) {
-            //collisionGrid.dirtyNodes.push([x,y]);
         },
 
         generatePath: function(startX, startY, endX, endY) {
@@ -2505,15 +2472,6 @@ var collisionGrid = (function() {
             collisionGrid.sliceGrid(cell.col-maxcellcount, cell.row-maxcellcount, maxcellcount2, maxcellcount2,
                 function(col, row, val) {
                     if( val && val.type != TYPE_SNAKE && val.type != TYPE_EMPTY ) return;//&& val.type!=TYPE_SNAKE ) return;
-/*
-                    var pos = collisionGrid.getCellByColRow(col,row);
-                    var centerX = pos[0] + collisionGrid.cellSize / 2;
-                    var centerY = pos[1] + collisionGrid.cellSize / 2;
-                    var xDist = centerX - part.xx;
-                    var yDist = centerY - part.yy;
-                    var dist = xDist*xDist + yDist*yDist;
-                    if( dist < radiusSqr ) {
-*/
                     if( col >= (cell.col-t1cellcount) && col <= (cell.col+t1cellcount*2) &&
                         row >= (cell.row-t1cellcount) && row <= (cell.row+t1cellcount*2) ) {
                         var marked = collisionGrid.markCellWall(col, row, {snake:snk, part:part});
