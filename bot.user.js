@@ -45,9 +45,8 @@ window.getPos = function() {
 };
 
 window.getSnakeLength = function() {
-    return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake
-        .fam /
-        window.fmlts[window.snake.sct] - 1) - 50) / 10);
+    return (Math.floor(150 * (window.fpsls[window.snake.sct] +
+        window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
 window.getSnakeWidth = function(sc) {
     sc = sc || window.snake.sc;
@@ -62,8 +61,8 @@ window.getSnakeWidthSqr = function(sc) {
 var canvas = (function() {
     return {
         // Ratio of screen size divided by canvas size.
-        canvasRatio: [window.mc.width / window.ww, window.mc.height /
-            window.hh
+        canvasRatio: [window.mc.width / window.ww,
+            window.mc.height / window.hh
         ],
 
         getScale: function() {
@@ -858,8 +857,20 @@ var userInterface = (function() {
                 /* This can be used in the future for multiple score
                 window.scores.push(parseInt(document.querySelector(
                     'div#lastscore').childNodes[1].innerHTML)); */
+                var today = new Date();
+                var dd = today.getDate();
+                if(dd<10) {
+                    dd='0'+dd;
+                }
+                var mm = today.getMonth()+1; //January is 0!
+                if(mm<10) {
+                    mm='0'+mm;
+                }
+                var yyyy = today.getFullYear();
+                today = mm+'/'+dd+'/'+yyyy;
+                // eslint-disable-next-line no-undef
+                window.scores.push([lastScore, today, GM_info.script.version]);
             }
-
         },
 
         // Add interface elements to the page.
@@ -965,6 +976,18 @@ var userInterface = (function() {
                 if (e.keyCode === 13) {
                     userInterface.saveNick();
                 }
+                if (e.keyCode === 66) {
+                    var tekst = "<table id='score'>" +
+                        "<tr><th>Score</th><th>Date</th><th>bot version</th></tr>";
+                    for (i = 0; i < window.scores.length; i++) {
+                        tekst += "<tr><td>" + window.scores[i][0] +
+                        "</td><td>" + window.scores[i][1] +
+                        "</td><td>" + window.scores[i][2] + "</td></tr>";
+                    }
+                    tekst += "</table>";
+                    var scores_window = window.open('/', 'Your personal highscores', 'width=300,height=300');
+                    scores_window.document.write(tekst);
+                }
                 userInterface.onPrefChange(); // Update the bot status
             }
         },
@@ -996,8 +1019,8 @@ var userInterface = (function() {
 
         onPrefChange: function() {
             window.botstatus_overlay.innerHTML = window.spanstyle +
-                  '(T / Right Click) Bot: </span>' + userInterface.handleTextColor(
-                      bot.isBotRunning);
+                '(T / Right Click) Bot: </span>' + userInterface.handleTextColor(
+                    bot.isBotRunning);
             window.visualdebugging_overlay.innerHTML = window.spanstyle +
                 '(Y) Visual debugging: </span>' + userInterface.handleTextColor(
                     window.visualDebugging);
