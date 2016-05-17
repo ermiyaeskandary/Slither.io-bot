@@ -353,7 +353,8 @@ var canvas = (function() {
                 point.xx, point.yy);
             return point;
         },
-
+    };
+})();
 var bot = (function() {
     // Save the original slither.io onmousemove function so we can re enable it back later
     var original_onmousemove = window.onmousemove;
