@@ -2127,10 +2127,10 @@ var collisionGrid = (function() {
             //x = x - (x % collisionGrid.cellSize);
            // y = y - (y % collisionGrid.cellSize);
 
-            col = parseInt(Math.floor(x / collisionGrid.cellSize));
-            row = parseInt(Math.floor(y / collisionGrid.cellSize));
-            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
-            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
+            var col = parseInt(Math.floor(x / collisionGrid.cellSize));
+            var row = parseInt(Math.floor(y / collisionGrid.cellSize));
+            var col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
+            var row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
             collisionGrid.grid[col] = collisionGrid.grid[col] || [];
             collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
             return {col:col, row:row, cell:collisionGrid.grid[col][row]};
