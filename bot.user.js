@@ -26,7 +26,6 @@ window.log = function() {
         console.log.apply(console, arguments);
     }
 };
-
 window.getWidth = function() {
     return window.ww;
 };
@@ -50,7 +49,6 @@ window.getSnakeLength = function() {
         window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
 window.getSnakeWidth = function(sc) {
-
     sc = sc || window.snake.sc;
     return sc * 14.5;
 };
@@ -70,8 +68,6 @@ var canvas = (function() {
         getScale: function() {
             return window.gsc;
         },
-
-
 
         //Screen coordinates
         // X = (0->WindowWidth)
@@ -153,7 +149,6 @@ var canvas = (function() {
                 y: Math.round(y),
                 radius: Math.round(r)
             };
-
             return c;
         },
 
@@ -330,13 +325,6 @@ var canvas = (function() {
                 0;
         },
 
-        // Given the start and end of a line, is point left.
-        isLeft: function(start, end, point) {
-            return ((end.x - start.x) * (point.y - start.y) - (end.y -
-                start.y) * (point.x - start.x)) > 0;
-
-        },
-
         // Given an object (of which properties xx and yy are not null),
         // return the object with an additional property 'distance'.
         getDistanceFromSnake: function(point) {
@@ -345,7 +333,6 @@ var canvas = (function() {
                 point.xx, point.yy);
             return point;
         },
-
 
         getDistance: function(x1, y1, x2, y2) {
             var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(
@@ -367,42 +354,6 @@ var canvas = (function() {
             return point;
         },
 
-        // Check if circles intersect
-        circleIntersect: function(circle1, circle2) {
-            var bothRadii = circle1.radius + circle2.radius;
-
-            // Pretends the circles are squares for a quick collision check.
-            // If it collides, do the more expensive circle check.
-            if (circle1.x + bothRadii > circle2.x &&
-                circle1.y + bothRadii > circle2.y &&
-                circle1.x < circle2.x + bothRadii &&
-                circle1.y < circle2.y + bothRadii) {
-
-                var distance2 = canvas.getDistance2(circle1.x,
-                    circle1.y, circle2.x, circle2.y);
-
-                if (distance2 < bothRadii * bothRadii) {
-                    if (window.visualDebugging) {
-                        var collisionPointCircle = canvas.circle(
-                            ((circle1.x * circle2.radius) + (circle2.x * circle1.radius))
-                            / bothRadii,
-                            ((circle1.y * circle2.radius) + (circle2.y * circle1.radius))
-                            / bothRadii,
-                            5
-                        );
-                        canvas.drawCircle(circle2, 'red', true);
-                        canvas.drawCircle(collisionPointCircle, 'cyan', true);
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-    };
-})();
-
-
-
 var bot = (function() {
     // Save the original slither.io onmousemove function so we can re enable it back later
     var original_onmousemove = window.onmousemove;
@@ -417,7 +368,6 @@ var bot = (function() {
         radarResults: [],
         followLine: 0,
 
-
         hideTop: function () {
 
             var nsidivs = document.querySelectorAll('div.nsi');
@@ -430,7 +380,6 @@ var bot = (function() {
                 }
             }
         },
-
 
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled &&
@@ -563,7 +512,6 @@ var bot = (function() {
                 clusterAbsScore = 0;
                 clusterSumX = 0;
                 clusterSumY = 0;
-
                 var p1 = sortedFood[i];
                 for (var j = 0; j < nIter; ++j) {
                     var p2 = sortedFood[j];
@@ -587,10 +535,8 @@ var bot = (function() {
                     bestClusterIndx = i;
                 }
             }
-
             window.currentFoodX = bestClusterX;
             window.currentFoodY = bestClusterY;
-
             // if see a large cluster then use acceleration
             if (bestClusterAbsScore > 50) {
                 window.foodAcceleration = 1;
@@ -659,7 +605,6 @@ var bot = (function() {
                 bot.setNextState('trackFood');
             },
             trackFood: function() {
-
                 /*if( collisionGrid.snakeAggressors.length ) {
                     var aggressor = collisionGrid.snakeAggressors[0];
                     if( aggressor.distance2 < 100 ) {
@@ -667,7 +612,6 @@ var bot = (function() {
                         return;
                     }
                 }*/
-
                 var curpos = window.getPos();
                 var currentCell = collisionGrid.getCellByXY(curpos.x, curpos.y);
                 if( currentCell.cell && currentCell.cell.type == TYPE_SNAKE ) {
@@ -697,19 +641,16 @@ var bot = (function() {
                         return;
                     }
                 }*/
-
                 var dist = canvas.getDistance2(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y);
                 if( dist < 2500 ) {
                     bot.stopFollowLine(0);
                     bot.setNextState('findFood');
                     return;
                 }
-
                 var line = collisionGrid.lineTest(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y,TYPE_SNAKE);
                 var linePos = collisionGrid.getCellByColRow(line.col,line.row);
                 var collisionDist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
                 if( collisionDist < 2500 ) {
-
                     var dir = {x:0,y:0};
                     dir.x = curpos.x - linePos.x;
                     dir.y = curpos.y - linePos.y;
@@ -719,11 +660,7 @@ var bot = (function() {
                     bot.stopFollowLine(0);
                     bot.setNextState('findFood');
                     return;
-
                 }
-
-
-
 
                 var minpath = 3;
                 var cell = collisionGrid.getCellByXY(window.goalCoordinates.x, window.goalCoordinates.y);
@@ -748,8 +685,6 @@ var bot = (function() {
                 }
             },
             avoidBody: function() {
-
-
                 var aggressorCnt = collisionGrid.snakeAggressors.length;
 
                 for(var i=0; i<aggressorCnt; i++) {
@@ -1022,6 +957,7 @@ var userInterface = (function() {
 
         onmousedown: function(e) {
             e = e || window.event;
+            original_onmouseDown(e):
             if (window.playing) {
                 switch (e.which) {
                     // "Left click" to manually speed up the slither
