@@ -957,7 +957,7 @@ var userInterface = (function() {
 
         onmousedown: function(e) {
             e = e || window.event;
-            original_onmouseDown(e):
+            original_onmouseDown(e);
             if (window.playing) {
                 switch (e.which) {
                     // "Left click" to manually speed up the slither
