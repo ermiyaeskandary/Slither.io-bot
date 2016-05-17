@@ -410,6 +410,8 @@ var bot = (function() {
         radarResults: [],
         followLine: 0,
 
+        behaviorData: {},
+
 
         hideTop: function () {
 
@@ -862,7 +864,7 @@ var bot = (function() {
 
             bot.processSurround();
 
-            behaviors.object('snakebot', {});
+            behaviors.object('snakebot', bot.behaviorData);
             behaviors.run('snakebot');
             //bot.astarFoodFinder();
         },
@@ -1666,7 +1668,7 @@ var astar = {
   *          astar.heuristics).
   */
   search: function(start, end, options) {
-    //collisionGrid.cleanDirty();
+
     options = options || {};
     var heuristic = options.heuristic || astar.heuristics.manhattan;
     var closest = options.closest || false;
@@ -1675,8 +1677,7 @@ var astar = {
     var closestNode = start; // set the start node to be the closest if required
 
     start.h = heuristic(start, end);
-    collisionGrid.markDirty(start);
-    var maxtries = 10000;
+    var maxtries = 5000;
     var trynum = 0;
 
     openHeap.push(start);
@@ -1722,7 +1723,7 @@ var astar = {
           neighbor.h = neighbor.h || heuristic(neighbor, end);
           neighbor.g = gScore;
           neighbor.f = neighbor.g + neighbor.h;
-          collisionGrid.markDirty(neighbor);
+
           if (closest) {
             // If the neighbour is closer than the current closestNode or if it's equally close but has
             // a cheaper path than the current closest node then it becomes the closest node
@@ -2072,8 +2073,6 @@ var collisionGrid = (function() {
         foodGroups: [],
         snakeAggressors: [],
 
-        dirty: [],
-
         initGrid: function(w, h, cellsz) {
             sx = Math.floor(window.getX());
             sy = Math.floor(window.getY());
@@ -2193,8 +2192,8 @@ var collisionGrid = (function() {
             if( !node || (type==TYPE_SNAKE && node.type!=TYPE_SNAKE)) {
                 node = new GridNode(col, row, weight, type);
             }
-            if( node.items.length == 0 && node.type==TYPE_SNAKE)
-                collisionGrid.drawCell(col,row);
+            //if( node.items.length == 0 && node.type==TYPE_SNAKE)
+            //    collisionGrid.drawCell(col,row);
                 //else if ( type==TYPE_FOOD ){
                 //    node.weight += weight;
                 //}
@@ -2287,16 +2286,6 @@ var collisionGrid = (function() {
             return ret;
         },
 
-        cleanDirty: function() {
-           // for (var i = 0; i < collisionGrid.dirtyNodes.length; i++) {
-           //     astar.cleanNode(collisionGrid.dirtyNodes[i]);
-            //}
-           // collisionGrid.dirtyNodes = [];
-        },
-
-        markDirty: function(x, y) {
-            //collisionGrid.dirtyNodes.push([x,y]);
-        },
 
         generatePath: function(startX, startY, endX, endY) {
             var startCell = collisionGrid.getCellByXY(startX,startY);
@@ -2385,7 +2374,7 @@ var collisionGrid = (function() {
                 }
 
             }
-
+            /*
             if( window.visualDebugging ) {
                 for( var i=0; i<collisionGrid.foodGroups.length; i++) {
                     var foodgroup = collisionGrid.foodGroups[i];
@@ -2405,7 +2394,7 @@ var collisionGrid = (function() {
                     //console.log("FoodGroup("+foodgroup.col+","+foodgroup.row+") = " + collisionGrid.foodGroups[groupid].score);
                 }
             }
-
+            */
             collisionGrid.foodGroups.sort(function(a,b) {
                 //return b.score - a.score;
                 return (a.score == b.score ? 0 : (a.score / a.distance) > (b.score / b.distance)  ? -1 : 1);
