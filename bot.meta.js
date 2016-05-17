@@ -6,7 +6,7 @@
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
 // @require		 https://github.com/OneEyed/BehaviorTree.js/raw/master/btree-complete.min.js
-// @require      bot.user.js
-// @require		 bot.behaviors.js
+// @require		 https://github.com/OneEyed/Slither.io-bot/raw/master/bot.user.js
+// @require		 https://github.com/OneEyed/Slither.io-bot/raw/master/bot.behaviors.js
 // @grant        none
 // ==/UserScript==

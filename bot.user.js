@@ -861,7 +861,10 @@ var bot = (function() {
             bot.tickCounter = 0;
 
             bot.processSurround();
-            bot.astarFoodFinder();
+
+            behaviors.object('snakebot', {});
+            behaviors.run('snakebot');
+            //bot.astarFoodFinder();
         },
 
         currentState: 'findFood',
