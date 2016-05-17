@@ -1119,10 +1119,10 @@ window.sosBackup = sos;
         'Slither.io-bot');
 
     // Overlays
-	window.generalstyle =
+    window.generalstyle =
         'color: #FFF; font-family: Arial, \'Helvetica Neue\',' +
         ' Helvetica, sans-serif; font-size: 14px; position: fixed; z-index: 7;';
-	window.spanstyle = '<span style = "opacity: 0.35";>';
+    window.spanstyle = '<span style = "opacity: 0.35";>';
 
     // Top left
     userInterface.appendDiv('version_overlay', 'nsi', window.generalstyle +
@@ -1159,7 +1159,7 @@ window.sosBackup = sos;
         'right: 30; bottom: 150px;');
     userInterface.appendDiv('fps_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 170px;');
-	userInterface.appendDiv('highscore_overlay', 'nsi', window.generalstyle +
+    userInterface.appendDiv('highscore_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 200px;');
     userInterface.appendDiv('lastscore_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 220px;');
@@ -1175,9 +1175,9 @@ window.sosBackup = sos;
         '(X) Change skin </span>';
     window.quickResp_overlay.innerHTML = window.spanstyle +
         '(ESC) Quick Respawn </span>';
-    // eslint-disable-next-line no-undef
     window.version_overlay.innerHTML = window.spanstyle +
-		'Version: ' + GM_info.script.version + '</span>';
+        // eslint-disable-next-line no-undef
+        'Version: ' + GM_info.script.version + '</span>';
 
 	// Check for excisting highscore, if not, do not display it
     var highScore = parseInt(userInterface.loadPreference('highscore', false));
