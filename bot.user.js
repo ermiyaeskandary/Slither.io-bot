@@ -8,7 +8,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.9.3
+// @version      0.9.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -18,7 +18,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // @grant        none
 // ==/UserScript==
 
-// var array = [{id: 1, date: Mar 12 2012 10:00:00 AM}, {id: 2, date: Mar 8 2012 08:00:00 AM}];
+
+// var array = [{score: 1, date: Mar 12 2012 10:00:00 AM, version: x.y},...];
 window.scores = [];
 
 // Custom logging function - disabled by default
@@ -27,7 +28,6 @@ window.log = function() {
         console.log.apply(console, arguments);
     }
 };
-
 window.getWidth = function() {
     return window.ww;
 };
@@ -51,7 +51,6 @@ window.getSnakeLength = function() {
         window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
 window.getSnakeWidth = function(sc) {
-
     sc = sc || window.snake.sc;
     return sc * 14.5;
 };
@@ -71,8 +70,6 @@ var canvas = (function() {
         getScale: function() {
             return window.gsc;
         },
-
-
 
         //Screen coordinates
         // X = (0->WindowWidth)
@@ -154,7 +151,6 @@ var canvas = (function() {
                 y: Math.round(y),
                 radius: Math.round(r)
             };
-
             return c;
         },
 
@@ -163,21 +159,12 @@ var canvas = (function() {
             // Scaling ratio
             if (window.gsc) {
                 window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
-                window.desired_gsc = window.gsc;
             }
         },
 
         // Restores zoom to the default value.
         resetZoom: function() {
             window.gsc = 0.9;
-            window.desired_gsc = 0.9;
-        },
-
-        // Maintains Zoom
-        maintainZoom: function() {
-            if (window.desired_gsc !== undefined) {
-                window.gsc = window.desired_gsc;
-            }
         },
 
         // Sets background to the given image URL.
@@ -331,13 +318,6 @@ var canvas = (function() {
                 0;
         },
 
-        // Given the start and end of a line, is point left.
-        isLeft: function(start, end, point) {
-            return ((end.x - start.x) * (point.y - start.y) - (end.y -
-                start.y) * (point.x - start.x)) > 0;
-
-        },
-
         // Given an object (of which properties xx and yy are not null),
         // return the object with an additional property 'distance'.
         getDistanceFromSnake: function(point) {
@@ -346,7 +326,6 @@ var canvas = (function() {
                 point.xx, point.yy);
             return point;
         },
-
 
         getDistance: function(x1, y1, x2, y2) {
             var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(
@@ -367,43 +346,8 @@ var canvas = (function() {
                 point.xx, point.yy);
             return point;
         },
-
-        // Check if circles intersect
-        circleIntersect: function(circle1, circle2) {
-            var bothRadii = circle1.radius + circle2.radius;
-
-            // Pretends the circles are squares for a quick collision check.
-            // If it collides, do the more expensive circle check.
-            if (circle1.x + bothRadii > circle2.x &&
-                circle1.y + bothRadii > circle2.y &&
-                circle1.x < circle2.x + bothRadii &&
-                circle1.y < circle2.y + bothRadii) {
-
-                var distance2 = canvas.getDistance2(circle1.x,
-                    circle1.y, circle2.x, circle2.y);
-
-                if (distance2 < bothRadii * bothRadii) {
-                    if (window.visualDebugging) {
-                        var collisionPointCircle = canvas.circle(
-                            ((circle1.x * circle2.radius) + (circle2.x * circle1.radius))
-                            / bothRadii,
-                            ((circle1.y * circle2.radius) + (circle2.y * circle1.radius))
-                            / bothRadii,
-                            5
-                        );
-                        canvas.drawCircle(circle2, 'red', true);
-                        canvas.drawCircle(collisionPointCircle, 'cyan', true);
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
     };
 })();
-
-
-
 var bot = (function() {
     // Save the original slither.io onmousemove function so we can re enable it back later
     var original_onmousemove = window.onmousemove;
@@ -418,7 +362,6 @@ var bot = (function() {
         radarResults: [],
         followLine: 0,
 
-
         hideTop: function () {
 
             var nsidivs = document.querySelectorAll('div.nsi');
@@ -431,7 +374,6 @@ var bot = (function() {
                 }
             }
         },
-
 
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled &&
@@ -490,13 +432,10 @@ var bot = (function() {
             if (!window.connect) {
                 return;
             }
-
             window.forcing = true;
             if (!window.bso) {
                 window.bso = {};
             }
-
-
             window.currentIP = window.bso.ip + ':' + window.bso.po;
             var srv = window.currentIP.trim().split(':');
             window.bso.ip = srv[0];
@@ -530,17 +469,6 @@ var bot = (function() {
             setTimeout(bot.rotateSkin, 500);
         },
 
-        // Avoid collison point 180 degree
-        avoidCollisionPoint: function(collisionPoint) {
-            window.goalCoordinates = {
-                x: window.snake.xx + (window.snake.xx -
-                    collisionPoint.xx),
-                y: window.snake.yy + (window.snake.yy -
-                    collisionPoint.yy)
-            };
-            canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
-        },
-
         // Sorting by  property 'distance'
         sortDistance: function(a, b) {
             return a.distance - b.distance;
@@ -552,244 +480,6 @@ var bot = (function() {
                 a.clusterScore / a.distance > b.clusterScore / b.distance ? -1 :
                 1);
         },
-
-        // Get closest collision point per snake.
-        getCollisionPoints: function() {
-            bot.collisionPoints = [];
-            var scPoint;
-
-            for (var snake = 0, ls = window.snakes.length; snake <
-                ls; snake++) {
-                scPoint = undefined;
-
-                if (window.snakes[snake].id !== window.snake.id) {
-                    if (window.visualDebugging) {
-                        var hCircle = canvas.circle(
-                            window.snakes[snake].xx,
-                            window.snakes[snake].yy,
-                            window.getSnakeWidth(window.snakes[snake].sc) / 2
-                        );
-                        canvas.drawCircle(hCircle, 'red', false);
-                    }
-
-                    for (var pts = 0, lp = window.snakes[snake].pts
-                            .length; pts <
-                        lp; pts++) {
-                        if (!window.snakes[snake].pts[pts].dying) {
-                            var collisionPoint = {
-                                headxx: window.snakes[snake].xx,
-                                headyy: window.snakes[snake].yy,
-                                xx: window.snakes[snake].pts[
-                                    pts].xx,
-                                yy: window.snakes[snake].pts[
-                                    pts].yy,
-                                sc: window.snakes[snake].sc,
-                                sp: window.snakes[snake].sp,
-                                ang: window.snakes[snake].ang,
-                                snake: snake
-                            };
-
-                            canvas.getDistance2FromSnake(
-                                collisionPoint);
-
-                            if (scPoint === undefined || scPoint.distance >
-                                collisionPoint.distance) {
-                                scPoint = collisionPoint;
-                            }
-                        }
-                    }
-                }
-                if (scPoint !== undefined) {
-                    bot.collisionPoints.push(scPoint);
-                    if (window.visualDebugging) {
-                        var cCircle = canvas.circle(
-                            scPoint.xx,
-                            scPoint.yy,
-                            window.getSnakeWidth(scPoint.sc) / 2
-                        );
-                        canvas.drawCircle(cCircle, 'red', false);
-                    }
-                }
-            }
-            bot.collisionPoints.sort(bot.sortDistance);
-        },
-
-        // Checks to see if you are going to collide with anything in the collision detection radius
-        checkCollision: function(r) {
-            if (!window.collisionDetection) return false;
-
-            r = Number(r);
-            var xx = Number(window.snake.xx.toFixed(3));
-            var yy = Number(window.snake.yy.toFixed(3));
-
-            window.snake.cos = Math.cos(window.snake.ang).toFixed(3);
-            window.snake.sin = Math.sin(window.snake.ang).toFixed(3);
-
-            var ra = r;
-            var inBigCircle = 0;
-            var bigCirclePts = [];
-
-            if (window.snake.sp > 7) ra = r * 2;
-
-            var headCircle = canvas.circle(xx, yy, ra / 2 * window.getSnakeWidth() / 2);
-
-            var forwardCircle = canvas.circle(
-                xx + window.snake.cos * ra / 2 * window.getSnakeWidth() / 2,
-                yy + window.snake.sin * ra / 2 * window.getSnakeWidth() / 2,
-                ra / 2 * window.getSnakeWidth() / 2
-            );
-
-            var forwardBigCircle = canvas.circle(
-                xx + window.snake.cos * r * 1.9 * window.getSnakeWidth(1) / 2,
-                yy + window.snake.sin * r * 1.9 * window.getSnakeWidth(1) / 2,
-                r * 2.4 * window.getSnakeWidth(1) / 2
-            );
-
-            var fullHeadCircle = canvas.circle(
-                xx + window.snake.cos * r / 2 * window.getSnakeWidth() / 2,
-                yy + window.snake.sin * r / 2 * window.getSnakeWidth() / 2,
-                r * window.getSnakeWidth() / 2
-            );
-
-            var sidecircle_r = canvas.circle(
-                window.snake.lnp.xx -
-                ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth())
-                - window.snake.lnp.yy),
-                window.snake.lnp.yy +
-                ((window.snake.lnp.xx + window.snake.cos * window.getSnakeWidth())
-                - window.snake.lnp.xx),
-                window.getSnakeWidth() * window.snake.sp / window.snake.tsp
-            );
-
-            var sidecircle_l = canvas.circle(
-                window.snake.lnp.xx +
-                ((window.snake.lnp.yy + window.snake.sin * window.getSnakeWidth())
-                - window.snake.lnp.yy),
-                 window.snake.lnp.yy -
-                ((window.snake.lnp.xx + window.snake.cos * window.getSnakeWidth())
-                - window.snake.lnp.xx),
-                window.getSnakeWidth() * window.snake.sp / window.snake.tsp
-            );
-
-            window.snake.sidecircle_r = sidecircle_r;
-            window.snake.sidecircle_l = sidecircle_l;
-
-            if (window.visualDebugging) {
-                canvas.drawCircle(fullHeadCircle, 'red');
-                canvas.drawCircle(headCircle, 'blue', false);
-                canvas.drawCircle(forwardCircle, 'blue', false);
-                canvas.drawCircle(forwardBigCircle, 'yellow', false);
-                canvas.drawCircle(sidecircle_r, 'orange', true, 0.3);
-                canvas.drawCircle(sidecircle_l, 'orange', true, 0.3);
-            }
-
-            bot.getCollisionPoints();
-            if (bot.collisionPoints.length === 0) return false;
-
-            for (var i = 0; i < bot.collisionPoints.length; i++) {
-                var collisionCircle = canvas.circle(
-                    bot.collisionPoints[i].xx,
-                    bot.collisionPoints[i].yy,
-                    window.getSnakeWidth(bot.collisionPoints[i].sc) / 2
-                );
-
-                var eHeadCircle = canvas.circle(
-                    bot.collisionPoints[i].headxx,
-                    bot.collisionPoints[i].headyy,
-                    window.getSnakeWidth(bot.collisionPoints[i].sc) / 2
-                );
-
-                if (canvas.circleIntersect(headCircle,
-                        collisionCircle) || canvas.circleIntersect(
-                        forwardCircle, collisionCircle)) {
-                    if (bot.collisionPoints[i].sp > 10 && (canvas.circleIntersect(
-                            headCircle, eHeadCircle) || canvas.circleIntersect(
-                            forwardCircle, eHeadCircle))) {
-                        window.setAcceleration(1);
-                    } else {
-                        window.setAcceleration(0);
-                    }
-
-                    bot.avoidCollisionPoint(bot.collisionPoints[i]);
-                    return true;
-                }
-
-                if (canvas.circleIntersect(fullHeadCircle,
-                        eHeadCircle)) {
-                    if (bot.collisionPoints[i].sp > 10) {
-                        window.setAcceleration(1);
-                    } else {
-                        window.setAcceleration(0);
-                    }
-                    bot.avoidCollisionPoint({
-                        xx: bot.collisionPoints[i].headxx,
-                        yy: bot.collisionPoints[i].headyy
-                    });
-                    return true;
-                }
-
-                if (canvas.circleIntersect(forwardBigCircle,
-                        collisionCircle)) {
-                    inBigCircle++;
-                    bigCirclePts = bigCirclePts.concat(window.snakes[
-                        bot.collisionPoints[i].snake].pts);
-                }
-            }
-
-            if (inBigCircle > 2) {
-                bot.avoidCollisionPoint({
-                    xx: xx + window.snake.cos * 50,
-                    yy: yy + window.snake.sin * 50
-                });
-                if (window.visualDebugging) {
-                    canvas.drawCircle(forwardBigCircle, 'yellow', true, 0.3);
-                }
-                return true;
-            }
-
-            if (bigCirclePts.length > 0) {
-                bigCirclePts = bigCirclePts.map(function(p) {
-                    p.distance = canvas.getDistance2(
-                        forwardBigCircle.x,
-                        forwardBigCircle.y, p.x, p.y);
-                    return (p);
-                }).sort(bot.sortDistance);
-
-                if (bigCirclePts.findIndex(function(p) {
-                    return p.distance > forwardBigCircle.radius *
-                            forwardBigCircle.radius;
-                }) + 1 > 40) {
-                    bot.avoidCollisionPoint({
-                        xx: xx + window.snake.cos * 50,
-                        yy: yy + window.snake.sin * 50
-                    });
-                    if (window.visualDebugging) {
-                        canvas.drawCircle(forwardBigCircle, 'blue', true, 0.3);
-                    }
-                    return true;
-                }
-            }
-
-            window.setAcceleration(0);
-            return false;
-        },
-
-        // Sort food based on distance
-        getSortedFood: function() {
-            // Filters the nearest food by getting the distance
-            return window.foods.filter(function(val) {
-                return val !== null && val !== undefined;
-            }).map(canvas.getDistance2FromSnake).filter(function(val) {
-                return !(
-                    canvas.circleIntersect(
-                    canvas.circle(val.xx, val.yy, 2),
-                    window.snake.sidecircle_l) ||
-                    canvas.circleIntersect(
-                    canvas.circle(val.xx, val.yy, 2),
-                    window.snake.sidecircle_r));
-            }).sort(bot.sortDistance);
-        },
-
         computeFoodGoal: function() {
             var sortedFood = bot.getSortedFood();
 
@@ -813,7 +503,6 @@ var bot = (function() {
                 clusterAbsScore = 0;
                 clusterSumX = 0;
                 clusterSumY = 0;
-
                 var p1 = sortedFood[i];
                 for (var j = 0; j < nIter; ++j) {
                     var p2 = sortedFood[j];
@@ -837,10 +526,8 @@ var bot = (function() {
                     bestClusterIndx = i;
                 }
             }
-
             window.currentFoodX = bestClusterX;
             window.currentFoodY = bestClusterY;
-
             // if see a large cluster then use acceleration
             if (bestClusterAbsScore > 50) {
                 window.foodAcceleration = 1;
@@ -909,7 +596,6 @@ var bot = (function() {
                 bot.setNextState('trackFood');
             },
             trackFood: function() {
-
                 /*if( collisionGrid.snakeAggressors.length ) {
                     var aggressor = collisionGrid.snakeAggressors[0];
                     if( aggressor.distance2 < 100 ) {
@@ -917,9 +603,6 @@ var bot = (function() {
                         return;
                     }
                 }*/
-
-
-
                 var curpos = window.getPos();
                 var currentCell = collisionGrid.getCellByXY(curpos.x, curpos.y);
                 if( currentCell.cell && currentCell.cell.type == TYPE_SNAKE ) {
@@ -949,20 +632,16 @@ var bot = (function() {
                         return;
                     }
                 }*/
-
-
                 var dist = canvas.getDistance2(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y);
                 if( dist < 2500 ) {
                     bot.stopFollowLine(0);
                     bot.setNextState('findFood');
                     return;
                 }
-
                 var line = collisionGrid.lineTest(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y,TYPE_SNAKE);
                 var linePos = collisionGrid.getCellByColRow(line.col,line.row);
                 var collisionDist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
                 if( collisionDist < 2500 ) {
-
                     var dir = {x:0,y:0};
                     dir.x = curpos.x - linePos.x;
                     dir.y = curpos.y - linePos.y;
@@ -972,11 +651,7 @@ var bot = (function() {
                     bot.stopFollowLine(0);
                     bot.setNextState('findFood');
                     return;
-
                 }
-
-
-
 
                 var minpath = 3;
                 var cell = collisionGrid.getCellByXY(window.goalCoordinates.x, window.goalCoordinates.y);
@@ -1001,8 +676,6 @@ var bot = (function() {
                 }
             },
             avoidBody: function() {
-
-
                 var aggressorCnt = collisionGrid.snakeAggressors.length;
 
                 for(var i=0; i<aggressorCnt; i++) {
@@ -1044,8 +717,6 @@ var bot = (function() {
             },
 
             avoidSurround: function() {
-
-
                 if( !bot.radarResults ) return;
                 var curpos = window.getPos();
                 if( bot.radarResults.open.length == 0 ) {
@@ -1066,9 +737,7 @@ var bot = (function() {
                             bot.setNextState('findFood');
                         }
                     }
-
                     bot.surroundExitLine = -1;
-
                 } else if( bot.radarResults.pct < 0.30 ) {
                     //window.setAcceleration(1);
 
@@ -1081,8 +750,6 @@ var bot = (function() {
                     else {
                         linePos = bot.surroundExitLine;
                     }
-
-
                     window.goalCoordinates.x = linePos.x;
                     window.goalCoordinates.y = linePos.y;
                     canvas.setMouseCoordinates(canvas.mapToMouse(linePos));
@@ -1091,8 +758,6 @@ var bot = (function() {
                     bot.surroundExitLine = -1;
                     bot.setNextState('findFood');
                 }
-
-
             }
         },
 
@@ -1205,7 +870,6 @@ var userInterface = (function() {
                 today = mm+'/'+dd+'/'+yyyy;
                 window.scores.push([lastScore, today, GM_info.script.version]);
             }
-
         },
 
         // Add interface elements to the page.
@@ -1299,28 +963,6 @@ var userInterface = (function() {
                         'collisionDetection', window.collisionDetection
                     );
                 }
-                // Letter 'A' to increase collision detection radius
-                if (e.keyCode === 65) {
-                    window.collisionRadiusMultiplier++;
-                    console.log(
-                        'collisionRadiusMultiplier set to: ' +
-                        window.collisionRadiusMultiplier);
-                    userInterface.savePreference(
-                        'collisionRadiusMultiplier', window.collisionRadiusMultiplier
-                    );
-                }
-                // Letter 'S' to decrease collision detection radius
-                if (e.keyCode === 83) {
-                    if (window.collisionRadiusMultiplier > 1) {
-                        window.collisionRadiusMultiplier--;
-                        console.log(
-                            'collisionRadiusMultiplier set to: ' +
-                            window.collisionRadiusMultiplier);
-                        userInterface.savePreference(
-                            'collisionRadiusMultiplier', window
-                            .collisionRadiusMultiplier);
-                    }
-                }
                 // Letter 'Z' to reset zoom
                 if (e.keyCode === 90) {
                     canvas.resetZoom();
@@ -1360,6 +1002,7 @@ var userInterface = (function() {
 
         onmousedown: function(e) {
             e = e || window.event;
+            original_onmouseDown(e);
             if (window.playing) {
                 switch (e.which) {
                     // "Left click" to manually speed up the slither
@@ -1380,7 +1023,6 @@ var userInterface = (function() {
                 }
                 userInterface.onPrefChange(); // Update the bot status
             }
-            userInterface.onPrefChange();
         },
 
         onPrefChange: function() {
@@ -1405,9 +1047,6 @@ var userInterface = (function() {
             window.collision_detection_overlay.innerHTML =
                 window.spanstyle + '(C) Collision detection: </span>' +
                 userInterface.handleTextColor(window.collisionDetection);
-            window.collision_radius_multiplier_overlay.innerHTML =
-                window.spanstyle + '(A/S) Collision radius multiplier: ' +
-                window.collisionRadiusMultiplier + ' </span>';
         },
 
         onFrameUpdate: function() {
@@ -1443,7 +1082,6 @@ var userInterface = (function() {
         oef: function() {
             // Original slither.io oef function + whatever is under it
             // requestAnimationFrame(window.loop);
-            canvas.maintainZoom();
             original_oef();
             if (bot.isBotRunning) window.loop();
             userInterface.onFrameUpdate();
@@ -1477,11 +1115,6 @@ var userInterface = (function() {
         }
     };
 })();
-window.play_btn.btnf.addEventListener('click', userInterface.playButtonClickListener);
-document.onkeydown = userInterface.onkeydown;
-window.onmousedown = userInterface.onmousedown;
-window.oef = userInterface.oef;
-window.onresize = userInterface.onresize;
 
 // Loop for running the bot
 window.loop = function() {
@@ -1532,18 +1165,28 @@ window.sosBackup = sos;
         'left: 30; top: 140px;');
     userInterface.appendDiv('collision_detection_overlay', 'nsi', window.generalstyle +
         'left: 30; top: 155px;');
-    userInterface.appendDiv('collision_radius_multiplier_overlay', 'nsi',
-        window.generalstyle + 'left: 30; top: 170px;');
     userInterface.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 185px;');
+        'left: 30; top: 170px;');
     userInterface.appendDiv('scroll_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 200px;');
+        'left: 30; top: 185px;');
     userInterface.appendDiv('quickResp_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 215px;');
+        'left: 30; top: 200px;');
     userInterface.appendDiv('changeskin_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 230px;');
+        'left: 30; top: 215px;');
     userInterface.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 245px;');
+        'left: 30; top: 230px;');
+
+	// Bottom right
+    userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle +
+        'right: 30; bottom: 120px;');
+    userInterface.appendDiv('ip_overlay', 'nsi', window.generalstyle +
+        'right: 30; bottom: 150px;');
+    userInterface.appendDiv('fps_overlay', 'nsi', window.generalstyle +
+        'right: 30; bottom: 170px;');
+    userInterface.appendDiv('highscore_overlay', 'nsi', window.generalstyle +
+        'right: 30; bottom: 200px;');
+    userInterface.appendDiv('lastscore_overlay', 'nsi', window.generalstyle +
+        'right: 30; bottom: 220px;');
 
     // Bottom right
     userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle +
@@ -1568,8 +1211,8 @@ window.sosBackup = sos;
         '(X) Change skin </span>';
     window.quickResp_overlay.innerHTML = window.spanstyle +
         '(ESC) Quick Respawn </span>';
-    // eslint-disable-next-line no-undef
     window.version_overlay.innerHTML = window.spanstyle +
+        // eslint-disable-next-line no-undef
         'Version: ' + GM_info.script.version + '</span>';
 
     // Check for excisting highscore, if not, do not display it
@@ -1586,18 +1229,24 @@ window.sosBackup = sos;
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', canvas.setZoom);
     document.body.addEventListener('DOMMouseScroll', canvas.setZoom);
+    // Listener for the play button
+    window.play_btn.btnf.addEventListener('click', userInterface.playButtonClickListener);
+    // Hand over existing event listeners
+    document.onkeydown = userInterface.onkeydown;
+    window.onmousedown = userInterface.onmousedown;
+    window.onresize = userInterface.onresize;
+    // Hand over existing game function
+    window.oef = userInterface.oef;
 
-    // Set render mode
-    if (window.mobileRender) {
-        canvas.setBackground(
-            'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs'
-        );
-        window.render_mode = 1;
-    } else {
-        canvas.setBackground();
-        window.render_mode = 2;
-    }
+    // Apply previous mobile rendering status.
+    canvas.mobileRendering();
 
+    // Modify the redraw()-function to remove the zoom altering code.
+    var original_redraw = window.redraw.toString();
+    var new_redraw = original_redraw.replace(
+        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
+    window.redraw = new Function(new_redraw.substring(
+        new_redraw.indexOf('{') + 1, new_redraw.lastIndexOf('}')));
 
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
@@ -1709,7 +1358,7 @@ var astar = {
     var closestNode = start; // set the start node to be the closest if required
 
     start.h = heuristic(start, end);
-    collisionGrid.markDirty(start);
+    // collisionGrid.markDirty(start);
     var maxtries = 10000;
     var trynum = 0;
 
@@ -1756,7 +1405,7 @@ var astar = {
           neighbor.h = neighbor.h || heuristic(neighbor, end);
           neighbor.g = gScore;
           neighbor.f = neighbor.g + neighbor.h;
-          collisionGrid.markDirty(neighbor);
+          // collisionGrid.markDirty(neighbor);
           if (closest) {
             // If the neighbour is closer than the current closestNode or if it's equally close but has
             // a cheaper path than the current closest node then it becomes the closest node
@@ -1963,14 +1612,6 @@ var collisionHelper = (function() {
                 collisionHelper.unitTable.push([Math.cos(angle), Math.sin(angle)]);
                 offset++;
             }
-            /*for(var a=0;a<4;a++) {
-                collisionHelper.unitTable[a] = [];
-                for(var b=0; b<4; b++) {
-                    var angle = collisionHelper.toRad * (b*90+offset);
-                    collisionHelper.unitTable[a].push([Math.cos(angle), Math.sin(angle)]);
-                }
-                offset+=22.5;
-            }*/
         },
 
         /**
@@ -2136,15 +1777,6 @@ var collisionGrid = (function() {
             collisionGrid.snakeAggressors = [];
             collisionGrid.addSnakes();
             collisionGrid.addFood();
-
-
-
-            //var cell = collisionGrid.getCellByXY(window.getX(), window.getY());
-            //collisionGrid.drawCell(cell.col, cell.row, 'yellow');
-
-            //canvas.drawRect(window.getX()-collisionGrid.getWidth()/2, window.getY()-collisionGrid.getHeight()/2, collisionGrid.cellSize, collisionGrid.cellSize, 'yellow');
-            //astarGraph = new Graph(collisionGrid.bgrid);
-            //collisionGrid.setupGrid();
         },
 
         setupGrid: function() {
@@ -2155,8 +1787,8 @@ var collisionGrid = (function() {
         // callback = function(x, y, gridValue) {}
         sliceGrid: function(col, row, width, height, callback) {
             //constrain the values between 0 and width/height
-            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
-            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
+            var col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
+            var row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
             width = col + Math.min(collisionGrid.gridWidth, Math.max(width, 0));
             height = row + Math.min(collisionGrid.gridHeight, Math.max(height, 0));
 
@@ -2178,10 +1810,10 @@ var collisionGrid = (function() {
             //x = x - (x % collisionGrid.cellSize);
            // y = y - (y % collisionGrid.cellSize);
 
-            col = parseInt(Math.floor(x / collisionGrid.cellSize));
-            row = parseInt(Math.floor(y / collisionGrid.cellSize));
-            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
-            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
+            var col = parseInt(Math.floor(x / collisionGrid.cellSize));
+            var row = parseInt(Math.floor(y / collisionGrid.cellSize));
+            var col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
+            var row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
             collisionGrid.grid[col] = collisionGrid.grid[col] || [];
             collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
             return {col:col, row:row, cell:collisionGrid.grid[col][row]};
@@ -2227,11 +1859,6 @@ var collisionGrid = (function() {
             if( !node || (type==TYPE_SNAKE && node.type!=TYPE_SNAKE)) {
                 node = new GridNode(col, row, weight, type);
             }
-            //if( node.items.length == 0 && node.type==TYPE_SNAKE)
-            //    collisionGrid.drawCell(col,row);
-                //else if ( type==TYPE_FOOD ){
-                //    node.weight += weight;
-                //}
             collisionGrid.grid[col][row] = node;
             return node;
         },
@@ -2319,17 +1946,6 @@ var collisionGrid = (function() {
             //}
 
             return ret;
-        },
-
-        cleanDirty: function() {
-           // for (var i = 0; i < collisionGrid.dirtyNodes.length; i++) {
-           //     astar.cleanNode(collisionGrid.dirtyNodes[i]);
-            //}
-           // collisionGrid.dirtyNodes = [];
-        },
-
-        markDirty: function(x, y) {
-            //collisionGrid.dirtyNodes.push([x,y]);
         },
 
         generatePath: function(startX, startY, endX, endY) {
@@ -2562,15 +2178,6 @@ var collisionGrid = (function() {
             collisionGrid.sliceGrid(cell.col-maxcellcount, cell.row-maxcellcount, maxcellcount2, maxcellcount2,
                 function(col, row, val) {
                     if( val && val.type != TYPE_SNAKE && val.type != TYPE_EMPTY ) return;//&& val.type!=TYPE_SNAKE ) return;
-/*
-                    var pos = collisionGrid.getCellByColRow(col,row);
-                    var centerX = pos[0] + collisionGrid.cellSize / 2;
-                    var centerY = pos[1] + collisionGrid.cellSize / 2;
-                    var xDist = centerX - part.xx;
-                    var yDist = centerY - part.yy;
-                    var dist = xDist*xDist + yDist*yDist;
-                    if( dist < radiusSqr ) {
-*/
                     if( col >= (cell.col-t1cellcount) && col <= (cell.col+t1cellcount*2) &&
                         row >= (cell.row-t1cellcount) && row <= (cell.row+t1cellcount*2) ) {
                         var marked = collisionGrid.markCellWall(col, row, {snake:snk, part:part});
