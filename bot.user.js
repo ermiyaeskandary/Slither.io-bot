@@ -1327,7 +1327,6 @@ var userInterface = (function() {
                 }
                 userInterface.onPrefChange(); // Update the bot status
             }
-            userInterface.onPrefChange();
         },
 
         onPrefChange: function() {
@@ -1430,11 +1429,6 @@ var userInterface = (function() {
         }
     };
 })();
-window.play_btn.btnf.addEventListener('click', userInterface.playButtonClickListener);
-document.onkeydown = userInterface.onkeydown;
-window.onmousedown = userInterface.onmousedown;
-window.oef = userInterface.oef;
-window.onresize = userInterface.onresize;
 
 // Loop for running the bot
 window.loop = function() {
@@ -1519,7 +1513,6 @@ window.sosBackup = sos;
     userInterface.onPrefChange();
 
     // Bottom right
-
     userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 120px;');
     userInterface.appendDiv('ip_overlay', 'nsi', window.generalstyle +
@@ -1530,18 +1523,24 @@ window.sosBackup = sos;
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', canvas.setZoom);
     document.body.addEventListener('DOMMouseScroll', canvas.setZoom);
+    // Listener for the play button
+    window.play_btn.btnf.addEventListener('click', userInterface.playButtonClickListener);
+    // Hand over existing event listeners
+    document.onkeydown = userInterface.onkeydown;
+    window.onmousedown = userInterface.onmousedown;
+    window.onresize = userInterface.onresize;
+    // Hand over existing game function
+    window.oef = userInterface.oef;
 
-    // Set render mode
-    if (window.mobileRender) {
-        canvas.setBackground(
-            'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs'
-        );
-        window.render_mode = 1;
-    } else {
-        canvas.setBackground();
-        window.render_mode = 2;
-    }
+    // Apply previous mobile rendering status.
+    canvas.mobileRendering();
 
+    // Modify the redraw()-function to remove the zoom altering code.
+    var original_redraw = window.redraw.toString();
+    var new_redraw = original_redraw.replace(
+        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
+    window.redraw = new Function(new_redraw.substring(
+        new_redraw.indexOf('{') + 1, new_redraw.lastIndexOf('}')));
 
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
@@ -2667,4 +2666,3 @@ var collisionGrid = (function() {
 
     }
 })();
-
