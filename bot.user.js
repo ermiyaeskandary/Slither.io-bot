@@ -1549,7 +1549,7 @@ window.sosBackup = sos;
         'Version: ' + GM_info.script.version + '</span>';
 
     // Check for excisting highscore, if not, do not display it
-    var highScore = parseInt(userInterface.loadPreference('highscore', false))
+    var highScore = parseInt(userInterface.loadPreference('highscore', false));
     if(highScore) {
         window.highscore_overlay.innerHTML = window.spanstyle +
             'Your highscore: ' + highScore + '</span>';
