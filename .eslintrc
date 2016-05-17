@@ -27,8 +27,7 @@
   },
   "env": {
     "es6": true,
-    "browser": true,
-    "greasemonkey": true
+    "browser": true
     },
   "rules": {
 
