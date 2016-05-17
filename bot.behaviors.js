@@ -5,8 +5,9 @@
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
-// @require		 https://github.com/OneEyed/BehaviorTree.js/raw/master/btree-complete.min.js
-// @require      bot.user.js
-// @require		 bot.behaviors.js
+// @updateURL    https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.meta.js
+// @downloadURL  https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
+// @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
 // @grant        none
 // ==/UserScript==
+alert('hi');
