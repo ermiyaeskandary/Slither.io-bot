@@ -17,7 +17,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
 // @grant        none
 // ==/UserScript==
-// Custom logging function - disabled by default
+
+// var array = [{score: 1, date: Mar 12 2012 10:00:00 AM, version: x.y},...];
 window.scores = [];
 
 // Custom logging function - disabled by default
@@ -157,21 +158,12 @@ var canvas = (function() {
             // Scaling ratio
             if (window.gsc) {
                 window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
-                window.desired_gsc = window.gsc;
             }
         },
 
         // Restores zoom to the default value.
         resetZoom: function() {
             window.gsc = 0.9;
-            window.desired_gsc = 0.9;
-        },
-
-        // Maintains Zoom
-        maintainZoom: function() {
-            if (window.desired_gsc !== undefined) {
-                window.gsc = window.desired_gsc;
-            }
         },
 
         // Sets background to the given image URL.
@@ -386,17 +378,14 @@ var bot = (function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled &&
                 bot.ranOnce && !bot.isBotRunning) {
                 bot.connectBot();
-                if (document.querySelector('div#lastscore').childNodes
-                    .length > 1) {
-                    window.scores.push(parseInt(document.querySelector(
-                        'div#lastscore').childNodes[1].innerHTML));
-                }
+                /* The lastscore should be checked here in the future,
+                but not only when bot, just when not playing.
+                THIS SHOULD ONLY BE EXECUTED ONCE! */
+                userInterface.saveScore(); // Checks highscore
             }
             if (window.bso !== undefined) {
-                var generalStyle =
-                    '<span style = "opacity: 0.35";>';
-                window.ip_overlay.innerHTML = generalStyle +
-                    'Server: ' + window.bso.ip + ':' + window.bso.po;
+                window.ip_overlay.innerHTML = window.spanstyle +
+                    'Server: ' + window.bso.ip + ':' + window.bso.po + '</span>';
             }
         },
 
@@ -828,9 +817,10 @@ var userInterface = (function() {
             return window[preference];
         },
 
-        // Saves username when you click on "Play" button
+        // Execute functions when you click on "Play" button
         playButtonClickListener: function() {
-            userInterface.saveNick();
+            userInterface.saveNick(); // Saves username
+            userInterface.saveScore(); // Checks highscore
             userInterface.loadPreference('autoRespawn', false);
         },
 
@@ -838,6 +828,36 @@ var userInterface = (function() {
         saveNick: function() {
             var nick = document.getElementById('nick').value;
             userInterface.savePreference('savedNick', nick);
+        },
+
+		// Preserve highscore
+        saveScore: function() {
+            // Check if the lastscore was set
+            if (document.querySelector('div#lastscore').childNodes.length > 1) {
+                // Check for excisting highscore, if not, use 1 (because minimum length)
+                var highScore = parseInt(userInterface.loadPreference('highscore', 1));
+                window.log('HighScore: ' + highScore);
+                // Retrieve the last, current score
+                var lastScore = parseInt(
+                    document.querySelector('div#lastscore').childNodes[1].innerHTML);
+                window.log('LastScore: ' + lastScore);
+                // Check if the current score is bigger than the highscore
+                if (lastScore > highScore) {
+                    // Set the currentscore as the highscore
+                    userInterface.savePreference('highscore', lastScore);
+                    window.log('New highscore! Score set to ' + lastScore);
+                    // Display Personal HighScore
+                    window.highscore_overlay.innerHTML = window.spanstyle +
+                        'Your highscore: ' + lastScore + '</span>';
+                }
+                // Display LastScore
+                window.lastscore_overlay.innerHTML = window.spanstyle +
+                    'Your last score: ' + lastScore + '</span>';
+                /* This can be used in the future for multiple score
+                window.scores.push(parseInt(document.querySelector(
+                    'div#lastscore').childNodes[1].innerHTML)); */
+            }
+
         },
 
         // Add interface elements to the page.
@@ -982,42 +1002,37 @@ var userInterface = (function() {
         },
 
         onPrefChange: function() {
-            var generalStyle = '<span style = "opacity: 0.35";>';
-
-            window.botstatus_overlay.innerHTML = generalStyle +
-                '(T / Right Click) Bot: </span>' + userInterface.handleTextColor(
-                    bot.isBotRunning);
-            window.visualdebugging_overlay.innerHTML = generalStyle +
+            window.botstatus_overlay.innerHTML = window.spanstyle +
+                  '(T / Right Click) Bot: </span>' + userInterface.handleTextColor(
+                      bot.isBotRunning);
+            window.visualdebugging_overlay.innerHTML = window.spanstyle +
                 '(Y) Visual debugging: </span>' + userInterface.handleTextColor(
                     window.visualDebugging);
-            window.logdebugging_overlay.innerHTML = generalStyle +
+            window.logdebugging_overlay.innerHTML = window.spanstyle +
                 '(U) Log debugging: </span>' + userInterface.handleTextColor(
                     window.logDebugging);
-            window.autorespawn_overlay.innerHTML = generalStyle +
+            window.autorespawn_overlay.innerHTML = window.spanstyle +
                 '(I) Auto respawning: </span>' + userInterface.handleTextColor(
                     window.autoRespawn);
-            window.rotateskin_overlay.innerHTML = generalStyle +
+            window.rotateskin_overlay.innerHTML = window.spanstyle +
                 '(W) Auto skin rotator: </span>' + userInterface.handleTextColor(
                     window.rotateskin);
-            window.rendermode_overlay.innerHTML = generalStyle +
+            window.rendermode_overlay.innerHTML = window.spanstyle +
                 '(O) Mobile rendering: </span>' + userInterface.handleTextColor(
                     window.mobileRender);
             window.collision_detection_overlay.innerHTML =
-                generalStyle + '(C) Collision detection: </span>' +
+                window.spanstyle + '(C) Collision detection: </span>' +
                 userInterface.handleTextColor(window.collisionDetection);
         },
 
         onFrameUpdate: function() {
             // Botstatus overlay
-            var generalStyle = '<span style = "opacity: 0.35";>';
-
-            window.fps_overlay.innerHTML = generalStyle + 'FPS: ' +
+            window.fps_overlay.innerHTML = window.spanstyle + 'FPS: ' +
                 userInterface.framesPerSecond.getFPS() + '</span>';
-
 
             if (window.position_overlay && window.playing) {
                 // Display the X and Y of the snake
-                window.position_overlay.innerHTML = generalStyle +
+                window.position_overlay.innerHTML = window.spanstyle +
                     'X: ' + (Math.round(window.snake.xx) || 0) +
                     ' Y: ' + (Math.round(window.snake.yy) || 0) +
                     '</span>';
@@ -1043,7 +1058,6 @@ var userInterface = (function() {
         oef: function() {
             // Original slither.io oef function + whatever is under it
             // requestAnimationFrame(window.loop);
-            canvas.maintainZoom();
             original_oef();
             if (bot.isBotRunning) window.loop();
             userInterface.onFrameUpdate();
@@ -1105,12 +1119,12 @@ window.sosBackup = sos;
         'Slither.io-bot');
 
     // Overlays
-
-    // Top left
-
-    window.generalstyle =
+	window.generalstyle =
         'color: #FFF; font-family: Arial, \'Helvetica Neue\',' +
         ' Helvetica, sans-serif; font-size: 14px; position: fixed; z-index: 7;';
+	window.spanstyle = '<span style = "opacity: 0.35";>';
+
+    // Top left
     userInterface.appendDiv('version_overlay', 'nsi', window.generalstyle +
         'left: 30; top: 50px;');
     userInterface.appendDiv('botstatus_overlay', 'nsi', window.generalstyle +
@@ -1138,33 +1152,43 @@ window.sosBackup = sos;
     userInterface.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle +
         'left: 30; top: 230px;');
 
-    // Set static display options here.
-    var generalStyle = '<span style = "opacity: 0.35";>';
-    window.resetzoom_overlay.innerHTML = generalStyle +
-        '(Z) Reset zoom </span>';
-    window.scroll_overlay.innerHTML = generalStyle +
-        '(Mouse Wheel) Zoom in/out </span>';
-    window.quittomenu_overlay.innerHTML = generalStyle +
-        '(Q) Quit to menu </span>';
-    window.changeskin_overlay.innerHTML = generalStyle +
-        '(X) Change skin </span>';
-    window.quickResp_overlay.innerHTML = generalStyle +
-        '(ESC) Quick Respawn </span>';
-    // eslint-disable-next-line no-undef
-    window.version_overlay.innerHTML = generalStyle + 'Version: ' + GM_info
-        .script.version;
-
-
-    // Pref display
-    userInterface.onPrefChange();
-
-    // Bottom right
+	// Bottom right
     userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 120px;');
     userInterface.appendDiv('ip_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 150px;');
     userInterface.appendDiv('fps_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 170px;');
+	userInterface.appendDiv('highscore_overlay', 'nsi', window.generalstyle +
+        'right: 30; bottom: 200px;');
+    userInterface.appendDiv('lastscore_overlay', 'nsi', window.generalstyle +
+        'right: 30; bottom: 220px;');
+
+    // Set static display options here.
+    window.resetzoom_overlay.innerHTML = window.spanstyle +
+        '(Z) Reset zoom </span>';
+    window.scroll_overlay.innerHTML = window.spanstyle +
+        '(Mouse Wheel) Zoom in/out </span>';
+    window.quittomenu_overlay.innerHTML = window.spanstyle +
+        '(Q) Quit to menu </span>';
+    window.changeskin_overlay.innerHTML = window.spanstyle +
+        '(X) Change skin </span>';
+    window.quickResp_overlay.innerHTML = window.spanstyle +
+        '(ESC) Quick Respawn </span>';
+    // eslint-disable-next-line no-undef
+    window.version_overlay.innerHTML = window.spanstyle +
+		'Version: ' + GM_info.script.version + '</span>';
+
+	// Check for excisting highscore, if not, do not display it
+    var highScore = parseInt(userInterface.loadPreference('highscore', false));
+    if(highScore) {
+        window.highscore_overlay.innerHTML = window.spanstyle +
+            'Your highscore: ' + highScore + '</span>';
+    }
+    // Since there is no last score the first time, do not show one
+
+    // Pref display
+    userInterface.onPrefChange();
 
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', canvas.setZoom);
