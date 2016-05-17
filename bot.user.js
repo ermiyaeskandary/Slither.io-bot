@@ -8,7 +8,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      0.9.4
+// @version      0.9.5
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -2081,8 +2081,8 @@ var collisionGrid = (function() {
         // callback = function(x, y, gridValue) {}
         sliceGrid: function(col, row, width, height, callback) {
             //constrain the values between 0 and width/height
-            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
-            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
+            var col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
+            var row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
             width = col + Math.min(collisionGrid.gridWidth, Math.max(width, 0));
             height = row + Math.min(collisionGrid.gridHeight, Math.max(height, 0));
 
