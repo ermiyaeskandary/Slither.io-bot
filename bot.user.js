@@ -449,9 +449,7 @@ var bot = (function() {
                 bot.launchBot();
                 bot.isBotEnabled = true;
             }
-        }
-    },
-
+        },
         changeSkin: function() {
             if (window.playing && window.snake !== null) {
                 var skin = window.snake.rcv;
