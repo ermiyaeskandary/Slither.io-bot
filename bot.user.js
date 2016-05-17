@@ -357,7 +357,6 @@ var bot = (function() {
         tickCounter: 0,
         isBotRunning: false,
         isBotEnabled: true,
-        collisionPoints: [],
         currentPath: [],
         radarResults: [],
         followLine: 0,
@@ -447,8 +446,11 @@ var bot = (function() {
             window.dead_mtm = 0;
             window.login_fr = 0;
             bot.forceConnect();
+            if (!bot.isBotRunning) {
+                bot.launchBot();
+                bot.isBotEnabled = true;
+            }
         },
-
         changeSkin: function() {
             if (window.playing && window.snake !== null) {
                 var skin = window.snake.rcv;
@@ -954,15 +956,6 @@ var userInterface = (function() {
                     userInterface.savePreference('mobileRender', window.mobileRender);
                     canvas.mobileRendering();
                 }
-                // Letter 'C' to toggle Collision detection / enemy avoidance
-                if (e.keyCode === 67) {
-                    window.collisionDetection = !window.collisionDetection;
-                    console.log('collisionDetection set to: ' +
-                        window.collisionDetection);
-                    userInterface.savePreference(
-                        'collisionDetection', window.collisionDetection
-                    );
-                }
                 // Letter 'Z' to reset zoom
                 if (e.keyCode === 90) {
                     canvas.resetZoom();
@@ -1044,9 +1037,6 @@ var userInterface = (function() {
             window.rendermode_overlay.innerHTML = window.spanstyle +
                 '(O) Mobile rendering: </span>' + userInterface.handleTextColor(
                     window.mobileRender);
-            window.collision_detection_overlay.innerHTML =
-                window.spanstyle + '(C) Collision detection: </span>' +
-                userInterface.handleTextColor(window.collisionDetection);
         },
 
         onFrameUpdate: function() {
@@ -1136,8 +1126,6 @@ window.sosBackup = sos;
     userInterface.loadPreference('visualDebugging', false);
     userInterface.loadPreference('autoRespawn', false);
     userInterface.loadPreference('mobileRender', false);
-    userInterface.loadPreference('collisionDetection', true);
-    userInterface.loadPreference('collisionRadiusMultiplier', 10);
     userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick',
         'Slither.io-bot');
@@ -1163,20 +1151,18 @@ window.sosBackup = sos;
         'left: 30; top: 125px;');
     userInterface.appendDiv('rotateskin_overlay', 'nsi', window.generalstyle +
         'left: 30; top: 140px;');
-    userInterface.appendDiv('collision_detection_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 155px;');
     userInterface.appendDiv('resetzoom_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 170px;');
+        'left: 30; top: 155px;');
     userInterface.appendDiv('scroll_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 185px;');
+        'left: 30; top: 170px;');
     userInterface.appendDiv('quickResp_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 200px;');
+        'left: 30; top: 285px;');
     userInterface.appendDiv('changeskin_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 215px;');
+        'left: 30; top: 200px;');
     userInterface.appendDiv('quittomenu_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 230px;');
+        'left: 30; top: 215px;');
 
-	// Bottom right
+    // Bottom right
     userInterface.appendDiv('position_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 120px;');
     userInterface.appendDiv('ip_overlay', 'nsi', window.generalstyle +
@@ -1358,7 +1344,6 @@ var astar = {
     var closestNode = start; // set the start node to be the closest if required
 
     start.h = heuristic(start, end);
-    // collisionGrid.markDirty(start);
     var maxtries = 10000;
     var trynum = 0;
 
@@ -1405,7 +1390,6 @@ var astar = {
           neighbor.h = neighbor.h || heuristic(neighbor, end);
           neighbor.g = gScore;
           neighbor.f = neighbor.g + neighbor.h;
-          // collisionGrid.markDirty(neighbor);
           if (closest) {
             // If the neighbour is closer than the current closestNode or if it's equally close but has
             // a cheaper path than the current closest node then it becomes the closest node
