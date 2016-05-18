@@ -11,8 +11,8 @@
 var behaviors = (function() {
     return {
         init: function() {
-            behaviors.newTask('actionFoodFollow', behaviors.actionFoodFollow);
-            behaviors.newTask('actionFoodFind', behaviors.actionFoodFind);
+
+            behaviors.newTask('actionSuggestFood', behaviors.actionSuggestFood);
             behaviors.newTask('actionSprint', behaviors.actionSprint);
             behaviors.newTask('actionWalk', behaviors.actionWalk);
             behaviors.newTask('actionToCenterOfMap', behaviors.actionToCenterOfMap);
@@ -21,7 +21,10 @@ var behaviors = (function() {
             behaviors.newTask('actionAvoidSurround', behaviors.actionAvoidSurround);
             behaviors.newTask('action180FromSnake', behaviors.action180FromSnake);
             behaviors.newTask('actionTrollSurrounderer', behaviors.actionTrollSurrounderer);
+            behaviors.newTask('actionMoveToGoal', behaviors.actionMoveToGoal);
+            behaviors.newTask('actionFollowPath', behaviors.actionFollowPath);
 
+            behaviors.newTask('isPathAvailable', behaviors.isPathAvailable);
             behaviors.newTask('isNearEnemySnakeBody', behaviors.isNearEnemySnakeBody);
             behaviors.newTask('isAlmostSurrounded', behaviors.isAlmostSurrounded);
             behaviors.newTask('isSurrounded', behaviors.isSurrounded);
@@ -31,29 +34,53 @@ var behaviors = (function() {
             behaviors.newTask('isGoodFood', behaviors.isGoodFood);
             behaviors.newTask('isFollowingFood', behaviors.isFollowingFood);
             behaviors.newTask('isReachedTarget', behaviors.isReachedTarget);
+            behaviors.newTask('isHighQualityFoodAvailable', behaviors.isHighQualityFoodAvailable);
 
-            behaviors.newCondition('checkFoodFollowing', 'isFollowingFood', 'actionFoodFollow', 'checkFoodExists');
-            behaviors.newCondition('checkFoodExists', 'isFoodExists', 'actionFoodFind', 'actionToCenterOfMap')
+
+            behaviors.newCondition('checkFoodFollowing', 'isFollowingFood', 'checkPath', 'checkFoodExists');
+            behaviors.newCondition('checkFoodExists', 'isFoodExists', 'actionSuggestFood', 'actionToCenterOfMap')
             behaviors.newCondition('checkFoodSprint', 'isGoodFood', 'actionSprint', 'actionWalk');
-            behaviors.newCondition('checkFoodReached', 'isReachedTarget', 'actionStopFollow','actionNone');
+            behaviors.newCondition('checkHighQualityFood', 'isHighQualityFoodAvailable', 'sequenceResetFoodSuggestion', 'actionNone');
+            behaviors.newCondition('checkFoodReached', 'isReachedTarget', 'actionStopFollow','checkHighQualityFood');
             behaviors.newCondition('checkNearSnake', 'isNearEnemySnakeBody', 'action180FromSnake', 'actionNone');
             behaviors.newCondition('checkAvoidSurround', 'isAlmostSurrounded', 'sequenceAvoidSurround', 'actionNone');
+            behaviors.newCondition('checkPath', 'isPathAvailable', 'actionFollowPath', 'actionMoveToGoal');
 
-            behaviors.newSequence('sequenceAvoidance', ['checkNearSnake', 'checkAvoidSurround']);
             behaviors.newSequence('sequenceAvoidSurround', ['actionSprint','actionAvoidSurround']);
+            behaviors.newSequence('sequenceAvoidance', ['checkNearSnake', 'checkAvoidSurround']);
+            behaviors.newSequence('sequenceResetFoodSuggestion', ['actionStopFollow', 'actionSuggestFood']);
             behaviors.newSequence('sequenceFindFood', ['sequenceAvoidance', 'checkFoodFollowing', 'checkFoodSprint', 'checkFoodReached']);
+            /*
+            behaviors.newSequence('sequenceFoodTest',
+                [
+                    'checkFoodFollowing',
+                    behaviors.condition(
+                        'isFollowingFood',
+                        behaviors.condition(
+                            'isPathAvailable',
+                            'actionFollowPath',
+                            'actionMoveToGoal'
+                        );
+                        behaviors.condition(
+                            'isFoodExists'
+                        );
+                    ),
+
+                    'checkFoodSprint',
+                    'checkFoodReached'
+                ]
+            );*/
 
             behaviors.newTree('snakebot', ['sequenceFindFood']);
         },
 
-        actionFoodFind: function(obj) {
+        actionSuggestFood: function(obj) {
             window.setAcceleration(0);
             var foodCnt = 0;
             var bestFood = 0;
             var foodPos;
             var destpos;
             var curpos = window.getPos();
-            window.goalCoordinates = window.goalCoordinates || {x:0,y:0};
 
             for(var i=0; i<collisionGrid.foodGroups.length; i++) {
                 bestFood = collisionGrid.foodGroups[i];
@@ -61,11 +88,14 @@ var behaviors = (function() {
                 foodPos = {x: bestFood.sumx / foodcnt, y:bestFood.sumy / foodcnt};
                 destpos = collisionGrid.getCellByXY(foodPos.x, foodPos.y);
 
-                var line = collisionGrid.lineTest(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y,TYPE_SNAKE);
+                var line = collisionGrid.lineTest(curpos.x, curpos.y, foodPos.x, foodPos.y,TYPE_SNAKE);
                 var linePos = collisionGrid.getCellByColRow(line.col,line.row);
-                var collisionDist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
-                if( collisionDist < 2500 )
+                //var collisionDist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
+                if( line.cell )
                     continue;
+
+                //if( collisionDist < 2500 )
+                //    continue;
 
                 if( destpos.cell && destpos.cell.type==TYPE_FOOD)
                     break;
@@ -73,63 +103,34 @@ var behaviors = (function() {
 
             obj.foodTarget = bestFood;
             obj.followTime = (new Date()).getTime();
-
-            window.goalCoordinates = {x: foodPos.x, y:foodPos.y};
-            canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
+            obj.followCoordinates = {x: foodPos.x, y:foodPos.y};
+            obj.goalCoordinates = {x: foodPos.x, y:foodPos.y};
 
             this.success();
         },
 
-        isPathAvailable: function(obj) {
-            var curpos = window.getPos();
-            var minpath = 3;
-            var path = collisionGrid.generatePath(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y);
-            var cell = collisionGrid.getCellByXY(window.goalCoordinates.x, window.goalCoordinates.y);
-
-            if( path.length > minpath && cell.cell.type != TYPE_SNAKE ) {
-                bot.currentPath = path;
-                if( window.visualDebugging )
-                    for(i=0; i<path.length; i++) {
-                        if( i == minpath )
-                            collisionGrid.drawCell(path[i].x, path[i].y, 'rgba(0,0,255,0.4)');
-                        else
-                            collisionGrid.drawCell(path[i].x, path[i].y, 'rgba(255,0,0,0.4)');
-                    }
-
-
-                var cell = collisionGrid.getCellByColRow(path[minpath].x, path[minpath].y);
-                canvas.setMouseCoordinates(canvas.mapToMouse(cell));
-                this.success();
+        isHighQualityFoodAvailable: function(obj) {
+            if( collisionGrid.foodGroups.length ) {
+                if( collisionGrid.foodGroups[0].score > 50 ) {
+                    this.success();
+                    return;
+                }
             }
-            else {
-                this.fail();
-            }
+            this.fail();
         },
 
-        actionFoodFollow: function(obj) {
-            var curpos = window.getPos();
-            var minpath = 3;
-            var path = collisionGrid.generatePath(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y);
-            var cell = collisionGrid.getCellByXY(window.goalCoordinates.x, window.goalCoordinates.y);
-
-            if( path.length > minpath && cell.cell.type != TYPE_SNAKE ) {
-                bot.currentPath = path;
-                if( window.visualDebugging )
-                    for(i=0; i<path.length; i++) {
-                        if( i == minpath )
-                            collisionGrid.drawCell(path[i].x, path[i].y, 'rgba(0,0,255,0.4)');
-                        else
-                            collisionGrid.drawCell(path[i].x, path[i].y, 'rgba(255,0,0,0.4)');
-                    }
-
-                var cell = collisionGrid.getCellByColRow(path[minpath].x, path[minpath].y);
-                canvas.setMouseCoordinates(canvas.mapToMouse(cell));
-                this.success();
-            }
-            else {
-                this.fail();
-            }
+        actionMoveToGoal: function(obj) {
+            canvas.setMouseCoordinates(canvas.mapToMouse(obj.goalCoordinates));
+            this.success();
+            //console.log("following goal");
         },
+
+        actionFollowPath: function(obj) {
+            canvas.setMouseCoordinates(canvas.mapToMouse(obj.followCoordinates));
+            //console.log("following path" + obj.followCoordinates.x + "," + obj.followCoordinates.y);
+            this.success();
+        },
+
 
         action180FromSnake: function(obj) {
             if( !obj.aggressor ) {
@@ -141,7 +142,8 @@ var behaviors = (function() {
                 x: window.snake.xx + (window.snake.xx - obj.aggressor.snk.closest.xx),
                 y: window.snake.yy + (window.snake.yy - obj.aggressor.snk.closest.yy)
             };
-            canvas.setMouseCoordinates(canvas.mapToMouse(newcoord));
+            obj.followCoordinates = {x: newcoord.x, y:newcoord.x};
+            obj.goalCoordinates = {x: newcoord.x, y:newcoord.y};
             this.success();
         },
 
@@ -149,6 +151,12 @@ var behaviors = (function() {
          *  Avoid surround by choosing a random open path from our radar
          */
         actionAvoidSurround: function(obj) {
+
+            if( !bot.radarResults.open.length ) {
+                this.fail();
+                return false;
+            }
+
             var linePos;
             if( !obj.surroundExitPos ) {
                 var randomLine = parseInt(Math.random() * bot.radarResults.open.length);
@@ -156,9 +164,8 @@ var behaviors = (function() {
                 obj.surroundExitPos = collisionGrid.getCellByColRow(line.x,line.y);
             }
 
-            window.goalCoordinates.x = obj.surroundExitPos.x;
-            window.goalCoordinates.y = obj.surroundExitPos.y;
-            canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
+            obj.followCoordinates = {x: obj.surroundExitPos.x, y:obj.surroundExitPos.y};
+            obj.goalCoordinates = {x: obj.surroundExitPos.x, y:obj.surroundExitPos.y};
             this.success();
         },
 
@@ -176,13 +183,39 @@ var behaviors = (function() {
                 //console.log("moving away from snake part");
                 newpos.x += curpos.x - cell[0].part.x;
                 newpos.y += curpos.y - cell[0].part.y;
-                window.goalCoordinates.x = linePos.x;
-                window.goalCoordinates.y = linePos.y;
-                canvas.setMouseCoordinates(canvas.mapToMouse(linePos));
+                obj.followCoordinates = {x: linePos.x, y:linePos.y};
+                obj.goalCoordinates = {x: linePos.x, y:linePos.y};
                 var dist = canvas.getDistance(curpos.x, curpos.y, cell[0].part.x, cell[0].part.y);
                 if( dist > 100 ) {
                     bot.setNextState('findFood');
                 }
+            }
+        },
+
+        isPathAvailable: function(obj) {
+            var curpos = window.getPos();
+            var minpath = 2;
+            var path = collisionGrid.generatePath(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y);
+            var cell = collisionGrid.getCellByXY(obj.goalCoordinates.x, obj.goalCoordinates.y);
+            //console.log("isPathAvailable");
+            if( path.length > minpath && cell.cell.type != TYPE_SNAKE ) {
+                bot.currentPath = path;
+                if( window.visualDebugging )
+                    for(i=0; i<path.length; i++) {
+                        if( i == minpath )
+                            collisionGrid.drawCell(path[i].x, path[i].y, 'rgba(0,0,255,0.4)');
+                        else
+                            collisionGrid.drawCell(path[i].x, path[i].y, 'rgba(255,0,0,0.4)');
+                    }
+
+
+                var cell = collisionGrid.getCellByColRow(path[minpath].x, path[minpath].y);
+                obj.followCoordinates = {x: cell.x, y:cell.y};
+                this.success();
+            }
+            else {
+                obj.followCoordinates = {x: obj.goalCoordinates.x, y:obj.goalCoordinates.y};
+                this.fail();
             }
         },
 
@@ -197,6 +230,7 @@ var behaviors = (function() {
         },
 
         actionToCenterOfMap: function(obj) {
+            obj.goalCoordinates = {x: 10000, y:10000};
             this.success();
         },
 
@@ -220,7 +254,8 @@ var behaviors = (function() {
         isFollowingFood: function(obj) {
             var curtime = (new Date()).getTime();
             var diff = curtime - obj.followTime;
-            if( diff <= 8000 ) {
+            if( diff <= 5000 ) {
+                //console.log("Following FOOD!");
                 this.success();
                 return;
             }
@@ -237,7 +272,7 @@ var behaviors = (function() {
 
         isReachedTarget: function(obj) {
             var curpos = window.getPos();
-            var dist = canvas.getDistance2(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y);
+            var dist = canvas.getDistance2(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y);
             if( dist < 2500 ) {
                 this.success();
                 return;
@@ -266,7 +301,7 @@ var behaviors = (function() {
         },
 
         isAlmostSurrounded: function(obj) {
-            if( bot.radarResults && bot.radarResults.pct < 0.30 ) {
+            if( bot.radarResults && bot.radarResults.open.length > 0 && bot.radarResults.pct < 0.30 ) {
                 this.success();
                 return;
             }
@@ -295,7 +330,7 @@ var behaviors = (function() {
 
 
         isTargetBlockedBySnake: function(obj) {
-            var line = collisionGrid.lineTest(curpos.x, curpos.y, window.goalCoordinates.x, window.goalCoordinates.y,TYPE_SNAKE);
+            var line = collisionGrid.lineTest(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y,TYPE_SNAKE);
             var linePos = collisionGrid.getCellByColRow(line.col,line.row);
             var collisionDist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
             if( collisionDist < 2500 ) {
@@ -303,9 +338,9 @@ var behaviors = (function() {
                 var dir = {x:0,y:0};
                 dir.x = curpos.x - linePos.x;
                 dir.y = curpos.y - linePos.y;
-                window.goalCoordinates.x = curpos.x + dir.x;
-                window.goalCoordinates.y = curpos.y + dir.y;
-                canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
+                //window.goalCoordinates.x = curpos.x + dir.x;
+                //window.goalCoordinates.y = curpos.y + dir.y;
+                canvas.setMouseCoordinates(canvas.mapToMouse(obj.goalCoordinates));
                 bot.stopFollowLine(0);
                 this.success();
                 return;
@@ -353,11 +388,24 @@ var behaviors = (function() {
         newTree: function(name, nodes) {
             behaviors.trees[name] = new BehaviorTree({
                 title: name,
+                debug: true,
                 tree: new BehaviorTree.Sequence({
                     nodes: nodes
                 })
             });
         },
+
+        condition: function(test, pass, fail) {
+            return new BehaviorTree.Condition({
+                nodes: [test, pass, fail]
+            });
+        },
+
+        sequence: function(nodes) {
+            return new BehaviorTree.Sequence({
+                nodes: nodes
+            });
+        }
 
         invertTask: function(name) {
             return new InvertDecorator({
@@ -369,11 +417,8 @@ var behaviors = (function() {
             });
         },
 
-        object: function(treeName, obj) {
+        run: function(treeName, obj) {
             behaviors.trees[treeName].setObject(obj);
-        },
-
-        run: function(treeName) {
             behaviors.trees[treeName].step();
         }
     };

@@ -8,348 +8,23 @@
 // @grant        none
 // ==/UserScript==
 
-/**
- *  Grid Node
- *  Types:
- *  0 = empty
- *  1 = snake
- *  2 = food
- */
-var TYPE_EMPTY = 0;
-var TYPE_SNAKE = 1;
-var TYPE_FOOD = 2;
-
-function GridNode(x, y, weight, type) {
-    this.x = x;
-    this.y = y;
-    this.weight = weight;
-    this.f = 0;
-    this.g = 0;
-    this.h = 0;
-    this.visited = false;
-    this.closed = false;
-    this.parent = null;
-    this.type = type || 0;
-    this.items = [];
-}
-
-GridNode.prototype.toString = function() {
-    return "[" + this.x + " " + this.y + "]";
-};
-
-GridNode.prototype.getCost = function(fromNeighbor) {
-    // Take diagonal weight into consideration.
-    if (fromNeighbor && fromNeighbor.x != this.x && fromNeighbor.y != this.y) {
-        return this.weight * 1.41421;
-    }
-    return this.weight;
-};
-
-GridNode.prototype.isWall = function() {
-    return this.weight === 0;
-};
-// javascript-astar 0.4.1
-// http://github.com/bgrins/javascript-astar
-// Freely distributable under the MIT License.
-// Implements the astar search algorithm in javascript using a Binary Heap.
-// Includes Binary Heap (with modifications) from Marijn Haverbeke.
-// http://eloquentjavascript.net/appendix2.html
-(function(definition) {
-  /* global module, define */
-  if (typeof module === 'object' && typeof module.exports === 'object') {
-    module.exports = definition();
-  } else if (typeof define === 'function' && define.amd) {
-    define([], definition);
-  } else {
-    var exports = definition();
-    window.astar = exports.astar;
-  }
-})(function() {
-
-function pathTo(node) {
-  var curr = node;
-  var path = [];
-  while (curr.parent) {
-    path.unshift(curr);
-
-
-    curr = curr.parent;
-  }
-  return path;
-}
-
-function getHeap() {
-  return new BinaryHeap(function(node) {
-    return node.f;
-  });
-}
-
-var astar = {
-  /**
-  * Perform an A* Search on a graph given a start and end node.
-  * @param {Graph} graph
-  * @param {GridNode} start
-  * @param {GridNode} end
-  * @param {Object} [options]
-  * @param {bool} [options.closest] Specifies whether to return the
-             path to the closest node if the target is unreachable.
-  * @param {Function} [options.heuristic] Heuristic function (see
-  *          astar.heuristics).
-  */
-  search: function(start, end, options) {
-
-    options = options || {};
-    var heuristic = options.heuristic || astar.heuristics.manhattan;
-    var closest = options.closest || false;
-
-    var openHeap = getHeap();
-    var closestNode = start; // set the start node to be the closest if required
-
-    start.h = heuristic(start, end);
-    var maxtries = 1000;
-    var trynum = 0;
-
-    openHeap.push(start);
-
-    while (openHeap.size() > 0) {
-        if( ++trynum > maxtries ) {
-            return [];
-        }
-      // Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
-      var currentNode = openHeap.pop();
-
-      // End case -- result has been found, return the traced path.
-      if (currentNode.x == end.x && currentNode.y == end.y) {
-        return pathTo(currentNode);
-      }
-
-      // Normal case -- move currentNode from open to closed, process each of its neighbors.
-      currentNode.closed = true;
-
-      // Find all neighbors for the current node.
-      var neighbors = collisionGrid.neighbors(currentNode.x, currentNode.y);
-
-      for (var i = 0, il = neighbors.length; i < il; ++i) {
-        var neighbor = neighbors[i];
-
-        if (neighbor.closed || neighbor.type == TYPE_SNAKE) {
-          // Not a valid node to process, skip to next neighbor.
-          continue;
-        }
-
-        // The g score is the shortest distance from start to current node.
-        // We need to check if the path we have arrived at this neighbor is the shortest one we have seen yet.
-        var gScore = currentNode.g + neighbor.weight;//getCost(currentNode);
-        var beenVisited = neighbor.visited;
-        if( beenVisited ) {
-            //console.log('visited ('+neighbor.x+','+neighbor.y+')');
-        }
-        if (!beenVisited || gScore < neighbor.g) {
-
-          // Found an optimal (so far) path to this node.  Take score for node to see how good it is.
-          neighbor.visited = true;
-          neighbor.parent = currentNode;
-          neighbor.h = neighbor.h || heuristic(neighbor, end);
-          neighbor.g = gScore;
-          neighbor.f = neighbor.g + neighbor.h;
-
-          if (closest) {
-            // If the neighbour is closer than the current closestNode or if it's equally close but has
-            // a cheaper path than the current closest node then it becomes the closest node
-            if (neighbor.h < closestNode.h || (neighbor.h === closestNode.h && neighbor.g < closestNode.g)) {
-              closestNode = neighbor;
-            }
-          }
-
-          if (!beenVisited) {
-            // Pushing to heap will put it in proper place based on the 'f' value.
-            openHeap.push(neighbor);
-          } else {
-            // Already seen the node, but since it has been rescored we need to reorder it in the heap
-            openHeap.rescoreElement(neighbor);
-          }
-        }
-      }
-    }
-
-    if (closest) {
-      return pathTo(closestNode);
-    }
-
-    // No result was found - empty array signifies failure to find path.
-    return [];
-  },
-  // See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
-  heuristics: {
-    manhattan: function(pos0, pos1) {
-      var d1 = Math.abs(pos1.x - pos0.x);
-      var d2 = Math.abs(pos1.y - pos0.y);
-      return d1 + d2;
-    },
-    diagonal: function(pos0, pos1) {
-      var D = 1;
-      var D2 = 1.41421; // 1.41421 == Math.sqrt(2)
-      var d1 = Math.abs(pos1.x - pos0.x);
-      var d2 = Math.abs(pos1.y - pos0.y);
-      return (D * (d1 + d2)) + ((D2 - (2 * D)) * Math.min(d1, d2));
-    },
-    chebyshev: function(pos0, pos1) {
-        var d1 = Math.abs(pos1.x - pos0.x);
-        var d2 = Math.abs(pos1.y - pos0.y);
-        return Math.max(d1,d2);
-    }
-  },
-  cleanNode: function(node) {
-    node.f = 0;
-    node.g = 0;
-    node.h = 0;
-    node.visited = false;
-    node.closed = false;
-    node.parent = null;
-  }
-};
-
-
-function BinaryHeap(scoreFunction) {
-  this.content = [];
-  this.scoreFunction = scoreFunction;
-}
-
-BinaryHeap.prototype = {
-  push: function(element) {
-    // Add the new element to the end of the array.
-    this.content.push(element);
-
-    // Allow it to sink down.
-    this.sinkDown(this.content.length - 1);
-  },
-  pop: function() {
-    // Store the first element so we can return it later.
-    var result = this.content[0];
-    // Get the element at the end of the array.
-    var end = this.content.pop();
-    // If there are any elements left, put the end element at the
-    // start, and let it bubble up.
-    if (this.content.length > 0) {
-      this.content[0] = end;
-      this.bubbleUp(0);
-    }
-    return result;
-  },
-  remove: function(node) {
-    var i = this.content.indexOf(node);
-
-    // When it is found, the process seen in 'pop' is repeated
-    // to fill up the hole.
-    var end = this.content.pop();
-
-    if (i !== this.content.length - 1) {
-      this.content[i] = end;
-
-      if (this.scoreFunction(end) < this.scoreFunction(node)) {
-        this.sinkDown(i);
-      } else {
-        this.bubbleUp(i);
-      }
-    }
-  },
-  size: function() {
-    return this.content.length;
-  },
-  rescoreElement: function(node) {
-    this.sinkDown(this.content.indexOf(node));
-  },
-  sinkDown: function(n) {
-    // Fetch the element that has to be sunk.
-    var element = this.content[n];
-
-    // When at 0, an element can not sink any further.
-    while (n > 0) {
-
-      // Compute the parent element's index, and fetch it.
-      var parentN = ((n + 1) >> 1) - 1;
-      var parent = this.content[parentN];
-      // Swap the elements if the parent is greater.
-      if (this.scoreFunction(element) < this.scoreFunction(parent)) {
-        this.content[parentN] = element;
-        this.content[n] = parent;
-        // Update 'n' to continue at the new position.
-        n = parentN;
-      }
-      // Found a parent that is less, no need to sink any further.
-      else {
-        break;
-      }
-    }
-  },
-  bubbleUp: function(n) {
-    // Look up the target element and its score.
-    var length = this.content.length;
-    var element = this.content[n];
-    var elemScore = this.scoreFunction(element);
-
-    while (true) {
-      // Compute the indices of the child elements.
-      var child2N = (n + 1) << 1;
-      var child1N = child2N - 1;
-      // This is used to store the new position of the element, if any.
-      var swap = null;
-      var child1Score;
-      // If the first child exists (is inside the array)...
-      if (child1N < length) {
-        // Look it up and compute its score.
-        var child1 = this.content[child1N];
-        child1Score = this.scoreFunction(child1);
-
-        // If the score is less than our element's, we need to swap.
-        if (child1Score < elemScore) {
-          swap = child1N;
-        }
-      }
-
-      // Do the same checks for the other child.
-      if (child2N < length) {
-        var child2 = this.content[child2N];
-        var child2Score = this.scoreFunction(child2);
-        if (child2Score < (swap === null ? elemScore : child1Score)) {
-          swap = child2N;
-        }
-      }
-
-      // If the element needs to be moved, swap it, and continue.
-      if (swap !== null) {
-        this.content[n] = this.content[swap];
-        this.content[swap] = element;
-        n = swap;
-      }
-      // Otherwise, we are done.
-      else {
-        break;
-      }
-    }
-  }
-};
-
-return {
-  astar: astar
-};
-
-});
-
 
 var collisionHelper = (function() {
     return {
         unitTable: [],
-        toRad: Math.PI / 180,
-        toDeg: 180 / Math.PI,
+        toRad: 0,
+        toDeg: 0,
 
         init: function() {
+            collisionHelper.toRad = Math.PI / 180;
+            collisionHelper.toDeg = 180 / Math.PI;
             collisionHelper.generateUnitTable();
 
         },
 
+
         /**
-         *  Build the unit table grouping opposite angles and in 22.5 degree increments
+         *  Build the unit table for X,Y unit vectors for 0 to 360 degrees
          *
          */
         generateUnitTable: function() {
@@ -361,8 +36,9 @@ var collisionHelper = (function() {
             }
         },
 
+
         /**
-         * Performs line scans in the E,N,W,S directions and rotates by 22.5 degrees * rotateCount
+         * Performs line scans in angleIncrements to a specified distance
          *
          */
         radarScan: function(angleIncrement,scanDist) {
@@ -419,6 +95,10 @@ var collisionHelper = (function() {
             return {pct:pct, open:open, collisions:collisions, results:results};
         },
 
+
+        /**
+         *  Check if two lines intersect.  Returns intersection point and if line segments are touching
+         */
         checkLineIntersection: function(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY) {
             // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
             var denominator;
@@ -464,6 +144,8 @@ var collisionHelper = (function() {
         }
     };
 })();
+
+
 /**
  * A 2d collision grid system for fast line to box collision
  *
@@ -477,10 +159,7 @@ var collisionGrid = (function() {
     return {
         width: 0,
         height: 0,
-
-        //clone for fast slicing
         grid: [],
-        bgrid: [],
         cellSize: 20,
         halfCellSize: 10,
         startX: 0,
@@ -489,12 +168,11 @@ var collisionGrid = (function() {
         gridHeight: 0,
         endX: 0,
         endY: 0,
-        astarGraph: 0,
-        astarResult: 0,
         foodGroups: [],
+        foodHighQuality: [],
         snakeAggressors: [],
 
-        initGrid: function(w, h, cellsz) {
+        init: function(w, h, cellsz) {
             sx = Math.floor(window.getX());
             sy = Math.floor(window.getY());
             sx = sx - (sx % cellsz);
@@ -509,24 +187,18 @@ var collisionGrid = (function() {
 
             collisionGrid.startX = Math.floor(sx - ((w/2)*cellsz));
             collisionGrid.startY = Math.floor(sy - ((h/2)*cellsz));
-            //collisionGrid.startX = collisionGrid.startX - (collisionGrid.startX % cellsz);
-            //collisionGrid.startY = collisionGrid.startY - (collisionGrid.startY % cellsz);
-
             collisionGrid.endX = collisionGrid.startX + collisionGrid.width;
             collisionGrid.endY = collisionGrid.startY + collisionGrid.height;
-
 
             collisionGrid.booleanGrid = [];
             collisionGrid.grid = [];
             collisionGrid.foodGroups = [];
+            collisionGrid.foodHighQuality = [];
             collisionGrid.snakeAggressors = [];
             collisionGrid.addSnakes();
             collisionGrid.addFood();
         },
 
-        setupGrid: function() {
-
-        },
 
         // Slice out a portion of the grid for less calculations
         // callback = function(x, y, gridValue) {}
@@ -546,15 +218,10 @@ var collisionGrid = (function() {
             }
         },
 
-        // Find specific cell using map-space position
+        // Find specific cell's column and row using map-space position
         getCellByXY: function(x, y) {
-            //x = x;
-           // y = y ;
             x = x - collisionGrid.startX;
             y = y - collisionGrid.startY;
-            //x = x - (x % collisionGrid.cellSize);
-           // y = y - (y % collisionGrid.cellSize);
-
             col = parseInt(Math.floor(x / collisionGrid.cellSize));
             row = parseInt(Math.floor(y / collisionGrid.cellSize));
             col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
@@ -611,6 +278,8 @@ var collisionGrid = (function() {
         markCellWall: function(col, row, obj) {
             var node = collisionGrid.markCell(col, row, 0, TYPE_SNAKE);
             node.items.push(obj);
+            if( window.visualDebugging && node.items.length == 1 )
+                collisionGrid.drawCell(col,row,'yellow');
             return node;
         },
 
@@ -622,13 +291,15 @@ var collisionGrid = (function() {
         },
 
         markCellFood: function(col, row, food) {
-            var node = collisionGrid.markCell(col, row, -(food.sz*food.sz), TYPE_FOOD);
+            var node = collisionGrid.markCell(col, row, food.sz, TYPE_FOOD);
             node.items.push(food);
             return node;
         },
 
         isWall: function(col, row) {
-            return collisionGrid.grid[col] && collisionGrid.grid[col][row] && collisionGrid.grid[col][row].type == TYPE_SNAKE;
+            return collisionGrid.grid[col]
+            && collisionGrid.grid[col][row]
+            && collisionGrid.grid[col][row].type == TYPE_SNAKE;
         },
 
         isEmpty: function(col, row) {
@@ -659,64 +330,47 @@ var collisionGrid = (function() {
             collisionGrid.grid[x] = collisionGrid.grid[x] || [];
 
             var node = collisionGrid.grid[x][y] || collisionGrid.markCellEmpty(x,y);;
-            if( node.type == TYPE_SNAKE ) {
+            if( node.type == TYPE_SNAKE )
                 return;
-            }
-            //if( !collisionGrid.grid[x][y] )
-
 
             arr.push(collisionGrid.grid[x][y]);
         },
 
         neighbors: function(x, y) {
             var ret = [];
-            // West
-            collisionGrid.addNeighbor(x-1, y, ret);
-            //East
-            collisionGrid.addNeighbor(x+1, y, ret);
-            //South
-            collisionGrid.addNeighbor(x, y-1, ret);
-            //North
-            collisionGrid.addNeighbor(x, y+1, ret);
-
-            //if (this.diagonal) {
-            // Southwest
-            collisionGrid.addNeighbor(x-1, y-1, ret);
-            // Southeast
-            collisionGrid.addNeighbor(x+1, y-1, ret);
-            // Northwest
-            collisionGrid.addNeighbor(x-1, y+1, ret);
-            // Northeast
-            collisionGrid.addNeighbor(x+1, y+1, ret);
-            //}
-
+            collisionGrid.addNeighbor(x-1, y, ret); //West
+            collisionGrid.addNeighbor(x+1, y, ret); //East
+            collisionGrid.addNeighbor(x, y-1, ret); //South
+            collisionGrid.addNeighbor(x, y+1, ret); //North
+            collisionGrid.addNeighbor(x-1, y-1, ret); // Southwest
+            collisionGrid.addNeighbor(x+1, y-1, ret); // Southeast
+            collisionGrid.addNeighbor(x-1, y+1, ret); // Northwest
+            collisionGrid.addNeighbor(x+1, y+1, ret); // Northeast
             return ret;
         },
 
         generatePath: function(startX, startY, endX, endY) {
             var startCell = collisionGrid.getCellByXY(startX,startY);
             var endCell = collisionGrid.getCellByXY(endX,endY);
+
             var start = collisionGrid.getCell(startCell.col, startCell.row) ||
                 collisionGrid.markCellEmpty(startCell.col, startCell.row);
             var end = collisionGrid.getCell(endCell.col, endCell.row) ||
                 collisionGrid.markCellEmpty(endCell.col, endCell.row);
 
             var path = astar.search(start, end);
-
             return path;
         },
 
         addFood: function() {
-
             collisionGrid.foodGroups = [];
             var foodGroupIDs = {};
-
-            var curpos = window.getPos();
-            var center = collisionGrid.getCellByXY(curpos.x,curpos.y);
-
+            var highQualityIDs = {};
             var foodGridSize = 10;
             var foodCellSize = 100;
             var foodCellSizeHalf = foodCellSize / 2;
+            var curpos = window.getPos();
+            var center = collisionGrid.getCellByXY(curpos.x,curpos.y);
             curpos.x = parseInt(Math.floor(curpos.x));
             curpos.y = parseInt(Math.floor(curpos.y));
             curpos.x = curpos.x - (curpos.x % foodCellSize);
@@ -725,12 +379,13 @@ var collisionGrid = (function() {
             var startY = Math.floor(curpos.y - ((foodGridSize/2)*foodCellSize));
             var endX = startX + foodGridSize * foodCellSize;
             var endY = startY + foodGridSize * foodCellSize;
+            var x, y, col, row;
+            var food, cell, node, distance2;
+            var i, id, groupid, group;
+            var dot;
 
-            var foodGroupList = [];
-
-            for(var i=0; i<window.foods.length; i++) {
-
-                var food = window.foods[i];
+            for(i=0; i<window.foods.length; i++) {
+                food = window.foods[i];
                 if( food === null || food === undefined || food.eaten )
                     continue;
 
@@ -740,26 +395,27 @@ var collisionGrid = (function() {
                     food.yy > endY )
                     continue;
 
-                var x = food.xx - startX;
-                var y = food.yy - startY;
-                var col = parseInt(Math.floor(x / foodCellSize));
-                var row = parseInt(Math.floor(y / foodCellSize));
+
+
+                x = food.xx - startX;
+                y = food.yy - startY;
+                col = parseInt(Math.floor(x / foodCellSize));
+                row = parseInt(Math.floor(y / foodCellSize));
                 col = Math.min(Math.max(col, 0), foodGridSize);
                 row = Math.min(Math.max(row, 0), foodGridSize);
 
-                var cell = collisionGrid.getCellByXY(food.xx, food.yy);
-                var node = collisionGrid.markCellFood(cell.col, cell.row, food);
+                cell = collisionGrid.getCellByXY(food.xx, food.yy);
+                node = collisionGrid.markCellFood(cell.col, cell.row, food);
+
                 if( node ) {
-                    //var distance = astar.heuristics.diagonal({x:center.col,y:center.row},{x:cell.col, y:cell.row});//canvas.getDistance(food.xx, food.yy, curpos.x, curpos.y);
-                    //distance = (distance + Math.abs(distance)) / 2;
-                    var distance2 = canvas.getDistance2(food.xx, food.yy, curpos.x, curpos.y);
+                    distance2 = canvas.getDistance2(food.xx, food.yy, curpos.x, curpos.y);
                     food.distance2 = distance2;
-                    var id = col+','+row;
-                    var groupid = foodGroupIDs[id] || 0;
+                    id = col+','+row;
+                    groupid = foodGroupIDs[id] || 0;
                     if( !groupid )
                         groupid = collisionGrid.foodGroups.length;
 
-                    var group = collisionGrid.foodGroups[groupid] || 0;
+                    group = collisionGrid.foodGroups[groupid] || 0;
                     if( !group )
                         group = {sumx:0, sumy:0, nodes:[], col:0, row:0, score:0, maxfood:0, distance2:-1};
 
@@ -779,6 +435,27 @@ var collisionGrid = (function() {
                     foodGroupIDs[id] = groupid;
                 }
 
+            }
+
+            var tempGroup = [];
+            for( var i=0; i<collisionGrid.foodGroups.length; i++) {
+                var foodgroup = collisionGrid.foodGroups[i];
+                if( foodgroup.score > 50 ) {
+                    collisionGrid.foodHighQuality.push(foodgroup);
+                }
+                else {
+                    var food = foodgroup.nodes[0];
+                    var dir = {x:0, y:0};
+                    dir.x = food.xx - curpos.x;
+                    dir.y = food.yy - curpos.y;
+
+                    dot = canvas.getDotProduct(dir.x, dir.y,
+                            bot.heading.x, bot.heading.y)
+                    if( dot < 0 )
+                        continue;
+
+                    tempGroup.push(foodgroup);
+                }
             }
             /*
             if( window.visualDebugging ) {
@@ -801,10 +478,17 @@ var collisionGrid = (function() {
                 }
             }
             */
-            collisionGrid.foodGroups.sort(function(a,b) {
-                //return b.score - a.score;
-                return (a.score == b.score ? 0 : (a.score / a.distance) > (b.score / b.distance)  ? -1 : 1);
+            collisionGrid.foodHighQuality.sort(function(a,b) {
+                return b.score - a.score;//(a.score == b.score ? 0 : (a.score / a.distance) > (b.score / b.distance)  ? -1 : 1);
             });
+
+            tempGroup.sort(function(a,b) {
+                return b.score - a.score;//(a.score == b.score ? 0 : (a.score / a.distance) > (b.score / b.distance)  ? -1 : 1);
+            });
+
+            collisionGrid.foodGroups = collisionGrid.foodHighQuality.concat(tempGroup);
+            //collisionGrid.foodGroups.concat(collisionGrid.foodHighQuality);
+            //collisionGrid.foodGroups.concat(tempGroup);
 
 
         },
@@ -817,17 +501,19 @@ var collisionGrid = (function() {
             var lastAlive = 0;
             var deadCount = 0;
             var maxDeadCount = 2;
-            for (var snakeid in window.snakes) {
-                var snk = window.snakes[snakeid];
+            var pts, part, threat;
+            var snk, cnt, relPos, snakeDist, rang;
+            for (snakeid in window.snakes) {
+                snk = window.snakes[snakeid];
                 if (snk.id == window.snake.id)
                     continue;
-                var cnt = 0;
+                cnt = 0;
 
                 snk.closest = 0;
 
-                var relPos = {x:(myX-snk.xx), y:(myY-snk.yy)}
-                var snakeDist = canvas.getDistance2(myX, myY, snk.xx, snk.yy);
-                var rang = snk.ang * collisionHelper.toRad;
+                relPos = {x:(myX-snk.xx), y:(myY-snk.yy)}
+                snakeDist = canvas.getDistance2(myX, myY, snk.xx, snk.yy);
+                rang = snk.ang * collisionHelper.toRad;
                 collisionGrid.snakeAggressors.push({
                     snk:snk,
                     distance2:snakeDist,
@@ -836,11 +522,14 @@ var collisionGrid = (function() {
                 });
 
                 if( snk.xx > collisionGrid.startX && snk.xx < collisionGrid.endX &&
-                    snk.yy > collisionGrid.startY && snk.yy < collisionGrid.endY)
-                    collisionGrid.snakePartBounds(snk,snk,2);
+                    snk.yy > collisionGrid.startY && snk.yy < collisionGrid.endY) {
+                    threat = collisionGrid.setupSnakeThreatRadius(snk);
+                    collisionGrid.snakePartBounds(snk,snk,threat);
+                }
 
-                for (var pts=snk.pts.length-1; pts>=0; pts--) {// in snk.pts) {
-                    var part = snk.pts[pts];
+
+                for (pts=snk.pts.length-1; pts>=0; pts--) {// in snk.pts) {
+                    part = snk.pts[pts];
 
                     if (part.dying) {
                         if( deadCount++ > maxDeadCount )
@@ -856,16 +545,15 @@ var collisionGrid = (function() {
 
 
                     //canvas.drawText(canvas.mapToCanvas({x:part.xx, y:part.yy}), 'red', ''+pts);
-                    collisionGrid.snakePartBounds(snk,part);
+                    threat = collisionGrid.setupSnakeThreatRadius(snk);
+                    collisionGrid.snakePartBounds(snk, part, threat);
                 }
 
                 if( window.visualDebugging && snk.closest) {
                     canvas.drawCircle(canvas.circleMapToCanvas({x:snk.closest.xx, y:snk.closest.yy, radius:window.getSnakeWidth(snk.sc)}), 'orange', false);
                     canvas.drawCircle(canvas.circleMapToCanvas({x:snk.xx, y:snk.yy, radius:window.getSnakeWidth(snk.sc)}), 'red', false);
                 }
-
             }
-
 
             collisionGrid.snakeAggressors.sort(function(a,b) {
                 return a.distance2 - b.distance2;
@@ -885,74 +573,73 @@ var collisionGrid = (function() {
             }
         },
 
-        snakePartBounds: function(snk, part, sizemultiplier) {
-            sizemultiplier = sizemultiplier || 1;
+        setupSnakeThreatRadius: function(snk, sizemultiplier) {
+            sizemultiplier = sizemultiplier || 0.8;
+            threatLevels = {};
+            threatLevels.radius = window.getSnakeWidth(snk.sc);
+            threatLevels.radius = Math.max(threatLevels.radius, 30) * sizemultiplier;
+            threatLevels.t1 = collisionGrid.calculateMaxCellCount(threatLevels.radius);
+            threatLevels.tt1 = threatLevels.t1*2;
+            threatLevels.t2 = collisionGrid.calculateMaxCellCount(threatLevels.radius * 1.5);
+            threatLevels.tt2 = threatLevels.t2*2;
+            threatLevels.t3 = collisionGrid.calculateMaxCellCount(threatLevels.radius * 2);
+            threatLevels.tt3 = threatLevels.t3*2;
+            threatLevels.t4 = collisionGrid.calculateMaxCellCount(threatLevels.radius * 3);
+            threatLevels.tt4 = threatLevels.t4*2;
+            threatLevels.max = collisionGrid.calculateMaxCellCount(threatLevels.radius * 5);
+            threatLevels.max2 = threatLevels.max*2;
+            return threatLevels;
+        },
+
+        snakePartBounds: function(snk, part, threatLevels) {
 
             collisionGrid.findClosestPart(snk,part);
 
             //calculate grid width/height of a snake part
             var cell = collisionGrid.getCellByXY(part.xx, part.yy);
-            var radius = window.getSnakeWidth(snk.sc);
-            radius = Math.max(radius, 20) *sizemultiplier;
-
-            var threat1 = radius;
-            var threat2 = radius * 1.5;
-            var threat3 = radius * 2;
-            var threat4 = radius * 3;
-            var maxthreat = radius * 5;
-
-            var t1cellcount = collisionGrid.calculateMaxCellCount(threat1);
-            var t2cellcount = collisionGrid.calculateMaxCellCount(threat2);
-            var t3cellcount = collisionGrid.calculateMaxCellCount(threat3);
-            var t4cellcount = collisionGrid.calculateMaxCellCount(threat4);
-            var maxcellcount = collisionGrid.calculateMaxCellCount(maxthreat);
-            var maxcellcount2 = maxcellcount*2;
-            //if( snk.sp > 7 && sizemultiplier >)
-            //    radius = radius * 2;
-            //var radiusSqr = radius*radius;
-            //var cellcount = collisionGrid.calculateMaxCellCount(radius);
-            //var cellcount2 = cellcount*3;
-
 
             //mark cell where part's center is located
             collisionGrid.markCellWall(cell.col, cell.row, {snake:snk, part:part});
             //canvas.drawCircle(canvas.mapToCanvas({x:part.xx, y:part.yy}), 'red', true);
 
             //mark surrounding cells using part's radius
-            collisionGrid.sliceGrid(cell.col-maxcellcount, cell.row-maxcellcount, maxcellcount2, maxcellcount2,
+            var maxthreat = threatLevels.t4;
+            var maxthreat2 = threatLevels.tt4;
+            collisionGrid.sliceGrid(cell.col-maxthreat, cell.row-maxthreat, maxthreat2, maxthreat2,
                 function(col, row, val) {
-                    if( val && val.type != TYPE_SNAKE && val.type != TYPE_EMPTY ) return;//&& val.type!=TYPE_SNAKE ) return;
-                    if( col >= (cell.col-t1cellcount) && col <= (cell.col+t1cellcount*2) &&
-                        row >= (cell.row-t1cellcount) && row <= (cell.row+t1cellcount*2) ) {
-                        var marked = collisionGrid.markCellWall(col, row, {snake:snk, part:part});
+                    if( val && val.type != TYPE_SNAKE && val.type != TYPE_EMPTY ) return;
+
+                    if( col >= (cell.col-threatLevels.t1) &&
+                        col <= (cell.col+threatLevels.tt1) &&
+                        row >= (cell.row-threatLevels.t1) &&
+                        row <= (cell.row+threatLevels.tt1) ) {
+                        var cellData = {snake:snk, part:part};
+                        collisionGrid.markCellWall(col, row, cellData);
                     }
-                    else if( col >= (cell.col-t2cellcount) && col <= (cell.col+t2cellcount*2) &&
-                        row >= (cell.row-t2cellcount) && row <= (cell.row+t2cellcount*2) ) {
-                        collisionGrid.markCellEmpty(col,row,5000)
+                    else if( col >= (cell.col-threatLevels.t2) &&
+                        col <= (cell.col+threatLevels.tt2) &&
+                        row >= (cell.row-threatLevels.t2) &&
+                        row <= (cell.row+threatLevels.tt2) ) {
+                        collisionGrid.markCellEmpty(col, row, 10000)
                     }
-                    else if( col >= (cell.col-t3cellcount) && col <= (cell.col+t3cellcount*2) &&
-                        row >= (cell.row-t3cellcount)&& row <= (cell.row+t3cellcount*2) ) {
-                        collisionGrid.markCellEmpty(col,row,3000)
+                    else if( col >= (cell.col-threatLevels.t3) &&
+                        col <= (cell.col+threatLevels.tt3) &&
+                        row >= (cell.row-threatLevels.t3)&&
+                        row <= (cell.row+threatLevels.tt3) ) {
+                        collisionGrid.markCellEmpty(col, row, 10000)
                     }
-                    else if( col >= (cell.col-t4cellcount) && col <= (cell.col+t4cellcount*2) &&
-                        row >= (cell.row-t4cellcount)&& row <= (cell.row+t4cellcount*2) ) {
-                        collisionGrid.markCellEmpty(col,row,2000)
+                    else if( col >= (cell.col-threatLevels.t4) &&
+                        col <= (cell.col+threatLevels.tt4) &&
+                        row >= (cell.row-threatLevels.t4) &&
+                        row <= (cell.row+threatLevels.tt4) ) {
+                        collisionGrid.markCellEmpty(col, row, 10000)
                     }
                     else {
-                        collisionGrid.markCellEmpty(col,row,1500)
+                        collisionGrid.markCellEmpty(col, row, 10000)
                     }
-
-
-                    //}
-                    //else {
-                    //    var marked = collisionGrid.markCellEmpty(col,row);
-                    //    marked.weight = 10000;
-                    //}
                 }
             );
         },
-
-
 
 
         lineTestResult: 0,
@@ -962,6 +649,7 @@ var collisionGrid = (function() {
                 collisionGrid.lineTestResult = {col:col, row:row, cell:cell};
             return collisionGrid.lineTestResult;
         },
+
         lineTest: function(x1, y1, x2, y2, type) {
             collisionGrid.lineTestResult = 0;
             var posA = collisionGrid.getCellByXY(x1, y1);
@@ -1000,77 +688,54 @@ var collisionGrid = (function() {
             if (ddx >= ddy) {  // first octant (0 <= slope <= 1)
                 // compulsory initialization (even for errorprev, needed when dx==dy)
                 errorprev = error = dx;  // start in the middle of the square
-                for (i=0 ; i < dx ; i++) {  // do not use the first point (already done)
-                    x += xstep;
-                    error += ddy;
+                for (i=0 ; i < dx ; i+=2) {  // do not use the first point (already done)
+                    x += xstep*2;
+                    error += ddy*2;
                     if (error > ddx) {  // increment y if AFTER the middle ( > )
-                        y += ystep;
-                        error -= ddx;
+                        y += ystep*2;
+                        error -= ddx*2;
                         // three cases (octant == right->right-top for directions below):
                         if (error + errorprev < ddx) {  // bottom square also
-                            //POINT (y-ystep, x);
                             if( collisionGrid.lineTypeCheck(x, y-ystep,type) ) return collisionGrid.lineTestResult;
-                            //if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return {x:x, y:y-ystep, cell:cell};
                         }
                         else if (error + errorprev > ddx) { // left square also
-                            //POINT (y, x-xstep);
                             if( collisionGrid.lineTypeCheck(x-xstep, y,type) ) return collisionGrid.lineTestResult;
-                            //if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return {x:x-xstep, y:y, cell:cell};
 
                         }
                         else {  // corner: bottom and left squares also
                             if( collisionGrid.lineTypeCheck(x, y-ystep,type) ) return collisionGrid.lineTestResult;
                             if( collisionGrid.lineTypeCheck(x-xstep, y,type) ) return collisionGrid.lineTestResult;
-
-                            //if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return {x:x, y:y-ystep, cell:cell};
-                            //if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return {x:x-xstep, y:y, cell:cell};
-                            //POINT (y-ystep, x);
-                            //POINT (y, x-xstep);
                         }
                     }
-                    //POINT (y, x);
                     if( (cell = collisionGrid.cellTest(x, y,type)) !== false ) return {x:x, y:y, cell:cell};
                     errorprev = error;
                 }
             }
             else {  // the same as above
                 errorprev = error = dy;
-                for (i=0 ; i < dy ; i++) {
-                    y += ystep;
-                    error += ddx;
+                for (i=0 ; i < dy ; i+=2) {
+                    y += ystep*2;
+                    error += ddx*2;
                     if (error > ddy) {
-                        x += xstep;
-                        error -= ddy;
+                        x += xstep*2;
+                        error -= ddy*2;
                         if (error + errorprev < ddy) {
-                            //POINT (y, x-xstep);
                             if( collisionGrid.lineTypeCheck(x-xstep, y,type) ) return collisionGrid.lineTestResult;
-                            //if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return {x:x-xstep, y:y, cell:cell};
                         }
                         else if (error + errorprev > ddy) {
-                            //POINT (y-ystep, x);
                             if( collisionGrid.lineTypeCheck(x, y-ystep,type) ) return collisionGrid.lineTestResult;
-                            //if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return {x:x, y:y-ystep, cell:cell};
                         }
                         else {
-                            //POINT (y, x-xstep);
-                            //POINT (y-ystep, x);
                             if( collisionGrid.lineTypeCheck(x-xstep, y,type) ) return collisionGrid.lineTestResult;
                             if( collisionGrid.lineTypeCheck(x, y-ystep,type) ) return collisionGrid.lineTestResult;
-                            //if( (cell = collisionGrid.cellTest(x-xstep, y)) !== false ) return {x:x-xstep, y:y, cell:cell};
-                            //if( (cell = collisionGrid.cellTest(x, y-ystep)) !== false ) return {x:x, y:y-ystep, cell:cell};
                         }
                     }
-                    //POINT (y, x);
                     if( collisionGrid.lineTypeCheck(x, y, type) ) return collisionGrid.lineTestResult;
-                    //if( (cell = collisionGrid.cellTest(x, y)) !== false ) return {x:x, y:y, cell:cell};
                     errorprev = error;
                 }
             }
 
             return {col:x, row:y, cell:0};
-            // assert ((y == y2) && (x == x2));  // the last point (y2,x2) has to be the same with the last point of the algorithm
         }
-
-
-    }
+    };
 })();
