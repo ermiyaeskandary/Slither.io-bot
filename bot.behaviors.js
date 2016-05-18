@@ -405,7 +405,7 @@ var behaviors = (function() {
             return new BehaviorTree.Sequence({
                 nodes: nodes
             });
-        }
+        },
 
         invertTask: function(name) {
             return new InvertDecorator({
