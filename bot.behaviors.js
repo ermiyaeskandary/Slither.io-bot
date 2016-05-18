@@ -23,6 +23,7 @@ var behaviors = (function() {
             behaviors.newTask('actionTrollSurrounderer', behaviors.actionTrollSurrounderer);
             behaviors.newTask('actionMoveToGoal', behaviors.actionMoveToGoal);
             behaviors.newTask('actionFollowPath', behaviors.actionFollowPath);
+            behaviors.newTask('actionExitSequence', behaviors.actionExitSequence);
 
             behaviors.newTask('isPathAvailable', behaviors.isPathAvailable);
             behaviors.newTask('isNearEnemySnakeBody', behaviors.isNearEnemySnakeBody);
@@ -37,45 +38,87 @@ var behaviors = (function() {
             behaviors.newTask('isHighQualityFoodAvailable', behaviors.isHighQualityFoodAvailable);
 
 
-            behaviors.newCondition('checkFoodFollowing', 'isFollowingFood', 'checkPath', 'checkFoodExists');
-            behaviors.newCondition('checkFoodExists', 'isFoodExists', 'actionSuggestFood', 'actionToCenterOfMap')
-            behaviors.newCondition('checkFoodSprint', 'isGoodFood', 'actionSprint', 'actionWalk');
-            behaviors.newCondition('checkHighQualityFood', 'isHighQualityFoodAvailable', 'sequenceResetFoodSuggestion', 'actionNone');
-            behaviors.newCondition('checkFoodReached', 'isReachedTarget', 'actionStopFollow','checkHighQualityFood');
-            behaviors.newCondition('checkNearSnake', 'isNearEnemySnakeBody', 'action180FromSnake', 'actionNone');
-            behaviors.newCondition('checkAvoidSurround', 'isAlmostSurrounded', 'sequenceAvoidSurround', 'actionNone');
-            behaviors.newCondition('checkPath', 'isPathAvailable', 'actionFollowPath', 'actionMoveToGoal');
-
-            behaviors.newSequence('sequenceAvoidSurround', ['actionSprint','actionAvoidSurround']);
-            behaviors.newSequence('sequenceAvoidance', ['checkNearSnake', 'checkAvoidSurround']);
-            behaviors.newSequence('sequenceResetFoodSuggestion', ['actionStopFollow', 'actionSuggestFood']);
-            behaviors.newSequence('sequenceFindFood', ['sequenceAvoidance', 'checkFoodFollowing', 'checkFoodSprint', 'checkFoodReached']);
-            /*
+            //MAIN Sequence, all sequences/tasks/conditions go in here
             behaviors.newSequence('sequenceFoodTest',
-                [
-                    'checkFoodFollowing',
-                    behaviors.condition(
-                        'isFollowingFood',
-                        behaviors.condition(
-                            'isPathAvailable',
-                            'actionFollowPath',
-                            'actionMoveToGoal'
-                        );
-                        behaviors.condition(
-                            'isFoodExists'
-                        );
-                    ),
+            [
+                //Avoid Collisions Sequence, this is highest priority
+                behaviors.sequence([
+                    behaviors.condition({
+                        test: 'isNearEnemySnakeBody',
+                            pass: 'action180FromSnake',
+                            fail: 'actionNone'
+                    }),
+                    behaviors.condition({
+                        test: 'isAlmostSurrounded',
+                            pass:
+                                behaviors.sequence([
+                                    'actionSprint',
+                                    'actionAvoidSurround',
+                                    'actionExitSequence'
+                                ]),
+                            fail: 'actionNone'
+                    })
+                ]),
 
-                    'checkFoodSprint',
-                    'checkFoodReached'
-                ]
-            );*/
+                //Follow food, always when possible
+                behaviors.condition({
+                    test: 'isFollowingFood',
+                    pass:
+                        behaviors.condition({
+                            test: 'isPathAvailable',
+                                pass: 'actionFollowPath',
+                                fail: 'actionMoveToGoal'
+                        }),
+                    fail:
+                        behaviors.condition({
+                            test: 'isFoodExists',
+                                pass: 'actionSuggestFood',
+                                fail: 'actionToCenterOfMap'
+                        })
+                }),
 
-            behaviors.newTree('snakebot', ['sequenceFindFood']);
+                //Can we sprint to the food?
+                behaviors.condition({
+                    test: 'isGoodFood',
+                        pass: 'actionSprint',
+                        fail:
+                            behaviors.condition({
+                                test: 'isAlmostSurrounded',
+                                    pass: 'actionSprint',
+                                    fail: 'actionWalk'
+                            })
+                }),
+
+                //Did we reach target?
+                behaviors.condition({
+                    test: 'isReachedTarget',
+                        pass: 'actionStopFollow',
+                        fail:
+                            //Look for High quality food
+                            behaviors.condition({
+                                test: 'isHighQualityFoodAvailable',
+                                    pass:
+                                        behaviors.sequence([
+                                            'actionStopFollow',
+                                            'actionSuggestFood'
+                                        ]),
+                                    fail: 'actionNone'
+                            })
+                })
+            ]);
+
+            //This is the tree that is called from the "bot" module
+            behaviors.newTree('snakebot', ['sequenceFoodTest']);
+
+        },
+
+        //Exit a sequence immediately, the fail will propopage to the root node
+        actionExitSequence: function(obj) {
+            this.fail();
         },
 
         actionSuggestFood: function(obj) {
-            window.setAcceleration(0);
+            //window.setAcceleration(0);
             var foodCnt = 0;
             var bestFood = 0;
             var foodPos;
@@ -90,12 +133,8 @@ var behaviors = (function() {
 
                 var line = collisionGrid.lineTest(curpos.x, curpos.y, foodPos.x, foodPos.y,TYPE_SNAKE);
                 var linePos = collisionGrid.getCellByColRow(line.col,line.row);
-                //var collisionDist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
                 if( line.cell )
                     continue;
-
-                //if( collisionDist < 2500 )
-                //    continue;
 
                 if( destpos.cell && destpos.cell.type==TYPE_FOOD)
                     break;
@@ -119,15 +158,29 @@ var behaviors = (function() {
             this.fail();
         },
 
+        isSprinting: function(obj) {
+            if( window.snake.sp > 7 ) {
+                this.success();
+                return;
+            }
+            this.fail();
+        },
+
+        isWalking: function(obj) {
+            if( window.snake.sp <= 7 ) {
+                this.success();
+                return;
+            }
+            this.fail();
+        },
+
         actionMoveToGoal: function(obj) {
             canvas.setMouseCoordinates(canvas.mapToMouse(obj.goalCoordinates));
             this.success();
-            //console.log("following goal");
         },
 
         actionFollowPath: function(obj) {
             canvas.setMouseCoordinates(canvas.mapToMouse(obj.followCoordinates));
-            //console.log("following path" + obj.followCoordinates.x + "," + obj.followCoordinates.y);
             this.success();
         },
 
@@ -157,11 +210,30 @@ var behaviors = (function() {
                 return false;
             }
 
-            var linePos;
-            if( !obj.surroundExitPos ) {
-                var randomLine = parseInt(Math.random() * bot.radarResults.open.length);
-                var line = bot.radarResults.open[randomLine];
-                obj.surroundExitPos = collisionGrid.getCellByColRow(line.x,line.y);
+            var curpos = window.getPos();
+            var openList = bot.radarResults.open[0];
+            var lineid = 0;
+            if( openList.length > 2 ) {
+                lineid = Math.floor(openList.length/2);
+            }
+            var line = openList[lineid];
+            obj.surroundExitPos = collisionGrid.getCellByColRow(line.col,line.row);
+
+            if( window.visualDebugging ) {
+
+                var canvasPosA = canvas.mapToCanvas({
+                    x: curpos.x,
+                    y: curpos.y,
+                    radius: 1
+                });
+                var canvasPosB = canvas.mapToCanvas({
+                    x: obj.surroundExitPos.x,
+                    y: obj.surroundExitPos.y,
+                    radius: 1
+                });
+
+
+                canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 1, 'blue');
             }
 
             obj.followCoordinates = {x: obj.surroundExitPos.x, y:obj.surroundExitPos.y};
@@ -169,13 +241,15 @@ var behaviors = (function() {
             this.success();
         },
 
+
         /**
          *  Troll the snake surrounding us.
          *  Keep moving the snake to the furthest point
          */
         actionTrollSurrounderer: function(obj) {
-            var closest = bot.radarResults.collisions[0];
-            var cell = closest.cell;
+            var collisions = bot.radarResults.collisions;
+            var furthest = collisions[collisions.length-1];
+            var cell = furthest.cell;
             var curpos = window.getPos();
             var newpos = {x:curpos.x,y:curpos.y};
 
@@ -183,12 +257,12 @@ var behaviors = (function() {
                 //console.log("moving away from snake part");
                 newpos.x += curpos.x - cell[0].part.x;
                 newpos.y += curpos.y - cell[0].part.y;
-                obj.followCoordinates = {x: linePos.x, y:linePos.y};
-                obj.goalCoordinates = {x: linePos.x, y:linePos.y};
-                var dist = canvas.getDistance(curpos.x, curpos.y, cell[0].part.x, cell[0].part.y);
-                if( dist > 100 ) {
-                    bot.setNextState('findFood');
-                }
+                obj.followCoordinates = {x: newpos.x, y:newpos.y};
+                obj.goalCoordinates = {x: newpos.x, y:newpos.y};
+                //var dist = canvas.getDistance(curpos.x, curpos.y, cell[0].part.x, cell[0].part.y);
+                //if( dist > 100 ) {
+                //    bot.setNextState('findFood');
+                //}
             }
         },
 
@@ -270,10 +344,30 @@ var behaviors = (function() {
             this.fail();
         },
 
+        isFacingTarget: function(obj) {
+            var curpos = window.getPos();
+            var dist = canvas.getDistance2(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y);
+            if( dist < 2500 ) { //50 units
+                this.success();
+                return;
+            }
+            this.fail();
+        },
+
+        isNearTarget: function(obj) {
+            var curpos = window.getPos();
+            var dist = canvas.getDistance2(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y);
+            if( dist < 40000 ) { //200 units
+                this.success();
+                return;
+            }
+            this.fail();
+        },
+
         isReachedTarget: function(obj) {
             var curpos = window.getPos();
             var dist = canvas.getDistance2(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y);
-            if( dist < 2500 ) {
+            if( dist < 10000 ) { //50 units
                 this.success();
                 return;
             }
@@ -395,9 +489,14 @@ var behaviors = (function() {
             });
         },
 
-        condition: function(test, pass, fail) {
+        //Set a condition to test against
+        //data.test = sequence/task/condition that tests with success/fail
+        //data.pass = seq/task/cond when test passes
+        //data.fail = seq/task/cond when test fails
+        //@param data - {test:'', pass:'', fail''}
+        condition: function(data) {//test, pass, fail) {
             return new BehaviorTree.Condition({
-                nodes: [test, pass, fail]
+                nodes: [data.test, data.pass, data.fail]
             });
         },
 

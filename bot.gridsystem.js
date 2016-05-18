@@ -31,7 +31,7 @@ var collisionHelper = (function() {
             var offset = 0;
             for(var a=0;a<360; a++) {
                 var angle = collisionHelper.toRad * offset;
-                collisionHelper.unitTable.push([Math.cos(angle), Math.sin(angle)]);
+                collisionHelper.unitTable.push([Math.cos(angle), Math.sin(angle), offset, angle]);
                 offset++;
             }
         },
@@ -39,7 +39,23 @@ var collisionHelper = (function() {
 
         /**
          * Performs line scans in angleIncrements to a specified distance
+         * @param int angleIncrement
+         * @param float scanDistance
+         * @return object {
+         *      int pct - percentage of open radar lines
+         *      [[]] open - array with arrays of open lines that are neighbors in angle increment
+         *      [] collisions - array of lines that collided with snakes
+         *      [] results - array of all the lines
+         *      float degrees - the angle of the line in degrees
+         *      float radians - the angle of the line in radians
+         * }
          *
+         * line {
+         *      int col - the column line finished/hit at
+         *      int row - the row line finished/hit at
+         *      object cell - the cell that was hit
+         * }
+         }
          */
         radarScan: function(angleIncrement,scanDist) {
 
@@ -47,10 +63,13 @@ var collisionHelper = (function() {
             var collisions = [];
             var open = [];
             var curpos = window.getPos();
+            var openGroup = [];
+            var openCnt = 0;
+
             for(var dir=0; dir<collisionHelper.unitTable.length; dir+=angleIncrement) {
-                var pos = collisionHelper.unitTable[dir];
-                var x2 = curpos.x+pos[0]*scanDist;
-                var y2 = curpos.y+pos[1]*scanDist;
+                var direction = collisionHelper.unitTable[dir];
+                var x2 = curpos.x+direction[0]*scanDist;
+                var y2 = curpos.y+direction[1]*scanDist;
 
                 var result = collisionGrid.lineTest(curpos.x,curpos.y,x2,y2,TYPE_SNAKE);
                 if( result )
@@ -60,9 +79,18 @@ var collisionHelper = (function() {
                     var linePos = collisionGrid.getCellByColRow(result.col, result.row);
                     var dist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
                     collisions.push({dist:dist, line:result});
+                    if( openGroup.length ) {
+                        open.push(openGroup);
+                        openGroup = [];
+                    }
+
                 }
-                else
-                    open.push(result);
+                else {
+                    //open.push(result);
+                    openGroup.push(result);
+                    openCnt++;
+                }
+
 
                 if( window.visualDebugging ) {
 
@@ -83,6 +111,14 @@ var collisionHelper = (function() {
                 }
             }
 
+            if( openGroup.length ) {
+                open.push(openGroup);
+            }
+
+            open.sort(function(a,b) {
+                return b.length - a.length;
+            });
+
             if( collisions.length )
                 collisions.sort(function(a,b) {
                     return a.dist - b.dist;
@@ -90,9 +126,9 @@ var collisionHelper = (function() {
 
             var pct = 0.0;
             if( results.length )
-                pct = open.length / results.length;
+                pct = openCnt / results.length;
 
-            return {pct:pct, open:open, collisions:collisions, results:results};
+            return {pct:pct, open:open, collisions:collisions, results:results, degrees:direction[2], radians:direction[3]};
         },
 
 
@@ -278,7 +314,7 @@ var collisionGrid = (function() {
         markCellWall: function(col, row, obj) {
             var node = collisionGrid.markCell(col, row, 0, TYPE_SNAKE);
             node.items.push(obj);
-            if( window.visualDebugging && node.items.length == 1 )
+            if( window.gridDebugging && node.items.length == 1 )
                 collisionGrid.drawCell(col,row,'yellow');
             return node;
         },
@@ -574,7 +610,7 @@ var collisionGrid = (function() {
         },
 
         setupSnakeThreatRadius: function(snk, sizemultiplier) {
-            sizemultiplier = sizemultiplier || 0.8;
+            sizemultiplier = sizemultiplier || 1.1;
             threatLevels = {};
             threatLevels.radius = window.getSnakeWidth(snk.sc);
             threatLevels.radius = Math.max(threatLevels.radius, 30) * sizemultiplier;

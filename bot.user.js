@@ -636,6 +636,14 @@ var userInterface = (function() {
                     userInterface.savePreference('visualDebugging',
                         window.visualDebugging);
                 }
+                // Letter 'G' to toggle debugging (visual)
+                if (e.keyCode === 71) {
+                    window.gridDebugging = !window.gridDebugging;
+                    console.log('Grid debugging set to: ' +
+                        window.gridDebugging);
+                    userInterface.savePreference('gridDebugging',
+                        window.gridDebugging);
+                }
                 // Letter 'I' to toggle autorespawn
                 if (e.keyCode === 73) {
                     window.autoRespawn = !window.autoRespawn;
@@ -716,6 +724,9 @@ var userInterface = (function() {
                       bot.isBotRunning);
             window.visualdebugging_overlay.innerHTML = window.spanstyle +
                 '(Y) Visual debugging: </span>' + userInterface.handleTextColor(
+                    window.visualDebugging);
+            window.grid_debugging_overlay.innerHTML = window.spanstyle +
+                '(G) Grid debugging: </span>' + userInterface.handleTextColor(
                     window.visualDebugging);
             window.logdebugging_overlay.innerHTML = window.spanstyle +
                 '(U) Log debugging: </span>' + userInterface.handleTextColor(
@@ -847,6 +858,9 @@ window.sosBackup = sos;
         'left: 30; top: 155px;');
     userInterface.appendDiv('scroll_overlay', 'nsi', window.generalstyle +
         'left: 30; top: 170px;');
+    userInterface.appendDiv('grid_debugging_overlay', 'nsi', window.generalstyle +
+        'left: 30; top: 185px;');
+
     userInterface.appendDiv('quickResp_overlay', 'nsi', window.generalstyle +
         'left: 30; top: 285px;');
     userInterface.appendDiv('changeskin_overlay', 'nsi', window.generalstyle +
