@@ -5,12 +5,12 @@
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
-// @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/btree-complete.min.js
-// @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.astar.js
-// @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.gridsystem.js
-// @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.behaviors.js
-// @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.user.js
-// @updateURL    https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.meta.js
-// @downloadURL  https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.meta.js
+// @require		   https://github.com/ErmiyaEskandary/Slither.io-bot/raw/Grid-System-r1/btree-complete.min.js
+// @require		   https://github.com/ErmiyaEskandary/Slither.io-bot/raw/Grid-System-r1/bot.astar.js
+// @require		   https://github.com/ErmiyaEskandary/Slither.io-bot/raw/Grid-System-r1/bot.gridsystem.js
+// @require		   https://github.com/ErmiyaEskandary/Slither.io-bot/raw/Grid-System-r1/bot.behaviors.js
+// @require		   https://github.com/ErmiyaEskandary/Slither.io-bot/raw/Grid-System-r1/bot.user.js
+// @updateURL    https://github.com/ErmiyaEskandary/Slither.io-bot/raw/Grid-System-r1/bot.meta.js
+// @downloadURL  https://github.com/ErmiyaEskandary/Slither.io-bot/raw/Grid-System-r1/bot.meta.js
 // @grant        none
 // ==/UserScript==
