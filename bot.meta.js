@@ -5,8 +5,12 @@
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
-// @updateURL    https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.meta.js
-// @downloadURL  https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
-// @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
+// @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/btree-complete.min.js
+// @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.astar.js
+// @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.gridsystem.js
+// @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.behaviors.js
+// @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.user.js
+// @updateURL    https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.meta.js
+// @downloadURL  https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.meta.js
 // @grant        none
 // ==/UserScript==
