@@ -136,7 +136,7 @@ var behaviors = (function() {
                 if( line.cell )
                     continue;
 
-                if( destpos.cell && destpos.cell.type==TYPE_FOOD)
+                if( destpos.cell.type==TYPE_FOOD)
                     break;
             }
 

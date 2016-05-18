@@ -76,6 +76,8 @@ var collisionHelper = (function() {
                     results.push(result);
 
                 if( result.cell ) {
+                    //if( result.col === undefined || result.row == undefined ) 
+                    //    console.log("col/row undefined -- "+JSON.stringify(result));
                     var linePos = collisionGrid.getCellByColRow(result.col, result.row);
                     var dist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
                     collisions.push({dist:dist, line:result});
@@ -193,6 +195,9 @@ var collisionGrid = (function() {
     collisionHelper.init();
 
     return {
+        //track version (used to avoid recreating array)
+        version: 0,
+
         width: 0,
         height: 0,
         grid: [],
@@ -209,11 +214,10 @@ var collisionGrid = (function() {
         snakeAggressors: [],
 
         init: function(w, h, cellsz) {
-            sx = Math.floor(window.getX());
-            sy = Math.floor(window.getY());
-            sx = sx - (sx % cellsz);
-            sy = sy - (sy % cellsz);
+            
 
+            
+            collisionGrid.version = 0;
             collisionGrid.height = h * cellsz;
             collisionGrid.width = w * cellsz;
             collisionGrid.gridWidth = w;
@@ -221,13 +225,28 @@ var collisionGrid = (function() {
             collisionGrid.cellSize = cellsz;
             collisionGrid.halfCellSize = cellsz / 2;
 
-            collisionGrid.startX = Math.floor(sx - ((w/2)*cellsz));
-            collisionGrid.startY = Math.floor(sy - ((h/2)*cellsz));
+            collisionGrid.grid = [];
+            for(var col=0; col<w; col++) {
+                collisionGrid.grid[col] = [];
+                for(var row=0; row<h; row++) {
+                    collisionGrid.grid[col][row] = new GridNode(col, row, 0, TYPE_EMPTY);
+
+                }
+            }
+        },
+
+        setup: function() {
+            collisionGrid.version++;
+            sx = Math.floor(window.getX());
+            sy = Math.floor(window.getY());
+            sx = sx - (sx % collisionGrid.cellSize);
+            sy = sy - (sy % collisionGrid.cellSize);
+
+            collisionGrid.startX = Math.floor(sx - ((collisionGrid.gridWidth/2)*collisionGrid.cellSize));
+            collisionGrid.startY = Math.floor(sy - ((collisionGrid.gridHeight/2)*collisionGrid.cellSize));
             collisionGrid.endX = collisionGrid.startX + collisionGrid.width;
             collisionGrid.endY = collisionGrid.startY + collisionGrid.height;
 
-            collisionGrid.booleanGrid = [];
-            collisionGrid.grid = [];
             collisionGrid.foodGroups = [];
             collisionGrid.foodHighQuality = [];
             collisionGrid.snakeAggressors = [];
@@ -240,16 +259,17 @@ var collisionGrid = (function() {
         // callback = function(x, y, gridValue) {}
         sliceGrid: function(col, row, width, height, callback) {
             //constrain the values between 0 and width/height
-            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
-            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
-            width = col + Math.min(collisionGrid.gridWidth, Math.max(width, 0));
-            height = row + Math.min(collisionGrid.gridHeight, Math.max(height, 0));
-
+            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth-1);
+            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight-1);
+            width = col + width;//Math.min(collisionGrid.gridWidth-1, Math.max(width, 0));
+            height = row + height;//Math.min(collisionGrid.gridHeight-1, Math.max(height, 0));
+            width = Math.min(collisionGrid.gridWidth-1, Math.max(width, 0));
+            height = Math.min(collisionGrid.gridHeight-1, Math.max(height, 0));
             for(var x=col; x<width; x++) {
                 for(var y=row; y<height; y++) {
-                    collisionGrid.grid[x] = collisionGrid.grid[x] || [];
-                    collisionGrid.grid[x][y] = collisionGrid.grid[x][y] || 0;
-                    callback(x, y, collisionGrid.grid[x][y]);
+                    //collisionGrid.grid[x] = collisionGrid.grid[x] || [];
+                    //collisionGrid.grid[x][y] = collisionGrid.grid[x][y] || 0;
+                    callback(x, y, collisionGrid.getCell(col,row));
                 }
             }
         },
@@ -262,18 +282,18 @@ var collisionGrid = (function() {
             row = parseInt(Math.floor(y / collisionGrid.cellSize));
             col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
             row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
-            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
-            return {col:col, row:row, cell:collisionGrid.grid[col][row]};
+            //collisionGrid.grid[col] = collisionGrid.grid[col] || [];
+            //collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
+            return {col:col, row:row, cell:collisionGrid.getCell(col,row)};
         },
 
         // Get cell's map-space position at top left corner of cell
         getCellByColRow: function(col, row) {
             var x = collisionGrid.startX + (col*collisionGrid.cellSize) + collisionGrid.halfCellSize;
             var y = collisionGrid.startY + (row*collisionGrid.cellSize) + collisionGrid.halfCellSize;
-            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
-            return {x:x, y:y, cell:collisionGrid.grid[col][row]};
+            //collisionGrid.grid[col] = collisionGrid.grid[col] || [];
+            //collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
+            return {x:x, y:y, cell:collisionGrid.getCell(col,row)};
         },
 
         // This is used to convert a width or height to the amount of cells it would occupy
@@ -287,27 +307,32 @@ var collisionGrid = (function() {
         },
 
         getCell: function(col,row) {
-            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
-            return collisionGrid.grid[col][row];
+            //collisionGrid.grid[col] = collisionGrid.grid[col] || [];
+            //collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
+            //if( collisionGrid.grid[col] === undefined || collisionGrid.grid[col][row] === undefined ) {
+            //    console.log("undefined cell : col:"+col + ", row:"+row);
+            //}
+            var cell = collisionGrid.grid[col][row];
+            if( cell.version != collisionGrid.version ) {
+                cell.reset(collisionGrid.version);
+            }
+            return cell;
         },
 
         cellTest: function(col, row, type) {
             cell = collisionGrid.getCell(col, row);  // first point
-            if( cell && cell.type == type)
+            if(cell.type == type)
                 return cell;
-            if( !cell && type==TYPE_EMPTY)
-                return collisionGrid.markCellEmpty(col,row);
+            //if( !cell && type==TYPE_EMPTY)
+            //    return collisionGrid.markCellEmpty(col,row);
             return false;
         },
 
         markCell: function(col, row, weight, type) {
-            collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            var node = collisionGrid.grid[col][row];
-            if( !node || (type==TYPE_SNAKE && node.type!=TYPE_SNAKE)) {
-                node = new GridNode(col, row, weight, type);
-            }
-            collisionGrid.grid[col][row] = node;
+            //collisionGrid.grid[col] = collisionGrid.grid[col] || [];
+            var node = collisionGrid.getCell(col,row);
+            node.type = type;
+            node.weight = weight;
             return node;
         },
 
@@ -333,13 +358,11 @@ var collisionGrid = (function() {
         },
 
         isWall: function(col, row) {
-            return collisionGrid.grid[col]
-            && collisionGrid.grid[col][row]
-            && collisionGrid.grid[col][row].type == TYPE_SNAKE;
+            return collisionGrid.getCell(col,row).type == TYPE_SNAKE;
         },
 
         isEmpty: function(col, row) {
-            return collisionGrid.grid[col] && !collisionGrid.grid[col][row];
+            return collisionGrid.getCell(col,row).type == TYPE_EMPTY;
         },
 
         drawCell: function(col, row, color) {
@@ -363,9 +386,13 @@ var collisionGrid = (function() {
         },
 
         addNeighbor: function(x, y, arr) {
-            collisionGrid.grid[x] = collisionGrid.grid[x] || [];
-
-            var node = collisionGrid.grid[x][y] || collisionGrid.markCellEmpty(x,y);;
+            //collisionGrid.grid[x] = collisionGrid.grid[x] || [];
+            if( x < 0 || 
+                x >= collisionGrid.gridWidth || 
+                y < 0 || 
+                y >= collisionGrid.gridHeight)
+                return;
+            var node = collisionGrid.getCell(x,y);//collisionGrid.grid[x][y] || collisionGrid.markCellEmpty(x,y);;
             if( node.type == TYPE_SNAKE )
                 return;
 
@@ -539,6 +566,9 @@ var collisionGrid = (function() {
             var maxDeadCount = 2;
             var pts, part, threat;
             var snk, cnt, relPos, snakeDist, rang;
+            var snkWidthSqr = window.getSnakeWidthSqr();
+            var otherSnkWidthSqr;
+
             for (snakeid in window.snakes) {
                 snk = window.snakes[snakeid];
                 if (snk.id == window.snake.id)
@@ -562,7 +592,8 @@ var collisionGrid = (function() {
                     threat = collisionGrid.setupSnakeThreatRadius(snk);
                     collisionGrid.snakePartBounds(snk,snk,threat);
                 }
-
+                threat = collisionGrid.setupSnakeThreatRadius(snk);
+                otherSnkWidthSqr = window.getSnakeWidthSqr(snk);
 
                 for (pts=snk.pts.length-1; pts>=0; pts--) {// in snk.pts) {
                     part = snk.pts[pts];
@@ -581,8 +612,8 @@ var collisionGrid = (function() {
 
 
                     //canvas.drawText(canvas.mapToCanvas({x:part.xx, y:part.yy}), 'red', ''+pts);
-                    threat = collisionGrid.setupSnakeThreatRadius(snk);
-                    collisionGrid.snakePartBounds(snk, part, threat);
+                    
+                    collisionGrid.snakePartBounds(snk, part, threat, snkWidthSqr, otherSnkWidthSqr);
                 }
 
                 if( window.visualDebugging && snk.closest) {
@@ -596,10 +627,10 @@ var collisionGrid = (function() {
             });
         },
 
-        findClosestPart: function(snk, part) {
+        findClosestPart: function(snk, part, snkWidthSqr, otherSnkWidthSqr) {
             var curpos = window.getPos();
             var dist2 = canvas.getDistance2(curpos.x, curpos.y, part.xx, part.yy);
-            part.distance2 = dist2 - (window.getSnakeWidthSqr() + window.getSnakeWidthSqr(snk));
+            part.distance2 = dist2 - (snkWidthSqr + otherSnkWidthSqr);
             if( snk.closest == 0 ) {
                 snk.closest = part;
                 return;
@@ -627,9 +658,9 @@ var collisionGrid = (function() {
             return threatLevels;
         },
 
-        snakePartBounds: function(snk, part, threatLevels) {
+        snakePartBounds: function(snk, part, threatLevels, snkWidthSqr, otherSnkWidthSqr) {
 
-            collisionGrid.findClosestPart(snk,part);
+            collisionGrid.findClosestPart(snk,part, snkWidthSqr, otherSnkWidthSqr);
 
             //calculate grid width/height of a snake part
             var cell = collisionGrid.getCellByXY(part.xx, part.yy);
@@ -646,28 +677,28 @@ var collisionGrid = (function() {
                     if( val && val.type != TYPE_SNAKE && val.type != TYPE_EMPTY ) return;
 
                     if( col >= (cell.col-threatLevels.t1) &&
-                        col <= (cell.col+threatLevels.tt1) &&
+                        col < (cell.col+threatLevels.tt1) &&
                         row >= (cell.row-threatLevels.t1) &&
-                        row <= (cell.row+threatLevels.tt1) ) {
+                        row < (cell.row+threatLevels.tt1) ) {
                         var cellData = {snake:snk, part:part};
                         collisionGrid.markCellWall(col, row, cellData);
                     }
                     else if( col >= (cell.col-threatLevels.t2) &&
-                        col <= (cell.col+threatLevels.tt2) &&
+                        col < (cell.col+threatLevels.tt2) &&
                         row >= (cell.row-threatLevels.t2) &&
-                        row <= (cell.row+threatLevels.tt2) ) {
+                        row < (cell.row+threatLevels.tt2) ) {
                         collisionGrid.markCellEmpty(col, row, 10000)
                     }
                     else if( col >= (cell.col-threatLevels.t3) &&
-                        col <= (cell.col+threatLevels.tt3) &&
+                        col < (cell.col+threatLevels.tt3) &&
                         row >= (cell.row-threatLevels.t3)&&
-                        row <= (cell.row+threatLevels.tt3) ) {
+                        row < (cell.row+threatLevels.tt3) ) {
                         collisionGrid.markCellEmpty(col, row, 10000)
                     }
                     else if( col >= (cell.col-threatLevels.t4) &&
-                        col <= (cell.col+threatLevels.tt4) &&
+                        col < (cell.col+threatLevels.tt4) &&
                         row >= (cell.row-threatLevels.t4) &&
-                        row <= (cell.row+threatLevels.tt4) ) {
+                        row < (cell.row+threatLevels.tt4) ) {
                         collisionGrid.markCellEmpty(col, row, 10000)
                     }
                     else {
@@ -680,6 +711,7 @@ var collisionGrid = (function() {
 
         lineTestResult: 0,
         lineTypeCheck: function(col, row, type) {
+            if( col >= collisionGrid.gridWidth || row >= collisionGrid.gridHeight) return 0;
             var cell = collisionGrid.cellTest(col, row, type);
             if( cell !== false )
                 collisionGrid.lineTestResult = {col:col, row:row, cell:cell};
@@ -724,12 +756,12 @@ var collisionGrid = (function() {
             if (ddx >= ddy) {  // first octant (0 <= slope <= 1)
                 // compulsory initialization (even for errorprev, needed when dx==dy)
                 errorprev = error = dx;  // start in the middle of the square
-                for (i=0 ; i < dx ; i+=2) {  // do not use the first point (already done)
-                    x += xstep*2;
-                    error += ddy*2;
+                for (i=0 ; i < dx ; i++) {  // do not use the first point (already done)
+                    x += xstep;
+                    error += ddy;
                     if (error > ddx) {  // increment y if AFTER the middle ( > )
-                        y += ystep*2;
-                        error -= ddx*2;
+                        y += ystep;
+                        error -= ddx;
                         // three cases (octant == right->right-top for directions below):
                         if (error + errorprev < ddx) {  // bottom square also
                             if( collisionGrid.lineTypeCheck(x, y-ystep,type) ) return collisionGrid.lineTestResult;
@@ -743,18 +775,18 @@ var collisionGrid = (function() {
                             if( collisionGrid.lineTypeCheck(x-xstep, y,type) ) return collisionGrid.lineTestResult;
                         }
                     }
-                    if( (cell = collisionGrid.cellTest(x, y,type)) !== false ) return {x:x, y:y, cell:cell};
+                    if( (cell = collisionGrid.cellTest(x, y,type)) !== false ) return {col:x, row:y, cell:cell};
                     errorprev = error;
                 }
             }
             else {  // the same as above
                 errorprev = error = dy;
-                for (i=0 ; i < dy ; i+=2) {
-                    y += ystep*2;
-                    error += ddx*2;
+                for (i=0 ; i < dy ; i++) {
+                    y += ystep;
+                    error += ddx;
                     if (error > ddy) {
-                        x += xstep*2;
-                        error -= ddy*2;
+                        x += xstep;
+                        error -= ddy;
                         if (error + errorprev < ddy) {
                             if( collisionGrid.lineTypeCheck(x-xstep, y,type) ) return collisionGrid.lineTestResult;
                         }
