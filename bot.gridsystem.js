@@ -450,8 +450,10 @@ var collisionGrid = (function() {
                 row = Math.min(Math.max(row, 0), foodGridSize);
 
                 cell = collisionGrid.getCellByXY(food.xx, food.yy);
-                node = collisionGrid.markCellFood(cell.col, cell.row, food);
+                if( cell.cell.type == TYPE_SNAKE )
+                    continue;
 
+                node = collisionGrid.markCellFood(cell.col, cell.row, food);
                 if( node ) {
 
                     distance2 = canvas.getDistance2(food.xx, food.yy, curpos.x, curpos.y);
