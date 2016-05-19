@@ -394,6 +394,10 @@ var bot = (function() {
         launchBot: function() {
             window.log('Starting Bot.');
             bot.isBotRunning = true;
+
+            //if( collisionGrid.grid.length == 0 ) {
+                collisionGrid.init(100, 100, 30);
+            //}
             /*
              * Removed the onmousemove listener so we can move the snake
              * manually by setting coordinates
@@ -419,7 +423,7 @@ var bot = (function() {
             window.log('Connecting...');
 
             window.connect();
-            
+
 
             // Wait until we're playing to start the bot
             window.botCanStart = setInterval(function() {
@@ -493,9 +497,7 @@ var bot = (function() {
             //if (++bot.tickCounter >= 15) {
             bot.tickCounter = 0;
 
-            if( collisionGrid.grid.length == 0 ) {
-                collisionGrid.init(100, 100, 30);
-            }
+
             collisionGrid.setup();
             bot.radarResults = collisionHelper.radarScan(15,1000);
             behaviors.run('snakebot', bot.behaviorData);

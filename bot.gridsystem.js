@@ -76,7 +76,7 @@ var collisionHelper = (function() {
                     results.push(result);
 
                 if( result.cell ) {
-                    //if( result.col === undefined || result.row == undefined ) 
+                    //if( result.col === undefined || result.row == undefined )
                     //    console.log("col/row undefined -- "+JSON.stringify(result));
                     var linePos = collisionGrid.getCellByColRow(result.col, result.row);
                     var dist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
@@ -210,13 +210,10 @@ var collisionGrid = (function() {
         endX: 0,
         endY: 0,
         foodGroups: [],
-        foodHighQuality: [],
         snakeAggressors: [],
 
+        //Initialize the default fields.  This should only be done once per game.
         init: function(w, h, cellsz) {
-            
-
-            
             collisionGrid.version = 0;
             collisionGrid.height = h * cellsz;
             collisionGrid.width = w * cellsz;
@@ -229,12 +226,13 @@ var collisionGrid = (function() {
             for(var col=0; col<w; col++) {
                 collisionGrid.grid[col] = [];
                 for(var row=0; row<h; row++) {
-                    collisionGrid.grid[col][row] = new GridNode(col, row, 0, TYPE_EMPTY);
-
+                    collisionGrid.grid[col][row] = new GridNode(col, row, 1000, TYPE_EMPTY);
                 }
             }
         },
 
+        //Setup grid to be relative to the player's position
+        //Then add all the entities to the grid
         setup: function() {
             collisionGrid.version++;
             sx = Math.floor(window.getX());
@@ -247,9 +245,6 @@ var collisionGrid = (function() {
             collisionGrid.endX = collisionGrid.startX + collisionGrid.width;
             collisionGrid.endY = collisionGrid.startY + collisionGrid.height;
 
-            collisionGrid.foodGroups = [];
-            collisionGrid.foodHighQuality = [];
-            collisionGrid.snakeAggressors = [];
             collisionGrid.addSnakes();
             collisionGrid.addFood();
         },
@@ -261,29 +256,34 @@ var collisionGrid = (function() {
             //constrain the values between 0 and width/height
             col = Math.min(Math.max(col, 0), collisionGrid.gridWidth-1);
             row = Math.min(Math.max(row, 0), collisionGrid.gridHeight-1);
-            width = col + width;//Math.min(collisionGrid.gridWidth-1, Math.max(width, 0));
-            height = row + height;//Math.min(collisionGrid.gridHeight-1, Math.max(height, 0));
+            width = col + width;
+            height = row + height;
             width = Math.min(collisionGrid.gridWidth-1, Math.max(width, 0));
             height = Math.min(collisionGrid.gridHeight-1, Math.max(height, 0));
-            for(var x=col; x<width; x++) {
-                for(var y=row; y<height; y++) {
-                    //collisionGrid.grid[x] = collisionGrid.grid[x] || [];
-                    //collisionGrid.grid[x][y] = collisionGrid.grid[x][y] || 0;
+            for(var x=col; x<=width; x++) {
+                for(var y=row; y<=height; y++) {
                     callback(x, y, collisionGrid.getCell(col,row));
                 }
             }
         },
 
+        getCellColRow: function(x,y) {
+            x = x - collisionGrid.startX;
+            y = y - collisionGrid.startY;
+            col = Math.floor(x / collisionGrid.cellSize);
+            row = Math.floor(y / collisionGrid.cellSize);
+            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth-1);
+            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight-1);
+            return {col:col, row:row};
+        },
         // Find specific cell's column and row using map-space position
         getCellByXY: function(x, y) {
             x = x - collisionGrid.startX;
             y = y - collisionGrid.startY;
-            col = parseInt(Math.floor(x / collisionGrid.cellSize));
-            row = parseInt(Math.floor(y / collisionGrid.cellSize));
-            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth);
-            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight);
-            //collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            //collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
+            col = Math.floor(x / collisionGrid.cellSize);
+            row = Math.floor(y / collisionGrid.cellSize);
+            col = Math.min(Math.max(col, 0), collisionGrid.gridWidth-1);
+            row = Math.min(Math.max(row, 0), collisionGrid.gridHeight-1);
             return {col:col, row:row, cell:collisionGrid.getCell(col,row)};
         },
 
@@ -291,14 +291,12 @@ var collisionGrid = (function() {
         getCellByColRow: function(col, row) {
             var x = collisionGrid.startX + (col*collisionGrid.cellSize) + collisionGrid.halfCellSize;
             var y = collisionGrid.startY + (row*collisionGrid.cellSize) + collisionGrid.halfCellSize;
-            //collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            //collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
             return {x:x, y:y, cell:collisionGrid.getCell(col,row)};
         },
 
         // This is used to convert a width or height to the amount of cells it would occupy
         calculateMaxCellCount: function(sz) {
-            return parseInt(Math.floor(sz / collisionGrid.cellSize));
+            return Math.floor(sz / collisionGrid.cellSize);
         },
 
         // set cell size
@@ -307,11 +305,6 @@ var collisionGrid = (function() {
         },
 
         getCell: function(col,row) {
-            //collisionGrid.grid[col] = collisionGrid.grid[col] || [];
-            //collisionGrid.grid[col][row] = collisionGrid.grid[col][row] || 0;
-            //if( collisionGrid.grid[col] === undefined || collisionGrid.grid[col][row] === undefined ) {
-            //    console.log("undefined cell : col:"+col + ", row:"+row);
-            //}
             var cell = collisionGrid.grid[col][row];
             if( cell.version != collisionGrid.version ) {
                 cell.reset(collisionGrid.version);
@@ -323,13 +316,10 @@ var collisionGrid = (function() {
             cell = collisionGrid.getCell(col, row);  // first point
             if(cell.type == type)
                 return cell;
-            //if( !cell && type==TYPE_EMPTY)
-            //    return collisionGrid.markCellEmpty(col,row);
             return false;
         },
 
         markCell: function(col, row, weight, type) {
-            //collisionGrid.grid[col] = collisionGrid.grid[col] || [];
             var node = collisionGrid.getCell(col,row);
             node.type = type;
             node.weight = weight;
@@ -340,14 +330,13 @@ var collisionGrid = (function() {
             var node = collisionGrid.markCell(col, row, 0, TYPE_SNAKE);
             node.items.push(obj);
             if( window.gridDebugging && node.items.length == 1 )
-                collisionGrid.drawCell(col,row,'yellow');
+                collisionGrid.drawCell(col,row,'rgba(0,255,255,0.2)');
             return node;
         },
 
         markCellEmpty: function(col, row, weight) {
             weight = weight || 1000;
             var node = collisionGrid.markCell(col, row, weight, TYPE_EMPTY);
-            //node.items.push(obj);
             return node;
         },
 
@@ -386,17 +375,16 @@ var collisionGrid = (function() {
         },
 
         addNeighbor: function(x, y, arr) {
-            //collisionGrid.grid[x] = collisionGrid.grid[x] || [];
-            if( x < 0 || 
-                x >= collisionGrid.gridWidth || 
-                y < 0 || 
+            if( x < 0 ||
+                x >= collisionGrid.gridWidth ||
+                y < 0 ||
                 y >= collisionGrid.gridHeight)
                 return;
-            var node = collisionGrid.getCell(x,y);//collisionGrid.grid[x][y] || collisionGrid.markCellEmpty(x,y);;
+            var node = collisionGrid.getCell(x,y);
             if( node.type == TYPE_SNAKE )
                 return;
 
-            arr.push(collisionGrid.grid[x][y]);
+            arr.push(node);
         },
 
         neighbors: function(x, y) {
@@ -415,27 +403,23 @@ var collisionGrid = (function() {
         generatePath: function(startX, startY, endX, endY) {
             var startCell = collisionGrid.getCellByXY(startX,startY);
             var endCell = collisionGrid.getCellByXY(endX,endY);
-
-            var start = collisionGrid.getCell(startCell.col, startCell.row) ||
-                collisionGrid.markCellEmpty(startCell.col, startCell.row);
-            var end = collisionGrid.getCell(endCell.col, endCell.row) ||
-                collisionGrid.markCellEmpty(endCell.col, endCell.row);
-
+            var start = collisionGrid.getCell(startCell.col, startCell.row);
+            var end = collisionGrid.getCell(endCell.col, endCell.row);
             var path = astar.search(start, end);
             return path;
         },
 
         addFood: function() {
             collisionGrid.foodGroups = [];
+            foodHighQuality = [];
             var foodGroupIDs = {};
-            var highQualityIDs = {};
             var foodGridSize = 10;
             var foodCellSize = 100;
             var foodCellSizeHalf = foodCellSize / 2;
             var curpos = window.getPos();
             var center = collisionGrid.getCellByXY(curpos.x,curpos.y);
-            curpos.x = parseInt(Math.floor(curpos.x));
-            curpos.y = parseInt(Math.floor(curpos.y));
+            curpos.x = Math.floor(curpos.x);
+            curpos.y = Math.floor(curpos.y);
             curpos.x = curpos.x - (curpos.x % foodCellSize);
             curpos.y = curpos.y - (curpos.y % foodCellSize);
             var startX = Math.floor(curpos.x - ((foodGridSize/2)*foodCellSize));
@@ -458,12 +442,10 @@ var collisionGrid = (function() {
                     food.yy > endY )
                     continue;
 
-
-
                 x = food.xx - startX;
                 y = food.yy - startY;
-                col = parseInt(Math.floor(x / foodCellSize));
-                row = parseInt(Math.floor(y / foodCellSize));
+                col = Math.floor(x / foodCellSize);
+                row = Math.floor(y / foodCellSize);
                 col = Math.min(Math.max(col, 0), foodGridSize);
                 row = Math.min(Math.max(row, 0), foodGridSize);
 
@@ -471,10 +453,12 @@ var collisionGrid = (function() {
                 node = collisionGrid.markCellFood(cell.col, cell.row, food);
 
                 if( node ) {
+
                     distance2 = canvas.getDistance2(food.xx, food.yy, curpos.x, curpos.y);
                     food.distance2 = distance2;
                     id = col+','+row;
                     groupid = foodGroupIDs[id] || 0;
+
                     if( !groupid )
                         groupid = collisionGrid.foodGroups.length;
 
@@ -485,15 +469,18 @@ var collisionGrid = (function() {
                     group.nodes.push({x:food.xx, y:food.yy, distance2:distance2, node:node})
                     group.sumx += food.xx;
                     group.sumy += food.yy;
-                    group.score += parseInt(food.sz);
+                    group.score += Math.floor(food.sz);
                     group.maxfood = food
                     group.col = col;
                     group.row = row;
+
                     if( !group.maxfood || food.sz > group.maxfood.sz ) {
                         group.maxfood = food.sz;
                     }
+
                     if( group.distance2 == -1 || distance2 > group.distance2 )
                         group.distance2 = distance2;
+
                     collisionGrid.foodGroups[groupid] = group;
                     foodGroupIDs[id] = groupid;
                 }
@@ -504,16 +491,15 @@ var collisionGrid = (function() {
             for( var i=0; i<collisionGrid.foodGroups.length; i++) {
                 var foodgroup = collisionGrid.foodGroups[i];
                 if( foodgroup.score > 50 ) {
-                    collisionGrid.foodHighQuality.push(foodgroup);
+                    foodHighQuality.push(foodgroup);
                 }
                 else {
                     var food = foodgroup.nodes[0];
-                    var dir = {x:0, y:0};
-                    dir.x = food.xx - curpos.x;
-                    dir.y = food.yy - curpos.y;
-
-                    dot = canvas.getDotProduct(dir.x, dir.y,
-                            bot.heading.x, bot.heading.y)
+                    dot = canvas.getDotProduct(
+                            food.xx - curpos.x,
+                            food.yy - curpos.y,
+                            bot.heading.x,
+                            bot.heading.y);
                     if( dot < 0 )
                         continue;
 
@@ -541,7 +527,7 @@ var collisionGrid = (function() {
                 }
             }
             */
-            collisionGrid.foodHighQuality.sort(function(a,b) {
+            foodHighQuality.sort(function(a,b) {
                 return b.score - a.score;//(a.score == b.score ? 0 : (a.score / a.distance) > (b.score / b.distance)  ? -1 : 1);
             });
 
@@ -549,15 +535,14 @@ var collisionGrid = (function() {
                 return b.score - a.score;//(a.score == b.score ? 0 : (a.score / a.distance) > (b.score / b.distance)  ? -1 : 1);
             });
 
-            collisionGrid.foodGroups = collisionGrid.foodHighQuality.concat(tempGroup);
-            //collisionGrid.foodGroups.concat(collisionGrid.foodHighQuality);
-            //collisionGrid.foodGroups.concat(tempGroup);
-
-
+            collisionGrid.foodGroups = foodHighQuality.concat(tempGroup);
         },
 
         // add all snake's collision parts to the grid
         addSnakes: function() {
+
+            collisionGrid.snakeAggressors = [];
+
             var myX = window.getX();
             var myY = window.getY();
 
@@ -570,13 +555,17 @@ var collisionGrid = (function() {
             var otherSnkWidthSqr;
 
             for (snakeid in window.snakes) {
+
                 snk = window.snakes[snakeid];
                 if (snk.id == window.snake.id)
                     continue;
                 cnt = 0;
 
+                //save the closest part of this snake
                 snk.closest = 0;
 
+                //save the snake head directional information
+                // to be used for prediction
                 relPos = {x:(myX-snk.xx), y:(myY-snk.yy)}
                 snakeDist = canvas.getDistance2(myX, myY, snk.xx, snk.yy);
                 rang = snk.ang * collisionHelper.toRad;
@@ -587,14 +576,18 @@ var collisionGrid = (function() {
                     heading:{x:Math.cos(rang),y:Math.sin(rang)}
                 });
 
+                //create collision for the snake head
                 if( snk.xx > collisionGrid.startX && snk.xx < collisionGrid.endX &&
                     snk.yy > collisionGrid.startY && snk.yy < collisionGrid.endY) {
                     threat = collisionGrid.setupSnakeThreatRadius(snk);
                     collisionGrid.snakePartBounds(snk,snk,threat);
                 }
+
+                //generate the radius for the snake part
                 threat = collisionGrid.setupSnakeThreatRadius(snk);
                 otherSnkWidthSqr = window.getSnakeWidthSqr(snk);
 
+                //add all the parts + some dying (behind snake)
                 for (pts=snk.pts.length-1; pts>=0; pts--) {// in snk.pts) {
                     part = snk.pts[pts];
 
@@ -603,30 +596,31 @@ var collisionGrid = (function() {
                             continue;
                     }
 
-
                     lastAlive = pts;
+
                     //only add parts that are within our grid bounds
                     if( part.xx < collisionGrid.startX || part.xx > collisionGrid.endX ||
                         part.yy < collisionGrid.startY || part.yy > collisionGrid.endY)
                         continue;
 
-
-                    //canvas.drawText(canvas.mapToCanvas({x:part.xx, y:part.yy}), 'red', ''+pts);
-                    
+                    //set the collision cells on the grid
                     collisionGrid.snakePartBounds(snk, part, threat, snkWidthSqr, otherSnkWidthSqr);
                 }
 
+                //debugging
                 if( window.visualDebugging && snk.closest) {
                     canvas.drawCircle(canvas.circleMapToCanvas({x:snk.closest.xx, y:snk.closest.yy, radius:window.getSnakeWidth(snk.sc)}), 'orange', false);
                     canvas.drawCircle(canvas.circleMapToCanvas({x:snk.xx, y:snk.yy, radius:window.getSnakeWidth(snk.sc)}), 'red', false);
                 }
             }
 
+            //sort from closest to furthest
             collisionGrid.snakeAggressors.sort(function(a,b) {
                 return a.distance2 - b.distance2;
             });
         },
 
+        //save the snake's closest part that is to us
         findClosestPart: function(snk, part, snkWidthSqr, otherSnkWidthSqr) {
             var curpos = window.getPos();
             var dist2 = canvas.getDistance2(curpos.x, curpos.y, part.xx, part.yy);
@@ -640,13 +634,14 @@ var collisionGrid = (function() {
             }
         },
 
+        //generate different radius for the snake
         setupSnakeThreatRadius: function(snk, sizemultiplier) {
             sizemultiplier = sizemultiplier || 1.1;
             threatLevels = {};
             threatLevels.radius = window.getSnakeWidth(snk.sc);
             threatLevels.radius = Math.max(threatLevels.radius, 30) * sizemultiplier;
             threatLevels.t1 = collisionGrid.calculateMaxCellCount(threatLevels.radius);
-            threatLevels.tt1 = threatLevels.t1*2;
+            threatLevels.tt1 = threatLevels.t1*3;
             threatLevels.t2 = collisionGrid.calculateMaxCellCount(threatLevels.radius * 1.5);
             threatLevels.tt2 = threatLevels.t2*2;
             threatLevels.t3 = collisionGrid.calculateMaxCellCount(threatLevels.radius * 2);
@@ -663,20 +658,21 @@ var collisionGrid = (function() {
             collisionGrid.findClosestPart(snk,part, snkWidthSqr, otherSnkWidthSqr);
 
             //calculate grid width/height of a snake part
-            var cell = collisionGrid.getCellByXY(part.xx, part.yy);
+            var cellpos = collisionGrid.getCellColRow(part.xx,part.yy);//.getCellByXY(part.xx, part.yy);
 
             //mark cell where part's center is located
-            collisionGrid.markCellWall(cell.col, cell.row, {snake:snk, part:part});
+            //collisionGrid.markCellWall(cell.col, cell.row, {snake:snk, part:part});
             //canvas.drawCircle(canvas.mapToCanvas({x:part.xx, y:part.yy}), 'red', true);
 
             //mark surrounding cells using part's radius
-            var maxthreat = threatLevels.t4;
-            var maxthreat2 = threatLevels.tt4;
-            collisionGrid.sliceGrid(cell.col-maxthreat, cell.row-maxthreat, maxthreat2, maxthreat2,
+            var maxthreat = threatLevels.t1;
+            var maxthreat2 = threatLevels.tt1;
+            collisionGrid.sliceGrid(cellpos.col-maxthreat, cellpos.row-maxthreat, maxthreat2, maxthreat2,
                 function(col, row, val) {
-                    if( val && val.type != TYPE_SNAKE && val.type != TYPE_EMPTY ) return;
-
-                    if( col >= (cell.col-threatLevels.t1) &&
+                    //if( val.type == TYPE_SNAKE )
+                    //    return;
+                    collisionGrid.markCellWall(col, row, {snake:snk, part:part});
+                    /*if( col >= (cell.col-threatLevels.t1) &&
                         col < (cell.col+threatLevels.tt1) &&
                         row >= (cell.row-threatLevels.t1) &&
                         row < (cell.row+threatLevels.tt1) ) {
@@ -703,7 +699,7 @@ var collisionGrid = (function() {
                     }
                     else {
                         collisionGrid.markCellEmpty(col, row, 10000)
-                    }
+                    }*/
                 }
             );
         },
