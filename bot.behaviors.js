@@ -189,12 +189,12 @@ var behaviors = (function() {
 
 
         action180FromSnake: function(obj) {
-            console.log("action180 begin");
+            //console.log("action180 begin");
             if( !obj.aggressor ) {
                 this.fail();
                 return;
             }
-            console.log("action180 success");
+            //console.log("action180 success");
             var newcoord = {
                 x: window.snake.xx + (window.snake.xx - obj.aggressor.snk.closest.xx),
                 y: window.snake.yy + (window.snake.yy - obj.aggressor.snk.closest.yy)
@@ -400,7 +400,7 @@ var behaviors = (function() {
                         break;
                     }
                 }
-                console.log("inside snake");
+                //console.log("inside snake");
                 this.success();
                 return;
             }
@@ -414,7 +414,7 @@ var behaviors = (function() {
 
                 if( aggressor.snk.closest.distance2 < mindist ) {
                     obj.aggressor = aggressor;
-                    console.log("near snake");
+                    //console.log("near snake");
                     this.success();
                     return;
                 }
