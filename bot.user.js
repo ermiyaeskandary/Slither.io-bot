@@ -497,7 +497,6 @@ var bot = (function() {
             //if (++bot.tickCounter >= 15) {
             bot.tickCounter = 0;
 
-
             collisionGrid.setup();
             bot.radarResults = collisionHelper.radarScan(15,1000);
             behaviors.run('snakebot', bot.behaviorData);
