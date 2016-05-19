@@ -11,7 +11,7 @@
  *
  * Version: 1.0.3
  */
- // ==UserScript==
+// ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
 // @version      0.9.6
