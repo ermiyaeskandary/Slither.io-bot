@@ -685,11 +685,35 @@ var collisionGrid = (function() {
                         col < (cell.col+threatLevels.tt1) &&
                         row >= (cell.row-threatLevels.t1) &&
                         row < (cell.row+threatLevels.tt1) ) {
+=======
+        snakePartBounds: function(snk, part, threatLevels) {
 
+            collisionGrid.findClosestPart(snk,part);
+
+            //calculate grid width/height of a snake part
+            var cell = collisionGrid.getCellByXY(part.xx, part.yy);
+
+            //mark cell where part's center is located
+            collisionGrid.markCellWall(cell.col, cell.row, {snake:snk, part:part});
+            //canvas.drawCircle(canvas.mapToCanvas({x:part.xx, y:part.yy}), 'red', true);
+
+            //mark surrounding cells using part's radius
+            var maxthreat = threatLevels.t4;
+            var maxthreat2 = threatLevels.tt4;
+            collisionGrid.sliceGrid(cell.col-maxthreat, cell.row-maxthreat, maxthreat2, maxthreat2,
+                function(col, row, val) {
+                    if( val && val.type != TYPE_SNAKE && val.type != TYPE_EMPTY ) return;
+
+                    if( col >= (cell.col-threatLevels.t1) &&
+                        col <= (cell.col+threatLevels.tt1) &&
+                        row >= (cell.row-threatLevels.t1) &&
+                        row <= (cell.row+threatLevels.tt1) ) {
+>>>>>>> refs/remotes/ErmiyaEskandary/Grid-System-r1
                         var cellData = {snake:snk, part:part};
                         collisionGrid.markCellWall(col, row, cellData);
                     }
                     else if( col >= (cell.col-threatLevels.t2) &&
+<<<<<<< HEAD
                         col < (cell.col+threatLevels.tt2) &&
                         row >= (cell.row-threatLevels.t2) &&
                         row < (cell.row+threatLevels.tt2) ) {
@@ -705,11 +729,28 @@ var collisionGrid = (function() {
                         col < (cell.col+threatLevels.tt4) &&
                         row >= (cell.row-threatLevels.t4) &&
                         row < (cell.row+threatLevels.tt4) ) {
-
+=======
+                        col <= (cell.col+threatLevels.tt2) &&
+                        row >= (cell.row-threatLevels.t2) &&
+                        row <= (cell.row+threatLevels.tt2) ) {
+                        collisionGrid.markCellEmpty(col, row, 10000)
+                    }
+                    else if( col >= (cell.col-threatLevels.t3) &&
+                        col <= (cell.col+threatLevels.tt3) &&
+                        row >= (cell.row-threatLevels.t3)&&
+                        row <= (cell.row+threatLevels.tt3) ) {
+                        collisionGrid.markCellEmpty(col, row, 10000)
+                    }
+                    else if( col >= (cell.col-threatLevels.t4) &&
+                        col <= (cell.col+threatLevels.tt4) &&
+                        row >= (cell.row-threatLevels.t4) &&
+                        row <= (cell.row+threatLevels.tt4) ) {
+>>>>>>> refs/remotes/ErmiyaEskandary/Grid-System-r1
                         collisionGrid.markCellEmpty(col, row, 10000)
                     }
                     else {
                         collisionGrid.markCellEmpty(col, row, 10000)
+<<<<<<< HEAD
                     }*/
                 }
             );
