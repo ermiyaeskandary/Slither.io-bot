@@ -19,11 +19,8 @@ var TYPE_EMPTY = 0;
 var TYPE_SNAKE = 1;
 var TYPE_FOOD = 2;
 
-<<<<<<< HEAD
 var DEFAULT_EMPTY_WEIGHT = 1000;
 
-=======
->>>>>>> refs/remotes/ErmiyaEskandary/Grid-System-r1
 function GridNode(x, y, weight, type) {
     this.x = x;
     this.y = y;
@@ -36,7 +33,6 @@ function GridNode(x, y, weight, type) {
     this.parent = null;
     this.type = type || 0;
     this.items = [];
-<<<<<<< HEAD
     this.version = 0;
 };
 
@@ -52,9 +48,6 @@ GridNode.prototype.reset = function(version) {
     this.parent = null;
     this.items = [];
 };
-=======
-}
->>>>>>> refs/remotes/ErmiyaEskandary/Grid-System-r1
 
 GridNode.prototype.toString = function() {
     return "[" + this.x + " " + this.y + "]";
@@ -127,11 +120,7 @@ var astar = {
         var closestNode = start; // set the start node to be the closest if required
 
         start.h = heuristic(start, end);
-<<<<<<< HEAD
         var maxtries = 10000;
-=======
-        var maxtries = 1000;
->>>>>>> refs/remotes/ErmiyaEskandary/Grid-System-r1
         var trynum = 0;
 
         openHeap.push(start);
