@@ -10,7 +10,5 @@
 // @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.gridsystem.js
 // @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.behaviors.js
 // @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.user.js
-// @updateURL    https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.meta.js
-// @downloadURL  https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/bot.meta.js
 // @grant        none
 // ==/UserScript==
