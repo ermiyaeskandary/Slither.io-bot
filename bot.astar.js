@@ -19,6 +19,8 @@ var TYPE_EMPTY = 0;
 var TYPE_SNAKE = 1;
 var TYPE_FOOD = 2;
 
+var DEFAULT_EMPTY_WEIGHT = 1000;
+
 function GridNode(x, y, weight, type) {
     this.x = x;
     this.y = y;
@@ -31,7 +33,21 @@ function GridNode(x, y, weight, type) {
     this.parent = null;
     this.type = type || 0;
     this.items = [];
-}
+    this.version = 0;
+};
+
+GridNode.prototype.reset = function(version) {
+    this.version = version;
+    this.type = TYPE_EMPTY;
+    this.weight = DEFAULT_EMPTY_WEIGHT;
+    this.f = 0;
+    this.g = 0;
+    this.h = 0;
+    this.visited = false;
+    this.closed = false;
+    this.parent = null;
+    this.items = [];
+};
 
 GridNode.prototype.toString = function() {
     return "[" + this.x + " " + this.y + "]";
