@@ -12,10 +12,10 @@
  * Version: 1.0.3
  */
 // ==UserScript==
-// @name         Slither.io-bot
+// @name         Slither.io-bot A*
 // @namespace    http://slither.io/
-// @version      0.9.6
-// @description  Slither.io bot
+// @version      0.9.3
+// @description  Slither.io bot A*
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
 // @grant        none

@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Slither.io-bot
+// @name         Slither.io-bot A*
 // @namespace    http://slither.io/
 // @version      0.9.6
-// @description  Slither.io bot
+// @description  Slither.io bot A*
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
 // @require		 https://github.com/OneEyed/Slither.io-bot/raw/Grid-System/btree-complete.min.js

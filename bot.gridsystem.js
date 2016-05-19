@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Slither.io-bot
+// @name         Slither.io-bot A*
 // @namespace    http://slither.io/
 // @version      0.9.3
-// @description  Slither.io bot
+// @description  Slither.io bot A*
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
 // @grant        none
@@ -76,6 +76,8 @@ var collisionHelper = (function() {
                     results.push(result);
 
                 if( result.cell ) {
+                    //if( result.col === undefined || result.row == undefined )
+                    //    console.log("col/row undefined -- "+JSON.stringify(result));
                     var linePos = collisionGrid.getCellByColRow(result.col, result.row);
                     var dist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
                     collisions.push({dist:dist, line:result});
@@ -213,7 +215,6 @@ var collisionGrid = (function() {
         //Initialize the default fields.  This should only be done once per game.
         init: function(w, h, cellsz) {
             collisionGrid.version = 0;
-
             collisionGrid.height = h * cellsz;
             collisionGrid.width = w * cellsz;
             collisionGrid.gridWidth = w;
@@ -275,7 +276,6 @@ var collisionGrid = (function() {
             row = Math.min(Math.max(row, 0), collisionGrid.gridHeight-1);
             return {col:col, row:row};
         },
-
         // Find specific cell's column and row using map-space position
         getCellByXY: function(x, y) {
             x = x - collisionGrid.startX;
@@ -291,7 +291,6 @@ var collisionGrid = (function() {
         getCellByColRow: function(col, row) {
             var x = collisionGrid.startX + (col*collisionGrid.cellSize) + collisionGrid.halfCellSize;
             var y = collisionGrid.startY + (row*collisionGrid.cellSize) + collisionGrid.halfCellSize;
-
             return {x:x, y:y, cell:collisionGrid.getCell(col,row)};
         },
 
@@ -412,7 +411,6 @@ var collisionGrid = (function() {
 
         addFood: function() {
             collisionGrid.foodGroups = [];
-
             foodHighQuality = [];
             var foodGroupIDs = {};
             var foodGridSize = 10;
@@ -420,7 +418,6 @@ var collisionGrid = (function() {
             var foodCellSizeHalf = foodCellSize / 2;
             var curpos = window.getPos();
             var center = collisionGrid.getCellByXY(curpos.x,curpos.y);
-
             curpos.x = Math.floor(curpos.x);
             curpos.y = Math.floor(curpos.y);
             curpos.x = curpos.x - (curpos.x % foodCellSize);
@@ -530,7 +527,6 @@ var collisionGrid = (function() {
                 }
             }
             */
-
             foodHighQuality.sort(function(a,b) {
                 return b.score - a.score;//(a.score == b.score ? 0 : (a.score / a.distance) > (b.score / b.distance)  ? -1 : 1);
             });
@@ -555,7 +551,6 @@ var collisionGrid = (function() {
             var maxDeadCount = 2;
             var pts, part, threat;
             var snk, cnt, relPos, snakeDist, rang;
-
             var snkWidthSqr = window.getSnakeWidthSqr();
             var otherSnkWidthSqr;
 
@@ -630,7 +625,6 @@ var collisionGrid = (function() {
             var curpos = window.getPos();
             var dist2 = canvas.getDistance2(curpos.x, curpos.y, part.xx, part.yy);
             part.distance2 = dist2 - (snkWidthSqr + otherSnkWidthSqr);
-
             if( snk.closest == 0 ) {
                 snk.closest = part;
                 return;
@@ -640,7 +634,6 @@ var collisionGrid = (function() {
             }
         },
 
-
         //generate different radius for the snake
         setupSnakeThreatRadius: function(snk, sizemultiplier) {
             sizemultiplier = sizemultiplier || 1.1;
@@ -648,7 +641,6 @@ var collisionGrid = (function() {
             threatLevels.radius = window.getSnakeWidth(snk.sc);
             threatLevels.radius = Math.max(threatLevels.radius, 30) * sizemultiplier;
             threatLevels.t1 = collisionGrid.calculateMaxCellCount(threatLevels.radius);
-
             threatLevels.tt1 = threatLevels.t1*3;
             threatLevels.t2 = collisionGrid.calculateMaxCellCount(threatLevels.radius * 1.5);
             threatLevels.tt2 = threatLevels.t2*2;
@@ -660,7 +652,6 @@ var collisionGrid = (function() {
             threatLevels.max2 = threatLevels.max*2;
             return threatLevels;
         },
-
 
         snakePartBounds: function(snk, part, threatLevels, snkWidthSqr, otherSnkWidthSqr) {
 
@@ -685,35 +676,10 @@ var collisionGrid = (function() {
                         col < (cell.col+threatLevels.tt1) &&
                         row >= (cell.row-threatLevels.t1) &&
                         row < (cell.row+threatLevels.tt1) ) {
-=======
-        snakePartBounds: function(snk, part, threatLevels) {
-
-            collisionGrid.findClosestPart(snk,part);
-
-            //calculate grid width/height of a snake part
-            var cell = collisionGrid.getCellByXY(part.xx, part.yy);
-
-            //mark cell where part's center is located
-            collisionGrid.markCellWall(cell.col, cell.row, {snake:snk, part:part});
-            //canvas.drawCircle(canvas.mapToCanvas({x:part.xx, y:part.yy}), 'red', true);
-
-            //mark surrounding cells using part's radius
-            var maxthreat = threatLevels.t4;
-            var maxthreat2 = threatLevels.tt4;
-            collisionGrid.sliceGrid(cell.col-maxthreat, cell.row-maxthreat, maxthreat2, maxthreat2,
-                function(col, row, val) {
-                    if( val && val.type != TYPE_SNAKE && val.type != TYPE_EMPTY ) return;
-
-                    if( col >= (cell.col-threatLevels.t1) &&
-                        col <= (cell.col+threatLevels.tt1) &&
-                        row >= (cell.row-threatLevels.t1) &&
-                        row <= (cell.row+threatLevels.tt1) ) {
->>>>>>> refs/remotes/ErmiyaEskandary/Grid-System-r1
                         var cellData = {snake:snk, part:part};
                         collisionGrid.markCellWall(col, row, cellData);
                     }
                     else if( col >= (cell.col-threatLevels.t2) &&
-<<<<<<< HEAD
                         col < (cell.col+threatLevels.tt2) &&
                         row >= (cell.row-threatLevels.t2) &&
                         row < (cell.row+threatLevels.tt2) ) {
@@ -729,28 +695,10 @@ var collisionGrid = (function() {
                         col < (cell.col+threatLevels.tt4) &&
                         row >= (cell.row-threatLevels.t4) &&
                         row < (cell.row+threatLevels.tt4) ) {
-=======
-                        col <= (cell.col+threatLevels.tt2) &&
-                        row >= (cell.row-threatLevels.t2) &&
-                        row <= (cell.row+threatLevels.tt2) ) {
-                        collisionGrid.markCellEmpty(col, row, 10000)
-                    }
-                    else if( col >= (cell.col-threatLevels.t3) &&
-                        col <= (cell.col+threatLevels.tt3) &&
-                        row >= (cell.row-threatLevels.t3)&&
-                        row <= (cell.row+threatLevels.tt3) ) {
-                        collisionGrid.markCellEmpty(col, row, 10000)
-                    }
-                    else if( col >= (cell.col-threatLevels.t4) &&
-                        col <= (cell.col+threatLevels.tt4) &&
-                        row >= (cell.row-threatLevels.t4) &&
-                        row <= (cell.row+threatLevels.tt4) ) {
->>>>>>> refs/remotes/ErmiyaEskandary/Grid-System-r1
                         collisionGrid.markCellEmpty(col, row, 10000)
                     }
                     else {
                         collisionGrid.markCellEmpty(col, row, 10000)
-<<<<<<< HEAD
                     }*/
                 }
             );
@@ -759,7 +707,6 @@ var collisionGrid = (function() {
 
         lineTestResult: 0,
         lineTypeCheck: function(col, row, type) {
-
             if( col >= collisionGrid.gridWidth || row >= collisionGrid.gridHeight) return 0;
             var cell = collisionGrid.cellTest(col, row, type);
             if( cell !== false )
@@ -805,7 +752,6 @@ var collisionGrid = (function() {
             if (ddx >= ddy) {  // first octant (0 <= slope <= 1)
                 // compulsory initialization (even for errorprev, needed when dx==dy)
                 errorprev = error = dx;  // start in the middle of the square
-
                 for (i=0 ; i < dx ; i++) {  // do not use the first point (already done)
                     x += xstep;
                     error += ddy;
@@ -825,14 +771,12 @@ var collisionGrid = (function() {
                             if( collisionGrid.lineTypeCheck(x-xstep, y,type) ) return collisionGrid.lineTestResult;
                         }
                     }
-
                     if( (cell = collisionGrid.cellTest(x, y,type)) !== false ) return {col:x, row:y, cell:cell};
                     errorprev = error;
                 }
             }
             else {  // the same as above
                 errorprev = error = dy;
-
                 for (i=0 ; i < dy ; i++) {
                     y += ystep;
                     error += ddx;
