@@ -797,7 +797,7 @@ var userInterface = (function() {
                     window.visualDebugging);
             window.grid_debugging_overlay.innerHTML = window.spanstyle +
                 '(G) Grid debugging: </span>' + userInterface.handleTextColor(
-                    window.visualDebugging);
+                    window.gridDebugging);
             window.logdebugging_overlay.innerHTML = window.spanstyle +
                 '(U) Log debugging: </span>' + userInterface.handleTextColor(
                     window.logDebugging);
