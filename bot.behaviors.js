@@ -35,6 +35,9 @@ var behaviors = (function() {
             behaviors.newTask('isGoodFood', behaviors.isGoodFood);
             behaviors.newTask('isFollowingFood', behaviors.isFollowingFood);
             behaviors.newTask('isReachedTarget', behaviors.isReachedTarget);
+            behaviors.newTask('isFacingTarget', behaviors.isFacingTarget);
+            behaviors.newTask('isNearEnemySnakeHead', behaviors.isNearEnemySnakeHead);
+            behaviors.newTask('isSprintAllowed', behaviors.isSprintAllowed);
             behaviors.newTask('isHighQualityFoodAvailable', behaviors.isHighQualityFoodAvailable);
 
 
@@ -45,15 +48,25 @@ var behaviors = (function() {
                 behaviors.sequence([
                     behaviors.condition({
                         test: 'isNearEnemySnakeBody',
-                            pass: 'action180FromSnake',
+                            pass:
+                                behaviors.sequence([
+                                    'action180FromSnake',
+                                    'actionMoveToGoal'//,
+                                    //'actionExitSequence'
+                                ]),
                             fail: 'actionNone'
                     }),
+                    /*behaviors.condition({
+                        test: 'isNearEnemySnakeHead',
+                            pass: '',
+                            fail: ''
+                    }),*/
                     behaviors.condition({
                         test: 'isAlmostSurrounded',
                             pass:
                                 behaviors.sequence([
                                     'actionAvoidSurround',
-                                    'actionExitSequence'
+                                    //'actionExitSequence'
                                 ]),
                             fail: 'actionNone'
                     })
@@ -82,14 +95,9 @@ var behaviors = (function() {
 
                 //Can we sprint to the food?
                 behaviors.condition({
-                    test: 'isGoodFood',
+                    test: 'isSprintAllowed',
                         pass: 'actionSprint',
-                        fail:
-                            behaviors.condition({
-                                test: 'isAlmostSurrounded',
-                                    pass: 'actionSprint',
-                                    fail: 'actionWalk'
-                            })
+                        fail: 'actionWalk'
                 }),
 
                 //Did we reach target?
@@ -115,6 +123,42 @@ var behaviors = (function() {
 
         },
 
+        isSprintAllowed: function(obj) {
+
+            var isAlmostSurrouneded = (bot.radarResults && bot.radarResults.open.length > 0 && bot.radarResults.pct < 0.30);
+
+
+            if( obj.insidesnake ) {
+                this.fail();
+                return;
+            }
+
+            if( obj.nearsnake && !isAlmostSurrouneded ) {
+                this.fail();
+                return;
+            }
+
+            if( isAlmostSurrouneded ) {
+                this.success();
+                return;
+            }
+
+            if( obj.foodTarget && obj.foodTarget.score > 50 ) {
+                if( bot.radarResults && bot.radarResults.open.length > 0 && bot.radarResults.pct < 0.30 ) {
+                    console.log("almost surrounded");
+                    this.success();
+                    return;
+                }
+                var v = canvas.getRelativeAngle(window.getPos(), obj.goalCoordinates);
+                if( v.dot >= 0.5 ) {
+                    this.success();
+                    return;
+                }
+
+            }
+            this.fail();
+        },
+
         //Exit a sequence immediately, the fail will propopage to the root node
         actionExitSequence: function(obj) {
             this.fail();
@@ -136,10 +180,10 @@ var behaviors = (function() {
 
                 var line = collisionGrid.lineTest(curpos.x, curpos.y, foodPos.x, foodPos.y,TYPE_SNAKE);
                 var linePos = collisionGrid.getCellByColRow(line.col,line.row);
-                if( line.cell )
+                if( line.node )
                     continue;
 
-                if( destpos.cell.type==TYPE_FOOD)
+                if( destpos.node.type==TYPE_FOOD)
                     break;
             }
 
@@ -178,6 +222,19 @@ var behaviors = (function() {
         },
 
         actionMoveToGoal: function(obj) {
+            if (window.visualDebugging && bot.behaviorData.goalCoordinates) {
+                var headCoord = {
+                    x: window.snake.xx,
+                    y: window.snake.yy
+                };
+                canvas.drawLine(
+                    canvas.mapToCanvas(headCoord),
+                    canvas.mapToCanvas(bot.behaviorData.goalCoordinates),
+                    'green');
+
+                canvas.drawCircle(bot.behaviorData.goalCoordinates, 'red', true);
+            }
+
             canvas.setMouseCoordinates(canvas.mapToMouse(obj.goalCoordinates));
             this.success();
         },
@@ -192,6 +249,7 @@ var behaviors = (function() {
             //console.log("action180 begin");
             if( !obj.aggressor ) {
                 this.fail();
+                console.log("no aggressor");
                 return;
             }
             //console.log("action180 success");
@@ -253,7 +311,7 @@ var behaviors = (function() {
         actionTrollSurrounderer: function(obj) {
             var collisions = bot.radarResults.collisions;
             var furthest = collisions[collisions.length-1];
-            var cell = furthest.cell;
+            var cell = furthest.node;
             var curpos = window.getPos();
             var newpos = {x:curpos.x,y:curpos.y};
 
@@ -275,7 +333,7 @@ var behaviors = (function() {
             var minpath = 2;
 
             var cell = collisionGrid.getCellByXY(obj.goalCoordinates.x, obj.goalCoordinates.y);
-            if( cell.cell.type == TYPE_SNAKE ) {
+            if( cell.node.type == TYPE_SNAKE || (cell.node.type == TYPE_EMPTY && cell.node.items.length) ) {
                 this.fail();
                 return;
             }
@@ -314,7 +372,7 @@ var behaviors = (function() {
         },
 
         actionToCenterOfMap: function(obj) {
-            obj.goalCoordinates = {x: 10000, y:10000};
+            obj.goalCoordinates = {x: 20000, y:20000};
             this.success();
         },
 
@@ -355,9 +413,10 @@ var behaviors = (function() {
         },
 
         isFacingTarget: function(obj) {
-            var curpos = window.getPos();
-            var dist = canvas.getDistance2(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y);
-            if( dist < 2500 ) { //50 units
+            //var relv = {x: curpos.x - obj.followCoordinates.x, y: curpos.y-obj.followCoordinates.y};
+
+            var v = canvas.getRelativeAngle(window.getPos(), obj.goalCoordinates);
+            if( v.dot >= 0.5 ) {
                 this.success();
                 return;
             }
@@ -384,22 +443,37 @@ var behaviors = (function() {
             this.fail();
         },
 
+        isNearEnemySnakeHead: function(obj) {
+            var aggressorCnt = collisionGrid.snakeAggressors.length;
+
+            for(var i=0; i<aggressorCnt; i++) {
+                var aggressor = collisionGrid.snakeAggressors[i];
+
+                collisionHelper.checkLineIntersection()
+            }
+
+        },
+
         isNearEnemySnakeBody: function(obj) {
+            obj.nearsnake = false;
+            obj.insidesnake = false;
+
             var aggressorCnt = collisionGrid.snakeAggressors.length;
             var mindist = 22500;
 
             var curpos = window.getPos();
             var cell = collisionGrid.getCellByXY(curpos.x,curpos.y);
-            if( cell.cell.type == TYPE_SNAKE ) {
-                var snake = cell.cell.items[0].snk;
+            if( cell.node.type == TYPE_SNAKE ) {
+                var snake = cell.node.items[0].snake;
 
                 for(var i=0; i<aggressorCnt; i++) {
                     var aggressor = collisionGrid.snakeAggressors[i];
-                    if( snake == aggressor.snk ) {
+                    if( snake.id == aggressor.snk.id ) {
                         obj.aggressor = aggressor;
                         break;
                     }
                 }
+                obj.insidesnake = true;
                 //console.log("inside snake");
                 this.success();
                 return;
@@ -415,6 +489,7 @@ var behaviors = (function() {
                 if( aggressor.snk.closest.distance2 < mindist ) {
                     obj.aggressor = aggressor;
                     //console.log("near snake");
+                    obj.nearsnake = true;
                     this.success();
                     return;
                 }
@@ -424,6 +499,7 @@ var behaviors = (function() {
 
         isAlmostSurrounded: function(obj) {
             if( bot.radarResults && bot.radarResults.open.length > 0 && bot.radarResults.pct < 0.30 ) {
+                console.log("almost surrounded");
                 this.success();
                 return;
             }
@@ -442,7 +518,7 @@ var behaviors = (function() {
         isTouchingSnake: function(obj) {
             var curpos = window.getPos();
             var currentCell = collisionGrid.getCellByXY(curpos.x, curpos.y);
-            if( currentCell.cell && currentCell.cell.type == TYPE_SNAKE ) {
+            if( currentCell.node && currentCell.node.type == TYPE_SNAKE ) {
                 bot.setNextState('avoidBody');
                 this.success();
                 return;

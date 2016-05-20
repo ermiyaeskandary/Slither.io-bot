@@ -203,10 +203,10 @@ var canvas = (function() {
             context.save();
             context.globalAlpha = alpha;
             context.beginPath();
-            //context.strokeStyle = colour;
+            context.strokeStyle = colour;
             context.arc(drawCircle.x, drawCircle.y, drawCircle.radius,
                 0, Math.PI * 2);
-            //context.stroke();
+            context.stroke();
             if (fill) {
                 context.fillStyle = colour;
                 context.fill();
@@ -339,6 +339,46 @@ var canvas = (function() {
         // Get distance squared
         getDotProduct: function(x1, y1, x2, y2) {
             return x1*x2 + y1*y2;
+        },
+
+        getNormalVector: function(from, to) {
+            var dir = {x: to.x-from.x, y: to.y-from.y};
+            var len = dir.x*dir.x + dir.y*dir.y;
+            len = Math.sqrt(len);
+            dir.x /= len;
+            dir.y /= len;
+            dir.len = len;
+            return dir;
+        },
+
+        getAtan2: function(y, x) {
+            const QPI = Math.PI / 4;
+            const TQPI = 3 * Math.PI / 4;
+            var r = 0.0;
+            var angle = 0.0;
+            var abs_y = Math.abs(y) + 1e-10;
+
+            if (x < 0) {
+                r = (x + abs_y) / (abs_y - x);
+                angle = TQPI;
+            } else {
+                r = (x - abs_y) / (x + abs_y);
+                angle = QPI;
+            }
+
+            angle += (0.1963 * r * r - 0.9817) * r;
+
+            if (y < 0) {
+                return -angle;
+            }
+
+            return angle;
+        },
+
+        getRelativeAngle: function(from, to) {
+            var norm = canvas.getNormalVector(from, to);
+            norm.dot = norm.x*bot.heading.x + norm.y*bot.heading.y;
+            return norm;
         },
 
         getDistance2FromSnake: function(point) {
@@ -479,11 +519,19 @@ var bot = (function() {
         },
 
         heading: {x:1, y:0},
+        prevAng: 0,
 
         precalculate: function() {
-            var rang = window.snake.ang * collisionHelper.toRad;
+            var rang = window.snake.ang;// * collisionHelper.toRad;
             bot.heading.x = Math.cos(rang);
             bot.heading.y = Math.sin(rang);
+
+            if( bot.prevAng != window.snake.ang ) {
+                bot.prevAng = window.snake.ang;
+                //console.log("Angle = " + window.snake.ang);
+            }
+
+
         },
 
         // Called by the window loop, this is the main logic of the bot.
@@ -498,8 +546,25 @@ var bot = (function() {
             bot.tickCounter = 0;
 
             collisionGrid.setup();
-            bot.radarResults = collisionHelper.radarScan(15,1000);
+
             behaviors.run('snakebot', bot.behaviorData);
+
+            if( window.visualDebugging ) {
+                var curpos = window.getPos();
+
+                canvasPosA = canvas.mapToCanvas({
+                    x: curpos.x,
+                    y: curpos.y,
+                    radius: 1
+                });
+                canvasPosB = canvas.mapToCanvas({
+                    x: curpos.x + bot.heading.x*100,
+                    y: curpos.y + bot.heading.y*100,
+                    radius: 1
+                });
+
+                canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 2, 'yellow');
+            }
             //bot.astarFoodFinder();
         },
 
@@ -759,7 +824,7 @@ var userInterface = (function() {
                     ' Y: ' + (Math.round(window.snake.yy) || 0) +
                     '</span>';
             }
-
+/*
             if (window.playing && window.visualDebugging && bot.isBotRunning) {
                 // Only draw the goal when a bot has a goal.
                 if (bot.behaviorData.goalCoordinates) {
@@ -774,7 +839,7 @@ var userInterface = (function() {
 
                     canvas.drawCircle(bot.behaviorData.goalCoordinates, 'red', true);
                 }
-            }
+            }*/
         },
 
         oef: function() {
