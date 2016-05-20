@@ -33,7 +33,7 @@ If you are on chrome, download the [TamperMonkey](https://chrome.google.com/webs
 
 On other browsers, use the [GreaseMonkey](https://addons.mozilla.org/en-GB/firefox/addon/greasemonkey/) extension.
 
-Once installed, click on [this](https://github.com/ErmiyaEskandary/slither.io-bot/raw/master/bot.user.js), and choose **Install**.
+Once installed, click on [this](https://github.com/ErmiyaEskandary/slither.io-bot/raw/master/bot.meta.user.js), and choose **Install**.
 
 Go to [slither.io](http://slither.io/), and enjoy !
 
