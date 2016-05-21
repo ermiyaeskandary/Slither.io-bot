@@ -67,7 +67,7 @@ var collisionHelper = (function() {
             var openCnt = 0;
 
             var direction, dir, x2, y2, result, dist;
-            var canvasPosA, canvasPosB, color;
+            var color;
             var linePos = 0;
             for(dir=0; dir<collisionHelper.unitTable.length; dir+=angleIncrement) {
                 direction = collisionHelper.unitTable[dir];
@@ -99,21 +99,21 @@ var collisionHelper = (function() {
 
 
                 if( window.visualDebugging && linePos != 0 ) {
-
-                    canvasPosA = canvas.mapToCanvas({
+                    /*
+                    var canvasPosA = canvas.mapToCanvas({
                         x: curpos.x,
                         y: curpos.y,
                         radius: 1
                     });
-                    canvasPosB = canvas.mapToCanvas({
+                    var canvasPosB = canvas.mapToCanvas({
                         x: linePos.x,
                         y: linePos.y,
                         radius: 1
-                    });
-
-                    color = (!result.node||result.node.type==TYPE_EMPTY) ? 'green' : ((result.node.type==TYPE_FOOD) ? 'blue' : 'red');
-                    if( color != 'green')
-                    canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 1, color);
+                    }); */
+                    color = (!result.node||result.node.type==TYPE_EMPTY) ? 'green' :
+                        ((result.node.type==TYPE_FOOD) ? 'blue' : 'red');
+                    if( color != 'green' )
+                        canvas.drawLine(curpos, linePos, color, 1);
                 }
             }
 
@@ -239,8 +239,8 @@ var collisionGrid = (function() {
         //Then add all the entities to the grid
         setup: function() {
             collisionGrid.version++;
-            sx = Math.round(window.getX());
-            sy = Math.round(window.getY());
+            sx = Math.round(window.snake.xx);
+            sy = Math.round(window.snake.yy);
             sx = sx - (sx % collisionGrid.cellSize);
             sy = sy - (sy % collisionGrid.cellSize);
 
@@ -367,7 +367,6 @@ g
         },
 
         drawCell: function(col, row, color) {
-
             if( !window.visualDebugging )
                 return;
 
@@ -381,9 +380,10 @@ g
             canvas.drawRect(
                 canvasPos.x,
                 canvasPos.y,
-                collisionGrid.cellSize * canvas.getScale(),
-                collisionGrid.cellSize * canvas.getScale(),
-                color);
+                collisionGrid.cellSize * window.gsc,
+                collisionGrid.cellSize * window.gsc,
+                color
+            );
         },
 
         addNeighbor: function(x, y, arr) {
@@ -531,8 +531,8 @@ g
                     canvas.drawRect(
                         canvasPos.x,
                         canvasPos.y,
-                        foodCellSize * canvas.getScale(),
-                        foodCellSize * canvas.getScale(),
+                        foodCellSize * window.gsc,
+                        foodCellSize * window.gsc,
                         'rgba(0,255,0,0.25)');
 
                     canvas.drawText(canvasPos, 'white', "("+foodgroup.col+","+foodgroup.row+")"+foodgroup.score);
@@ -556,8 +556,8 @@ g
 
             collisionGrid.snakeAggressors = [];
 
-            var myX = window.getX();
-            var myY = window.getY();
+            var myX = window.snake.xx;;
+            var myY = window.snake.yy;
 
             var lastAlive = 0;
             var deadCount = 0;
@@ -593,18 +593,18 @@ g
 
                 if( window.visualDebugging ) {
 
-                    canvasPosA = canvas.mapToCanvas({
+                    var canvasPosA = {
                         x: snk.xx,
                         y: snk.yy,
                         radius: 1
-                    });
-                    canvasPosB = canvas.mapToCanvas({
+                    };
+                    var canvasPosB = {
                         x: snk.xx + aggressor.heading.x*100,
                         y: snk.yy + aggressor.heading.y*100,
                         radius: 1
-                    });
+                    };
 
-                    canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 2, 'yellow');
+                    canvas.drawLine(canvasPosA, canvasPosB, 'yellow', 2);
                 }
 
                 //create collision for the snake head
