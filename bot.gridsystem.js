@@ -110,10 +110,11 @@ var collisionHelper = (function() {
                         y: linePos.y,
                         radius: 1
                     }); */
-                    color = (!result.node||result.node.type==TYPE_EMPTY) ? 'green' :
-                        ((result.node.type==TYPE_FOOD) ? 'blue' : 'red');
-                    if( color != 'green' )
+                    color = (!result.node || result.node.type == TYPE_EMPTY) ? 'green' :
+                        ((result.node.type == TYPE_FOOD) ? 'blue' : 'red');
+                    if(color != 'green') {
                         canvas.drawLine(curpos, linePos, color, 1);
+                    }
                 }
             }
 
@@ -239,8 +240,8 @@ var collisionGrid = (function() {
         //Then add all the entities to the grid
         setup: function() {
             collisionGrid.version++;
-            sx = Math.round(window.snake.xx);
-            sy = Math.round(window.snake.yy);
+            var sx = Math.round(window.snake.xx);
+            var sy = Math.round(window.snake.yy);
             sx = sx - (sx % collisionGrid.cellSize);
             sy = sy - (sy % collisionGrid.cellSize);
 
@@ -556,7 +557,7 @@ g
 
             collisionGrid.snakeAggressors = [];
 
-            var myX = window.snake.xx;;
+            var myX = window.snake.xx;
             var myY = window.snake.yy;
 
             var lastAlive = 0;
