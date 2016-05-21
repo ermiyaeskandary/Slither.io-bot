@@ -50,7 +50,7 @@ var canvas = (function() {
             x: window.mc.width / window.ww,
             y: window.mc.height / window.hh
         },
-        
+
         /*
         window.getWidth = function() {
             return window.ww;
