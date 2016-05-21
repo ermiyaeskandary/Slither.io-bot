@@ -66,23 +66,21 @@ var canvas = (function() {
         };
         window.getScale: function() {
             return window.gsc;
-        },
-        
-        */
+        }, */
 
         /* Coordinates
         --- Screen coordinates ---
             X = 0 -> WindowWidth
             Y = 0 -> WindowHeight
-        
+
         --- Mouse Coordinates ----
             X = -Width  -> snake.xx -> Width
             Y = -Height -> snake.yy -> Height
-        
+
         --- Map Coordinates ------
             X = 0 -> MapWidth
             Y = 0 -> MapHeight
-        
+
         --- Canvas Coordinates ---
             X = 0 -> CanvasWidth
             Y = 0 -> CanvasHeight
@@ -214,9 +212,9 @@ var canvas = (function() {
         // Draw a rectangle
         drawRect: function(x, y, width, height, color, alpha) {
             if (alpha === undefined) alpha = 1;
-            
+
             var context = window.mc.getContext('2d');
-            
+
             context.save();
             context.globalAlpha = alpha;
             context.beginPath();
@@ -232,9 +230,9 @@ var canvas = (function() {
         // @param {bool} danger -- green if false, red if true
         drawAngle: function(start, angle, danger, alpha) {
             if (alpha === undefined) alpha = 0.6;
-            
+
             var context = window.mc.getContext('2d');
-            
+
             context.save();
             context.globalAlpha = alpha;
             context.beginPath();
@@ -352,11 +350,11 @@ var canvas = (function() {
             dir.len = len;
             return dir;
         },
-        
+
         // relativeAngle
         getRelativeAngle: function(from, to) {
             var norm = canvas.getNormalVector(from, to);
-            norm.dot = norm.x*bot.heading.x + norm.y*bot.heading.y;
+            norm.dot = norm.x * bot.heading.x + norm.y * bot.heading.y;
             return norm;
         },
 
@@ -400,7 +398,7 @@ var bot = (function() {
         followLine: 0,
         behaviorData: {
             foodTarget: 0,
-            followTime :0,
+            followTime: 0,
             followCoordinates: {x: 0, y: 0},
             goalCoordinates: {x: 0, y: 0},
             aggressor: 0
