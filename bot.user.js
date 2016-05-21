@@ -399,11 +399,11 @@ var bot = (function() {
         radarResults: [],
         followLine: 0,
         behaviorData: {
-            foodTarget:0,
-            followTime:0,
-            followCoordinates:{x:0,y:0},
-            goalCoordinates:{x:0,y:0},
-            aggressor:0
+            foodTarget: 0,
+            followTime :0,
+            followCoordinates: {x: 0, y: 0},
+            goalCoordinates: {x: 0, y: 0},
+            aggressor: 0
         },
 
         startBot: function() {
@@ -442,7 +442,7 @@ var bot = (function() {
             window.setAcceleration(0); // Stop boosting
             // Re-enable the original onmousemove function
             window.onmousemove = original_onmousemove;
-            
+
             window.log('Stopping Bot.');
             bot.isBotRunning = false;
             // Update the HUD
@@ -542,12 +542,12 @@ var bot = (function() {
             if( window.visualDebugging ) {
                 var curpos = window.getPos();
 
-                canvasPosA = {
+                var canvasPosA = {
                     x: curpos.x,
                     y: curpos.y,
                     radius: 1
                 };
-                canvasPosB = {
+                var canvasPosB = {
                     x: curpos.x + bot.heading.x*100,
                     y: curpos.y + bot.heading.y*100,
                     radius: 1
@@ -613,7 +613,7 @@ var userInterface = (function() {
         },
 
         // Preserve highscore
-        saveScore: function() {document.getElementById("lastscore")
+        saveScore: function() {
             // Check if the lastscore was set
             if (document.getElementById('lastscore').childNodes.length > 1) {
                 // Check for excisting highscore, if not, use 1 (because minimum length)
@@ -640,10 +640,10 @@ var userInterface = (function() {
                 userInterface.scores.push(lastScore);
                 // Sort the scores in descending order
                 userInterface.scores.sort(function(a, b) { return b - a; });
-                
+
                 // Show the scores on screen
                 userInterface.showScores();
-                
+
                 /* Maybe we should use a 2d array to store the moment and bot version
                 var today = new Date();
                 var dd = today.getDate();
@@ -666,7 +666,7 @@ var userInterface = (function() {
         // https://github.com/j-c-m/Slither.io-bot/blob/1dd9dd3/bot.user.js#L1036
         showScores: function() {
             var scoresOverlay;
-            
+
             if (userInterface.scores.length === 0) {
                 scoresOverlay = 'There aren\'t any scores yet,<br>go play!';
             } else {
@@ -681,7 +681,7 @@ var userInterface = (function() {
                     scoresOverlay += '<br>' + (i + 1) + '. ' + userInterface.scores[i];
                 }
             }
-            
+
             window.scores_overlay.innerHTML = window.spanstyle + scoresOverlay + '</span>';
         },
 
@@ -704,7 +704,7 @@ var userInterface = (function() {
                 if (nsidivs[i].style.top === '4px' && nsidivs[i].style.width === '300px') {
                     nsidivs[i].style.visibility = 'hidden';
                     nsidivs[i].style.zIndex = -1;
-                    //bot.isTopHidden = true;
+                    // bot.isTopHidden = true;
                 }
             }
         },
@@ -818,7 +818,8 @@ var userInterface = (function() {
                         "</td><td>" + userInterface.scores[i][2] + "</td></tr>";
                     }
                     tekst += "</table>";
-                    var scores_window = window.open('/', 'Your personal highscores', 'width=300,height=300');
+                    var scores_window = window.open('/',
+                        'Your personal highscores', 'width=300,height=300');
                     scores_window.document.write(tekst);
                 } */
                 userInterface.onPrefChange(); // Update the bot status
