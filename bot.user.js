@@ -845,7 +845,7 @@ var userInterface = (function() {
         oefTimer: function() {
             // Original slither.io oefTimer function + whatever is under it
             // requestAnimationFrame(window.loop);
-            original_oefTimer());
+            original_oefTimer();
             if (bot.isBotRunning) window.loop();
             userInterface.onFrameUpdate();
         },
