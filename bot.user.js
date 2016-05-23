@@ -560,12 +560,11 @@ var bot = (function() {
 })();
 
 var userInterface = (function() {
-    // Save the original slither.io functions so we can modify them, or reenable them later.
-    var original_oef = window.oef;
-    // As well as event listeners
+    // Save the original event listeners so we can reenable them later.
     var original_keydown = document.onkeydown;
     // eslint-disable-next-line no-unused-vars
     var original_onmouseDown = window.onmousedown;
+    // As well as the original slither.io game functions so we can modify them
     var original_oef = window.oef;
     var original_redraw = window.redraw;
 
@@ -1050,13 +1049,6 @@ window.sosBackup = sos;
 
     // Pref display
     userInterface.onPrefChange();
-
-    // Modify the redraw()-function to remove the zoom altering code.
-    var original_redraw = window.redraw.toString();
-    var new_redraw = original_redraw.replace(
-        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
-    window.redraw = new Function(new_redraw.substring(
-        new_redraw.indexOf('{') + 1, new_redraw.lastIndexOf('}')));
 
     // Hand over existing event listeners
     document.onkeydown = userInterface.onkeydown;
