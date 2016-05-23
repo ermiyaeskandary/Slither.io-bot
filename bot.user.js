@@ -576,7 +576,18 @@ var userInterface = (function() {
     var original_keydown = document.onkeydown;
     // eslint-disable-next-line no-unused-vars
     var original_onmouseDown = window.onmousedown;
-    var original_oefTimer = window.oefTimer;
+    var original_oef = window.oef;
+    var original_redraw = window.redraw;
+
+    window.oef = function() {};
+    window.redraw = function() {};
+
+    // Modify the redraw()-function to remove the zoom altering code.
+    var original_redraw_string = original_redraw.toString();
+    var new_redraw_string = original_redraw_string.replace(
+        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
+    var new_redraw = new Function(new_redraw_string.substring(
+        new_redraw_string.indexOf('{') + 1, new_redraw_string.lastIndexOf('}')));
 
     return {
         // Save variable to local storage
@@ -843,9 +854,10 @@ var userInterface = (function() {
         },
 
         oefTimer: function() {
-            // Original slither.io oefTimer function + whatever is under it
+            // Original slither.io oef function + whatever is under it
             // requestAnimationFrame(window.loop);
-            original_oefTimer();
+            original_oef();
+            new_redraw();
             if (bot.isBotRunning) window.loop();
             userInterface.onFrameUpdate();
         },
@@ -986,17 +998,10 @@ window.sosBackup = sos;
     window.onmousedown = userInterface.onmousedown;
     window.onresize = userInterface.onresize;
     // Hand over existing game function
-    window.oefTimer = userInterface.oefTimer;
+    // window.oef = userInterface.oef;
 
     // Apply previous mobile rendering status.
     canvas.mobileRendering();
-
-    // Modify the redraw()-function to remove the zoom altering code.
-    var original_redraw = window.redraw.toString();
-    var new_redraw = original_redraw.replace(
-        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
-    window.redraw = new Function(new_redraw.substring(
-        new_redraw.indexOf('{') + 1, new_redraw.lastIndexOf('}')));
 
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
@@ -1006,5 +1011,6 @@ window.sosBackup = sos;
 
     // Start!
     bot.launchBot();
-    window.startInterval = setInterval(bot.startBot, 1000);
+    setInterval(bot.startBot, 1000);
+    setInterval(userInterface.oefTimer, 30);
 })();
