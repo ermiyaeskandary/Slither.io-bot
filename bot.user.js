@@ -582,6 +582,13 @@ var userInterface = (function() {
     window.oef = function() {};
     window.redraw = function() {};
 
+    // Modify the redraw()-function to remove the zoom altering code.
+    var original_redraw_string = original_redraw.toString();
+    var new_redraw_string = original_redraw_string.replace(
+        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
+    var new_redraw = new Function(new_redraw_string.substring(
+        new_redraw_string.indexOf('{') + 1, new_redraw_string.lastIndexOf('}')));
+
     return {
         // Save variable to local storage
         savePreference: function(item, value) {
@@ -850,7 +857,7 @@ var userInterface = (function() {
             // Original slither.io oef function + whatever is under it
             // requestAnimationFrame(window.loop);
             original_oef();
-            original_redraw();
+            new_redraw();
             if (bot.isBotRunning) window.loop();
             userInterface.onFrameUpdate();
         },
@@ -995,13 +1002,6 @@ window.sosBackup = sos;
 
     // Apply previous mobile rendering status.
     canvas.mobileRendering();
-
-    // Modify the redraw()-function to remove the zoom altering code.
-    var original_redraw = window.redraw.toString();
-    var new_redraw = original_redraw.replace(
-        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
-    window.redraw = new Function(new_redraw.substring(
-        new_redraw.indexOf('{') + 1, new_redraw.lastIndexOf('}')));
 
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
