@@ -577,6 +577,10 @@ var userInterface = (function() {
     // eslint-disable-next-line no-unused-vars
     var original_onmouseDown = window.onmousedown;
     var original_oef = window.oef;
+    var original_redraw = window.redraw;
+
+    window.oef = function() {};
+    window.redraw = function() {};
 
     return {
         // Save variable to local storage
@@ -842,10 +846,11 @@ var userInterface = (function() {
             }*/
         },
 
-        oef: function() {
+        oefTimer: function() {
             // Original slither.io oef function + whatever is under it
             // requestAnimationFrame(window.loop);
             original_oef();
+            original_redraw();
             if (bot.isBotRunning) window.loop();
             userInterface.onFrameUpdate();
         },
@@ -986,7 +991,7 @@ window.sosBackup = sos;
     window.onmousedown = userInterface.onmousedown;
     window.onresize = userInterface.onresize;
     // Hand over existing game function
-    window.oef = userInterface.oef;
+    // window.oef = userInterface.oef;
 
     // Apply previous mobile rendering status.
     canvas.mobileRendering();
@@ -1006,5 +1011,6 @@ window.sosBackup = sos;
 
     // Start!
     bot.launchBot();
-    window.startInterval = setInterval(bot.startBot, 1000);
+    setInterval(bot.startBot, 1000);
+    setInterval(userInterface.oefTimer, 30);
 })();
