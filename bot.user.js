@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright (c) 2016 Ermiya Eskandary & Théophile Cailliau and other contributors
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -8,7 +8,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot A*
 // @namespace    http://slither.io/
-// @version      1.0.2
+// @version      0.9.7
 // @description  Slither.io bot A*
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -17,6 +17,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // var array = [{score: 1, date: Mar 12 2012 10:00:00 AM, version: x.y},...];
 window.scores = [];
+const TARGET_FPS = 30;
 
 // Custom logging function - disabled by default
 window.log = function() {
@@ -155,12 +156,20 @@ var canvas = (function() {
             // Scaling ratio
             if (window.gsc) {
                 window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
+                window.desired_gsc = window.gsc;
             }
         },
 
         // Restores zoom to the default value.
         resetZoom: function() {
             window.gsc = 0.9;
+            window.desired_gsc = 0.9;
+        },
+        // Maintains Zoom
+        maintainZoom: function() {
+            if (window.desired_gsc !== undefined) {
+                window.gsc = window.desired_gsc;
+            }
         },
 
         // Sets background to the given image URL.
@@ -433,11 +442,12 @@ var bot = (function() {
 
         launchBot: function() {
             window.log('Starting Bot.');
+
             bot.isBotRunning = true;
 
             //Initialize the collision grid
             collisionGrid.init(window.botsettings.collisionGridColumnCount, window.botsettings.collisionGridRowCount, window.botsettings.collisionCellSize);
-
+            userInterface.oefTimer();
             /*
              * Removed the onmousemove listener so we can move the snake
              * manually by setting coordinates
@@ -530,44 +540,7 @@ var bot = (function() {
                 bot.prevAng = window.snake.ang;
                 //console.log("Angle = " + window.snake.ang);
             }
-
-
         },
-
-        // Called by the window loop, this is the main logic of the bot.
-        thinkAboutGoals: function() {
-            // If no enemies or obstacles, go after what you are going after
-
-            bot.precalculate();
-            //window.setAcceleration(0);
-
-            // Save CPU by only calculating every Nth frame
-            //if (++bot.tickCounter >= 15) {
-            bot.tickCounter = 0;
-
-            collisionGrid.setup();
-
-            behaviors.run('snakebot', bot.behaviorData);
-
-            if( window.visualDebugging ) {
-                var curpos = window.getPos();
-
-                canvasPosA = canvas.mapToCanvas({
-                    x: curpos.x,
-                    y: curpos.y,
-                    radius: 1
-                });
-                canvasPosB = canvas.mapToCanvas({
-                    x: curpos.x + bot.heading.x*window.snake.sp*30,
-                    y: curpos.y + bot.heading.y*window.snake.sp*30,
-                    radius: 1
-                });
-
-                canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 2, 'yellow');
-            }
-            //bot.astarFoodFinder();
-        },
-
     };
 })();
 
@@ -578,7 +551,7 @@ var userInterface = (function() {
     var original_onmouseDown = window.onmousedown;
     var original_oef = window.oef;
     var original_redraw = window.redraw;
-    
+
     window.oef = function() {};
     window.redraw = function() {};
     return {
@@ -860,7 +833,7 @@ var userInterface = (function() {
                 userInterface.onPrefChange(); // Update the bot status
             }
         },
-or
+
         onmousedown: function(e) {
             e = e || window.event;
             original_onmouseDown(e);
@@ -944,14 +917,42 @@ or
                 }
             }*/
         },
-
-        oef: function() {
-            // Original slither.io oef function + whatever is under it
-            // requestAnimationFrame(window.loop);
-            original_oef();
-            new_redraw();
-            if (bot.isBotRunning) window.loop();
-            userInterface.onFrameUpdate();
+        // Called by the window loop, this is the main logic of the bot.
+        oefTimer: function() {
+                var start = Date.now();
+                canvas.maintainZoom();
+                original_redraw(); 
+                original_oef();
+            if (window.playing && bot.isBotEnabled && window.snake !== null) {
+                // If no enemies or obstacles, go after what you are going after
+                
+                bot.precalculate();
+                //window.setAcceleration(0);
+                
+                
+                collisionGrid.setup();
+                
+                behaviors.run('snakebot', bot.behaviorData);
+                
+                if( window.visualDebugging ) {
+                    var curpos = window.getPos();
+                
+                    canvasPosA = canvas.mapToCanvas({
+                        x: curpos.x,
+                        y: curpos.y,
+                        radius: 1
+                    });
+                    canvasPosB = canvas.mapToCanvas({
+                        x: curpos.x + bot.heading.x*window.snake.sp*30,
+                        y: curpos.y + bot.heading.y*window.snake.sp*30,
+                        radius: 1
+                    });
+                
+                    canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 2, 'yellow');
+                }
+                userInterface.onFrameUpdate();
+            }
+            setTimeout(userInterface.oefTimer, (1000 / TARGET_FPS) - (Date.now() - start));
         },
 
         // Quit to menu
@@ -988,6 +989,7 @@ window.loop = function() {
     // If the game and the bot are running
     if (window.playing && bot.isBotEnabled) {
         bot.ranOnce = true;
+        console.log("Hello")
         bot.thinkAboutGoals();
     } else {
         bot.stopBot();
@@ -1146,18 +1148,9 @@ window.sosBackup = sos;
     document.onkeydown = userInterface.onkeydown;
     window.onmousedown = userInterface.onmousedown;
     window.onresize = userInterface.onresize;
-    // Hand over existing game function
-    // window.oef = userInterface.oef;
 
     // Apply previous mobile rendering status.
     canvas.mobileRendering();
-
-    // Modify the redraw()-function to remove the zoom altering code.
-    var original_redraw_string = original_redraw.toString();
-    var new_redraw_string = original_redraw_string.replace(
-        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
-    var new_redraw = new Function(new_redraw_string.substring(
-        new_redraw_string.indexOf('{') + 1, new_redraw_string.lastIndexOf('}')));
 
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
@@ -1167,6 +1160,4 @@ window.sosBackup = sos;
 
     // Start!
     bot.launchBot();
-    setInterval(bot.startBot, 1000);
-    setInterval(userInterface.oefTimer, 30);
 })();
