@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot A*
 // @namespace    http://slither.io/
-// @version      1.1.3
+// @version      1.1.4
 // @description  Slither.io bot A*
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
