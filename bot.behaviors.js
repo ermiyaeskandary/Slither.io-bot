@@ -223,15 +223,8 @@ var behaviors = (function() {
 
         actionMoveToGoal: function(obj) {
             if (window.visualDebugging && bot.behaviorData.goalCoordinates) {
-                var headCoord = {
-                    x: window.snake.xx,
-                    y: window.snake.yy
-                };
-                canvas.drawLine(
-                    canvas.mapToCanvas(headCoord),
-                    canvas.mapToCanvas(bot.behaviorData.goalCoordinates),
-                    'green');
-
+                var headCoord = window.getPos();
+                canvas.drawLine(headCoord, bot.behaviorData.goalCoordinates, 'green');
                 canvas.drawCircle(bot.behaviorData.goalCoordinates, 'red', true);
             }
 
@@ -282,7 +275,7 @@ var behaviors = (function() {
             obj.surroundExitPos = collisionGrid.getCellByColRow(line.col,line.row);
 
             if( window.visualDebugging ) {
-
+                /*
                 var canvasPosA = canvas.mapToCanvas({
                     x: curpos.x,
                     y: curpos.y,
@@ -292,10 +285,8 @@ var behaviors = (function() {
                     x: obj.surroundExitPos.x,
                     y: obj.surroundExitPos.y,
                     radius: 1
-                });
-
-
-                canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 1, 'blue');
+                }); */
+                canvas.drawLine(curpos, obj.surroundExitPos, 'blue', 1);
             }
 
             obj.followCoordinates = {x: obj.surroundExitPos.x, y:obj.surroundExitPos.y};
