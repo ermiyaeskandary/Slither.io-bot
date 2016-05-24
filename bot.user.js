@@ -8,7 +8,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot A*
 // @namespace    http://slither.io/
-// @version      0.9.3
+// @version      0.9.4
 // @description  Slither.io bot A*
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -181,9 +181,13 @@ var canvas = (function() {
                     'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs'
                 );
                 window.render_mode = 1;
+                window.want_quality = 0;
+                window.high_quality = false;
             } else {
                 canvas.setBackground();
                 window.render_mode = 2;
+                window.want_quality = 1;
+                window.high_quality = true;
             }
         },
 
