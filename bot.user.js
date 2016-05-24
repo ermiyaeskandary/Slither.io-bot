@@ -8,7 +8,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot A*
 // @namespace    http://slither.io/
-// @version      0.9.8
+// @version      0.9.4
 // @description  Slither.io bot A*
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -410,7 +410,7 @@ var bot = (function() {
 
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled &&
-                bot.ranOnce && !bot.isBotRunning && window.snake !== null) {
+                bot.ranOnce && !bot.isBotRunning && window.snake !== null)) {
                 bot.connectBot();
                 /* The lastscore should be checked here in the future,
                 but not only when bot, just when not playing.

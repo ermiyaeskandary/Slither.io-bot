@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot A*
 // @namespace    http://slither.io/
-// @version      0.9.7
+// @version      0.9.3
 // @description  Slither.io bot A*
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -125,7 +125,7 @@ var behaviors = (function() {
 
         isSprintAllowed: function(obj) {
 
-            var isAlmostSurrouneded = (bot.radarResults && bot.radarResults.open.length > 0 && bot.radarResults.pct < window.botsettings.radarSurroundPercent);
+            var isAlmostSurrouneded = (bot.radarResults && bot.radarResults.open.length > 0 && bot.radarResults.pct < 0.30);
 
 
             if( obj.insidesnake ) {
@@ -143,14 +143,14 @@ var behaviors = (function() {
                 return;
             }
 
-            if( obj.foodTarget && obj.foodTarget.score > window.botsettings.foodHighQualityScore ) {
-                if( bot.radarResults && bot.radarResults.open.length > 0 && bot.radarResults.pct < window.botsettings.radarSurroundPercent ) {
+            if( obj.foodTarget && obj.foodTarget.score > 50 ) {
+                if( bot.radarResults && bot.radarResults.open.length > 0 && bot.radarResults.pct < 0.30 ) {
                     console.log("almost surrounded");
                     this.success();
                     return;
                 }
                 var v = canvas.getRelativeAngle(window.getPos(), obj.goalCoordinates);
-                if( v.dot >= window.botsettings.isFacingTargetAngle ) {
+                if( v.dot >= 0.5 ) {
                     this.success();
                     return;
                 }
@@ -197,7 +197,7 @@ var behaviors = (function() {
 
         isHighQualityFoodAvailable: function(obj) {
             if( collisionGrid.foodGroups.length ) {
-                if( collisionGrid.foodGroups[0].score > window.botsettings.foodHighQualityScore ) {
+                if( collisionGrid.foodGroups[0].score > 50 ) {
                     this.success();
                     return;
                 }
@@ -223,15 +223,8 @@ var behaviors = (function() {
 
         actionMoveToGoal: function(obj) {
             if (window.visualDebugging && bot.behaviorData.goalCoordinates) {
-                var headCoord = {
-                    x: window.snake.xx,
-                    y: window.snake.yy
-                };
-                canvas.drawLine(
-                    canvas.mapToCanvas(headCoord),
-                    canvas.mapToCanvas(bot.behaviorData.goalCoordinates),
-                    'green');
-
+                var headCoord = window.getPos();
+                canvas.drawLine(headCoord, bot.behaviorData.goalCoordinates, 'green');
                 canvas.drawCircle(bot.behaviorData.goalCoordinates, 'red', true);
             }
 
@@ -282,7 +275,7 @@ var behaviors = (function() {
             obj.surroundExitPos = collisionGrid.getCellByColRow(line.col,line.row);
 
             if( window.visualDebugging ) {
-
+                /*
                 var canvasPosA = canvas.mapToCanvas({
                     x: curpos.x,
                     y: curpos.y,
@@ -292,10 +285,8 @@ var behaviors = (function() {
                     x: obj.surroundExitPos.x,
                     y: obj.surroundExitPos.y,
                     radius: 1
-                });
-
-
-                canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 1, 'blue');
+                }); */
+                canvas.drawLine(curpos, obj.surroundExitPos, 'blue', 1);
             }
 
             obj.followCoordinates = {x: obj.surroundExitPos.x, y:obj.surroundExitPos.y};
@@ -396,7 +387,7 @@ var behaviors = (function() {
         isFollowingFood: function(obj) {
             var curtime = (new Date()).getTime();
             var diff = curtime - obj.followTime;
-            if( diff <= window.botsettings.foodFollowTime ) {
+            if( diff <= 5000 ) {
                 //console.log("Following FOOD!");
                 this.success();
                 return;
@@ -405,7 +396,7 @@ var behaviors = (function() {
         },
 
         isGoodFood: function(obj) {
-            if( obj.foodTarget && obj.foodTarget.score > window.botsettings.foodHighQualityScore ) {
+            if( obj.foodTarget && obj.foodTarget.score > 50 ) {
                 this.success();
                 return;
             }
@@ -416,7 +407,7 @@ var behaviors = (function() {
             //var relv = {x: curpos.x - obj.followCoordinates.x, y: curpos.y-obj.followCoordinates.y};
 
             var v = canvas.getRelativeAngle(window.getPos(), obj.goalCoordinates);
-            if( v.dot >= window.botsettings.isFacingTargetAngle ) {
+            if( v.dot >= 0.5 ) {
                 this.success();
                 return;
             }
@@ -426,7 +417,7 @@ var behaviors = (function() {
         isNearTarget: function(obj) {
             var curpos = window.getPos();
             var dist = canvas.getDistance2(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y);
-            if( dist < window.botsettings.isNearTargetDistance ) { //200 units
+            if( dist < 40000 ) { //200 units
                 this.success();
                 return;
             }
@@ -436,7 +427,7 @@ var behaviors = (function() {
         isReachedTarget: function(obj) {
             var curpos = window.getPos();
             var dist = canvas.getDistance2(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y);
-            if( dist < window.botsettings.isReachedTargetDistance ) { //50 units
+            if( dist < 10000 ) { //50 units
                 this.success();
                 return;
             }
@@ -459,7 +450,7 @@ var behaviors = (function() {
             obj.insidesnake = false;
 
             var aggressorCnt = collisionGrid.snakeAggressors.length;
-            var mindist = window.botsettings.isNearSnakeDistance;
+            var mindist = 22500;
 
             var curpos = window.getPos();
             var cell = collisionGrid.getCellByXY(curpos.x,curpos.y);
@@ -482,9 +473,9 @@ var behaviors = (function() {
             for(var i=0; i<aggressorCnt; i++) {
                 var aggressor = collisionGrid.snakeAggressors[i];
                 if( aggressor.snk.sp > 7 )
-                    mindist = window.botsettings.isNearSpeedSnakeDistance;
+                    mindist = 90000;
                 else
-                    mindist = window.botsettings.isNearSnakeDistance;
+                    mindist = 22500;
 
                 if( aggressor.snk.closest.distance2 < mindist ) {
                     obj.aggressor = aggressor;
@@ -498,7 +489,7 @@ var behaviors = (function() {
         },
 
         isAlmostSurrounded: function(obj) {
-            if( bot.radarResults && bot.radarResults.open.length > 0 && bot.radarResults.pct < window.botsettings.radarSurroundPercent ) {
+            if( bot.radarResults && bot.radarResults.open.length > 0 && bot.radarResults.pct < 0.30 ) {
                 console.log("almost surrounded");
                 this.success();
                 return;
@@ -528,13 +519,7 @@ var behaviors = (function() {
 
 
         isTargetBlockedBySnake: function(obj) {
-            var line = collisionGrid.lineTest(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y, TYPE_SNAKE);
-            if( line.node.type == TYPE_SNAKE )
-            {
-                this.success();
-                return;
-            }
-            /*
+            var line = collisionGrid.lineTest(curpos.x, curpos.y, obj.goalCoordinates.x, obj.goalCoordinates.y,TYPE_SNAKE);
             var linePos = collisionGrid.getCellByColRow(line.col,line.row);
             var collisionDist = canvas.getDistance2(curpos.x, curpos.y, linePos.x, linePos.y);
             if( collisionDist < 2500 ) {
@@ -545,10 +530,10 @@ var behaviors = (function() {
                 //window.goalCoordinates.x = curpos.x + dir.x;
                 //window.goalCoordinates.y = curpos.y + dir.y;
                 canvas.setMouseCoordinates(canvas.mapToMouse(obj.goalCoordinates));
-                //bot.stopFollowLine(0);
+                bot.stopFollowLine(0);
                 this.success();
                 return;
-            }*/
+            }
             this.fail();
         },
 

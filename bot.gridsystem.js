@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Slither.io-bot A*
 // @namespace    http://slither.io/
-// @version      0.9.7
+// @version      0.9.3
 // @description  Slither.io bot A*
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -67,7 +67,7 @@ var collisionHelper = (function() {
             var openCnt = 0;
 
             var direction, dir, x2, y2, result, dist;
-            var canvasPosA, canvasPosB, color;
+            var color;
             var linePos = 0;
             for(dir=0; dir<collisionHelper.unitTable.length; dir+=angleIncrement) {
                 direction = collisionHelper.unitTable[dir];
@@ -99,21 +99,22 @@ var collisionHelper = (function() {
 
 
                 if( window.visualDebugging && linePos != 0 ) {
-
-                    canvasPosA = canvas.mapToCanvas({
+                    /*
+                    var canvasPosA = canvas.mapToCanvas({
                         x: curpos.x,
                         y: curpos.y,
                         radius: 1
                     });
-                    canvasPosB = canvas.mapToCanvas({
+                    var canvasPosB = canvas.mapToCanvas({
                         x: linePos.x,
                         y: linePos.y,
                         radius: 1
-                    });
-
-                    color = (!result.node||result.node.type==TYPE_EMPTY) ? 'green' : ((result.node.type==TYPE_FOOD) ? 'blue' : 'red');
-                    if( color != 'green')
-                    canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 1, color);
+                    }); */
+                    color = (!result.node || result.node.type == TYPE_EMPTY) ? 'green' :
+                        ((result.node.type == TYPE_FOOD) ? 'blue' : 'red');
+                    if(color != 'green') {
+                        canvas.drawLine(curpos, linePos, color, 1);
+                    }
                 }
             }
 
@@ -230,7 +231,7 @@ var collisionGrid = (function() {
             for(var col=0; col<w; col++) {
                 collisionGrid.grid[col] = [];
                 for(var row=0; row<h; row++) {
-                    collisionGrid.grid[col][row] = new GridNode(col, row, window.botsettings.astarEmptyWeight, TYPE_EMPTY);
+                    collisionGrid.grid[col][row] = new GridNode(col, row, 1000, TYPE_EMPTY);
                 }
             }
         },
@@ -239,8 +240,8 @@ var collisionGrid = (function() {
         //Then add all the entities to the grid
         setup: function() {
             collisionGrid.version++;
-            sx = Math.round(window.getX());
-            sy = Math.round(window.getY());
+            var sx = Math.round(window.snake.xx);
+            var sy = Math.round(window.snake.yy);
             sx = sx - (sx % collisionGrid.cellSize);
             sy = sy - (sy % collisionGrid.cellSize);
 
@@ -252,7 +253,7 @@ var collisionGrid = (function() {
             collisionGrid.addSnakes();
             collisionGrid.addFood();
 g
-            bot.radarResults = collisionHelper.radarScan(window.botsettings.radarAngleIncrement,window.botsettings.radarDistance);
+            bot.radarResults = collisionHelper.radarScan(15,1000);
         },
 
 
@@ -343,7 +344,7 @@ g
         },
 
         markCellEmpty: function(node, weight) {
-            weight = weight || window.botsettings.astarEmptyWeight;
+            weight = weight || 1000;
             node.type = TYPE_EMPTY;
             node.weight = weight;
             //var node = collisionGrid.markCell(col, row, weight, TYPE_EMPTY);
@@ -352,7 +353,7 @@ g
 
         markCellFood: function(node, food) {
             node.type = TYPE_FOOD;
-            node.weight = food.sz*window.botsettings.astarFoodWeightMultiplier;
+            node.weight = -food.sz*2;
             //var node = collisionGrid.markCell(col, row, food.sz, TYPE_FOOD);
             node.items.push(food);
             return node;
@@ -367,7 +368,6 @@ g
         },
 
         drawCell: function(col, row, color) {
-
             if( !window.visualDebugging )
                 return;
 
@@ -381,9 +381,10 @@ g
             canvas.drawRect(
                 canvasPos.x,
                 canvasPos.y,
-                collisionGrid.cellSize * canvas.getScale(),
-                collisionGrid.cellSize * canvas.getScale(),
-                color);
+                collisionGrid.cellSize * window.gsc,
+                collisionGrid.cellSize * window.gsc,
+                color
+            );
         },
 
         addNeighbor: function(x, y, arr) {
@@ -425,8 +426,8 @@ g
             collisionGrid.foodGroups = [];
             foodHighQuality = [];
             var foodGroupIDs = {};
-            var foodGridSize = window.botsettings.foodGridSize;
-            var foodCellSize = window.botsettings.foodCellSize;
+            var foodGridSize = 10;
+            var foodCellSize = 100;
             var foodCellSizeHalf = foodCellSize / 2;
             var curpos = window.getPos();
             var center = collisionGrid.getCellByXY(curpos.x,curpos.y);
@@ -513,7 +514,7 @@ g
 
                     var v = canvas.getRelativeAngle(curpos, food);//{x:food.xx, y:food.yy});
 
-                    if( v.dot < window.botsettings.foodIgnoreAngle )
+                    if( v.dot < -0.7 )
                         continue;
 
                     tempGroup.push(foodgroup);
@@ -531,8 +532,8 @@ g
                     canvas.drawRect(
                         canvasPos.x,
                         canvasPos.y,
-                        foodCellSize * canvas.getScale(),
-                        foodCellSize * canvas.getScale(),
+                        foodCellSize * window.gsc,
+                        foodCellSize * window.gsc,
                         'rgba(0,255,0,0.25)');
 
                     canvas.drawText(canvasPos, 'white', "("+foodgroup.col+","+foodgroup.row+")"+foodgroup.score);
@@ -556,8 +557,8 @@ g
 
             collisionGrid.snakeAggressors = [];
 
-            var myX = window.getX();
-            var myY = window.getY();
+            var myX = window.snake.xx;
+            var myY = window.snake.yy;
 
             var lastAlive = 0;
             var deadCount = 0;
@@ -593,24 +594,24 @@ g
 
                 if( window.visualDebugging ) {
 
-                    canvasPosA = canvas.mapToCanvas({
+                    var canvasPosA = {
                         x: snk.xx,
                         y: snk.yy,
                         radius: 1
-                    });
-                    canvasPosB = canvas.mapToCanvas({
+                    };
+                    var canvasPosB = {
                         x: snk.xx + aggressor.heading.x*100,
                         y: snk.yy + aggressor.heading.y*100,
                         radius: 1
-                    });
+                    };
 
-                    canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 2, 'yellow');
+                    canvas.drawLine(canvasPosA, canvasPosB, 'yellow', 2);
                 }
 
                 //create collision for the snake head
                 if( snk.xx > collisionGrid.startX && snk.xx < collisionGrid.endX &&
                     snk.yy > collisionGrid.startY && snk.yy < collisionGrid.endY) {
-                    threat = collisionGrid.setupSnakeThreatRadius(snk,window.botsettings.collisionSnakeHeadSizeMultiplier);
+                    threat = collisionGrid.setupSnakeThreatRadius(snk,2);
                     collisionGrid.snakePartBounds(snk,snk,threat);
                 }
 
@@ -674,10 +675,10 @@ g
 
         //generate different radius for the snake
         setupSnakeThreatRadius: function(snk, sizemultiplier) {
-            sizemultiplier = sizemultiplier || window.botsettings.collisionSnakePartSizeMultiplier;
+            sizemultiplier = sizemultiplier || 1.2;
             threatLevels = {};
             threatLevels.radius = window.getSnakeWidth(snk.sc);
-            threatLevels.radius = Math.max(threatLevels.radius, window.botsettings.collisionSnakePartMinimumSize) * sizemultiplier;
+            threatLevels.radius = Math.max(threatLevels.radius, 30) * sizemultiplier;
             threatLevels.t1 = collisionGrid.calculateMaxCellCount(threatLevels.radius);
             threatLevels.tt1 = threatLevels.t1*2;
             threatLevels.t2 = collisionGrid.calculateMaxCellCount(threatLevels.radius * 4);
