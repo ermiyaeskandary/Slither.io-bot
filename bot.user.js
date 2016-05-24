@@ -486,9 +486,13 @@ var bot = (function() {
             window.dead_mtm = 0;
             window.login_fr = 0;
             bot.forceConnect();
-            if (!bot.isBotRunning) {
+            if (bot.isBotRunning) {
                 bot.launchBot();
+                bot.isBotRunning = false;
                 bot.isBotEnabled = true;
+            } else {
+                bot.stopBot();
+                bot.isBotEnabled = false;
             }
         },
 
