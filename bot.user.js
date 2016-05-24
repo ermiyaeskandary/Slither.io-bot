@@ -1147,7 +1147,7 @@ window.sosBackup = sos;
     window.onmousedown = userInterface.onmousedown;
     window.onresize = userInterface.onresize;
     // Hand over existing game function
-    window.oef = userInterface.oef;
+    // window.oef = userInterface.oef;
 
     // Apply previous mobile rendering status.
     canvas.mobileRendering();
