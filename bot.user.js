@@ -8,16 +8,12 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot A*
 // @namespace    http://slither.io/
-// @version      0.9.7
+// @version      0.9.8
 // @description  Slither.io bot A*
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
 // @grant        none
 // ==/UserScript==
-
-// var array = [{score: 1, date: Mar 12 2012 10:00:00 AM, version: x.y},...];
-window.scores = [];
-const TARGET_FPS = 30;
 
 // Custom logging function - disabled by default
 window.log = function() {
@@ -25,27 +21,17 @@ window.log = function() {
         console.log.apply(console, arguments);
     }
 };
-window.getWidth = function() {
-    return window.ww;
-};
-window.getHeight = function() {
-    return window.hh;
-};
-window.getX = function() {
-    return window.snake.xx;
-};
-window.getY = function() {
-    return window.snake.yy;
-};
 
 window.getPos = function() {
-    return {x:window.getX(), y:window.getY()};
+    return {
+        x: window.snake.xx,
+        y: window.snake.yy
+    };
 };
 
 window.getSnakeLength = function() {
-    return (Math.floor(150 * (window.fpsls[window.snake.sct] + window.snake
-        .fam /
-        window.fmlts[window.snake.sct] - 1) - 50) / 10);
+    return (Math.floor(150 * (window.fpsls[window.snake.sct] +
+        window.snake.fam / window.fmlts[window.snake.sct] - 1) - 50) / 10);
 };
 window.getSnakeWidth = function(sc) {
     sc = sc || window.snake.sc;
@@ -60,29 +46,45 @@ window.getSnakeWidthSqr = function(sc) {
 var canvas = (function() {
     return {
         // Ratio of screen size divided by canvas size.
-        canvasRatio: [window.mc.width / window.ww, window.mc.height /
-            window.hh
-        ],
-
-        getScale: function() {
-            return window.gsc;
+        canvasRatio: {
+            x: window.mc.width / window.ww,
+            y: window.mc.height / window.hh
         },
 
-        //Screen coordinates
-        // X = (0->WindowWidth)
-        // Y = (0->WindowHeight)
-        //
-        //Mouse Coordinates
-        // X = -Width  -> snake.xx -> Width
-        // Y = -Height -> snake.yy -> Height
-        //
-        //Map Coordinates
-        // X = 0 -> MapWidth
-        // Y = 0 -> MapHeight
-        //
-        //Canvas Coordinates
-        // X = 0 -> CanvasWidth
-        // Y = 0 -> CanvasHeight
+        /*
+        window.getWidth = function() {
+            return window.ww;
+        };
+        window.getHeight = function() {
+            return window.hh;
+        };
+        window.getX = function() {
+            return window.snake.xx;
+        };
+        window.getY = function() {
+            return window.snake.yy;
+        };
+        window.getScale: function() {
+            return window.gsc;
+        }, */
+
+        /* Coordinates
+        --- Screen coordinates ---
+            X = 0 -> WindowWidth
+            Y = 0 -> WindowHeight
+
+        --- Mouse Coordinates ----
+            X = -Width  -> snake.xx -> Width
+            Y = -Height -> snake.yy -> Height
+
+        --- Map Coordinates ------
+            X = 0 -> MapWidth
+            Y = 0 -> MapHeight
+
+        --- Canvas Coordinates ---
+            X = 0 -> CanvasWidth
+            Y = 0 -> CanvasHeight
+        */
 
         // Spoofs moving the mouse to the provided coordinates.
         setMouseCoordinates: function(point) {
@@ -102,10 +104,10 @@ var canvas = (function() {
 
         // Convert screen coordinates to canvas coordinates.
         screenToCanvas: function(point) {
-            var canvasX = window.csc * (point.x * canvas.canvasRatio[
-                0]) - parseInt(window.mc.style.left);
-            var canvasY = window.csc * (point.y * canvas.canvasRatio[
-                1]) - parseInt(window.mc.style.top);
+            var canvasX = window.csc *
+                (point.x * canvas.canvasRatio.x) - parseInt(window.mc.style.left);
+            var canvasY = window.csc *
+                (point.y * canvas.canvasRatio.y) - parseInt(window.mc.style.top);
             return {
                 x: canvasX,
                 y: canvasY
@@ -156,20 +158,12 @@ var canvas = (function() {
             // Scaling ratio
             if (window.gsc) {
                 window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
-                window.desired_gsc = window.gsc;
             }
         },
 
         // Restores zoom to the default value.
         resetZoom: function() {
             window.gsc = 0.9;
-            window.desired_gsc = 0.9;
-        },
-        // Maintains Zoom
-        maintainZoom: function() {
-            if (window.desired_gsc !== undefined) {
-                window.gsc = window.desired_gsc;
-            }
         },
 
         // Sets background to the given image URL.
@@ -187,22 +181,18 @@ var canvas = (function() {
                     'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs'
                 );
                 window.render_mode = 1;
+                window.want_quality = 0;
+                window.high_quality = false;
             } else {
                 canvas.setBackground();
                 window.render_mode = 2;
+                window.want_quality = 1;
+                window.high_quality = true;
             }
         },
 
-        drawText: function(pos, color, txt) {
-            var context = window.mc.getContext('2d');
-            context.font = "10px Arial";
-            context.fillStyle = color;
-            context.fillText(txt,pos.x, pos.y);
-
-            //context.fill();
-        },
         // Draw a circle on the canvas.
-        drawCircle: function(circle, colour, fill, alpha) {
+        drawCircle: function(circle, color, fill, alpha) {
             if (alpha === undefined) alpha = 1;
             if (circle.radius === undefined) circle.radius = 5;
 
@@ -212,83 +202,82 @@ var canvas = (function() {
             context.save();
             context.globalAlpha = alpha;
             context.beginPath();
-            context.strokeStyle = colour;
+            context.strokeStyle = color;
             context.arc(drawCircle.x, drawCircle.y, drawCircle.radius,
                 0, Math.PI * 2);
             context.stroke();
             if (fill) {
-                context.fillStyle = colour;
+                context.fillStyle = color;
                 context.fill();
             }
             context.restore();
         },
 
         // Draw a rectangle
-        drawRect: function(x, y, width, height, color) {
+        drawRect: function(x, y, width, height, color, alpha) {
+            if (alpha === undefined) alpha = 1;
+
             var context = window.mc.getContext('2d');
+
+            context.save();
+            context.globalAlpha = alpha;
             context.beginPath();
             context.rect(x, y, width, height);
             context.fillStyle = color;
             context.fill();
+            context.restore();
         },
 
         // Draw an angle.
         // @param {number} start -- where to start the angle
         // @param {number} angle -- width of the angle
         // @param {bool} danger -- green if false, red if true
-        drawAngle: function(start, angle, danger) {
+        drawAngle: function(start, angle, danger, alpha) {
+            if (alpha === undefined) alpha = 0.6;
+
             var context = window.mc.getContext('2d');
+
             context.save();
-            context.globalAlpha = 0.6;
+            context.globalAlpha = alpha;
             context.beginPath();
-            context.moveTo(window.mc.width / 2, window.mc.height /
-                2);
+            context.moveTo(window.mc.width / 2, window.mc.height / 2);
             context.arc(window.mc.width / 2, window.mc.height / 2,
                 window.gsc * 100, start, angle);
-            context.lineTo(window.mc.width / 2, window.mc.height /
-                2);
+            context.lineTo(window.mc.width / 2, window.mc.height / 2);
             context.closePath();
             context.fillStyle = (danger) ? 'red' : 'green';
             context.fill();
-            //context.stroke();
             context.restore();
         },
 
         // Draw a line on the canvas.
-        drawLine: function(p1, p2, colour, width) {
+        // context.strokeStyle = (color === 'green') ? '#00FF00' : '#FF0000';
+        drawLine: function(p1, p2, color, width) {
             if (width === undefined) width = 5;
+
             var context = window.mc.getContext('2d');
+            var dp1 = canvas.mapToCanvas(p1);
+            var dp2 = canvas.mapToCanvas(p2);
+
             context.save();
             context.beginPath();
             context.lineWidth = width * window.gsc;
-            context.strokeStyle = colour;
-            context.moveTo(p1.x, p1.y);
-            context.lineTo(p2.x, p2.y);
+            context.strokeStyle = color;
+            context.moveTo(dp1.x, dp1.y);
+            context.lineTo(dp2.x, dp2.y);
             context.stroke();
             context.restore();
-        },
-
-        // Draw a line on the canvas.
-        drawLine2: function(x1, y1, x2, y2, width, colour) {
-            var context = window.mc.getContext('2d');
-            context.beginPath();
-            context.lineWidth = width * canvas.getScale();
-            context.strokeStyle = (colour === 'green') ? '#00FF00' : '#FF0000';
-            context.moveTo(x1, y1);
-            context.lineTo(x2, y2);
-            context.stroke();
-            context.lineWidth = 1;
         },
 
         // Check if a point is between two vectors.
         // The vectors have to be anticlockwise (sectorEnd on the left of sectorStart).
         isBetweenVectors: function(point, sectorStart, sectorEnd) {
-            var center = [window.snake.xx, window.snake.yy];
+            var center = window.getPos();
             if (point.xx) {
                 // Point coordinates relative to center
                 var relPoint = {
-                    x: point.xx - center[0],
-                    y: point.yy - center[1]
+                    x: point.xx - center.x,
+                    y: point.yy - center.y
                 };
                 return (!canvas.areClockwise(sectorStart, relPoint) &&
                     canvas.areClockwise(sectorEnd, relPoint));
@@ -309,8 +298,7 @@ var canvas = (function() {
                 y: Math.sin(endAngle)
             };
             // Use isBetweenVectors to check if the point belongs to the angle
-            return canvas.isBetweenVectors(point, startAngleVector,
-                endAngleVector);
+            return canvas.isBetweenVectors(point, startAngleVector, endAngleVector);
         },
 
         /*
@@ -319,19 +307,10 @@ var canvas = (function() {
          */
         areClockwise: function(vector1, vector2) {
             // Calculate the dot product.
-            return -vector1.x * vector2.y + vector1.y * vector2.x >
-                0;
+            return -vector1.x * vector2.y + vector1.y * vector2.x > 0;
         },
 
-        // Given an object (of which properties xx and yy are not null),
-        // return the object with an additional property 'distance'.
-        getDistanceFromSnake: function(point) {
-            point.distance = canvas.getDistance(window.snake.xx,
-                window.snake.yy,
-                point.xx, point.yy);
-            return point;
-        },
-
+        // Get distance
         getDistance: function(x1, y1, x2, y2) {
             var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(
                 y1 - y2, 2));
@@ -340,16 +319,32 @@ var canvas = (function() {
 
         // Get distance squared
         getDistance2: function(x1, y1, x2, y2) {
-            var distance2 = Math.pow(x1 - x2, 2) + Math.pow(y1 - y2,
-                2);
+            var distance2 = Math.pow(x1 - x2, 2) + Math.pow(
+                y1 - y2, 2);
             return distance2;
         },
 
-        // Get distance squared
+        // Given an object (of which properties xx and yy are not null),
+        // return the object with an additional property 'distance'.
+        getDistanceFromSnake: function(point) {
+            point.distance = canvas.getDistance(window.snake.xx,
+                window.snake.yy, point.xx, point.yy);
+            return point;
+        },
+
+        // Same as above, uses squared distance
+        getDistance2FromSnake: function(point) {
+            point.distance = canvas.getDistance2(window.snake.xx,
+                window.snake.yy, point.xx, point.yy);
+            return point;
+        },
+
+        // Get distance squared, NO IT IS NOT??? BTW: not used anymore
         getDotProduct: function(x1, y1, x2, y2) {
             return x1*x2 + y1*y2;
         },
 
+        // normalVector, necessary for getRelativeAngle()
         getNormalVector: function(from, to) {
             var dir = {x: to.x-from.x, y: to.y-from.y};
             var len = dir.x*dir.x + dir.y*dir.y;
@@ -360,6 +355,14 @@ var canvas = (function() {
             return dir;
         },
 
+        // relativeAngle
+        getRelativeAngle: function(from, to) {
+            var norm = canvas.getNormalVector(from, to);
+            norm.dot = norm.x * bot.heading.x + norm.y * bot.heading.y;
+            return norm;
+        },
+
+        // atan2, not used anymore?
         getAtan2: function(y, x) {
             const QPI = Math.PI / 4;
             const TQPI = 3 * Math.PI / 4;
@@ -382,20 +385,7 @@ var canvas = (function() {
             }
 
             return angle;
-        },
-
-        getRelativeAngle: function(from, to) {
-            var norm = canvas.getNormalVector(from, to);
-            norm.dot = norm.x*bot.heading.x + norm.y*bot.heading.y;
-            return norm;
-        },
-
-        getDistance2FromSnake: function(point) {
-            point.distance = canvas.getDistance2(window.snake.xx,
-                window.snake.yy,
-                point.xx, point.yy);
-            return point;
-        },
+        }
     };
 })();
 var bot = (function() {
@@ -410,24 +400,17 @@ var bot = (function() {
         currentPath: [],
         radarResults: [],
         followLine: 0,
-        behaviorData: {foodTarget:0, followTime:0, followCoordinates:{x:0,y:0}, goalCoordinates:{x:0,y:0}, aggressor:0 },
-
-        hideTop: function () {
-
-            var nsidivs = document.querySelectorAll('div.nsi');
-            for (var i = 0; i < nsidivs.length; i++) {
-                if (nsidivs[i].style.top === '4px' && nsidivs[i].style
-                    .width === '300px') {
-                    nsidivs[i].style.visibility = 'hidden';
-                    nsidivs[i].style.zIndex = -1;
-                    bot.isTopHidden = true;
-                }
-            }
+        behaviorData: {
+            foodTarget: 0,
+            followTime: 0,
+            followCoordinates: {x: 0, y: 0},
+            goalCoordinates: {x: 0, y: 0},
+            aggressor: 0
         },
 
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled &&
-                bot.ranOnce && !bot.isBotRunning) {
+                bot.ranOnce && !bot.isBotRunning && window.snake !== null) {
                 bot.connectBot();
                 /* The lastscore should be checked here in the future,
                 but not only when bot, just when not playing.
@@ -442,28 +425,30 @@ var bot = (function() {
 
         launchBot: function() {
             window.log('Starting Bot.');
-
             bot.isBotRunning = true;
-
-            //Initialize the collision grid
-            collisionGrid.init(window.botsettings.collisionGridColumnCount, window.botsettings.collisionGridRowCount, window.botsettings.collisionCellSize);
-            userInterface.oefTimer();
-            /*
-             * Removed the onmousemove listener so we can move the snake
-             * manually by setting coordinates
-             */
+            // Update the HUD
             userInterface.onPrefChange();
+
+            //if( collisionGrid.grid.length == 0 ) {
+                collisionGrid.init(100, 100, 30);
+            //}
+            /*
+             * Removed the onmousemove listener so we can
+             * move the snake manually by setting coordinates
+             */
             window.onmousemove = function() {};
-            bot.hideTop();
         },
 
         // Stops the bot
         stopBot: function() {
-            window.log('Stopping Bot.');
             window.setAcceleration(0); // Stop boosting
             // Re-enable the original onmousemove function
             window.onmousemove = original_onmousemove;
+
+            window.log('Stopping Bot.');
             bot.isBotRunning = false;
+            // Update the HUD
+            userInterface.onPrefChange();
         },
 
         // Connects the bot
@@ -471,9 +456,7 @@ var bot = (function() {
             if (!window.autoRespawn) return;
             bot.stopBot(); // Just in case
             window.log('Connecting...');
-
             window.connect();
-
 
             // Wait until we're playing to start the bot
             window.botCanStart = setInterval(function() {
@@ -508,6 +491,7 @@ var bot = (function() {
                 bot.isBotEnabled = true;
             }
         },
+
         changeSkin: function() {
             if (window.playing && window.snake !== null) {
                 var skin = window.snake.rcv;
@@ -541,20 +525,67 @@ var bot = (function() {
                 //console.log("Angle = " + window.snake.ang);
             }
         },
+
+        // Called by the window loop, this is the main logic of the bot.
+        thinkAboutGoals: function() {
+            // If no enemies or obstacles, go after what you are going after
+
+            bot.precalculate();
+            //window.setAcceleration(0);
+
+            // Save CPU by only calculating every Nth frame
+            //if (++bot.tickCounter >= 15) {
+            bot.tickCounter = 0;
+
+            collisionGrid.setup();
+
+            behaviors.run('snakebot', bot.behaviorData);
+
+            if( window.visualDebugging ) {
+                var curpos = window.getPos();
+
+                var canvasPosA = {
+                    x: curpos.x,
+                    y: curpos.y,
+                    radius: 1
+                };
+                var canvasPosB = {
+                    x: curpos.x + bot.heading.x*100,
+                    y: curpos.y + bot.heading.y*100,
+                    radius: 1
+                };
+
+                canvas.drawLine(canvasPosA, canvasPosB, 'yellow', 2);
+            }
+            //bot.astarFoodFinder();
+        },
+
     };
 })();
 
 var userInterface = (function() {
-    // Save the original slither.io functions so we can modify them, or reenable them later.
+    // Save the original event listeners so we can reenable them later.
     var original_keydown = document.onkeydown;
     // eslint-disable-next-line no-unused-vars
     var original_onmouseDown = window.onmousedown;
+    // As well as the original slither.io game functions so we can modify them
     var original_oef = window.oef;
     var original_redraw = window.redraw;
 
     window.oef = function() {};
     window.redraw = function() {};
+
+    // Modify the redraw()-function to remove the zoom altering code.
+    var original_redraw_string = original_redraw.toString();
+    var new_redraw_string = original_redraw_string.replace(
+        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
+    var new_redraw = new Function(new_redraw_string.substring(
+        new_redraw_string.indexOf('{') + 1, new_redraw_string.lastIndexOf('}')));
+
     return {
+        // var array = [{score: 1, date: Mar 12 2012 10:00:00 AM, version: x.y},...];
+        scores: [],
+
         // Save variable to local storage
         savePreference: function(item, value) {
             window.localStorage.setItem(item, value);
@@ -597,13 +628,13 @@ var userInterface = (function() {
         // Preserve highscore
         saveScore: function() {
             // Check if the lastscore was set
-            if (document.querySelector('div#lastscore').childNodes.length > 1) {
+            if (document.getElementById('lastscore').childNodes.length > 1) {
                 // Check for excisting highscore, if not, use 1 (because minimum length)
                 var highScore = parseInt(userInterface.loadPreference('highscore', 1));
                 window.log('HighScore: ' + highScore);
                 // Retrieve the last, current score
                 var lastScore = parseInt(
-                    document.querySelector('div#lastscore').childNodes[1].innerHTML);
+                    document.getElementById('lastscore').childNodes[1].innerHTML);
                 window.log('LastScore: ' + lastScore);
                 // Check if the current score is bigger than the highscore
                 if (lastScore > highScore) {
@@ -617,11 +648,54 @@ var userInterface = (function() {
                 // Display LastScore
                 window.lastscore_overlay.innerHTML = window.spanstyle +
                     'Your last score: ' + lastScore + '</span>';
-                /* This can be used in the future for multiple score
-                window.scores.push(parseInt(document.querySelector(
-                    'div#lastscore').childNodes[1].innerHTML)); */
+
+                // Push the last score in the array
+                userInterface.scores.push(lastScore);
+                // Sort the scores in descending order
+                userInterface.scores.sort(function(a, b) { return b - a; });
+
+                // Show the scores on screen
+                userInterface.showScores();
+
+                /* Maybe we should use a 2d array to store the moment and bot version
+                var today = new Date();
+                var dd = today.getDate();
+                if(dd<10) {
+                    dd='0'+dd;
+                }
+                var mm = today.getMonth()+1; //January is 0!
+                if(mm<10) {
+                    mm='0'+mm;
+                }
+                var yyyy = today.getFullYear();
+                today = mm+'/'+dd+'/'+yyyy;
+                // eslint-disable-next-line no-undef
+                userInterface.scores.push([lastScore, today, GM_info.script.version]);
+                userInterface.scores.sort(function(a, b) { return b[0] - a[0]; })*/
+            }
+        },
+
+        // Update scores overlay, based on code from @j-c-m, released under MIT License.
+        // https://github.com/j-c-m/Slither.io-bot/blob/1dd9dd3/bot.user.js#L1036
+        showScores: function() {
+            var scoresOverlay;
+
+            if (userInterface.scores.length === 0) {
+                scoresOverlay = 'There aren\'t any scores yet,<br>go play!';
+            } else {
+                var avg = Math.round(
+                    userInterface.scores.reduce(function(a, b) { return a + b; }) /
+                    (userInterface.scores.length));
+
+                scoresOverlay = 'games played: ' + userInterface.scores.length +
+                    '<br>avg score: ' + avg;
+
+                for (var i = 0; i < userInterface.scores.length && i < 10; i++) {
+                    scoresOverlay += '<br>' + (i + 1) + '. ' + userInterface.scores[i];
+                }
             }
 
+            window.scores_overlay.innerHTML = window.spanstyle + scoresOverlay + '</span>';
         },
 
         // Add interface elements to the page.
@@ -634,92 +708,18 @@ var userInterface = (function() {
             if (className) div.className = className;
             if (style) div.style = style;
             document.body.appendChild(div);
-            return div;
         },
 
-        appendSettings: function(parentElem) {
-
-             var h2 = document.createElement('h2');
-            h2.className = 'botSettingsHeader';
-            h2.innerHTML = 'Bot Configurable Settings';
-            parentElem.appendChild(h2);
-
-            var h6 = document.createElement('small');
-            h6.className = 'botSettingsInfo';
-            h6.innerHTML = 'Use Tab and Alt+Tab to navigate.  Save/Reset buttons are clickable.<br /><br />';
-            parentElem.appendChild(h6);
-
-            parentElem.style.width = "400px";
-
-            var cnt = 0;
-            for(var key in window.botsettings ) {
-                var value = window.botsettings[key];
-                var div = document.createElement('div');
-                div.style.float = "left";
-                div.className = 'botSettingsOption';
-                div.innerHTML = '<label style="margin-top:8px; font-size:11px; display:block;width:200px">' + key + "</label>" + '<input style="font-size:10px; background-color:#666; color:#ccc; height:16px; border:0; line-height:16px;" type="text" id="' + key + '" value="' + value + '">';
-                parentElem.appendChild(div);
-            }
-
-            var div = document.createElement('span');
-            div.className = 'botSaveSettings';
-            div.innerHTML = '<input style="margin-top:10px;" type="button" id="saveBotSettings" value="Save">';
-            div.onclick = userInterface.saveSettings;
-            parentElem.appendChild(div);
-
-            var div = document.createElement('span');
-            div.className = 'botResetSettings';
-            div.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input style="margin-top:10px;"  type="button" id="resetBotSettings" value="Defaults">';
-            div.onclick = userInterface.resetSettings;
-
-            parentElem.appendChild(div);
-
-        },
-
-        toggleSettings: function() {
-            window.toggleSettings = !window.toggleSettings;
-            console.log('Toggle settings set to: ' +
-                window.toggleSettings);
-
-            userInterface.showSettings(window.toggleSettings);
-        },
-
-        showSettings: function(show) {
-             var elem = document.getElementById('settings_overlay');
-            if( !elem ) return;
-
-            if( show ) {
-                elem.style.display = "none";
-            }
-            else {
-                elem.style.display = "block";
-            }
-        },
-
-        resetSettings: function() {
-            for(var key in window.botsettings ) {
-                var input = document.getElementById(key);
-                var value = input.value;
-                if( value != window.botsettings[key] ) {
-                    input.value = window.botsettings[key];
+        // Hide top score
+        hideTop: function() {
+            var nsidivs = document.querySelectorAll('div.nsi');
+            for (var i = 0; i < nsidivs.length; i++) {
+                if (nsidivs[i].style.top === '4px' && nsidivs[i].style.width === '300px') {
+                    nsidivs[i].style.visibility = 'hidden';
+                    nsidivs[i].style.zIndex = -1;
+                    // bot.isTopHidden = true;
                 }
             }
-        },
-
-        saveSettings: function() {
-            var shouldReloadGrid = false;
-            for(var key in window.botsettings ) {
-                var input = document.getElementById(key);
-                var value = input.value;
-                if( value != window.botsettings[key] ) {
-                    window.botsettings[key] = eval(value);
-                }
-                if( key.indexOf("collision") > -1 || key.indexOf("Grid") > -1 ) {
-                    collisionGrid.init(window.botsettings.collisionGridColumnCount, window.botsettings.collisionGridRowCount, window.botsettings.collisionCellSize);
-                }
-            }
-
-            userInterface.savePreference('botsettings', JSON.stringify(window.botsettings));
         },
 
         // Store FPS data
@@ -738,7 +738,9 @@ var userInterface = (function() {
                 return (1000 / this.frameTime).toFixed(0);
             }
         },
-
+        onmouseup: function() {
+            window.setAcceleration(0);
+        },
         onkeydown: function(e) {
             // Original slither.io onkeydown function + whatever is under it
             original_keydown(e);
@@ -768,7 +770,7 @@ var userInterface = (function() {
                     userInterface.savePreference('visualDebugging',
                         window.visualDebugging);
                 }
-                // Letter 'G' to toggle debugging (visual)
+                // Letter 'G' to toggle griddebugging (visual)
                 if (e.keyCode === 71) {
                     window.gridDebugging = !window.gridDebugging;
                     console.log('Grid debugging set to: ' +
@@ -776,15 +778,6 @@ var userInterface = (function() {
                     userInterface.savePreference('gridDebugging',
                         window.gridDebugging);
                 }
-                // Leter 'S'
-                if (e.keyCode === 83) {
-
-                    userInterface.toggleSettings();
-                    userInterface.savePreference('toggleSettings',
-                        window.toggleSettings);
-
-                }
-
                 // Letter 'I' to toggle autorespawn
                 if (e.keyCode === 73) {
                     window.autoRespawn = !window.autoRespawn;
@@ -801,6 +794,10 @@ var userInterface = (function() {
                     userInterface.savePreference('rotateskin',
                         window.rotateskin);
                     bot.rotateSkin();
+                }
+                // Letter 'X' to change skin
+                if (e.keyCode === 88) {
+                    bot.changeSkin();
                 }
                 // Letter 'O' to change rendermode (visual)
                 if (e.keyCode === 79) {
@@ -822,21 +819,29 @@ var userInterface = (function() {
                 if (e.keyCode === 27) {
                     bot.quickRespawn();
                 }
-                // Letter 'X' to change skin
-                if (e.keyCode === 88) {
-                    bot.changeSkin();
-                }
                 // Save nickname when you press "Enter"
                 if (e.keyCode === 13) {
                     userInterface.saveNick();
                 }
+                /*
+                if (e.keyCode === 66) {
+                    var tekst = "<table id='score'>" +
+                        "<tr><th>Score</th><th>Date</th><th>bot version</th></tr>";
+                    for (i = 0; i < userInterface.scores.length; i++) {
+                        tekst += "<tr><td>" + userInterface.scores[i][0] +
+                        "</td><td>" + userInterface.scores[i][1] +
+                        "</td><td>" + userInterface.scores[i][2] + "</td></tr>";
+                    }
+                    tekst += "</table>";
+                    var scores_window = window.open('/',
+                        'Your personal highscores', 'width=300,height=300');
+                    scores_window.document.write(tekst);
+                } */
                 userInterface.onPrefChange(); // Update the bot status
             }
         },
 
         onmousedown: function(e) {
-            e = e || window.event;
-            original_onmouseDown(e);
             if (window.playing) {
                 switch (e.which) {
                     // "Left click" to manually speed up the slither
@@ -853,25 +858,22 @@ var userInterface = (function() {
                             bot.launchBot();
                             bot.isBotEnabled = true;
                         }
+                        userInterface.onPrefChange(); // Update the bot status
                         break;
                 }
-                userInterface.onPrefChange(); // Update the bot status
             }
         },
 
         onPrefChange: function() {
             window.botstatus_overlay.innerHTML = window.spanstyle +
-                  '(T / Right Click) Bot: </span>' + userInterface.handleTextColor(
-                      bot.isBotRunning);
+                '(T / Right Click) Bot: </span>' + userInterface.handleTextColor(
+                    bot.isBotRunning);
             window.visualdebugging_overlay.innerHTML = window.spanstyle +
                 '(Y) Visual debugging: </span>' + userInterface.handleTextColor(
                     window.visualDebugging);
             window.grid_debugging_overlay.innerHTML = window.spanstyle +
                 '(G) Grid debugging: </span>' + userInterface.handleTextColor(
                     window.gridDebugging);
-            //window.toggle_settings_overlay.innerHTML = window.spanstyle +
-            //    '(S) Toggle Settings: </span>' + userInterface.handleTextColor(
-            //        window.toggleSettings);
             window.logdebugging_overlay.innerHTML = window.spanstyle +
                 '(U) Log debugging: </span>' + userInterface.handleTextColor(
                     window.logDebugging);
@@ -884,8 +886,6 @@ var userInterface = (function() {
             window.rendermode_overlay.innerHTML = window.spanstyle +
                 '(O) Mobile rendering: </span>' + userInterface.handleTextColor(
                     window.mobileRender);
-
-            userInterface.showSettings(window.toggleSettings);
         },
 
         onFrameUpdate: function() {
@@ -900,7 +900,8 @@ var userInterface = (function() {
                     ' Y: ' + (Math.round(window.snake.yy) || 0) +
                     '</span>';
             }
-/*
+
+            /*
             if (window.playing && window.visualDebugging && bot.isBotRunning) {
                 // Only draw the goal when a bot has a goal.
                 if (bot.behaviorData.goalCoordinates) {
@@ -908,51 +909,20 @@ var userInterface = (function() {
                         x: window.snake.xx,
                         y: window.snake.yy
                     };
-                    canvas.drawLine(
-                        canvas.mapToCanvas(headCoord),
-                        canvas.mapToCanvas(bot.behaviorData.goalCoordinates),
-                        'green');
+                    canvas.drawLine(headCoord, bot.behaviorData.goalCoordinates, 'green');
 
                     canvas.drawCircle(bot.behaviorData.goalCoordinates, 'red', true);
                 }
-            }*/
+            } */
         },
-        // Called by the window loop, this is the main logic of the bot.
+
         oefTimer: function() {
-                var start = Date.now();
-                canvas.maintainZoom();
-                original_redraw(); 
-                original_oef();
-            if (window.playing && bot.isBotEnabled && window.snake !== null) {
-                // If no enemies or obstacles, go after what you are going after
-                
-                bot.precalculate();
-                //window.setAcceleration(0);
-                
-                
-                collisionGrid.setup();
-                
-                behaviors.run('snakebot', bot.behaviorData);
-                
-                if( window.visualDebugging ) {
-                    var curpos = window.getPos();
-                
-                    canvasPosA = canvas.mapToCanvas({
-                        x: curpos.x,
-                        y: curpos.y,
-                        radius: 1
-                    });
-                    canvasPosB = canvas.mapToCanvas({
-                        x: curpos.x + bot.heading.x*window.snake.sp*30,
-                        y: curpos.y + bot.heading.y*window.snake.sp*30,
-                        radius: 1
-                    });
-                
-                    canvas.drawLine2(canvasPosA.x, canvasPosA.y, canvasPosB.x, canvasPosB.y, 2, 'yellow');
-                }
-                userInterface.onFrameUpdate();
-            }
-            setTimeout(userInterface.oefTimer, (1000 / TARGET_FPS) - (Date.now() - start));
+            // Original slither.io oef function + whatever is under it
+            // requestAnimationFrame(window.loop);
+            original_oef();
+            new_redraw();
+            if (bot.isBotRunning) window.loop();
+            userInterface.onFrameUpdate();
         },
 
         // Quit to menu
@@ -971,9 +941,10 @@ var userInterface = (function() {
         onresize: function() {
             window.resize();
             // Canvas different size from the screen (often bigger).
-            canvas.canvasRatio = [window.mc.width / window.ww,
-                window.mc.height / window.hh
-            ];
+            canvas.canvasRatio = {
+                x: window.mc.width / window.ww,
+                y: window.mc.height / window.hh
+            };
         },
 
         handleTextColor: function(enabled) {
@@ -989,7 +960,6 @@ window.loop = function() {
     // If the game and the bot are running
     if (window.playing && bot.isBotEnabled) {
         bot.ranOnce = true;
-        console.log("Hello")
         bot.thinkAboutGoals();
     } else {
         bot.stopBot();
@@ -1003,46 +973,6 @@ window.sosBackup = sos;
     // Load preferences
     userInterface.loadPreference('logDebugging', false);
     userInterface.loadPreference('visualDebugging', false);
-    userInterface.loadPreference('gridDebugging', false);
-    userInterface.loadPreference('toggleSettings', false);
-
-    var botSettingsDefaults = {
-        //performance variables
-        collisionGridColumnCount: 100,
-        collisionGridRowCount: 100,
-        collisionCellSize: 25,
-        radarDistance: 1000,
-        radarAngleIncrement: 10,
-        astarTries: 10000,
-        foodGridSize: 10,
-        foodCellSize: 100,
-
-        //smartness variables
-        astarFoodWeightMultiplier: -2,
-        astarEmptyWeight: 1000,
-        foodIgnoreAngle: -0.7,
-        isFacingTargetAngle: 0.5,
-        foodHighQualityScore: 2500,
-        foodFollowTime: 5000,
-        nearSnakeDistance: 22500,
-        radarSurroundPercent: .3,
-        isReachedTargetDistance: 2500,
-        isNearSpeedSnakeDistance: 90000,
-        isNearSnakeDistance: 22500,
-        collisionSnakeHeadSizeMultiplier: 2,
-        collisionSnakePartSizeMultiplier: 1.2,
-        collisionSnakePartMinimumSize: 30,
-    };
-
-    userInterface.loadPreference('botsettings', JSON.stringify(botSettingsDefaults));
-    window.botsettings = JSON.parse(window.botsettings);
-    //copy over new default values if they updated from older version
-    for( var key in window.botSettingsDefaults ) {
-        if( !window.botsettings[key] ) {
-            window.botsettings[key] = window.botSettingsDefaults[key];
-        }
-    }
-
     userInterface.loadPreference('autoRespawn', false);
     userInterface.loadPreference('mobileRender', false);
     userInterface.loadPreference('rotateskin', false);
@@ -1076,24 +1006,6 @@ window.sosBackup = sos;
         'left: 30; top: 170px;');
     userInterface.appendDiv('grid_debugging_overlay', 'nsi', window.generalstyle +
         'left: 30; top: 185px;');
-    var toggleOverlay = userInterface.appendDiv('toggle_settings_overlay', 'nsi', window.generalstyle +
-        'left: 30; top: 10px;');
-
-    var input = document.createElement("input");
-    input.id = "toggleSettingsButton";
-    input.value = "Toggle Settings";
-    input.type = "button";
-    input.style.background = "#666";
-    input.style.border = "0";
-    input.style.color = "#ccc";
-    input.style.padding = "10px";
-    input.onclick = userInterface.toggleSettings;
-    toggleOverlay.appendChild(input);
-
-    var settingsoverlay = userInterface.appendDiv('settings_overlay', 'nsi', window.generalstyle +
-        'right: 30px; top: 120px; z-index: 9999; display:none;');
-    userInterface.appendSettings(settingsoverlay);
-
     userInterface.appendDiv('quickResp_overlay', 'nsi', window.generalstyle +
         'left: 30; top: 285px;');
     userInterface.appendDiv('changeskin_overlay', 'nsi', window.generalstyle +
@@ -1112,6 +1024,8 @@ window.sosBackup = sos;
         'right: 30; bottom: 200px;');
     userInterface.appendDiv('lastscore_overlay', 'nsi', window.generalstyle +
         'right: 30; bottom: 220px;');
+    userInterface.appendDiv('scores_overlay', 'nsi', window.generalstyle +
+        'right: 30; bottom: 250px;');
 
     // Set static display options here.
     window.resetzoom_overlay.innerHTML = window.spanstyle +
@@ -1136,28 +1050,35 @@ window.sosBackup = sos;
     }
     // Since there is no last score the first time, do not show one
 
+    // Hide top score
+    userInterface.hideTop();
+
     // Pref display
     userInterface.onPrefChange();
 
+    // Hand over existing event listeners
+    
+    document.onkeydown = userInterface.onkeydown;
+    window.onmousedown = userInterface.onmousedown;
+    window.onresize = userInterface.onresize;
+    window.addEventListener('mouseup', userInterface.onmouseup);
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', canvas.setZoom);
     document.body.addEventListener('DOMMouseScroll', canvas.setZoom);
     // Listener for the play button
     window.play_btn.btnf.addEventListener('click', userInterface.playButtonClickListener);
-    // Hand over existing event listeners
-    document.onkeydown = userInterface.onkeydown;
-    window.onmousedown = userInterface.onmousedown;
-    window.onresize = userInterface.onresize;
 
     // Apply previous mobile rendering status.
     canvas.mobileRendering();
 
     // Unblocks all skins without the need for FB sharing.
-    window.localStorage.setItem('edttsg', '1');
+    userInterface.savePreference('edttsg', '1');
 
     // Remove social
     window.social.remove();
 
     // Start!
     bot.launchBot();
+    setInterval(bot.startBot, 1000);
+    setInterval(userInterface.oefTimer, 30);
 })();
