@@ -577,7 +577,10 @@ var userInterface = (function() {
     // eslint-disable-next-line no-unused-vars
     var original_onmouseDown = window.onmousedown;
     var original_oef = window.oef;
-
+    var original_redraw = window.redraw;
+    
+    window.oef = function() {};
+    window.redraw = function() {};
     return {
         // Save variable to local storage
         savePreference: function(item, value) {
@@ -857,7 +860,7 @@ var userInterface = (function() {
                 userInterface.onPrefChange(); // Update the bot status
             }
         },
-
+or
         onmousedown: function(e) {
             e = e || window.event;
             original_onmouseDown(e);
@@ -946,6 +949,7 @@ var userInterface = (function() {
             // Original slither.io oef function + whatever is under it
             // requestAnimationFrame(window.loop);
             original_oef();
+            new_redraw();
             if (bot.isBotRunning) window.loop();
             userInterface.onFrameUpdate();
         },
@@ -1149,11 +1153,11 @@ window.sosBackup = sos;
     canvas.mobileRendering();
 
     // Modify the redraw()-function to remove the zoom altering code.
-    var original_redraw = window.redraw.toString();
-    var new_redraw = original_redraw.replace(
+    var original_redraw_string = original_redraw.toString();
+    var new_redraw_string = original_redraw_string.replace(
         'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
-    window.redraw = new Function(new_redraw.substring(
-        new_redraw.indexOf('{') + 1, new_redraw.lastIndexOf('}')));
+    var new_redraw = new Function(new_redraw_string.substring(
+        new_redraw_string.indexOf('{') + 1, new_redraw_string.lastIndexOf('}')));
 
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
@@ -1163,5 +1167,6 @@ window.sosBackup = sos;
 
     // Start!
     bot.launchBot();
-    window.startInterval = setInterval(bot.startBot, 1000);
+    setInterval(bot.startBot, 1000);
+    setInterval(userInterface.oefTimer, 30);
 })();
