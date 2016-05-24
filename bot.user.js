@@ -734,7 +734,9 @@ var userInterface = (function() {
                 return (1000 / this.frameTime).toFixed(0);
             }
         },
-
+        onmouseup: function() {
+            window.setAcceleration(0);
+        },
         onkeydown: function(e) {
             // Original slither.io onkeydown function + whatever is under it
             original_keydown(e);
@@ -1051,10 +1053,11 @@ window.sosBackup = sos;
     userInterface.onPrefChange();
 
     // Hand over existing event listeners
+    
     document.onkeydown = userInterface.onkeydown;
     window.onmousedown = userInterface.onmousedown;
     window.onresize = userInterface.onresize;
-
+    window.addEventListener('mouseup', userInterface.onmouseup);
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', canvas.setZoom);
     document.body.addEventListener('DOMMouseScroll', canvas.setZoom);
