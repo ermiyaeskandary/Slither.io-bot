@@ -406,7 +406,7 @@ var bot = (function() {
 
         startBot: function() {
             if (window.autoRespawn && !window.playing && bot.isBotEnabled &&
-                bot.ranOnce && !bot.isBotRunning) {
+                bot.ranOnce && !bot.isBotRunning && window.snake !== null)) {
                 bot.connectBot();
                 /* The lastscore should be checked here in the future,
                 but not only when bot, just when not playing.
