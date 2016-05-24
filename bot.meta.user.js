@@ -7,14 +7,14 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name            Slither.io-bot A*
 // @namespace       http://slither.io/
-// @version         1.1.2
+// @version         1.1.3
 // @description     Slither.io bot A*
 // @author          Ermiya Eskandary & Théophile Cailliau
 // @match           http://slither.io/
 // @require         https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/btree-complete.js
-// @require         https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
-// @require         https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.astar.js
 // @require         https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.behaviors.js
+// @require         https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.astar.js
 // @require         https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.gridsystem.js
+// @require         https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
 // @grant           none
 // ==/UserScript==
