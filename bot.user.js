@@ -7,10 +7,13 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      1.1.5
+// @version      1.1.6
 // @description  Slither.io bot
-// @author       Ermiya Eskandary & Théophile Cailliau
+// @author       Ermiya Eskandary & Théophile Cailliau & Jesse Miller
 // @match        http://slither.io/
+// @updateURL    https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
+// @downloadURL  https://github.com/ErmiyaEskandary/Slither.io-bot/raw/master/bot.user.js
+// @supportURL   https://github.com/ErmiyaEskandary/Slither.io-bot/issues
 // @grant        none
 // ==/UserScript==
 
@@ -471,8 +474,8 @@ var bot = window.bot = (function () {
                 Math.round(sp.xx - window.snake.xx));
             var aIndex = bot.getAngleIndex(ang);
 
-            var actualDistance = Math.round(
-                sp.distance - (Math.pow(sp.radius, 2) / 2));
+            var actualDistance = Math.round(Math.pow(
+                Math.sqrt(sp.distance) - sp.radius, 2));
 
             if (bot.collisionAngles[aIndex] === undefined) {
                 bot.collisionAngles[aIndex] = {
@@ -605,8 +608,6 @@ var bot = window.bot = (function () {
 
         // Checks to see if you are going to collide with anything in the collision detection radius
         checkCollision: function (r) {
-            if (!window.collisionDetection) return false;
-
             r = Number(r);
             var xx = Number(window.snake.xx.toFixed(3));
             var yy = Number(window.snake.yy.toFixed(3));
@@ -761,8 +762,9 @@ var bot = window.bot = (function () {
             for (i = 0; i < foodClusters.length; i++) {
                 var aIndex = bot.getAngleIndex(foodClusters[i].a);
                 if (bot.collisionAngles[aIndex] === undefined ||
-                    (bot.collisionAngles[aIndex].distance - Math.pow(window.getSnakeWidth(), 2) >
-                        foodClusters[i].distance && foodClusters[i].sz > 10)
+                    (Math.sqrt(bot.collisionAngles[aIndex].distance) -
+                        window.getSnakeWidth() * 2.5 >
+                        Math.sqrt(foodClusters[i].distance) && foodClusters[i].sz > 10)
                 ) {
                     bot.currentFood = foodClusters[i];
                     return;
@@ -779,7 +781,8 @@ var bot = window.bot = (function () {
 
                 if (
                     bot.collisionAngles[aIndex] && bot.collisionAngles[aIndex].distance >
-                    bot.currentFood.distance * 2 && bot.currentFood.da < Math.PI / 3) {
+                    bot.currentFood.distance + window.getSnakeWidth() * 5
+                    && bot.currentFood.da < Math.PI / 3) {
                     return 1;
                 }
 
@@ -1021,12 +1024,6 @@ var userInterface = window.userInterface = (function () {
                 if (e.keyCode === 79) {
                     userInterface.toggleMobileRendering(!window.mobileRender);
                 }
-                // Letter 'C' to toggle Collision detection / enemy avoidance
-                if (e.keyCode === 67) {
-                    window.collisionDetection = !window.collisionDetection;
-                    console.log('collisionDetection set to: ' + window.collisionDetection);
-                    userInterface.savePreference('collisionDetection', window.collisionDetection);
-                }
                 // Letter 'A' to increase collision detection radius
                 if (e.keyCode === 65) {
                     window.collisionRadiusMultiplier++;
@@ -1136,7 +1133,6 @@ var userInterface = window.userInterface = (function () {
 
             oContent.push('version: ' + GM_info.script.version);
             oContent.push('[T] bot: ' + ht(bot.isBotEnabled));
-            oContent.push('[C] collision detection: ' + ht(window.collisionDetection));
             oContent.push('[O] mobile rendering: ' + ht(window.mobileRender));
             oContent.push('[A/S] radius multiplier: ' + window.collisionRadiusMultiplier);
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
@@ -1273,7 +1269,6 @@ var userInterface = window.userInterface = (function () {
     userInterface.loadPreference('visualDebugging', false);
     userInterface.loadPreference('autoRespawn', false);
     userInterface.loadPreference('mobileRender', false);
-    userInterface.loadPreference('collisionDetection', true);
     userInterface.loadPreference('collisionRadiusMultiplier', 10);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
