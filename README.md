@@ -48,8 +48,6 @@ I | Automatic Respawning
 **O** | **Mobile rendering - Try this if you experience lag**
 Z | Reset zoom
 ESC | Quick respawn
-X | Change skin
-W | Auto skin rotator
 Q | Quit to menu
 Mouse wheel | Zoom in/out
 
