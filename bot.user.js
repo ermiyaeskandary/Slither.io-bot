@@ -7,7 +7,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      1.1.5
+// @version      1.1.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -471,8 +471,8 @@ var bot = window.bot = (function () {
                 Math.round(sp.xx - window.snake.xx));
             var aIndex = bot.getAngleIndex(ang);
 
-            var actualDistance = Math.round(
-                sp.distance - (Math.pow(sp.radius, 2) / 2));
+            var actualDistance = Math.round(Math.pow(
+                Math.sqrt(sp.distance) - sp.radius, 2));
 
             if (bot.collisionAngles[aIndex] === undefined) {
                 bot.collisionAngles[aIndex] = {
@@ -761,8 +761,9 @@ var bot = window.bot = (function () {
             for (i = 0; i < foodClusters.length; i++) {
                 var aIndex = bot.getAngleIndex(foodClusters[i].a);
                 if (bot.collisionAngles[aIndex] === undefined ||
-                    (bot.collisionAngles[aIndex].distance - Math.pow(window.getSnakeWidth(), 2) >
-                        foodClusters[i].distance && foodClusters[i].sz > 10)
+                    (Math.sqrt(bot.collisionAngles[aIndex].distance) -
+                        window.getSnakeWidth() * 2.5 >
+                        Math.sqrt(foodClusters[i].distance) && foodClusters[i].sz > 10)
                 ) {
                     bot.currentFood = foodClusters[i];
                     return;
@@ -779,7 +780,8 @@ var bot = window.bot = (function () {
 
                 if (
                     bot.collisionAngles[aIndex] && bot.collisionAngles[aIndex].distance >
-                    bot.currentFood.distance * 2 && bot.currentFood.da < Math.PI / 3) {
+                    bot.currentFood.distance + window.getSnakeWidth() * 5
+                    && bot.currentFood.da < Math.PI / 3) {
                     return 1;
                 }
 
