@@ -7,7 +7,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      1.1.7
+// @version      1.1.8
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -1135,6 +1135,7 @@ var userInterface = window.userInterface = (function () {
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
             oContent.push('[U] log debugging: ' + ht(window.logDebugging));
+            oContent.push('[H] overlays');
             oContent.push('[Mouse Wheel] zoom');
             oContent.push('[Z] reset zoom');
             oContent.push('[ESC] quick respawn');
