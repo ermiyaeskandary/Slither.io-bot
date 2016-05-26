@@ -1052,7 +1052,9 @@ var userInterface = window.userInterface = (function () {
                 }
                 // Letter 'D' to quick toggle collision radius
                 if (e.keyCode === 68) {
-                    if (bot.opt.radiusMult > ((bot.opt.radiusAvoidSz - bot.opt.radiusApproachSz) / 2 + bot.opt.radiusApproachSz)) {
+                    if (bot.opt.radiusMult >
+                        ((bot.opt.radiusAvoidSz - bot.opt.radiusApproachSz)
+                        / 2 + bot.opt.radiusApproachSz)) {
                         bot.opt.radiusMult = bot.opt.radiusApproachSz;
                     } else {
                         bot.opt.radiusMult = bot.opt.radiusAvoidSz;
@@ -1149,7 +1151,8 @@ var userInterface = window.userInterface = (function () {
             oContent.push('[T / Right click] bot: ' + ht(bot.isBotEnabled));
             oContent.push('[O] mobile rendering: ' + ht(window.mobileRender));
             oContent.push('[A/S] radius multiplier: ' + bot.opt.radiusMult);
-            oContent.push('[D] toggle radius ' + bot.opt.radiusApproachSz + '/' + bot.opt.radiusAvoidSz);
+            oContent.push('[D] toggle radius ' +
+                bot.opt.radiusApproachSz + '/' + bot.opt.radiusAvoidSz);
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
             oContent.push('[U] log debugging: ' + ht(window.logDebugging));
