@@ -196,5 +196,13 @@
     "max-statements": 0,
     "no-bitwise": 1,
     "no-plusplus": 0,
+    "no-unneeded-ternary": 1,
+    "comma-spacing": 1
+  },
+  "globals": {
+    "GM_info" : true,
+    "bot" : true,
+    "canvas" : true,
+    "userInterface" : true
   }
 }
