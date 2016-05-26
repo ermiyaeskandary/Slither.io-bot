@@ -338,7 +338,11 @@ var bot = window.bot = (function () {
             // angle or higher where enemy heady is considered in the rear
             rearHeadA: 3 * Math.PI / 4,
             // attack emeny rear head at this angle
-            rearHeadDir: Math.PI / 2
+            rearHeadDir: Math.PI / 2,
+            // quick radius toggle size in approach mode
+            radiusApproachSz: 5,
+            // quick radius toggle size in avoid mode
+            radiusAvoidSz: 25
         },
         MID_X: 0,
         MID_Y: 0,
@@ -1046,6 +1050,16 @@ var userInterface = window.userInterface = (function () {
                             bot.opt.radiusMult);
                     }
                 }
+                // Letter 'D' to quick toggle collision radius
+                if (e.keyCode === 68) {
+                    if (bot.opt.radiusMult > ((bot.opt.radiusAvoidSz - bot.opt.radiusApproachSz) / 2 + bot.opt.radiusApproachSz)) {
+                        bot.opt.radiusMult = bot.opt.radiusApproachSz;
+                    } else {
+                        bot.opt.radiusMult = bot.opt.radiusAvoidSz;
+                    }
+                    console.log(
+                        'radiusMult set to: ' + bot.opt.radiusMult);
+                }
                 // Letter 'Z' to reset zoom
                 if (e.keyCode === 90) {
                     canvas.resetZoom();
@@ -1135,6 +1149,7 @@ var userInterface = window.userInterface = (function () {
             oContent.push('[T / Right click] bot: ' + ht(bot.isBotEnabled));
             oContent.push('[O] mobile rendering: ' + ht(window.mobileRender));
             oContent.push('[A/S] radius multiplier: ' + bot.opt.radiusMult);
+            oContent.push('[D] toggle radius ' + bot.opt.radiusApproachSz + '/' + bot.opt.radiusAvoidSz);
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
             oContent.push('[U] log debugging: ' + ht(window.logDebugging));
