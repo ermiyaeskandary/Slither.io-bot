@@ -29,6 +29,12 @@
     "es6": true,
     "browser": true
     },
+  "globals": {
+    "bot" : true,
+    "GM_info" : true,
+    "canvas" : true,
+    "userInterface" : true
+  },
   "rules": {
 
     /*Possible Errors */
