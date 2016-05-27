@@ -362,7 +362,6 @@ var bot = window.bot = (function () {
             window.connect();
             window.forcing = false;
         },
-        
          // Defense mode - bot turns around in a circle
          playDefence: function(dir) {
              window.kd_l = (dir === 'l');
@@ -822,6 +821,11 @@ var bot = window.bot = (function () {
         // Main bot
         go: function () {
             bot.every();
+            if (window.defence) {
+                bot.playDefence('l');
+                return;
+            }
+            if (!window.defence) {
             if (bot.checkCollision()) {
                 bot.lookForFood = false;
                 if (bot.foodTimeout) {
@@ -836,6 +840,7 @@ var bot = window.bot = (function () {
                         bot.foodTimer, 1000 / bot.opt.targetFps * bot.opt.foodFrames);
                 }
                 window.setAcceleration(bot.foodAccel());
+            }
             }
         },
 
@@ -1022,7 +1027,7 @@ var userInterface = window.userInterface = (function () {
                     userInterface.savePreference('logDebugging', window.logDebugging);
                 }
                 // Letter 'D' to toggle defence mode
-                if (e.keyCode === 68) {
+                if (e.keyCode === 77) {
                     window.defence = !window.defence;
                     window.log('Defence set to: ' + window.defence);
                     userInterface.savePreference('defence', window.defence);
@@ -1166,7 +1171,7 @@ var userInterface = window.userInterface = (function () {
             oContent.push('[D] toggle radius ' +
                 bot.opt.radiusApproachSz + '/' + bot.opt.radiusAvoidSz);
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
-            oContent.push('[D] defence mode: ' + ht(window.defence));
+            oContent.push('[M] defence mode: ' + ht(window.defence));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
             oContent.push('[U] log debugging: ' + ht(window.logDebugging));
             oContent.push('[H] overlays');
@@ -1227,9 +1232,6 @@ var userInterface = window.userInterface = (function () {
             canvas.maintainZoom();
             original_oef();
             original_redraw();
-            if (window.defence) {
-                bot.playDefence('l');
-            }
             if (window.playing && bot.isBotEnabled && window.snake !== null) {
                 window.onmousemove = function () { };
                 bot.isBotRunning = true;
