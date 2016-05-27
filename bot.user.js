@@ -362,6 +362,13 @@ var bot = window.bot = (function () {
             window.connect();
             window.forcing = false;
         },
+        
+         // Defense mode - bot turns around in a circle
+         playDefence: function(dir) {
+             window.kd_l = (dir === 'l');
+             window.kd_r = (dir === 'r');
+             canvas.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
+         },
 
         // angleBetween - get the smallest angle between two angles (0-pi)
         angleBetween: function (a1, a2) {
