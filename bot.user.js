@@ -822,9 +822,6 @@ var bot = window.bot = (function () {
         // Main bot
         go: function () {
             bot.every();
-            if (window.defence) {
-                bot.playDefence('l');
-            }
             if (bot.checkCollision()) {
                 bot.lookForFood = false;
                 if (bot.foodTimeout) {
@@ -1230,7 +1227,9 @@ var userInterface = window.userInterface = (function () {
             canvas.maintainZoom();
             original_oef();
             original_redraw();
-
+            if (window.defence) {
+                bot.playDefence('l');
+            }
             if (window.playing && bot.isBotEnabled && window.snake !== null) {
                 window.onmousemove = function () { };
                 bot.isBotRunning = true;
