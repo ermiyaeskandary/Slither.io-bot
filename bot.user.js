@@ -822,7 +822,10 @@ var bot = window.bot = (function () {
         // Main bot
         go: function () {
             bot.every();
-
+            if (window.defence) {
+                bot.playDefence('l');
+                return;
+            }
             if (bot.checkCollision()) {
                 bot.lookForFood = false;
                 if (bot.foodTimeout) {
