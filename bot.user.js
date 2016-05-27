@@ -7,7 +7,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      1.2.1
+// @version      1.2.2
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -936,6 +936,22 @@ var userInterface = window.userInterface = (function () {
                 window.visualDebugging = oVis === 'visible';
             });
         },
+        toggleLeaderboard: function () {
+            window.leaderboard = !window.leaderboard;
+            window.log('Leaderboard set to: ' + window.leaderboard);
+            userInterface.savePreference('leaderboard', window.leaderboard);
+            if (window.leaderboard) {
+              // window.lbh.style.display = 'block';
+              // window.lbs.style.display = 'block';
+              // window.lbp.style.display = 'block';
+              window.lbn.style.display = 'block';
+            } else {
+              // window.lbh.style.display = 'none';
+              // window.lbs.style.display = 'none';
+              // window.lbp.style.display = 'none';
+              window.lbn.style.display = 'none';
+            }
+        },
 
         // Save variable to local storage
         savePreference: function (item, value) {
@@ -1012,19 +1028,23 @@ var userInterface = window.userInterface = (function () {
                 // Letter 'U' to toggle debugging (console)
                 if (e.keyCode === 85) {
                     window.logDebugging = !window.logDebugging;
-                    console.log('Log debugging set to: ' + window.logDebugging);
+                    window.log('Log debugging set to: ' + window.logDebugging);
                     userInterface.savePreference('logDebugging', window.logDebugging);
                 }
                 // Letter 'Y' to toggle debugging (visual)
                 if (e.keyCode === 89) {
                     window.visualDebugging = !window.visualDebugging;
-                    console.log('Visual debugging set to: ' + window.visualDebugging);
+                    window.log('Visual debugging set to: ' + window.visualDebugging);
                     userInterface.savePreference('visualDebugging', window.visualDebugging);
+                }
+                // Letter 'G' to toggle leaderboard
+                if (e.keyCode === 71) {
+                    userInterface.toggleLeaderboard(!window.leaderboard);
                 }
                 // Letter 'I' to toggle autorespawn
                 if (e.keyCode === 73) {
                     window.autoRespawn = !window.autoRespawn;
-                    console.log('Automatic Respawning set to: ' + window.autoRespawn);
+                    window.log('Automatic Respawning set to: ' + window.autoRespawn);
                     userInterface.savePreference('autoRespawn', window.autoRespawn);
                 }
                 // Letter 'H' to toggle hidden mode
@@ -1038,14 +1058,14 @@ var userInterface = window.userInterface = (function () {
                 // Letter 'A' to increase collision detection radius
                 if (e.keyCode === 65) {
                     bot.opt.radiusMult++;
-                    console.log(
+                    window.log(
                         'radiusMult set to: ' + bot.opt.radiusMult);
                 }
                 // Letter 'S' to decrease collision detection radius
                 if (e.keyCode === 83) {
                     if (bot.opt.radiusMult > 1) {
                         bot.opt.radiusMult--;
-                        console.log(
+                        window.log(
                             'radiusMult set to: ' +
                             bot.opt.radiusMult);
                     }
@@ -1059,7 +1079,7 @@ var userInterface = window.userInterface = (function () {
                     } else {
                         bot.opt.radiusMult = bot.opt.radiusAvoidSz;
                     }
-                    console.log(
+                    window.log(
                         'radiusMult set to: ' + bot.opt.radiusMult);
                 }
                 // Letter 'Z' to reset zoom
@@ -1151,9 +1171,10 @@ var userInterface = window.userInterface = (function () {
             oContent.push('[T / Right click] bot: ' + ht(bot.isBotEnabled));
             oContent.push('[O] mobile rendering: ' + ht(window.mobileRender));
             oContent.push('[A/S] radius multiplier: ' + bot.opt.radiusMult);
-            oContent.push('[D] toggle radius ' +
+            oContent.push('[D] quick radius change ' +
                 bot.opt.radiusApproachSz + '/' + bot.opt.radiusAvoidSz);
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
+            oContent.push('[G] leaderboard overlay: ' + ht(window.leaderboard));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
             oContent.push('[U] log debugging: ' + ht(window.logDebugging));
             oContent.push('[H] overlays');
@@ -1288,6 +1309,7 @@ var userInterface = window.userInterface = (function () {
     userInterface.loadPreference('visualDebugging', false);
     userInterface.loadPreference('autoRespawn', false);
     userInterface.loadPreference('mobileRender', false);
+    userInterface.loadPreference('leaderboard', true);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
     // Listener for mouse wheel scroll - used for setZoom function
