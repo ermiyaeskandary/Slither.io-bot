@@ -1022,6 +1022,12 @@ var userInterface = window.userInterface = (function () {
                     console.log('Log debugging set to: ' + window.logDebugging);
                     userInterface.savePreference('logDebugging', window.logDebugging);
                 }
+                // Letter 'D' to toggle defence mode
+                if (e.keyCode === 68) {
+                    window.defence = !window.defence;
+                    window.log('Defence set to: ' + window.defence);
+                    userInterface.savePreference('defence', window.defence);
+                }
                 // Letter 'Y' to toggle debugging (visual)
                 if (e.keyCode === 89) {
                     window.visualDebugging = !window.visualDebugging;
@@ -1161,6 +1167,7 @@ var userInterface = window.userInterface = (function () {
             oContent.push('[D] toggle radius ' +
                 bot.opt.radiusApproachSz + '/' + bot.opt.radiusAvoidSz);
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
+            oContent.push('[D] defence mode: ' + ht(window.defence));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
             oContent.push('[U] log debugging: ' + ht(window.logDebugging));
             oContent.push('[H] overlays');
