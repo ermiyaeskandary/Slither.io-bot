@@ -367,7 +367,7 @@ var bot = window.bot = (function () {
          playDefence: function(dir) {
              window.kd_l = (dir === 'l');
              window.kd_r = (dir === 'r');
-             canvas.setMouseCoordinates(window.getWidth() / 2, window.getHeight() / 2);
+             canvas.setMouseCoordinates(window.ww / 2, window.hh / 2);
          },
 
         // angleBetween - get the smallest angle between two angles (0-pi)
