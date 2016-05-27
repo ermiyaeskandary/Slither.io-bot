@@ -824,7 +824,6 @@ var bot = window.bot = (function () {
             bot.every();
             if (window.defence) {
                 bot.playDefence('l');
-                return;
             }
             if (bot.checkCollision()) {
                 bot.lookForFood = false;
