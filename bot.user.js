@@ -13,6 +13,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // @match        http://slither.io/
 // @grant        none
 // ==/UserScript==
+
 // Custom logging function - disabled by default
 window.log = function () {
     if (window.logDebugging) {
@@ -28,7 +29,7 @@ var canvas = window.canvas = (function () {
             y: window.mc.height / window.hh
         },
 
-        // Spoofs moving the mouse to the provided coordinates.
+        // Set direction of snake towards the virtual mouse coordinates
         setMouseCoordinates: function (point) {
             window.xm = point.x;
             window.ym = point.y;
@@ -57,7 +58,7 @@ var canvas = window.canvas = (function () {
             return { x: mouseX, y: mouseY };
         },
 
-        // Map cordinates to Canvas cordinate shortcut
+        // Map coordinates to Canvas coordinates.
         mapToCanvas: function (point) {
             var c = canvas.mapToMouse(point);
             c = canvas.mouseToScreen(c);
@@ -65,13 +66,13 @@ var canvas = window.canvas = (function () {
             return c;
         },
 
-        // Map to Canvas coordinate conversion for drawing circles.
-        // Radius also needs to scale by .gsc
+        // Map to Canvas coordinates conversion for drawing circles.
         circleMapToCanvas: function (circle) {
             var newCircle = canvas.mapToCanvas(circle);
             return canvas.circle(
                 newCircle.x,
                 newCircle.y,
+                // Radius also needs to scale by .gsc
                 circle.radius * window.gsc
             );
         },
@@ -203,7 +204,9 @@ var canvas = window.canvas = (function () {
         // Draw an angle.
         // @param {number} start -- where to start the angle
         // @param {number} angle -- width of the angle
-        // @param {bool} danger -- green if false, red if true
+        // @param {String|CanvasGradient|CanvasPattern} color
+        // @param {boolean} fill
+        // @param {number} alpha
         drawAngle: function (start, angle, color, fill, alpha) {
             if (alpha === undefined) alpha = 0.6;
 
