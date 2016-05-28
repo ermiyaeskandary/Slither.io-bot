@@ -270,13 +270,12 @@ var canvas = window.canvas = (function () {
         // Check if circles intersect
         circleIntersect: function (circle1, circle2) {
             var bothRadii = circle1.radius + circle2.radius;
+            var dx = circle1.x - circle2.x;
+            var dy = circle1.y - circle2.y;
 
             // Pretends the circles are squares for a quick collision check.
             // If it collides, do the more expensive circle check.
-            if (circle1.x + bothRadii > circle2.x &&
-                circle1.y + bothRadii > circle2.y &&
-                circle1.x < circle2.x + bothRadii &&
-                circle1.y < circle2.y + bothRadii) {
+            if (dx + bothRadii > 0 && dy + bothRadii > 0 && dx - bothRadii < 0 && dy - bothRadii < 0) {
 
                 var distance2 = canvas.getDistance2(circle1.x, circle1.y, circle2.x, circle2.y);
 
