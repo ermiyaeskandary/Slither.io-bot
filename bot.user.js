@@ -321,25 +321,25 @@ var bot = window.bot = (function () {
             // radius multiple for circle intersects
             radiusMult: 10,
             // food cluster size to trigger acceleration
-            foodAccelSz: 60,
+            foodAccelSize: 60,
             // maximum angle of food to trigger acceleration
-            foodAccelDa:  Math.PI / 3,
+            foodAccelAngle:  Math.PI / 3,
             // how many frames per food check
             foodFrames: 4,
             // round food cluster size up to the nearest
-            foodRoundSz: 5,
+            foodRoundSize: 5,
             // round food angle up to nearest for angle difference scoring
-            foodRoundA: Math.PI / 8,
-            // food clusters at or below this size won't be considered if their is a collisionAngle
-            foodSmallSz: 10,
+            foodRoundAngle: Math.PI / 8,
+            // food clusters at or below this size won't be considered if there is a collisionAngle
+            foodSmallSize: 10,
             // angle or higher where enemy heady is considered in the rear
-            rearHeadA: 3 * Math.PI / 4,
+            rearHeadAngle: 3 * Math.PI / 4,
             // attack emeny rear head at this angle
             rearHeadDir: Math.PI / 2,
             // quick radius toggle size in approach mode
-            radiusApproachSz: 5,
+            radiusApproachSize: 5,
             // quick radius toggle size in avoid mode
-            radiusAvoidSz: 25
+            radiusAvoidSize: 25
         },
         MID_X: 0,
         MID_Y: 0,
@@ -377,7 +377,7 @@ var bot = window.bot = (function () {
                 collisionPoint.yy - window.snake.yy, collisionPoint.xx - window.snake.xx);
             var diff = bot.angleBetween(window.snake.ehang, cehang);
 
-            if (Math.abs(diff) > bot.opt.rearHeadA) {
+            if (Math.abs(diff) > bot.opt.rearHeadAngle) {
                 var dir = diff > 0 ? -bot.opt.rearHeadDir : bot.opt.rearHeadDir;
                 bot.changeHeading(dir);
             } else {
@@ -680,11 +680,11 @@ var bot = window.bot = (function () {
             return b.score - a.score;
         },
 
-        // Round angle difference up to nearest foodRoundA degrees.
+        // Round angle difference up to nearest foodRoundAngle degrees.
         // Round food up to nearest foodRoundsz, square for distance^2
         scoreFood: function (f) {
-            f.score = Math.pow(Math.ceil(f.sz / bot.opt.foodRoundSz) * bot.opt.foodRoundSz, 2) /
-                f.distance / (Math.ceil(f.da / bot.opt.foodRoundA) * bot.opt.foodRoundA);
+            f.score = Math.pow(Math.ceil(f.sz / bot.opt.foodRoundSize) * bot.opt.foodRoundSize, 2) /
+                f.distance / (Math.ceil(f.da / bot.opt.foodRoundAngle) * bot.opt.foodRoundAngle);
         },
 
         computeFoodGoal: function () {
@@ -739,7 +739,7 @@ var bot = window.bot = (function () {
                     (Math.sqrt(bot.collisionAngles[aIndex].distance) -
                         bot.snakeRadius * bot.opt.radiusMult / 2 >
                         Math.sqrt(foodClusters[i].distance) &&
-                        foodClusters[i].sz > bot.opt.foodSmallSz)
+                        foodClusters[i].sz > bot.opt.foodSmallSize)
                 ) {
                     bot.currentFood = foodClusters[i];
                     return;
@@ -751,13 +751,13 @@ var bot = window.bot = (function () {
         foodAccel: function () {
             var aIndex = 0;
 
-            if (bot.currentFood && bot.currentFood.sz > bot.opt.foodAccelSz) {
+            if (bot.currentFood && bot.currentFood.sz > bot.opt.foodAccelSize) {
                 aIndex = bot.getAngleIndex(bot.currentFood.a);
 
                 if (
                     bot.collisionAngles[aIndex] && bot.collisionAngles[aIndex].distance >
                     bot.currentFood.distance + bot.snakeWidth * bot.opt.radiusMult
-                    && bot.currentFood.da < bot.opt.foodAccelDa) {
+                    && bot.currentFood.da < bot.opt.foodAccelAngle) {
                     return 1;
                 }
 
@@ -779,7 +779,7 @@ var bot = window.bot = (function () {
                 window.snake.xx - (bot.sectorBoxSide / 2),
                 window.snake.yy - (bot.sectorBoxSide / 2),
                 bot.sectorBoxSide, bot.sectorBoxSide);
-            // if (window.visualDebugging) canvas.drawRect(bot.sectorBox, '#c0c0c0', true, 0.1);
+            if (window.visualDebugging) canvas.drawRect(bot.sectorBox, '#c0c0c0', true, 0.1);
 
             bot.cos = Math.cos(window.snake.ang);
             bot.sin = Math.sin(window.snake.ang);
@@ -1070,11 +1070,11 @@ var userInterface = window.userInterface = (function () {
                 // Letter 'D' to quick toggle collision radius
                 if (e.keyCode === 68) {
                     if (bot.opt.radiusMult >
-                        ((bot.opt.radiusAvoidSz - bot.opt.radiusApproachSz)
-                        / 2 + bot.opt.radiusApproachSz)) {
-                        bot.opt.radiusMult = bot.opt.radiusApproachSz;
+                        ((bot.opt.radiusAvoidSize - bot.opt.radiusApproachSize)
+                        / 2 + bot.opt.radiusApproachSize)) {
+                        bot.opt.radiusMult = bot.opt.radiusApproachSize;
                     } else {
-                        bot.opt.radiusMult = bot.opt.radiusAvoidSz;
+                        bot.opt.radiusMult = bot.opt.radiusAvoidSize;
                     }
                     window.log(
                         'radiusMult set to: ' + bot.opt.radiusMult);
@@ -1169,7 +1169,7 @@ var userInterface = window.userInterface = (function () {
             oContent.push('[O] mobile rendering: ' + ht(window.mobileRender));
             oContent.push('[A/S] radius multiplier: ' + bot.opt.radiusMult);
             oContent.push('[D] quick radius change ' +
-                bot.opt.radiusApproachSz + '/' + bot.opt.radiusAvoidSz);
+                bot.opt.radiusApproachSize + '/' + bot.opt.radiusAvoidSize);
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
             oContent.push('[G] leaderboard overlay: ' + ht(window.leaderboard));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
