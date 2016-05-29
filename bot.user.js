@@ -1339,6 +1339,9 @@ var userInterface = window.userInterface = (function () {
         // Parse the options and overwrite the default bot options
         savedOptions = JSON.parse(savedOptions);
         window.bot.opt = savedOptions;
+        window.log('Found saved settings, overwriting default bot options');
+    } else {
+        window.log('No saved settings, using default bot options');
     }
 
     // Has the user customised the options?
@@ -1347,10 +1350,12 @@ var userInterface = window.userInterface = (function () {
         Object.keys(customBotOptions).forEach(function(key) {
             window.bot.opt[key] = customBotOptions[key];
         });
+        window.log('Custom settings found, overwriting current bot options');
     }
 
     // Save the bot options
     userInterface.savePreference('options', JSON.stringify(window.bot.opt));
+    window.log('Saving current bot options');
 
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', canvas.setZoom);
