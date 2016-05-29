@@ -1148,6 +1148,13 @@ var userInterface = window.userInterface = (function () {
                 if (e.keyCode === 13) {
                     userInterface.saveNick();
                 }
+                // Letter 'B' to prompt for a custom background url
+                if (e.keyCode === 66) {
+                    var url = prompt("Please enter a background url:");
+                    if (url != null) {
+                        canvasUtil.setBackground(url);
+                    }
+                }
                 userInterface.onPrefChange();
             }
         },
@@ -1217,6 +1224,9 @@ var userInterface = window.userInterface = (function () {
             oContent.push('[H] overlays');
             oContent.push('[Mouse Wheel] zoom');
             oContent.push('[Z] reset zoom');
+            oContent.push('[X] change skin');
+            oContent.push('[W] auto skin rotator: ' + ht(window.rotateskin));
+            oContent.push('[B] change background');
             oContent.push('[ESC] quick respawn');
             oContent.push('[Q] quit to menu');
 
@@ -1359,6 +1369,7 @@ var userInterface = window.userInterface = (function () {
     userInterface.loadPreference('autoRespawn', false);
     userInterface.loadPreference('mobileRender', false);
     userInterface.loadPreference('leaderboard', true);
+    userInterface.loadPreference('rotateskin', false);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
     // Listener for mouse wheel scroll - used for setZoom function
