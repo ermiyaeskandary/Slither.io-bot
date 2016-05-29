@@ -1148,10 +1148,12 @@ var userInterface = window.userInterface = (function () {
 
             if (bot.scores.length === 0) return;
 
-            oContent.push('games played: ' + bot.scores.length);
-            oContent.push('avg score: ' + Math.round(
+				oContent.push('<br/>------------------');
+				oContent.push('games played: ' + bot.scores.length);
+				oContent.push('avg score: ' + Math.round(
                 bot.scores.reduce(function (a, b) { return a + b; }) / (bot.scores.length)));
-
+					oContent.push('------------------');
+					oContent.push('top 10 scores:');
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
                 oContent.push(i + 1 + '. ' + bot.scores[i]);
             }
