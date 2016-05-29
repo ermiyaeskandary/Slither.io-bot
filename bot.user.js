@@ -21,7 +21,7 @@ window.log = function () {
     }
 };
 
-var canvas = window.canvas = (function () {
+var canvasUtil = window.canvasUtil = (function () {
     return {
         // Ratio of screen size divided by canvas size.
         canvasRatio: {
@@ -45,9 +45,9 @@ var canvas = window.canvas = (function () {
         // Convert screen coordinates to canvas coordinates.
         screenToCanvas: function (point) {
             var canvasX = window.csc *
-                (point.x * canvas.canvasRatio.x) - parseInt(window.mc.style.left);
+                (point.x * canvasUtil.canvasRatio.x) - parseInt(window.mc.style.left);
             var canvasY = window.csc *
-                (point.y * canvas.canvasRatio.y) - parseInt(window.mc.style.top);
+                (point.y * canvasUtil.canvasRatio.y) - parseInt(window.mc.style.top);
             return { x: canvasX, y: canvasY };
         },
 
@@ -60,16 +60,16 @@ var canvas = window.canvas = (function () {
 
         // Map coordinates to Canvas coordinates.
         mapToCanvas: function (point) {
-            var c = canvas.mapToMouse(point);
-            c = canvas.mouseToScreen(c);
-            c = canvas.screenToCanvas(c);
+            var c = canvasUtil.mapToMouse(point);
+            c = canvasUtil.mouseToScreen(c);
+            c = canvasUtil.screenToCanvas(c);
             return c;
         },
 
         // Map to Canvas coordinates conversion for drawing circles.
         circleMapToCanvas: function (circle) {
-            var newCircle = canvas.mapToCanvas(circle);
-            return canvas.circle(
+            var newCircle = canvasUtil.mapToCanvas(circle);
+            return canvasUtil.circle(
                 newCircle.x,
                 newCircle.y,
                 // Radius also needs to scale by .gsc
@@ -131,21 +131,12 @@ var canvas = window.canvas = (function () {
             // Scaling ratio
             if (window.gsc) {
                 window.gsc *= Math.pow(0.9, e.wheelDelta / -120 || e.detail / 2 || 0);
-                window.desired_gsc = window.gsc;
             }
         },
 
         // Restores zoom to the default value.
         resetZoom: function () {
             window.gsc = 0.9;
-            window.desired_gsc = 0.9;
-        },
-
-        // Maintains Zoom
-        maintainZoom: function () {
-            if (window.desired_gsc !== undefined) {
-                window.gsc = window.desired_gsc;
-            }
         },
 
         // Sets background to the given image URL.
@@ -154,13 +145,31 @@ var canvas = window.canvas = (function () {
             url = typeof url !== 'undefined' ? url : '/s/bg45.jpg';
             window.ii.src = url;
         },
+        
+        // Manual mobile rendering
+        mobileRendering: function() {
+            // Set render mode
+            if (window.mobileRender) {
+                canvasUtil.setBackground(
+                    'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs'
+                );
+                window.render_mode = 1;
+                window.want_quality = 0;
+                window.high_quality = false;
+            } else {
+                canvasUtil.setBackground();
+                window.render_mode = 2;
+                window.want_quality = 1;
+                window.high_quality = true;
+            }
+        },
 
         // Draw a rectangle on the canvas.
         drawRect: function (rect, color, fill, alpha) {
             if (alpha === undefined) alpha = 1;
 
             var context = window.mc.getContext('2d');
-            var lc = canvas.mapToCanvas({ x: rect.x, y: rect.y });
+            var lc = canvasUtil.mapToCanvas({ x: rect.x, y: rect.y });
 
             context.save();
             context.globalAlpha = alpha;
@@ -180,7 +189,7 @@ var canvas = window.canvas = (function () {
             if (circle.radius === undefined) circle.radius = 5;
 
             var context = window.mc.getContext('2d');
-            var drawCircle = canvas.circleMapToCanvas(circle);
+            var drawCircle = canvasUtil.circleMapToCanvas(circle);
 
             context.save();
             context.globalAlpha = alpha;
@@ -226,8 +235,8 @@ var canvas = window.canvas = (function () {
             if (width === undefined) width = 5;
 
             var context = window.mc.getContext('2d');
-            var dp1 = canvas.mapToCanvas(p1);
-            var dp2 = canvas.mapToCanvas(p2);
+            var dp1 = canvasUtil.mapToCanvas(p1);
+            var dp2 = canvasUtil.mapToCanvas(p2);
 
             context.save();
             context.beginPath();
@@ -253,7 +262,7 @@ var canvas = window.canvas = (function () {
         },
 
         getDistance2FromSnake: function (point) {
-            point.distance = canvas.getDistance2(window.snake.xx, window.snake.yy,
+            point.distance = canvasUtil.getDistance2(window.snake.xx, window.snake.yy,
                 point.xx, point.yy);
             return point;
         },
@@ -278,19 +287,19 @@ var canvas = window.canvas = (function () {
                 circle1.x < circle2.x + bothRadii &&
                 circle1.y < circle2.y + bothRadii) {
 
-                var distance2 = canvas.getDistance2(circle1.x, circle1.y, circle2.x, circle2.y);
+                var distance2 = canvasUtil.getDistance2(circle1.x, circle1.y, circle2.x, circle2.y);
 
                 if (distance2 < bothRadii * bothRadii) {
                     if (window.visualDebugging) {
-                        var collisionPointCircle = canvas.circle(
+                        var collisionPointCircle = canvasUtil.circle(
                             ((circle1.x * circle2.radius) + (circle2.x * circle1.radius)) /
                             bothRadii,
                             ((circle1.y * circle2.radius) + (circle2.y * circle1.radius)) /
                             bothRadii,
                             5
                         );
-                        canvas.drawCircle(circle2, 'red', true);
-                        canvas.drawCircle(collisionPointCircle, 'cyan', true);
+                        canvasUtil.drawCircle(circle2, 'red', true);
+                        canvasUtil.drawCircle(collisionPointCircle, 'cyan', true);
                     }
                     return true;
                 }
@@ -359,6 +368,26 @@ var bot = window.bot = (function () {
             window.connect();
             window.forcing = false;
         },
+        
+        changeSkin: function() {
+            if (window.playing && window.snake !== null) {
+                var skin = window.snake.rcv;
+                var max = window.max_skin_cv;
+                skin++;
+                if (skin > max) {
+                    skin = 0;
+                }
+                window.setSkin(window.snake, skin);
+            }
+        },
+
+        rotateSkin: function() {
+            if (!window.rotateskin) {
+                return;
+            }
+            bot.changeSkin();
+            setTimeout(bot.rotateSkin, 500);
+        },
 
         // angleBetween - get the smallest angle between two angles (0-pi)
         angleBetween: function (a1, a2) {
@@ -373,7 +402,7 @@ var bot = window.bot = (function () {
 
         // Avoid headPoint
         avoidHeadPoint: function (collisionPoint) {
-            var cehang = canvas.fastAtan2(
+            var cehang = canvasUtil.fastAtan2(
                 collisionPoint.yy - window.snake.yy, collisionPoint.xx - window.snake.xx);
             var diff = bot.angleBetween(window.snake.ehang, cehang);
 
@@ -407,7 +436,7 @@ var bot = window.bot = (function () {
                     cos * (heading.y - window.snake.yy) + window.snake.yy)
             };
 
-            canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
+            canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
         },
 
         // Avoid collison point by ang
@@ -423,11 +452,11 @@ var bot = window.bot = (function () {
             };
 
             if (window.visualDebugging) {
-                canvas.drawLine(
+                canvasUtil.drawLine(
                     { x: window.snake.xx, y: window.snake.yy },
                     end,
                     'orange', 5);
-                canvas.drawLine(
+                canvasUtil.drawLine(
                     { x: window.snake.xx, y: window.snake.yy },
                     { x: collisionPoint.xx, y: collisionPoint.yy },
                     'red', 5);
@@ -436,7 +465,7 @@ var bot = window.bot = (function () {
             var cos = Math.cos(ang);
             var sin = Math.sin(ang);
 
-            if (canvas.isLeft(
+            if (canvasUtil.isLeft(
                 { x: window.snake.xx, y: window.snake.yy }, end,
                 { x: collisionPoint.xx, y: collisionPoint.yy })) {
                 sin = -sin;
@@ -451,7 +480,7 @@ var bot = window.bot = (function () {
                     cos * (collisionPoint.yy - window.snake.yy) + window.snake.yy)
             };
 
-            canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
+            canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
         },
 
         // Sorting by  property 'distance'
@@ -478,7 +507,7 @@ var bot = window.bot = (function () {
 
         // Add to collisionAngles if distance is closer
         addCollisionAngle: function (sp) {
-            var ang = canvas.fastAtan2(
+            var ang = canvasUtil.fastAtan2(
                 Math.round(sp.yy - window.snake.yy),
                 Math.round(sp.xx - window.snake.xx));
             var aIndex = bot.getAngleIndex(ang);
@@ -523,10 +552,10 @@ var bot = window.bot = (function () {
                         snake: snake,
                         radius: bot.getSnakeWidth(window.snakes[snake].sc) / 2
                     };
-                    canvas.getDistance2FromSnake(scPoint);
+                    canvasUtil.getDistance2FromSnake(scPoint);
                     bot.addCollisionAngle(scPoint);
                     if (window.visualDebugging) {
-                        canvas.drawCircle(canvas.circle(
+                        canvasUtil.drawCircle(canvasUtil.circle(
                             scPoint.xx,
                             scPoint.yy,
                             scPoint.radius),
@@ -535,7 +564,7 @@ var bot = window.bot = (function () {
 
                     for (var pts = 0, lp = window.snakes[snake].pts.length; pts < lp; pts++) {
                         if (!window.snakes[snake].pts[pts].dying &&
-                            canvas.pointInRect(
+                            canvasUtil.pointInRect(
                                 {
                                     x: window.snakes[snake].pts[pts].xx,
                                     y: window.snakes[snake].pts[pts].yy
@@ -549,14 +578,14 @@ var bot = window.bot = (function () {
                             };
 
                             if (window.visualDebugging && true === false) {
-                                canvas.drawCircle(canvas.circle(
+                                canvasUtil.drawCircle(canvasUtil.circle(
                                     collisionPoint.xx,
                                     collisionPoint.yy,
                                     collisionPoint.radius),
                                     '#00FF00', false);
                             }
 
-                            canvas.getDistance2FromSnake(collisionPoint);
+                            canvasUtil.getDistance2FromSnake(collisionPoint);
                             bot.addCollisionAngle(collisionPoint);
 
                             if (scPoint === undefined ||
@@ -569,7 +598,7 @@ var bot = window.bot = (function () {
                 if (scPoint !== undefined) {
                     bot.collisionPoints.push(scPoint);
                     if (window.visualDebugging) {
-                        canvas.drawCircle(canvas.circle(
+                        canvasUtil.drawCircle(canvasUtil.circle(
                             scPoint.xx,
                             scPoint.yy,
                             scPoint.radius
@@ -579,9 +608,9 @@ var bot = window.bot = (function () {
             }
 
             // WALL
-            if (canvas.getDistance2(bot.MID_X, bot.MID_Y, window.snake.xx, window.snake.yy) >
+            if (canvasUtil.getDistance2(bot.MID_X, bot.MID_Y, window.snake.xx, window.snake.yy) >
                 Math.pow(bot.MAP_R - 1000, 2)) {
-                var midAng = canvas.fastAtan2(
+                var midAng = canvasUtil.fastAtan2(
                     window.snake.yy - bot.MID_X, window.snake.xx - bot.MID_Y);
                 scPoint = {
                     xx: bot.MID_X + bot.MAP_R * Math.cos(midAng),
@@ -589,11 +618,11 @@ var bot = window.bot = (function () {
                     snake: -1,
                     radius: bot.snakeWidth
                 };
-                canvas.getDistance2FromSnake(scPoint);
+                canvasUtil.getDistance2FromSnake(scPoint);
                 bot.collisionPoints.push(scPoint);
                 bot.addCollisionAngle(scPoint);
                 if (window.visualDebugging) {
-                    canvas.drawCircle(canvas.circle(
+                    canvasUtil.drawCircle(canvasUtil.circle(
                         scPoint.xx,
                         scPoint.yy,
                         scPoint.radius
@@ -606,7 +635,7 @@ var bot = window.bot = (function () {
             if (window.visualDebugging) {
                 for (var i = 0; i < bot.collisionAngles.length; i++) {
                     if (bot.collisionAngles[i] !== undefined) {
-                        canvas.drawLine(
+                        canvasUtil.drawLine(
                             { x: window.snake.xx, y: window.snake.yy },
                             { x: bot.collisionAngles[i].x, y: bot.collisionAngles[i].y },
                             '#99ffcc', 2);
@@ -617,19 +646,19 @@ var bot = window.bot = (function () {
 
         // Checks to see if you are going to collide with anything in the collision detection radius
         checkCollision: function () {
-            var headCircle = canvas.circle(
+            var headCircle = canvasUtil.circle(
                 window.snake.xx, window.snake.yy,
                 bot.speedMult * bot.opt.radiusMult / 2 * bot.snakeRadius
             );
 
-            var fullHeadCircle = canvas.circle(
+            var fullHeadCircle = canvasUtil.circle(
                 window.snake.xx, window.snake.yy,
                 bot.opt.radiusMult * bot.snakeRadius
             );
 
             if (window.visualDebugging) {
-                canvas.drawCircle(fullHeadCircle, 'red');
-                canvas.drawCircle(headCircle, 'blue', false);
+                canvasUtil.drawCircle(fullHeadCircle, 'red');
+                canvasUtil.drawCircle(headCircle, 'blue', false);
             }
 
             bot.getCollisionPoints();
@@ -638,27 +667,27 @@ var bot = window.bot = (function () {
             for (var i = 0; i < bot.collisionPoints.length; i++) {
                 // -1 snake is special case for non snake object.
 
-                var collisionCircle = canvas.circle(
+                var collisionCircle = canvasUtil.circle(
                     bot.collisionPoints[i].xx,
                     bot.collisionPoints[i].yy,
                     bot.collisionPoints[i].radius
                 );
 
-                if (canvas.circleIntersect(headCircle, collisionCircle)) {
+                if (canvasUtil.circleIntersect(headCircle, collisionCircle)) {
                     window.setAcceleration(bot.defaultAccel);
                     bot.avoidCollisionPoint(bot.collisionPoints[i]);
                     return true;
                 }
 
                 if (bot.collisionPoints[i].snake !== -1) {
-                    var eHeadCircle = canvas.circle(
+                    var eHeadCircle = canvasUtil.circle(
                         window.snakes[bot.collisionPoints[i].snake].xx,
                         window.snakes[bot.collisionPoints[i].snake].yy,
                         bot.collisionPoints[i].radius
                     );
 
 
-                    if (canvas.circleIntersect(fullHeadCircle, eHeadCircle)) {
+                    if (canvasUtil.circleIntersect(fullHeadCircle, eHeadCircle)) {
                         if (window.snakes[bot.collisionPoints[i].snake].sp > 10) {
                             window.setAcceleration(1);
                         } else {
@@ -702,11 +731,11 @@ var bot = window.bot = (function () {
 
                 if (!f.eaten &&
                     !(
-                        canvas.circleIntersect(
-                            canvas.circle(f.xx, f.yy, 2),
+                        canvasUtil.circleIntersect(
+                            canvasUtil.circle(f.xx, f.yy, 2),
                             bot.sidecircle_l) ||
-                        canvas.circleIntersect(
-                            canvas.circle(f.xx, f.yy, 2),
+                        canvasUtil.circleIntersect(
+                            canvasUtil.circle(f.xx, f.yy, 2),
                            bot.sidecircle_r))) {
 
                     var cx = Math.round(Math.round(f.xx / sw) * sw);
@@ -715,11 +744,11 @@ var bot = window.bot = (function () {
 
                     if (foodGetIndex[cx + '|' + cy] === undefined) {
                         foodGetIndex[cx + '|' + cy] = fi;
-                        a = canvas.fastAtan2(cy - window.snake.yy, cx - window.snake.xx);
+                        a = canvasUtil.fastAtan2(cy - window.snake.yy, cx - window.snake.xx);
                         da = Math.min(
                             (2 * Math.PI) - Math.abs(a - sang), Math.abs(a - sang));
                         distance = Math.round(
-                            canvas.getDistance2(cx, cy, window.snake.xx, window.snake.yy));
+                            canvasUtil.getDistance2(cx, cy, window.snake.xx, window.snake.yy));
                         foodClusters[fi] = {
                             x: cx, y: cy, a: a, da: da, sz: csz, distance: distance, score: 0.0
                         };
@@ -775,11 +804,11 @@ var bot = window.bot = (function () {
             bot.MAP_R = window.grd * 0.98;
 
             bot.sectorBoxSide = Math.floor(Math.sqrt(window.sectors.length)) * window.sector_size;
-            bot.sectorBox = canvas.rect(
+            bot.sectorBox = canvasUtil.rect(
                 window.snake.xx - (bot.sectorBoxSide / 2),
                 window.snake.yy - (bot.sectorBoxSide / 2),
                 bot.sectorBoxSide, bot.sectorBoxSide);
-            if (window.visualDebugging) canvas.drawRect(bot.sectorBox, '#c0c0c0', true, 0.1);
+            if (window.visualDebugging) canvasUtil.drawRect(bot.sectorBox, '#c0c0c0', true, 0.1);
 
             bot.cos = Math.cos(window.snake.ang);
             bot.sin = Math.sin(window.snake.ang);
@@ -788,7 +817,7 @@ var bot = window.bot = (function () {
             bot.snakeRadius = bot.getSnakeWidth() / 2;
             bot.snakeWidth = bot.getSnakeWidth();
 
-            bot.sidecircle_r = canvas.circle(
+            bot.sidecircle_r = canvasUtil.circle(
                 window.snake.lnp.xx -
                 ((window.snake.lnp.yy + bot.sin * bot.snakeWidth) -
                     window.snake.lnp.yy),
@@ -798,7 +827,7 @@ var bot = window.bot = (function () {
                 bot.snakeWidth * bot.speedMult
             );
 
-            bot.sidecircle_l = canvas.circle(
+            bot.sidecircle_l = canvasUtil.circle(
                 window.snake.lnp.xx +
                 ((window.snake.lnp.yy + bot.sin * bot.snakeWidth) -
                     window.snake.lnp.yy),
@@ -836,7 +865,7 @@ var bot = window.bot = (function () {
                 window.snake !== null && window.snake.alive_amt === 1) {
                 bot.computeFoodGoal();
                 window.goalCoordinates = bot.currentFood;
-                canvas.setMouseCoordinates(canvas.mapToMouse(window.goalCoordinates));
+                canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
             }
             bot.foodTimeout = undefined;
         }
@@ -853,6 +882,13 @@ var userInterface = window.userInterface = (function () {
 
     window.oef = function () { };
     window.redraw = function () { };
+    
+    // Modify the redraw()-function to remove the zoom altering code.
+    var original_redraw_string = original_redraw.toString();
+    var new_redraw_string = original_redraw_string.replace(
+        'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
+    var new_redraw = new Function(new_redraw_string.substring(
+        new_redraw_string.indexOf('{') + 1, new_redraw_string.lastIndexOf('}')));
 
     return {
         overlays: {},
@@ -1038,19 +1074,35 @@ var userInterface = window.userInterface = (function () {
                 if (e.keyCode === 71) {
                     userInterface.toggleLeaderboard(!window.leaderboard);
                 }
+                // Letter 'H' to toggle hidden mode
+                if (e.keyCode === 72) {
+                    userInterface.toggleOverlays();
+                }
                 // Letter 'I' to toggle autorespawn
                 if (e.keyCode === 73) {
                     window.autoRespawn = !window.autoRespawn;
                     window.log('Automatic Respawning set to: ' + window.autoRespawn);
                     userInterface.savePreference('autoRespawn', window.autoRespawn);
                 }
-                // Letter 'H' to toggle hidden mode
-                if (e.keyCode === 72) {
-                    userInterface.toggleOverlays();
+                // Letter 'W' to auto rotate skin
+                if (e.keyCode === 87) {
+                    window.rotateskin = !window.rotateskin;
+                    console.log('Auto skin rotator set to: ' +
+                        window.rotateskin);
+                    userInterface.savePreference('rotateskin',
+                        window.rotateskin);
+                    bot.rotateSkin();
+                }
+                // Letter 'X' to change skin
+                if (e.keyCode === 88) {
+                    bot.changeSkin();
                 }
                 // Letter 'O' to change rendermode (visual)
                 if (e.keyCode === 79) {
-                    userInterface.toggleMobileRendering(!window.mobileRender);
+                    window.mobileRender = !window.mobileRender;
+                    window.log('Mobile rendering set to: ' + window.mobileRender);
+                    userInterface.savePreference('mobileRender', window.mobileRender);
+                    canvasUtil.mobileRendering();
                 }
                 // Letter 'A' to increase collision detection radius
                 if (e.keyCode === 65) {
@@ -1081,7 +1133,7 @@ var userInterface = window.userInterface = (function () {
                 }
                 // Letter 'Z' to reset zoom
                 if (e.keyCode === 90) {
-                    canvas.resetZoom();
+                    canvasUtil.resetZoom();
                 }
                 // Letter 'Q' to quit to main menu
                 if (e.keyCode === 81) {
@@ -1107,7 +1159,7 @@ var userInterface = window.userInterface = (function () {
                     case 1:
                         bot.defaultAccel = 1;
                         if (!bot.isBotEnabled) {
-                            original_onmouseDown(e);
+                            window.setAcceleration(1);
                         }
                         break;
                     // "Right click" to toggle bot in addition to the letter "T"
@@ -1121,24 +1173,12 @@ var userInterface = window.userInterface = (function () {
             userInterface.onPrefChange();
         },
 
-        onmouseup: function () {
-            bot.defaultAccel = 0;
-        },
-
-        // Manual mobile rendering
-        toggleMobileRendering: function (mobileRendering) {
-            window.mobileRender = mobileRendering;
-            window.log('Mobile rendering set to: ' + window.mobileRender);
-            userInterface.savePreference('mobileRender', window.mobileRender);
-            // Set render mode
-            if (window.mobileRender) {
-                window.render_mode = 1;
-                window.want_quality = 0;
-                window.high_quality = false;
-            } else {
-                window.render_mode = 2;
-                window.want_quality = 1;
-                window.high_quality = true;
+        onmouseup: function (e) {
+            if (window.playing && e.which === 1) {
+                bot.defaultAccel = 0;
+                if (!bot.isBotEnabled) {
+                    window.setAcceleration(0);
+                }
             }
         },
 
@@ -1218,22 +1258,28 @@ var userInterface = window.userInterface = (function () {
                 // Only draw the goal when a bot has a goal.
                 if (window.goalCoordinates && bot.isBotEnabled) {
                     var headCoord = { x: window.snake.xx, y: window.snake.yy };
-                    canvas.drawLine(
+                    canvasUtil.drawLine(
                         headCoord,
                         window.goalCoordinates,
                         'green');
-                    canvas.drawCircle(window.goalCoordinates, 'red', true);
+                    canvasUtil.drawCircle(window.goalCoordinates, 'red', true);
                 }
             }
         },
 
         oefTimer: function () {
             var start = Date.now();
-            canvas.maintainZoom();
+            // Original slither.io oef function + whatever is under it
             original_oef();
-            original_redraw();
+            new_redraw();
 
+            // If the game is running and the bot is enabled
             if (window.playing && bot.isBotEnabled && window.snake !== null) {
+                window.log('Starting Bot.');
+                /*
+                 * Removed the onmousemove listener so we can
+                 * move the snake manually by setting coordinates
+                 */
                 window.onmousemove = function () { };
                 bot.isBotRunning = true;
                 bot.go();
@@ -1246,11 +1292,15 @@ var userInterface = window.userInterface = (function () {
                 }
 
                 if (window.autoRespawn) {
+                    window.log('Connecting...');
                     window.connect();
                 }
             }
 
             if (!bot.isBotEnabled || !bot.isBotRunning) {
+                window.setAcceleration(0); // Stop boosting
+                window.log('Stopping Bot.');
+                // Re-enable the original onmousemove function
                 window.onmousemove = original_onmousemove;
             }
 
@@ -1274,7 +1324,7 @@ var userInterface = window.userInterface = (function () {
         onresize: function () {
             window.resize();
             // Canvas different size from the screen (often bigger).
-            canvas.canvasRatio = {
+            canvasUtil.canvasRatio = {
                 x: window.mc.width / window.ww,
                 y: window.mc.height / window.hh
             };
@@ -1289,7 +1339,9 @@ var userInterface = window.userInterface = (function () {
 
 // Main
 (function () {
+    // Listener for the play button
     window.play_btn.btnf.addEventListener('click', userInterface.playButtonClickListener);
+    // Hand over existing event listeners
     document.onkeydown = userInterface.onkeydown;
     window.onmousedown = userInterface.onmousedown;
     window.addEventListener('mouseup', userInterface.onmouseup);
@@ -1310,15 +1362,11 @@ var userInterface = window.userInterface = (function () {
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
     // Listener for mouse wheel scroll - used for setZoom function
-    document.body.addEventListener('mousewheel', canvas.setZoom);
-    document.body.addEventListener('DOMMouseScroll', canvas.setZoom);
+    document.body.addEventListener('mousewheel', canvasUtil.setZoom);
+    document.body.addEventListener('DOMMouseScroll', canvasUtil.setZoom);
 
-    // Set render mode
-    if (window.mobileRender) {
-        userInterface.toggleMobileRendering(true);
-    } else {
-        userInterface.toggleMobileRendering(false);
-    }
+    // Apply previous mobile rendering status.
+    canvasUtil.mobileRendering();
 
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
