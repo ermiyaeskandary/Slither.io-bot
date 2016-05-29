@@ -275,7 +275,8 @@ var canvas = window.canvas = (function () {
 
             // Pretends the circles are squares for a quick collision check.
             // If it collides, do the more expensive circle check.
-            if (dx + bothRadii > 0 && dy + bothRadii > 0 && dx - bothRadii < 0 && dy - bothRadii < 0) {
+            if (dx + bothRadii > 0 && dy + bothRadii > 0 &&
+                dx - bothRadii < 0 && dy - bothRadii < 0) {
 
                 var distance2 = canvas.getDistance2(circle1.x, circle1.y, circle2.x, circle2.y);
 
