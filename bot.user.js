@@ -1345,7 +1345,7 @@ var userInterface = window.userInterface = (function () {
     }
 
     // Has the user customised the options?
-    if (Object.keys(customBotOptions).length === 0
+    if (Object.keys(customBotOptions).length !== 0
         && customBotOptions.constructor === Object) {
         Object.keys(customBotOptions).forEach(function(key) {
             window.bot.opt[key] = customBotOptions[key];
