@@ -1156,7 +1156,6 @@ var userInterface = window.userInterface = (function () {
 					oContent.push('top 10 scores:');
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
                 oContent.push(i + 1 + '. ' + bot.scores[i]);
-				oContent.push('------------------');			
             }
 
             userInterface.overlays.statsOverlay.innerHTML = oContent.join('<br/>');
