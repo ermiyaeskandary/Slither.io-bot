@@ -13,12 +13,8 @@ Contents:
 
    game-variables
    conversion_algorithms
-<<<<<<< HEAD
    bot-variables
-   getters-setters
-=======
->>>>>>> master
-
+   bot-logic
 
 Indices and tables
 ==================
