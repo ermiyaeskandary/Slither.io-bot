@@ -1338,7 +1338,12 @@ var userInterface = window.userInterface = (function () {
     if (null !== savedOptions) { // If there were saved options
         // Parse the options and overwrite the default bot options
         savedOptions = JSON.parse(savedOptions);
-        window.bot.opt = savedOptions;
+        if (Object.keys(savedOptions).length !== 0
+            && savedOptions.constructor === Object) {
+            Object.keys(savedOptions).forEach(function(key) {
+                window.bot.opt[key] = savedOptions[key];
+            });
+        }
         window.log('Found saved settings, overwriting default bot options');
     } else {
         window.log('No saved settings, using default bot options');
