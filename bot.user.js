@@ -45,7 +45,11 @@ var customBotOptions = {
     // quick radius toggle size in approach mode
     // radiusApproachSize: 5,
     // quick radius toggle size in avoid mode
-    // radiusAvoidSize: 25
+    // radiusAvoidSize: 25,
+    // uncomment to quickly revert to the default options
+    // if you update the script while this is active,
+    // you will lose your custom options
+    // useDefaults: true
 };
 
 // Custom logging function - disabled by default
@@ -1333,29 +1337,36 @@ var userInterface = window.userInterface = (function () {
     userInterface.loadPreference('leaderboard', true);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
-    // Load saved options, if any
-    var savedOptions = userInterface.loadPreference('options', null);
-    if (savedOptions !== null) { // If there were saved options
-        // Parse the options and overwrite the default bot options
-        savedOptions = JSON.parse(savedOptions);
-        if (Object.keys(savedOptions).length !== 0
-            && savedOptions.constructor === Object) {
-            Object.keys(savedOptions).forEach(function(key) {
-                window.bot.opt[key] = savedOptions[key];
-            });
-        }
-        window.log('Found saved settings, overwriting default bot options');
+    // Don't load saved options or apply custom options if
+    // the user wants to use default options
+    if (typeof(customBotOptions.useDefaults) !== 'undefined'
+       && customBotOptions.useDefaults === true) {
+        window.log('Ignoring saved / customised options per user request');
     } else {
-        window.log('No saved settings, using default bot options');
-    }
+        // Load saved options, if any
+        var savedOptions = userInterface.loadPreference('options', null);
+        if (savedOptions !== null) { // If there were saved options
+            // Parse the options and overwrite the default bot options
+            savedOptions = JSON.parse(savedOptions);
+            if (Object.keys(savedOptions).length !== 0
+                && savedOptions.constructor === Object) {
+                Object.keys(savedOptions).forEach(function(key) {
+                    window.bot.opt[key] = savedOptions[key];
+                });
+            }
+            window.log('Found saved settings, overwriting default bot options');
+        } else {
+            window.log('No saved settings, using default bot options');
+        }
 
-    // Has the user customised the options?
-    if (Object.keys(customBotOptions).length !== 0
-        && customBotOptions.constructor === Object) {
-        Object.keys(customBotOptions).forEach(function(key) {
-            window.bot.opt[key] = customBotOptions[key];
-        });
-        window.log('Custom settings found, overwriting current bot options');
+        // Has the user customised the options?
+        if (Object.keys(customBotOptions).length !== 0
+            && customBotOptions.constructor === Object) {
+            Object.keys(customBotOptions).forEach(function(key) {
+                window.bot.opt[key] = customBotOptions[key];
+            });
+            window.log('Custom settings found, overwriting current bot options');
+        }
     }
 
     // Save the bot options
