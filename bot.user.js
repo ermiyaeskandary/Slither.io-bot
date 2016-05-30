@@ -36,7 +36,8 @@ var customBotOptions = {
     // foodRoundSize: 5,
     // round food angle up to nearest for angle difference scoring
     // foodRoundAngle: Math.PI / 8,
-    // food clusters at or below this size won't be considered if there is a collisionAngle
+    // food clusters at or below this size won't be considered
+    // if there is a collisionAngle
     // foodSmallSize: 10,
     // angle or higher where enemy heady is considered in the rear
     // rearHeadAngle: 3 * Math.PI / 4,
