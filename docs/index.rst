@@ -13,7 +13,8 @@ Contents:
 
    game-variables
    conversion_algorithms
-
+   bot-variables
+   bot-logic
 
 Indices and tables
 ==================

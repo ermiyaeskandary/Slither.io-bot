@@ -47,8 +47,15 @@ The above coordinates are approximative.
 
 In the bot, every polar coordinate is converted from cartesian coordinates. Also, we don't use the :math:`r` value, only the angle is important. That helps reducing computing expensiveness. Please refer to the conversion section below.
 
+<<<<<<< HEAD
+.. _different-units-section:
+
+2.2 Different units
+===================
+=======
 2.2 Different units
 ========================
+>>>>>>> master
 
 There are three main units used for the game. Some of them subdivide into others, but overall, we have three units.
 
@@ -59,6 +66,11 @@ This is the unit used by the game for mouse input. Basically, they are cartesian
 
 .. note:: If the origin is the center, then the unit is called **Mouse unit**.
 
+<<<<<<< HEAD
+.. _canvas-units-section:
+
+=======
+>>>>>>> master
 2.2.2 Canvas unit
 -----------------
 
@@ -82,6 +94,11 @@ This is the unit used by the game, and which is present in every objects. It's o
 
 Every part will have a title in the form ``Starting unit -> Result unit``
 
+<<<<<<< HEAD
+.. _screen-to-canvas:
+
+=======
+>>>>>>> master
 2.3.1 Screen unit -> Canvas unit
 --------------------------------
 
@@ -105,7 +122,11 @@ It takes a object as argument, which contain a value ``x`` and a value ``y``, gi
     }
 
 The conversion process may seem complicated, but it is quite simple.
+<<<<<<< HEAD
+Firstly, we multiply the point coordinates and the ratio defined at initialization. (Cf. :ref:`canvas-units-section`)::
+=======
 Firstly, we multiply the point coordinates and the ratio defined at initialization. (Cf. 2.2.2)::
+>>>>>>> master
 
     point.x * canvas.canvasRatio[0]
 
@@ -113,7 +134,11 @@ Then we multiply the result by the canvas scale variable `window.csc <http://sli
 
     window.csc * (point.x * canvas.canvasRatio[0])
 
+<<<<<<< HEAD
+But, as stated in :ref:`canvas-units-section`, there is an offset between the canvas and the screen. We solve this issue by taking it away from the result. However, this offset is defined as a String, thus we need to convert it to an integer. The final result looks like::
+=======
 But, as stated in 2.2.2, there is an offset between the canvas and the screen. We solve this issue by taking it away from the result. However, this offset is defined as a String, thus we need to convert it to an integer. The final result looks like::
+>>>>>>> master
 
     window.csc * (point.x * canvas.canvasRatio[0]) - parseInt(window.mc.style.left);
 
@@ -132,7 +157,11 @@ This is the function used for conversion::
         };
     }
 
+<<<<<<< HEAD
+It takes a object as argument, which contain a value ``x`` and a value ``y``, given in mouse unit. As for :ref:`screen-to-canvas`, the object can be defined as follows::
+=======
 It takes a object as argument, which contain a value ``x`` and a value ``y``, given in mouse unit. As for 2.3.1, the object can be defined as follows::
+>>>>>>> master
 
     var point = {
        x: -100,
