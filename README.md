@@ -3,8 +3,6 @@ This is a project which the aim is to make a computer play against humans inside
 
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-[![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=latest)](http://slitherio-bot.readthedocs.io/en/latest/?badge=latest)
-
 # Table of Contents
 - [Installation instructions](https://github.com/ErmiyaEskandary/Slither.io-bot#installation-instructions)
 	- [Visual tutorial](https://github.com/ErmiyaEskandary/Slither.io-bot#visual-tutorial)
@@ -63,6 +61,12 @@ To get started, please sign the [Contributor License Agreement](https://cla-assi
 Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/). **Please review the guidelines for contributing to this project before making an issue or submitting a pull request.Your pull request needs to be approved by at least 3 people until it is merged and all checks need to pass.**
 
 [Check out the wiki for more information](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki)
+
+## Documentation
+
+[![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=latest)](http://slitherio-bot.readthedocs.io/en/latest/?badge=latest)
+
+The [online documentation](http://slitherio-bot.readthedocs.io/en/master/) is maintained in the `/docs` directory.
 
 # Authors
 **Ermiya Eskandary & Théophile Cailliau (ErmiyaEskandary & FliiFe)**
