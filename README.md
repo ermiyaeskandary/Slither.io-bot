@@ -1,12 +1,9 @@
 # Slither.io bot
 Goal : make a bot for slither.io
 
-[![GitHub forks](https://img.shields.io/github/forks/badges/shields.svg?style=social&label=Fork&maxAge=2592000)]()
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![License](https://img.shields.io/badge/License-MPL-orange.svg)](https://www.mozilla.org/en-US/MPL/)
 
 [![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=latest)](http://slitherio-bot.readthedocs.io/en/latest/?badge=latest)
-[![CLA assistant](https://cla-assistant.io/readme/badge/ErmiyaEskandary/Slither.io-bot)](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot)
 
 # Table of Contents
 - [Installation instructions](https://github.com/ErmiyaEskandary/Slither.io-bot#installation-instructions)
@@ -61,7 +58,7 @@ Q | Quit to menu
 # Contributing
 
 To get started, please sign the [Contributor License Agreement](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot).
-
+[![CLA assistant](https://cla-assistant.io/readme/badge/ErmiyaEskandary/Slither.io-bot)](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot)
 
 Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/). **Please review the guidelines for contributing to this project before making an issue or submitting a pull request.Your pull request needs to be approved by at least 3 people until it is merged and all checks need to pass.**
 
