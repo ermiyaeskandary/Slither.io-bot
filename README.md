@@ -2,7 +2,6 @@
 Goal : make a bot for slither.io
 
 [![CLA assistant](https://cla-assistant.io/readme/badge/ErmiyaEskandary/Slither.io-bot)](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot)
-[![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=docs)](http://slitherio-bot.readthedocs.io/en/docs/?badge=docs)
 
 # Table of Contents
 - [Installation instructions](https://github.com/ErmiyaEskandary/Slither.io-bot#installation-instructions)
@@ -64,7 +63,8 @@ Please contribute using [Github Flow](https://guides.github.com/introduction/flo
 
 ## Documentation
 
-The [online documentation](http://slitherio-bot.readthedocs.io/en/docs/) is maintained in the `/docs` direcectory.
+[![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=master)](http://slitherio-bot.readthedocs.io/en/master/?badge=docs)
+The [online documentation](http://slitherio-bot.readthedocs.io/en/docs/) is maintained in the `/docs` directory.
 
 ## Join us on Gitter (team communication)
 [![Gitter](https://badges.gitter.im/ErmiyaEskandary/Slither.io-bot.svg)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
