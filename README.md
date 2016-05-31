@@ -5,7 +5,7 @@ Goal : make a bot for slither.io
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![License](https://img.shields.io/badge/License-MPL-orange.svg)](https://www.mozilla.org/en-US/MPL/)
 
-[![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=docs)](http://slitherio-bot.readthedocs.io/en/docs/?badge=docs)
+[![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=latest)](http://slitherio-bot.readthedocs.io/en/latest/?badge=latest)
 [![CLA assistant](https://cla-assistant.io/readme/badge/ErmiyaEskandary/Slither.io-bot)](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot)
 
 # Table of Contents
