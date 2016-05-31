@@ -7,7 +7,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      1.2.5
+// @version      1.2.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -1423,7 +1423,12 @@ var userInterface = window.userInterface = (function() {
     } else {
         userInterface.toggleMobileRendering(false);
     }
-
+    // Remove laggy logo animation
+    if (typeof window.showlogo_iv !== 'undefined') {
+        window.ncka = window.lgss = window.lga = 1;
+        clearInterval(window.showlogo_iv);
+        showLogo(true);
+    }
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
 
