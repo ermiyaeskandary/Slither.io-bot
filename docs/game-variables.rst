@@ -61,7 +61,7 @@ The nickname you choose on login screen. In case you forget...
 1.3.2 ``snakes`` - Array of objects
 -----------------------------------
 
-This is an array containing every snakes, including yours. The content of each object is almost the same as in the ``snake`` object.
+This is an array containing nearby snakes, including yours. This means you cannot access all snakes to base a strategy upon. The content of each object is almost the same as in the ``snake`` object.
 It may contain null or undefined objects.
 
 .. note:: ``snakes[index].pts`` contains every components of the snake.
