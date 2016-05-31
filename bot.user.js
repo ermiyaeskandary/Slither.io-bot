@@ -7,12 +7,52 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      1.2.4
+// @version      1.2.5
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
 // @grant        none
 // ==/UserScript==
+
+/*
+Override bot options here
+Uncomment variables you wish to change from their default values
+Changes you make here will be kept between script versions
+*/
+var customBotOptions = {
+    // target fps
+    // targetFps: 30,
+    // size of arc for collisionAngles
+    // arcSize: Math.PI / 8,
+    // radius multiple for circle intersects
+    // radiusMult: 10,
+    // food cluster size to trigger acceleration
+    // foodAccelSize: 60,
+    // maximum angle of food to trigger acceleration
+    // foodAccelAngle:  Math.PI / 3,
+    // how many frames per food check
+    // foodFrames: 4,
+    // round food cluster size up to the nearest
+    // foodRoundSize: 5,
+    // round food angle up to nearest for angle difference scoring
+    // foodRoundAngle: Math.PI / 8,
+    // food clusters at or below this size won't be considered
+    // if there is a collisionAngle
+    // foodSmallSize: 10,
+    // angle or higher where enemy heady is considered in the rear
+    // rearHeadAngle: 3 * Math.PI / 4,
+    // attack emeny rear head at this angle
+    // rearHeadDir: Math.PI / 2,
+    // quick radius toggle size in approach mode
+    // radiusApproachSize: 5,
+    // quick radius toggle size in avoid mode
+    // radiusAvoidSize: 25,
+    // uncomment to quickly revert to the default options
+    // if you update the script while this is active,
+    // you will lose your custom options
+    // useDefaults: true
+};
+
 // Custom logging function - disabled by default
 window.log = function() {
     if (window.logDebugging) {
@@ -325,31 +365,21 @@ var bot = window.bot = (function() {
         sectorBox: {},
         currentFood: {},
         opt: {
-            // target fps
+            // These are the bot's default options
+            // If you wish to customise these, use
+            // customBotOptions above
             targetFps: 30,
-            // size of arc for collisionAngles
             arcSize: Math.PI / 8,
-            // radius multiple for circle intersects
             radiusMult: 10,
-            // food cluster size to trigger acceleration
             foodAccelSize: 60,
-            // maximum angle of food to trigger acceleration
             foodAccelAngle: Math.PI / 3,
-            // how many frames per food check
             foodFrames: 4,
-            // round food cluster size up to the nearest
             foodRoundSize: 5,
-            // round food angle up to nearest for angle difference scoring
             foodRoundAngle: Math.PI / 8,
-            // food clusters at or below this size won't be considered if there is a collisionAngle
             foodSmallSize: 10,
-            // angle or higher where enemy heady is considered in the rear
             rearHeadAngle: 3 * Math.PI / 4,
-            // attack emeny rear head at this angle
             rearHeadDir: Math.PI / 2,
-            // quick radius toggle size in approach mode
             radiusApproachSize: 5,
-            // quick radius toggle size in avoid mode
             radiusAvoidSize: 25
         },
         MID_X: 0,
@@ -1346,6 +1376,42 @@ var userInterface = window.userInterface = (function() {
     userInterface.loadPreference('mobileRender', false);
     userInterface.loadPreference('leaderboard', true);
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
+
+    // Don't load saved options or apply custom options if
+    // the user wants to use default options
+    if (typeof(customBotOptions.useDefaults) !== 'undefined'
+       && customBotOptions.useDefaults === true) {
+        window.log('Ignoring saved / customised options per user request');
+    } else {
+        // Load saved options, if any
+        var savedOptions = userInterface.loadPreference('options', null);
+        if (savedOptions !== null) { // If there were saved options
+            // Parse the options and overwrite the default bot options
+            savedOptions = JSON.parse(savedOptions);
+            if (Object.keys(savedOptions).length !== 0
+                && savedOptions.constructor === Object) {
+                Object.keys(savedOptions).forEach(function(key) {
+                    window.bot.opt[key] = savedOptions[key];
+                });
+            }
+            window.log('Found saved settings, overwriting default bot options');
+        } else {
+            window.log('No saved settings, using default bot options');
+        }
+
+        // Has the user customised the options?
+        if (Object.keys(customBotOptions).length !== 0
+            && customBotOptions.constructor === Object) {
+            Object.keys(customBotOptions).forEach(function(key) {
+                window.bot.opt[key] = customBotOptions[key];
+            });
+            window.log('Custom settings found, overwriting current bot options');
+        }
+    }
+
+    // Save the bot options
+    userInterface.savePreference('options', JSON.stringify(window.bot.opt));
+    window.log('Saving current bot options');
 
     // Listener for mouse wheel scroll - used for setZoom function
     document.body.addEventListener('mousewheel', canvasUtil.setZoom);
