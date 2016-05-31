@@ -42,15 +42,19 @@ Go to [slither.io](http://slither.io/), and enjoy !
 Key | Result
 ---|---
 T / Right Click | Bot enabled/disabled
-U | Log debugging
-H | Hide overlays
-Y | Visual debugging
-I | Automatic Respawning
 **O** | **Mobile rendering - Try this if you experience lag**
+A/S | Radius multiplier
+D | Quick radius change - "approach" and "avoid" mode
+I | Auto respawn
+G | Leaderboard overlay
+Y | Visual debugging
+U | Log debugging
+H | Overlays
+Mouse wheel | Zoom in/out
 Z | Reset zoom
 ESC | Quick respawn
 Q | Quit to menu
-Mouse wheel | Zoom in/out
+
 
 # Contributing
 
