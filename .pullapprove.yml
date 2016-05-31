@@ -5,6 +5,12 @@ reset_on_push: false
 reviewers:
   members:
   - ChadSki
+  - tjorim
+  - OneEyed
+  - chancity
+  - ksofiyuk
+  - MattDuffin
+  - clemens-tolboom
   - Drflash55
   - ErmiyaEskandary
   - Evanito
