@@ -1,5 +1,5 @@
 # Slither.io bot
-Goal : make a bot for slither.io
+This is a project which's aim is to make a computer play against humans inside a human-driven game, which is in this case Slither.io. The goal is to make the snake live and get as long as possible.
 
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/ErmiyaEskandary/Slither.io-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
