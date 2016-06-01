@@ -46,6 +46,7 @@ I | Auto respawn
 G | Leaderboard overlay
 Y | Visual debugging
 U | Log debugging
+B | Background Change
 H | Overlays
 Mouse wheel | Zoom in/out
 Z | Reset zoom
