@@ -1106,8 +1106,8 @@ var userInterface = window.userInterface = (function() {
                 }
                 // Letter 'B' to prompt for a custom background url
                 if (e.keyCode === 66) {
-                    var url = prompt("Please enter a background url:");
-                    if (url != null) {
+                    var url = prompt('Please enter a background url:');
+                    if (url !== null) {
                         canvasUtil.setBackground(url);
                     }
                 }
