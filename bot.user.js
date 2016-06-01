@@ -7,7 +7,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      1.2.7
+// @version      1.2.6
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -1104,13 +1104,6 @@ var userInterface = window.userInterface = (function() {
                     window.log('Automatic Respawning set to: ' + window.autoRespawn);
                     userInterface.savePreference('autoRespawn', window.autoRespawn);
                 }
-                // Letter 'B' to prompt for a custom background url
-                if (e.keyCode === 66) {
-                    var url = prompt('Please enter a background url:');
-                    if (url !== null) {
-                        canvasUtil.setBackground(url);
-                    }
-                }
                 // Letter 'H' to toggle hidden mode
                 if (e.keyCode === 72) {
                     userInterface.toggleOverlays();
@@ -1245,7 +1238,6 @@ var userInterface = window.userInterface = (function() {
             oContent.push('[G] leaderboard overlay: ' + ht(window.leaderboard));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
             oContent.push('[U] log debugging: ' + ht(window.logDebugging));
-            oContent.push('[B] change background');
             oContent.push('[H] overlays');
             oContent.push('[Mouse Wheel] zoom');
             oContent.push('[Z] reset zoom');
