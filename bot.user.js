@@ -980,8 +980,11 @@ var bot = window.bot = (function() {
             bot.tasks.sort(bot.sortTasks);
 
             var task = bot.tasks[0];
-            if (bot.lastTask && (bot.lastTask.id !== task.id || bot.lastTask.priority !== task.priority)) {
-                console.log(task.priority, task.id);
+
+            if (window.visualDebugging) {
+                if (bot.lastTask && (bot.lastTask.id !== task.id || bot.lastTask.priority !== task.priority)) {
+                    console.log(task.priority, task.id);
+                }
             }
             bot.lastTask = {
                 id: task.id,
