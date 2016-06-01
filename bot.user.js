@@ -875,8 +875,6 @@ var bot = window.bot = (function() {
                 description: 'Avoid collision with other (enemy) snakes',
                 getPriority: function() {
                     if (bot.checkCollision()) {
-                        // Stunn legacy
-                        bot.lookForFood = false;
                         return 500;
                     }
                     else {
