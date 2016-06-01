@@ -890,24 +890,19 @@ var bot = window.bot = (function() {
                 id: 'CheckForFood',
                 description: 'Trigger food scan',
                 triggerPriority: 400,
-                startPriority: 10,
+                startPriority: 200,
                 getPriority: function() {
                     var currentPriority = this.priority;
 
-                    if (this.priority < this.triggerPriority) {
-                        // Increment priority to trigger bot.computeFoodGoal
-                        return this.priority + 10;
-                    }
-                    else {
-                        bot.computeFoodGoal();
-                        if (bot.currentFood) {
-                            // Keep allow for more scans
-                            if (this.priority < this.triggerPriority) {
-                                return this.priority + 10;
-                            }
-                            return this.startPriority;
+                    bot.computeFoodGoal();
+                    if (bot.currentFood) {
+                        window.setAcceleration(bot.foodAccel());
+                        if (this.priority < this.triggerPriority) {
+                            // Increment priority to trigger bot.computeFoodGoal
+                            return this.priority + 1;
                         }
                     }
+                    return this.startPriority;
                 },
                 execute: function() {
                     window.goalCoordinates = bot.currentFood;
