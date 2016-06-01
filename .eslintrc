@@ -177,7 +177,7 @@
     "space-before-function-paren": [1, "never"],
     "space-in-parens": [1, "never"],
     "space-infix-ops": 1,
-    "keyword-spacing": ["1", "before": true }],
+    "keyword-spacing": [1, {"before": true }],
     "space-unary-ops": 0,
     "spaced-comment": [1, "always"],
     "wrap-regex": 1,
