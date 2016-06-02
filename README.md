@@ -58,9 +58,9 @@ Q | Quit to menu
 To get started, please sign the [Contributor License Agreement](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot).
 [![CLA assistant](https://cla-assistant.io/readme/badge/ErmiyaEskandary/Slither.io-bot)](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot)
 
-Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/). **Please review the guidelines for contributing to this project before making an issue or submitting a pull request.Your pull request needs to be approved by at least 3 people until it is merged and all checks need to pass.**
+Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/ErmiyaEskandary/Slither.io-bot/compare/). **Please review the [guidelines](https://github.com/ErmiyaEskandary/Slither.io-bot/blob/master/.github/CONTRIBUTING.md) for contributing to this project before making an issue or submitting a pull request. Your pull request needs to be approved by at least 5 people or by the repo owner until it is merged and all checks need to pass. All pull requests need to use the template provided or the PR will be DISREGARDED.**
 
-[Check out the wiki for more information](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki)
+[Check the wiki for more information](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki)
 
 ## Documentation
 
