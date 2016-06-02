@@ -5,7 +5,7 @@
 <!--- If it fixes an open issue, please link to the issue here. -->
 <!--- Why is this change required? What problem does it solve? -->
 
-## Screenshots - Testing stage.
+## Screenshots - Testing stage
 <!--- Refer to https://github.com/ErmiyaEskandary/Slither.io-bot/wiki/How-to-Test-Bot-Effectiveness on how to test  -->
 <!--- REQUIRED AS MENTIONED IN DOCS, CONTRIBUTING GUIDELINES AND THE README -->
 
