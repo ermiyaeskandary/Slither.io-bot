@@ -6,6 +6,7 @@
 <!--- Why is this change required? What problem does it solve? -->
 
 ## Screenshot - Scores of the bot before and after your changes, in atleast 30 games.
+<!--- Refer to the wiki on how to test  -->
 
 ## Types of changes
 <!--- What types of changes does your code introduce? Put an `x` in all the boxes that apply: -->
