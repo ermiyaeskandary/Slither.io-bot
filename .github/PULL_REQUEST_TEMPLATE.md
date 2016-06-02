@@ -5,7 +5,7 @@
 <!--- If it fixes an open issue, please link to the issue here. -->
 <!--- Why is this change required? What problem does it solve? -->
 
-## Screenshots - Testing stage
+## TESTING STAGE
 <!--- Refer to https://github.com/ErmiyaEskandary/Slither.io-bot/wiki/How-to-Test-Bot-Effectiveness on how to test  -->
 <!--- REQUIRED AS MENTIONED IN DOCS, CONTRIBUTING GUIDELINES AND THE README -->
 
@@ -16,9 +16,11 @@
 - [ ] Breaking change (fix or feature that would cause existing functionality to change)
 
 ## Checklist:
-<!--- Go over all the following points, and put an `x` in all the boxes that apply. -->
+<!--- Go over all the following points -->
+<!--- For us to merge your PR, after approval, ALL OF THESE CHECKBOXES NEED TO BE TICKED -->
 <!--- If you're unsure about any of these, don't hesitate to ask. We're here to help! -->
+- [ ] **I fully understand the [Github Flow](https://guides.github.com/introduction/flow/) and I'm not merging into master but a seperate development branch.**
 - [ ] **I have read CONTRIBUTING.md, PULL_REQUEST_TEMPLATE.md and the contributing section in the README.md file.**
-- [ ] **My code adheres to the code style of this project but most importantly of all to the things mentioned in CONTRIBUTING.md and PULL_REQUEST_TEMPLATE.md.**
-- [ ] My change requires a change to the documentation.
-- [ ] I have updated the documentation accordingly.
+- [ ] **My code adheres to the code style of this project but most importantly of all to the things mentioned, which I have read, in CONTRIBUTING.md and PULL_REQUEST_TEMPLATE.md.**
+- [ ] **If my change requires a change to the documentation, I have updated the documentation in /docs accordingly.**
+- [ ] **I have included the results of the [test required](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki/How-to-Test-Bot-Effectiveness].**
