@@ -958,21 +958,75 @@ var bot = window.bot = (function() {
             // },
             {
                 id : 'ListTasks',
-                description: 'List the current set of tasks',
-                example: "bot.tasks.getTaskById('ListTasks');",
+                description: 'List the current set of tasks. Useful when debugging.',
+                active: false,
+                example: "bot.getTask('ListTasks').execute();",
+
                 getPriority: function() {
                     return 0;
                 },
                 execute: function() {
                     bot.tasks.forEach(function(v,i,l){
-                        window.log(v.id, v.priority, v.description);
+                        console.log(v.id, 'Active:', v.active, 'Priority:', v.priority, v.description);
                     });
                 }
-            },
+            }
 
         ],
 
-        lastTask: {},
+        newTask: function(id) {
+          return {
+              // Only active task will be checked.
+              active: false,
+              // ID is required and must differ from existing task
+              id: id,
+              // used when dumping all tasks
+              description: 'Description of ' + id,
+              example: 'Example of ' + id,
+              getPriority: function() {
+                  // No need to run
+                  return 0;
+              },
+              execute: function() {
+                  window.log('I should have an implementation');
+              }
+          }
+        },
+
+        addTask: function(task) {
+            if (bot.getTask(task.id) === undefined) {
+                bot.tasks.push(task);
+            }
+            else {
+                console.log('Cannot add task with same ID: ' + task.id);
+            }
+        },
+
+        getTask: function(id) {
+            var index = bot.tasks.findIndex(function (v, i, l) {
+                return v.id === id;
+            });
+
+            if (index !== -1) {
+                return bot.tasks[index];
+            }
+
+        },
+
+        deleteTask: function(id) {
+            var index = bot.tasks.findIndex(function (v, i, l) {
+                return v.id === id;
+            });
+
+            if (index !== -1) {
+                 bot.tasks.splice(index, 1);
+            }
+
+        },
+
+        // Values of previous running task.
+        // {id: ID, priority:PRIORITY}
+        lastTaskRunStat: {},
 
         /**
          * Execute task with highest priority.
@@ -989,17 +1043,24 @@ var bot = window.bot = (function() {
 
             var task = bot.tasks[0];
 
-            if (bot.lastTask && (bot.lastTask.id !== task.id || bot.lastTask.priority !== task.priority)) {
-                window.log(task.priority, task.id);
+            // Only log task when switched from task or priority changed
+            if (bot.lastTaskRunStat && (bot.lastTaskRunStat.id !== task.id || bot.lastTaskRunStat.priority !== task.priority)) {
+                window.log('ID:', task.id, 'Priority:', task.priority);
             }
-            bot.lastTask = {
+
+            bot.lastTaskRunStat = {
                 id: task.id,
                 priority: task.priority
             };
             task.execute();
         },
 
+        // Sort tasks by active
         sortTasks: function(a, b) {
+
+            if (a.active !== b.active) {
+                 return a.active < b.active;
+            }
             return a.priority < b.priority;
         },
 
