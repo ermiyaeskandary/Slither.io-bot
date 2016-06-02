@@ -15,5 +15,6 @@ reviewers:
   - FliiFe
   - K00sKlust
   - j-c-m
+  - clemens-tolboom
   name: default
-  required: 3
+  required: 5
