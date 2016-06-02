@@ -864,120 +864,137 @@ var bot = window.bot = (function() {
                 bot.snakeWidth * bot.speedMult
             );
         },
+        // Main bot
+        go: function() {
+            bot.every();
 
-        tasks: [
-            {
-                id: 'AvoidCollisionEnemySnake',
-                active: true,
-                description: 'Avoid collision with other (enemy) snakes',
+            scheduler.executeTasks();
 
-                getPriority: function() {
-                    if (bot.checkCollision()) {
-                        return 500;
-                    }
-                    else {
-                      return 0;
-                    }
-                },
-                execute: function() {
-                    // NOP
-                    // TODO: checkCollision() needs refactoring; it should return but not set direction
-                }
-            },
-            {
-                id: 'CheckForFood',
-                active: true,
-                description: 'Trigger food scan',
+        }
 
-                // We don't want to block other task so let priority change from
-                startPriority: 200,
-                // to maximum priority
-                triggerPriority: 400,
 
-                getPriority: function() {
-                    var currentPriority = this.priority;
+    };
+})();
 
-                    bot.computeFoodGoal();
-                    if (bot.currentFood) {
-                        window.setAcceleration(bot.foodAccel());
-                        if (this.priority < this.triggerPriority) {
-                            // Increment priority to trigger bot.computeFoodGoal
-                            return this.priority + 1;
+var scheduler = window.scheduler = (function() {
+    return {
+        tasks: [],
+
+        init: function() {
+            this.tasks = [
+                {
+                    id: 'AvoidCollisionEnemySnake',
+                    active: true,
+                    description: 'Avoid collision with other (enemy) snakes',
+
+                    getPriority: function () {
+                        if (bot.checkCollision()) {
+                            return 500;
                         }
-                    }
-                    return this.startPriority;
-                },
-                execute: function() {
-                    window.goalCoordinates = bot.currentFood;
-                    canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
-                }
-            },
-            {
-                id : 'MoveToXY',
-                active: false,
-                description: 'move to the given waypoint',
-
-                // Value is somewhat related to CheckForFood priorities
-                defaultPriority: 300,
-
-                // Where to move
-                point: {
-                    x: 20000,
-                    y: 20000
-                },
-
-                getPriority: function() {
-                    if (canvasUtil.getDistance2(window.snake.xx, window.snake.yy, this.point.x, this.point.y) > 1000) {
-                        return this.defaultPriority;
-                    }
-                    else {
-                        this.active = false;
+                        else {
+                            return 0;
+                        }
+                    },
+                    execute: function () {
+                        // NOP
+                        // TODO: checkCollision() needs refactoring; it should return but not set direction
                     }
                 },
-                execute: function() {
-                    window.goalCoordinates = this.point;
-                    canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
-                }
-            },
-            // {
-            //     id: 'AvoidCollisionWall',
-            //     // A use case is to feed ones friend but that could also be done by collision
-            //     description: 'There is no use in dying against the wall'
-            //     getPriority: function() {
-            //         return 1000;
-            //     }
-            // },
-            // {
-            //     id: 'KillEnemy',
-            //     description: 'This is a suicide action useful when having a friend(s).',
-            //     getPriority: function() {
-            //         return 0;
-            //     }
-            // },
-            // {
-            //     id: 'avoidCollisionFriend',
-            //     // do not collide with friends
-            //     getPriority: function() {
-            //       return 1000;
-            //     }
-            // },
-            {
-                id : 'ListTasks',
-                description: 'List the current set of tasks. Useful when debugging.',
-                active: false,
-                example: "bot.getTask('ListTasks').execute();",
+                {
+                    id: 'CheckForFood',
+                    active: true,
+                    description: 'Trigger food scan',
 
-                getPriority: function() {
-                    return 0;
+                    // We don't want to block other task so let priority change from
+                    startPriority: 200,
+                    // to maximum priority
+                    triggerPriority: 400,
+
+                    getPriority: function () {
+                        var currentPriority = this.priority;
+
+                        bot.computeFoodGoal();
+                        if (bot.currentFood) {
+                            window.setAcceleration(bot.foodAccel());
+                            if (this.priority < this.triggerPriority) {
+                                // Increment priority to trigger bot.computeFoodGoal
+                                return this.priority + 1;
+                            }
+                        }
+                        return this.startPriority;
+                    },
+                    execute: function () {
+                        window.goalCoordinates = bot.currentFood;
+                        canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+                    }
                 },
-                execute: function() {
-                    bot.tasks.forEach(function(v,i,l){
-                        console.log(v.id, 'Active:', v.active, 'Priority:', v.priority, v.description);
-                    });
-                }
-            }
+                {
+                    id: 'MoveToXY',
+                    active: false,
+                    description: 'move to the given waypoint',
 
-        ],
+                    // Value is somewhat related to CheckForFood priorities
+                    defaultPriority: 300,
+
+                    // Where to move
+                    point: {
+                        x: 20000,
+                        y: 20000
+                    },
+
+                    getPriority: function () {
+                        if (canvasUtil.getDistance2(window.snake.xx, window.snake.yy, this.point.x, this.point.y) > 1000) {
+                            return this.defaultPriority;
+                        }
+                        else {
+                            this.active = false;
+                        }
+                    },
+                    execute: function () {
+                        window.goalCoordinates = this.point;
+                        canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+                    }
+                },
+                // {
+                //     id: 'AvoidCollisionWall',
+                //     // A use case is to feed ones friend but that could also be done by collision
+                //     description: 'There is no use in dying against the wall'
+                //     getPriority: function() {
+                //         return 1000;
+                //     }
+                // },
+                // {
+                //     id: 'KillEnemy',
+                //     description: 'This is a suicide action useful when having a friend(s).',
+                //     getPriority: function() {
+                //         return 0;
+                //     }
+                // },
+                // {
+                //     id: 'avoidCollisionFriend',
+                //     // do not collide with friends
+                //     getPriority: function() {
+                //       return 1000;
+                //     }
+                // },
+                {
+                    id: 'ListTasks',
+                    description: 'List the current set of tasks. Useful when debugging.',
+                    active: false,
+                    example: "scheduler.getTask('ListTasks').execute();",
+
+                    getPriority: function () {
+                        return 0;
+                    },
+                    execute: function () {
+                        scheduler.tasks.forEach(function (v, i, l) {
+                            console.log(v.id, 'Active:', v.active, 'Priority:', v.priority, v.description);
+                        });
+                    }
+                }
+
+            ];
+        },
 
         newTask: function(id) {
           return {
@@ -999,8 +1016,8 @@ var bot = window.bot = (function() {
         },
 
         addTask: function(task) {
-            if (bot.getTask(task.id) === undefined) {
-                bot.tasks.push(task);
+            if (scheduler.getTask(task.id) === undefined) {
+                scheduler.tasks.push(task);
             }
             else {
                 console.log('Cannot add task with same ID: ' + task.id);
@@ -1008,23 +1025,23 @@ var bot = window.bot = (function() {
         },
 
         getTask: function(id) {
-            var index = bot.tasks.findIndex(function (v, i, l) {
+            var index = scheduler.tasks.findIndex(function (v, i, l) {
                 return v.id === id;
             });
 
             if (index !== -1) {
-                return bot.tasks[index];
+                return scheduler.tasks[index];
             }
 
         },
 
         deleteTask: function(id) {
-            var index = bot.tasks.findIndex(function (v, i, l) {
+            var index = scheduler.tasks.findIndex(function (v, i, l) {
                 return v.id === id;
             });
 
             if (index !== -1) {
-                 bot.tasks.splice(index, 1);
+                scheduler.tasks.splice(index, 1);
             }
 
         },
@@ -1036,24 +1053,24 @@ var bot = window.bot = (function() {
         /**
          * Execute task with highest priority.
          *
-         * New tasks can be injected into bot.tasks.
+         * New tasks can be injected into scheduler.tasks.
          * Existing tasks can be adjusted.
          */
         executeTasks: function() {
-            bot.tasks.forEach(function(v, i, l){
+            scheduler.tasks.forEach(function(v, i, l){
                 v.priority = v.getPriority();
             });
 
-            bot.tasks.sort(bot.sortTasks);
+            scheduler.tasks.sort(scheduler.sortTasks);
 
-            var task = bot.tasks[0];
+            var task = scheduler.tasks[0];
 
             // Only log task when switched from task or priority changed
-            if (bot.lastTaskRunStat && (bot.lastTaskRunStat.id !== task.id || bot.lastTaskRunStat.priority !== task.priority)) {
+            if (scheduler.lastTaskRunStat && (scheduler.lastTaskRunStat.id !== task.id || scheduler.lastTaskRunStat.priority !== task.priority)) {
                 window.log('ID:', task.id, 'Priority:', task.priority);
             }
 
-            bot.lastTaskRunStat = {
+            scheduler.lastTaskRunStat = {
                 id: task.id,
                 priority: task.priority
             };
@@ -1067,36 +1084,33 @@ var bot = window.bot = (function() {
                  return a.active < b.active;
             }
             return a.priority < b.priority;
-        },
-
-        // Main bot
-        go: function() {
-            bot.every();
-
-            bot.executeTasks();
-
         }
 
     };
 })();
 
+scheduler.init();
+
 // Activate task
-bot.getTask('MoveToXY').active = true;
+scheduler.getTask('MoveToXY').active = true;
+
+// Set new point
+scheduler.getTask('MoveToXY').point = {x: 21600, y: 21600};
 
 // Add new task
-bot.addTask(bot.newTask('dummy'));
+scheduler.addTask(scheduler.newTask('dummy'));
 
 // Cannot add duplicate task ID
-bot.addTask(bot.newTask('dummy'));
+scheduler.addTask(scheduler.newTask('dummy'));
 
 // Delete task
-bot.deleteTask('dummy');
+scheduler.deleteTask('dummy');
 
 // Deleted correct item?
-console.log('No dummy found!', bot.getTask('dummy'));
+console.log('No dummy found!', scheduler.getTask('dummy'));
 
 // Report on tasks
-bot.getTask('ListTasks').execute();
+scheduler.getTask('ListTasks').execute();
 
 var userInterface = window.userInterface = (function() {
     // Save the original slither.io functions so we can modify them, or reenable them later.
