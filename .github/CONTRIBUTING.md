@@ -22,11 +22,15 @@ When making your report, be sure to mention:
 
 * Open a new GitHub pull request with the patch.
 
-* Ensure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable.
-
 * Please use the already made pull request template to layout your pull request.
 
+* Ensure the PR template is filled in **fully** and required conditions are met or your PR **WILL BE DISREGARDED**.
+
 * Adhere to the current code style. Listen to Hound's comments on your PR.
+
+* Your PR will **need** to include **scores of the bot before and after your changes, in at least 30 games**. This is due to checking the **efficiency** of the bot and is **mandatory**.
+
+* If is all is good, wait for approvals, or rejections which decide if your PR will be merged !
 
 *Pull request are made to be discussed, thus collaborators may want you to change things. Don't make a new PR for these changes. Update your existing PR.*
 
