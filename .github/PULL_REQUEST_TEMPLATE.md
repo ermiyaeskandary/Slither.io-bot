@@ -5,8 +5,9 @@
 <!--- If it fixes an open issue, please link to the issue here. -->
 <!--- Why is this change required? What problem does it solve? -->
 
-## Screenshot - Scores of the bot before and after your changes, in atleast 30 games.
-<!--- Refer to the wiki on how to test  -->
+## Screenshots - Testing stage.
+<!--- Refer to https://github.com/ErmiyaEskandary/Slither.io-bot/wiki/How-to-Test-Bot-Effectiveness on how to test  -->
+<!--- REQUIRED AS MENTIONED IN DOCS, CONTRIBUTING GUIDELINES AND THE README -->
 
 ## Types of changes
 <!--- What types of changes does your code introduce? Put an `x` in all the boxes that apply: -->
@@ -17,6 +18,7 @@
 ## Checklist:
 <!--- Go over all the following points, and put an `x` in all the boxes that apply. -->
 <!--- If you're unsure about any of these, don't hesitate to ask. We're here to help! -->
+- [ ] **I have read CONTRIBUTING.md, PULL_REQUEST_TEMPLATE.md and the contributing section in the README.md file.**
 - [ ] **My code adheres to the code style of this project but most importantly of all to the things mentioned in CONTRIBUTING.md and PULL_REQUEST_TEMPLATE.md.**
 - [ ] My change requires a change to the documentation.
 - [ ] I have updated the documentation accordingly.
