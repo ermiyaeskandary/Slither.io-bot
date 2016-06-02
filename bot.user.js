@@ -868,7 +868,9 @@ var bot = window.bot = (function() {
         tasks: [
             {
                 id: 'AvoidCollisionEnemySnake',
+                active: true,
                 description: 'Avoid collision with other (enemy) snakes',
+
                 getPriority: function() {
                     if (bot.checkCollision()) {
                         return 500;
@@ -884,9 +886,14 @@ var bot = window.bot = (function() {
             },
             {
                 id: 'CheckForFood',
+                active: true,
                 description: 'Trigger food scan',
-                triggerPriority: 400,
+
+                // We don't want to block other task so let priority change from
                 startPriority: 200,
+                // to maximum priority
+                triggerPriority: 400,
+
                 getPriority: function() {
                     var currentPriority = this.priority;
 
@@ -907,6 +914,7 @@ var bot = window.bot = (function() {
             },
             {
                 id : 'MoveToXY',
+                active: false,
                 description: 'move to the given waypoint',
                 example: "bot.gotoXY = {x:X, y:Y, active: true, priority: 300};",
                 getPriority: function() {
