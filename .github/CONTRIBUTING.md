@@ -18,15 +18,15 @@ When making your report, be sure to mention:
 * If you can, suggest a solution. (Again, you don't need to be technical in your description.)
 
 **Pat yourself on the back for being a productive contributor of an open source project.**
-#### **Did you write a patch that fixes a bug?**
+#### **Did you write a patch that fixes a bug, want to make a PR or want to change some of the code?**
 
-* Open a new GitHub pull request with the patch.
+* Open a new GitHub pull request with the new changes you have made.
 
 * Please use the already made pull request template to layout your pull request.
 
 * Ensure the PR template is filled in **fully** and required conditions are met or your PR **WILL BE DISREGARDED**.
 
-* Adhere to the current code style. Listen to Hound's comments on your PR.
+* Adhere to the current code style. Listen to Hound's comments on your PR and fix them. 
 
 * Your PR will **need** to include **scores of the bot before and after your changes, in at least 30 games**. This is due to checking the **efficiency** of the bot and is **mandatory**.
 
