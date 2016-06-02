@@ -2,12 +2,10 @@
 
 ## Description
 <!--- Describe your changes in detail -->
-
-## Motivation and Context
-<!--- Why is this change required? What problem does it solve? -->
 <!--- If it fixes an open issue, please link to the issue here. -->
+<!--- Why is this change required? What problem does it solve? -->
 
-## Screenshots (if appropriate):
+## Screenshot - Scores of the bot before and after your changes, in atleast 30 games.
 
 ## Types of changes
 <!--- What types of changes does your code introduce? Put an `x` in all the boxes that apply: -->
