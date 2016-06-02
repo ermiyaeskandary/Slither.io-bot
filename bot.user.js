@@ -916,21 +916,26 @@ var bot = window.bot = (function() {
                 id : 'MoveToXY',
                 active: false,
                 description: 'move to the given waypoint',
-                example: "bot.gotoXY = {x:X, y:Y, active: true, priority: 300};",
+
+                // Value is somewhat related to CheckForFood priorities
+                defaultPriority: 300,
+
+                // Where to move
+                point: {
+                    x: 20000,
+                    y: 20000
+                },
+
                 getPriority: function() {
-                    if (bot.gotoXY !== undefined) {
-                        if (bot.gotoXY.active) {
-                            // TODO lower priority when nearing point or deactivate
-                            return bot.gotoXY.priority;
-                        }
-                        else {
-                            return 1;
-                        }
+                    if (canvasUtil.getDistance2(window.snake.xx, window.snake.yy, this.point.x, this.point.y) > 1000) {
+                        return this.defaultPriority;
                     }
-                    return 0;
+                    else {
+                        this.active = false;
+                    }
                 },
                 execute: function() {
-                    window.goalCoordinates = bot.gotoXY.point;
+                    window.goalCoordinates = this.point;
                     canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
                 }
             },
@@ -1075,16 +1080,23 @@ var bot = window.bot = (function() {
     };
 })();
 
-// TODO needs a UI
-bot.gotoXY = {
-    priority: 300,
-    active: true,
-    // This is ~ center point
-    point: {
-        x: 20000,
-        y: 20000
-    }
-};
+// Activate task
+bot.getTask('MoveToXY').active = true;
+
+// Add new task
+bot.addTask(bot.newTask('dummy'));
+
+// Cannot add duplicate task ID
+bot.addTask(bot.newTask('dummy'));
+
+// Delete task
+bot.deleteTask('dummy');
+
+// Deleted correct item?
+console.log('No dummy found!', bot.getTask('dummy'));
+
+// Report on tasks
+bot.getTask('ListTasks').execute();
 
 var userInterface = window.userInterface = (function() {
     // Save the original slither.io functions so we can modify them, or reenable them later.
