@@ -1477,7 +1477,9 @@ var userInterface = window.userInterface = (function() {
         getOrderedTaskIDs: function() {
             var ids = [];
             scheduler.tasks.forEach(function(v, i, l) {
-                ids.push(v.id);
+                if (v.id !== '_default') {
+                    ids.push(v.id);
+                }
             });
             return ids.sort();
         },
