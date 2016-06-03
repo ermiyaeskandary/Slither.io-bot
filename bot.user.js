@@ -955,6 +955,22 @@ var scheduler = window.scheduler = (function() {
                         canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
                     }
                 },
+                {
+                    id: '_default',
+                    active: true,
+                    description: 'This is the default task which cannot be deactivated.',
+
+                    getPriority: function () {
+                        // Always active
+                        this.active = true;
+
+                        // Lowest priority
+                        return 0;
+                    },
+                    execute: function () {
+                        window.log(this.id, 'nothing to do');
+                    }
+                },
                 // {
                 //     id: 'AvoidCollisionWall',
                 //     // A use case is to feed ones friend but that could also be done by collision
