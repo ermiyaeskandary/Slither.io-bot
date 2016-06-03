@@ -970,29 +970,7 @@ var scheduler = window.scheduler = (function() {
                     execute: function () {
                         window.log(this.id, 'nothing to do');
                     }
-                },
-                // {
-                //     id: 'AvoidCollisionWall',
-                //     // A use case is to feed ones friend but that could also be done by collision
-                //     description: 'There is no use in dying against the wall'
-                //     getPriority: function() {
-                //         return 1000;
-                //     }
-                // },
-                // {
-                //     id: 'KillEnemy',
-                //     description: 'This is a suicide action useful when having a friend(s).',
-                //     getPriority: function() {
-                //         return 0;
-                //     }
-                // },
-                // {
-                //     id: 'avoidCollisionFriend',
-                //     // do not collide with friends
-                //     getPriority: function() {
-                //       return 1000;
-                //     }
-                // },
+                }
 
             ];
         },
