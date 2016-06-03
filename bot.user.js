@@ -977,23 +977,22 @@ var scheduler = window.scheduler = (function() {
                 //       return 1000;
                 //     }
                 // },
-                {
-                    id: 'ListTasks',
-                    description: 'List the current set of tasks. Useful when debugging.',
-                    active: false,
-                    example: "scheduler.getTask('ListTasks').execute();",
-
-                    getPriority: function () {
-                        return 0;
-                    },
-                    execute: function () {
-                        scheduler.tasks.forEach(function (v, i, l) {
-                            console.log(v.id, 'Active:', v.active, 'Priority:', v.priority, v.description);
-                        });
-                    }
-                }
 
             ];
+        },
+
+        /**
+         * Lists the current tasks.
+         *
+         * Helper function for task developers.
+         *
+         * Example:
+         *   window.scheduler.listTasks();
+         */
+        listTasks: function() {
+            scheduler.tasks.forEach(function (v, i, l) {
+                console.log(v.id, 'Active:', v.active, 'Priority:', v.priority, v.description);
+            });
         },
 
         newTask: function(id) {
