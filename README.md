@@ -14,6 +14,9 @@ This is a project which the aim is to make a computer play against humans inside
 - [License](https://github.com/ErmiyaEskandary/Slither.io-bot#license)
 
 # Installation instructions
+
+**NOTE: these instructions are for installing the bot at a production-ready, fully working and a fully tested state, which is recommended. For the latest bleeding edge code, which may not be fully tested, refer to the bot.user.js file in the current default develop branch as the instructions below refer the bot file in the master branch.**
+
 ## Interactive tutorial
 http://slither.jlynx.net/
 
