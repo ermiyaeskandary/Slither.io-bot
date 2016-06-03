@@ -22,7 +22,7 @@ When making your report, be sure to mention:
 **Pat yourself on the back for being a productive contributor of an open source project.**
 #### **Did you write a patch that fixes a bug, want to make a PR or want to change some of the code?**
 
-* Please contribute using Github Flow. Create a branch, add commits, and open a pull request targeting the dev branch - not the master branch. **All code needs to be retested there and then merged into master.**
+* Please contribute using Github Flow. Create a branch, add commits, and open a pull request targeting the default branch - do not change to the master branch. **All code needs to be retested there and then merged into master.**
 
 * Please use the already made pull request template to layout your pull request.
 
