@@ -1387,7 +1387,6 @@ var userInterface = window.userInterface = (function() {
                     userInterface.saveNick();
                 }
                 if (48 < e.keyCode && e.keyCode <= 57) {
-                    scheduler.getTask('ListTasks').execute();
                     var taskID = userInterface.getTaskIdByKeyBinding(e.keyCode);
                     if (taskID !== undefined) {
                         var task = scheduler.getTask(taskID);
