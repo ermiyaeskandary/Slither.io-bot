@@ -2,6 +2,8 @@
 
 To get started, <a href="https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot">sign the Contributor License Agreement</a>.
 
+[![CLA assistant](https://cla-assistant.io/readme/badge/ErmiyaEskandary/Slither.io-bot)](https://cla-assistant.io/ErmiyaEskandary/Slither.io-bot)
+
 #### **Did you find a bug?**
 
 * **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/ErmiyaEskandary/Slither.io-bot/issues).
@@ -28,7 +30,7 @@ When making your report, be sure to mention:
 
 * Adhere to the current code style. Listen to Hound's comments on your PR and fix them. 
 
-* Your PR will **need** to include **scores of the bot before and after your changes, in at least 30 games**. This is due to checking the **efficiency** of the bot and is **mandatory** _except if you are making changes to the documentation._
+* Your PR will **need** to include **scores of the bot before and after your changes, in at least 30 games**. This is due to checking the **efficiency** of the bot and is **mandatory** _except if you are making changes to the documentation._ For information on how to test, please refer to [the wiki](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki/How-to-test-bot-effectiveness).
 
 * If is all is good, wait for 5 approvals by contributors which decide if your PR will be merged. The repo owner can also merge it in early **if there is good reason to do so**.
 
