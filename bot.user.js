@@ -1371,6 +1371,14 @@ var userInterface = window.userInterface = (function() {
                 if (e.keyCode === 13) {
                     userInterface.saveNick();
                 }
+                if (48 < e.keyCode && e.keyCode <= 57) {
+                    scheduler.getTask('ListTasks').execute();
+                    var taskID = userInterface.getTaskIdByKeyBinding(e.keyCode);
+                    if (taskID !== undefined) {
+                        var task = scheduler.getTask(taskID);
+                        task.active = !task.active;
+                    }
+                }
                 userInterface.onPrefChange();
             }
         },
@@ -1449,6 +1457,7 @@ var userInterface = window.userInterface = (function() {
             oContent.push('[A/S] radius multiplier: ' + bot.opt.radiusMult);
             oContent.push('[D] quick radius change ' +
                 bot.opt.radiusApproachSize + '/' + bot.opt.radiusAvoidSize);
+            oContent.push('[1-9] toggle schedule task: ' + userInterface.getTaskMenu());
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
             oContent.push('[G] leaderboard overlay: ' + ht(window.leaderboard));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
@@ -1461,6 +1470,49 @@ var userInterface = window.userInterface = (function() {
             oContent.push('[Q] quit to menu');
 
             userInterface.overlays.prefOverlay.innerHTML = oContent.join('<br/>');
+        },
+
+        getTaskMenu: function() {
+            var ids = userInterface.getOrderedTaskIDs();
+            var menu = '';
+            ids.forEach(function(v,i,l){
+                var task = scheduler.getTask(v);
+                menu += '<br/>- ' + (i+1) + ' ' + (task.active ? '*' : ' ') + v;
+            });
+            return menu;
+        },
+
+        getOrderedTaskIDs: function() {
+            var ids = [];
+            scheduler.tasks.forEach(function(v, i, l) {
+                ids.push(v.id);
+            });
+            return ids.sort();
+        },
+
+        /**
+         * Get task ID by index on ordered keys.
+         *
+         * @param keycode
+         * @returns {null|string}
+         */
+        getTaskIdByKeyBinding: function(keycode) {
+            // http://www.cambiaresearch.com/articles/15/javascript-key-codes
+            // 48 = keyboard-0 NOT num-0
+            // 49 = 1
+            var index = keycode - 49;
+
+            if (index < 0 || index > 8) {
+                return;
+            }
+
+            var ids = userInterface.getOrderedTaskIDs();
+
+            if (ids.length <= index) {
+                return;
+            }
+            console.log(ids, ids[index]);
+            return ids[index];
         },
 
         onFrameUpdate: function() {
