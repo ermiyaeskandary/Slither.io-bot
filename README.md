@@ -9,6 +9,7 @@ This is a project which the aim is to make a computer play against humans inside
 	- [Text tutorial](https://github.com/ErmiyaEskandary/Slither.io-bot#text-tutorial)
 - [Hotkeys](https://github.com/ErmiyaEskandary/Slither.io-bot#hotkeys)
 - [Contributing](https://github.com/ErmiyaEskandary/Slither.io-bot#contributing)
+	- [Documentation](https://github.com/ErmiyaEskandary/Slither.io-bot#documentation)
 - [Authors](https://github.com/ErmiyaEskandary/Slither.io-bot#authors)
 - [License](https://github.com/ErmiyaEskandary/Slither.io-bot#license)
 
