@@ -20,17 +20,17 @@ When making your report, be sure to mention:
 **Pat yourself on the back for being a productive contributor of an open source project.**
 #### **Did you write a patch that fixes a bug, want to make a PR or want to change some of the code?**
 
-* Open a new GitHub pull request with the new changes you have made.
+* Please contribute using Github Flow. Create a branch, add commits, and open a pull request targeting the dev branch - not the master branch. **All code needs to be retested there and then merged into master.**
 
 * Please use the already made pull request template to layout your pull request.
 
-* Ensure the PR template is filled in **fully** and required conditions are met or your PR **WILL BE DISREGARDED**.
+* Ensure the PR template is filled in **fully** and required conditions are met.
 
 * Adhere to the current code style. Listen to Hound's comments on your PR and fix them. 
 
-* Your PR will **need** to include **scores of the bot before and after your changes, in at least 30 games**. This is due to checking the **efficiency** of the bot and is **mandatory**.
+* Your PR will **need** to include **scores of the bot before and after your changes, in at least 30 games**. This is due to checking the **efficiency** of the bot and is **mandatory** _except if you are making changes to the documentation._
 
-* If is all is good, wait for approvals, or rejections which decide if your PR will be merged !
+* If is all is good, wait for 5 approvals by contributors which decide if your PR will be merged. The repo owner can also merge it in early **if there is good reason to do so**.
 
 *Pull request are made to be discussed, thus collaborators may want you to change things. Don't make a new PR for these changes. Update your existing PR.*
 
