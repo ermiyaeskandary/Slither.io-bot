@@ -1095,27 +1095,6 @@ var scheduler = window.scheduler = (function() {
 
 scheduler.init();
 
-// Activate task
-scheduler.getTask('MoveToXY').active = true;
-
-// Set new point
-scheduler.getTask('MoveToXY').point = {x: 21600, y: 21600};
-
-// Add new task
-scheduler.addTask(scheduler.newTask('dummy'));
-
-// Cannot add duplicate task ID
-scheduler.addTask(scheduler.newTask('dummy'));
-
-// Delete task
-scheduler.deleteTask('dummy');
-
-// Deleted correct item?
-console.log('No dummy found!', scheduler.getTask('dummy'));
-
-// Report on tasks
-scheduler.getTask('ListTasks').execute();
-
 var userInterface = window.userInterface = (function() {
     // Save the original slither.io functions so we can modify them, or reenable them later.
     var original_keydown = document.onkeydown;
