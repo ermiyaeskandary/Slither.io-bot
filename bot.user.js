@@ -931,7 +931,7 @@ var scheduler = window.scheduler = (function() {
                 {
                     id: 'MoveToXY',
                     active: false,
-                    description: 'move to the given waypoint',
+                    description: 'Move to the given way point',
 
                     // Value is somewhat related to CheckForFood priorities
                     defaultPriority: 300,
