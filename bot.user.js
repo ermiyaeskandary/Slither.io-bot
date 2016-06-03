@@ -7,7 +7,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      1.2.7
+// @version      1.2.8
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -972,7 +972,7 @@ var userInterface = window.userInterface = (function() {
             var statsOverlay = document.createElement('div');
             statsOverlay.style.position = 'fixed';
             statsOverlay.style.left = '10px';
-            statsOverlay.style.top = '295px';
+            statsOverlay.style.top = '310px';
             statsOverlay.style.width = '140px';
             statsOverlay.style.height = '210px';
             // statsOverlay.style.background = 'rgba(0, 0, 0, 0.5)';
@@ -1211,17 +1211,17 @@ var userInterface = window.userInterface = (function() {
         // Update stats overlay.
         updateStats: function() {
             var oContent = [];
+            var median;
 
             if (bot.scores.length === 0) return;
+            median = Math.round((bot.scores[Math.floor((bot.scores.length - 1) / 2)] +
+                     bot.scores[Math.ceil((bot.scores.length - 1) / 2)]) / 2);
 
-            oContent.push('<br/>------------------');
             oContent.push('games played: ' + bot.scores.length);
-            oContent.push('avg score: ' + Math.round(
-                bot.scores.reduce(function(a, b) {
-                    return a + b;
-                }) / (bot.scores.length)));
-            oContent.push('------------------');
-            oContent.push('top 10 scores:');
+            oContent.push('a: ' + Math.round(
+                bot.scores.reduce(function (a, b) { return a + b; }) / (bot.scores.length)) +
+                ' m: ' + median);
+
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
                 oContent.push(i + 1 + '. ' + bot.scores[i]);
             }
