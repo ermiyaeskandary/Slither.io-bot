@@ -1223,15 +1223,18 @@ var userInterface = window.userInterface = (function() {
         // Update stats overlay.
         updateStats: function() {
             var oContent = [];
-            var median;
 
             if (bot.scores.length === 0) return;
-            median = Math.round((bot.scores[Math.floor((bot.scores.length - 1) / 2)].score +
+
+            var avg = Math.round(bot.scores.reduce(function (a, b) { return a.score + b.score; }) /
+                    (bot.scores.length));
+
+            var median = Math.round((bot.scores[Math.floor((bot.scores.length - 1) / 2)].score +
                      bot.scores[Math.ceil((bot.scores.length - 1) / 2)].score) / 2);
 
+
             oContent.push('games played: ' + bot.scores.length);
-            oContent.push('a: ' + Math.round(
-                bot.scores.reduce(function (a, b) { return a.score + b.score; }) / (bot.scores.length)) +
+            oContent.push('a: ' + avg +
                 ' m: ' + median);
 
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
