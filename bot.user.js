@@ -1226,7 +1226,7 @@ var userInterface = window.userInterface = (function() {
 
             if (bot.scores.length === 0) return;
 
-            var avg = Math.round(bot.scores.reduce(function (a, b) { return a.score + b.score; }) /
+            var avg = Math.round(bot.scores.reduce(function (a, b) { return a + b.score; }, 0) /
                     (bot.scores.length));
 
             var median = Math.round((bot.scores[Math.floor((bot.scores.length - 1) / 2)].score +
