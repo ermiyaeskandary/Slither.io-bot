@@ -24,4 +24,3 @@
 - [ ] **My code adheres to the code style of this project but most importantly of all to the things mentioned, which I have read, in CONTRIBUTING.md**
 - [ ] **If my change requires a change to the documentation, I have updated the documentation in /docs accordingly.**
 - [ ] **I have included the results of the [test required](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki/How-to-Test-Bot-Effectiveness).**
-- [ ] **I have tagged my last commit with my incremented version number - refer to CONTRIBUTING.md**
