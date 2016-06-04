@@ -107,7 +107,7 @@ Example:
 * A new statistic has been added showing the median of the scores, for testing purposes
 * The variable eHeadCircle has been changed to enemyHeadCircle to remove and prevent Hungarian notation.
 
-All which is left is:
+All which is left now is:
 ```shell
 git push origin master
 ```
