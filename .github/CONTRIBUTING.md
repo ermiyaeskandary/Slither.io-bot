@@ -32,6 +32,8 @@ When making your report, be sure to mention:
 
 * Your PR will **need** to include **scores of the bot before and after your changes, in at least 30 games**. This is due to checking the **efficiency** of the bot and is **mandatory** _except if you are making changes to the documentation._ For information on how to test, please refer to [the wiki](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki/How-to-test-bot-effectiveness).
 
+* **Increment the version number with the last commit based on the valid changes you have made - addressing Hounds comments or quickly fixing syntax doesn't count.** - **tag the last commit with the new version number, like this - `git tag -a v1.50 -m "Version 1.5 `**
+
 * If is all is good, wait for 5 approvals by contributors which decide if your PR will be merged. The repo owner can also merge it in early **if there is good reason to do so**.
 
 *Pull request are made to be discussed, thus collaborators may want you to change things. Don't make a new PR for these changes. Update your existing PR.*
