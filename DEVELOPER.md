@@ -89,12 +89,13 @@ After a **positive result from tests and a approval for a merge from the team**,
 ```shell
 git checkout master
 git merge develop
+git push origin develop
 ```
 
 ### Creating a new release
 After a merge, we then need to finally **create a new release**:
 ```shell
-git checkout develop
+git checkout master
 git tag -a v1.0.0
 ```
 Your default text editor will then **open and ask you for a release message**.
@@ -105,5 +106,10 @@ Example:
 ![Release v1.2.8](http://i.imgur.com/GJTitLs.png)
 * A new statistic has been added showing the median of the scores, for testing purposes
 * The variable eHeadCircle has been changed to enemyHeadCircle to remove and prevent Hungarian notation.
+
+All which is left is:
+```shell
+git push origin master
+```
 
 **_You've done it! YAY!_**
