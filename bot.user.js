@@ -457,7 +457,7 @@ var bot = window.bot = (function() {
             canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
         },
 
-        // Avoid collison point by ang
+        // Avoid collision point by ang
         // ang radians <= Math.PI (180deg)
         avoidCollisionPoint: function(collisionPoint, ang) {
             if (ang === undefined || ang > Math.PI) {
@@ -694,8 +694,6 @@ var bot = window.bot = (function() {
             if (bot.collisionPoints.length === 0) return false;
 
             for (var i = 0; i < bot.collisionPoints.length; i++) {
-                // -1 snake is special case for non snake object.
-
                 var collisionCircle = canvasUtil.circle(
                     bot.collisionPoints[i].xx,
                     bot.collisionPoints[i].yy,
@@ -708,14 +706,15 @@ var bot = window.bot = (function() {
                     return true;
                 }
 
+                // snake -1 is special case for non snake object.
                 if (bot.collisionPoints[i].snake !== -1) {
-                    var eHeadCircle = canvasUtil.circle(
+                    var enemyHeadCircle = canvasUtil.circle(
                         window.snakes[bot.collisionPoints[i].snake].xx,
                         window.snakes[bot.collisionPoints[i].snake].yy,
                         bot.collisionPoints[i].radius
                     );
 
-                    if (canvasUtil.circleIntersect(fullHeadCircle, eHeadCircle)) {
+                    if (canvasUtil.circleIntersect(fullHeadCircle, enemyHeadCircle)) {
                         if (window.snakes[bot.collisionPoints[i].snake].sp > 10) {
                             window.setAcceleration(1);
                         } else {
