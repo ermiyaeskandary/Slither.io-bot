@@ -913,14 +913,19 @@ var scheduler = window.scheduler = (function() {
                     getPriority: function () {
                         var currentPriority = this.priority;
 
-                        bot.computeFoodGoal();
                         if (bot.currentFood) {
                             window.setAcceleration(bot.foodAccel());
-                            if (this.priority < this.triggerPriority) {
-                                // Increment priority to trigger bot.computeFoodGoal
-                                return this.priority + 1;
-                            }
                         }
+
+                        if (this.priority < this.triggerPriority) {
+                            // Increment priority to trigger bot.computeFoodGoal
+                            var step = (this.triggerPriority - this.startPriority) / bot.opt.targetFps * bot.opt.foodFrames;
+                            return Math.round(this.priority + step);
+                        }
+                        else {
+                            bot.computeFoodGoal();
+                        }
+
                         return this.startPriority;
                     },
                     execute: function () {
