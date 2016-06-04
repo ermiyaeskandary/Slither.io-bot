@@ -63,6 +63,7 @@ Please refer to the [guidelines for contributing](https://github.com/ErmiyaEskan
 
 [Check the wiki for additional information](https://github.com/ErmiyaEskandary/Slither.io-bot/wiki)
 
+NOTE : For existing collaborators, please refer to the [DEVELOPER.md file.](https://github.com/ErmiyaEskandary/Slither.io-bot/blob/master/DEVELOPER.md)
 ## Documentation
 
 [![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=latest)](http://slitherio-bot.readthedocs.io/en/latest/?badge=latest)
