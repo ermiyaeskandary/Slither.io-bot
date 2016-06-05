@@ -51,6 +51,7 @@ G | Leaderboard overlay
 Y | Visual debugging
 U | Log debugging
 H | Overlays
+B | Background Change
 Mouse wheel | Zoom in/out
 Z | Reset zoom
 ESC | Quick respawn
