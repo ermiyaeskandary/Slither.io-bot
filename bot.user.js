@@ -901,6 +901,23 @@ var scheduler = window.scheduler = (function() {
                     }
                 },
                 {
+                    id: 'Eat',
+                    active: true,
+                    description: 'Eat what is detected by CheckForFood',
+
+                    getPriority: function () {
+                        return 300;
+                    },
+                    execute: function () {
+                        if (bot.currentFood) {
+                            window.setAcceleration(bot.foodAccel());
+                        }
+
+                        window.goalCoordinates = bot.currentFood;
+                        canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+                    }
+                },
+                {
                     id: 'CheckForFood',
                     active: true,
                     description: 'Trigger food scan',
@@ -913,22 +930,19 @@ var scheduler = window.scheduler = (function() {
                     getPriority: function () {
                         var currentPriority = this.priority;
 
-                        if (bot.currentFood) {
-                            window.setAcceleration(bot.foodAccel());
-                        }
-
                         if (this.priority < this.triggerPriority) {
                             // Increment priority to trigger bot.computeFoodGoal
                             var step = (this.triggerPriority - this.startPriority) / bot.opt.targetFps * bot.opt.foodFrames;
                             return Math.round(this.priority + step);
                         }
-                        else {
-                            bot.computeFoodGoal();
-                        }
-
                         return this.startPriority;
                     },
                     execute: function () {
+                        bot.computeFoodGoal();
+                        if (bot.currentFood) {
+                            window.setAcceleration(bot.foodAccel());
+                        }
+
                         window.goalCoordinates = bot.currentFood;
                         canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
                     }
