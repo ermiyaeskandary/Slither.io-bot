@@ -31,7 +31,7 @@ We also use another type of branch:
 * Feature branches
   * **May branch off from: `develop`**
   * **Must merge back into: `develop`**
-  * **Branch naming convention: anything except `master` and `develop`, preferably `feature/*`**
+  * **Branch naming convention: must be `feature/*`**
 
 Unlike the main branches, these branches always have a **limited life time**, since they will be removed eventually.
 
