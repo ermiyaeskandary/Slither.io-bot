@@ -21,6 +21,8 @@ When the source code in the `develop` branch reaches a **stable point** and is r
 
 Therefore, each time when changes are merged back into master, this is a new production release by definition. We tend to be **very strict** at this, so that theoretically, we could make a new release every time there is a commit to `master`. All code after being merged back into `master` will be **tagged with a version number and a general message describing the changes**.
 
+**Each commit also needs to have the related issue number in the description or the name of the commit, if applicable.**
+
 ## Documentation updates
 Documentation contributions are very welcome!
 
@@ -47,7 +49,7 @@ git checkout -b feature/mynewfeature develop
 And then do what you need to do! Commit changes and then push to your feature branch!
 ```shell
 git add .
-git commit -m "Commit Message"
+git commit -m "Commit Message - #100"
 git push --set-upstream origin feature/mynewfeature
 ```
 Then just do a `git log` to make sure of your changes and your commits **before it's too late to change them without harm** - and just because it *looks nice*.
