@@ -7,7 +7,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      1.2.8
+// @version      1.2.9
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -1014,7 +1014,13 @@ var userInterface = window.userInterface = (function() {
                 window.lbn.style.display = 'none';
             }
         },
-
+        removeLogo: function() {
+          if (typeof window.showlogo_iv !== 'undefined') {
+              window.ncka = window.lgss = window.lga = 1;
+              clearInterval(window.showlogo_iv);
+              showLogo(true);
+          }
+        },
         // Save variable to local storage
         savePreference: function(item, value) {
             window.localStorage.setItem(item, value);
@@ -1112,6 +1118,13 @@ var userInterface = window.userInterface = (function() {
                 // Letter 'H' to toggle hidden mode
                 if (e.keyCode === 72) {
                     userInterface.toggleOverlays();
+                }
+                // Letter 'B' to prompt for a custom background url
+                if (e.keyCode === 66) {
+                    var url = prompt('Please enter a background url:');
+                    if (url !== null) {
+                        canvasUtil.setBackground(url);
+                    }
                 }
                 // Letter 'O' to change rendermode (visual)
                 if (e.keyCode === 79) {
@@ -1244,6 +1257,7 @@ var userInterface = window.userInterface = (function() {
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
             oContent.push('[U] log debugging: ' + ht(window.logDebugging));
             oContent.push('[H] overlays');
+            oContent.push('[B] change background');
             oContent.push('[Mouse Wheel] zoom');
             oContent.push('[Z] reset zoom');
             oContent.push('[ESC] quick respawn');
@@ -1352,7 +1366,9 @@ var userInterface = window.userInterface = (function() {
                 y: window.mc.height / window.hh
             };
         },
-
+        // Handles the text color of the bot preferences
+        // enabled = green
+        // disabled = red
         handleTextColor: function(enabled) {
             return '<span style=\"color:' +
                 (enabled ? 'green;\">enabled' : 'red;\">disabled') + '</span>';
@@ -1429,11 +1445,7 @@ var userInterface = window.userInterface = (function() {
         userInterface.toggleMobileRendering(false);
     }
     // Remove laggy logo animation
-    if (typeof window.showlogo_iv !== 'undefined') {
-        window.ncka = window.lgss = window.lga = 1;
-        clearInterval(window.showlogo_iv);
-        showLogo(true);
-    }
+    userInterface.removeLogo();
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
 
