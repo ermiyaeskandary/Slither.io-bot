@@ -17,11 +17,9 @@ We consider `origin/master` to be the main branch where all the code existent in
 
 We then consider `origin/develop` to be the main branch where all the code existent in that branch always reflects a state with the **latest delivered development changes for the next release, which may not have been fully tested yet**. This is where all commits get **pushed first**, hence the name `develop`.
 
-When the source code in the `develop` branch reaches a **stable point** and is ready to be **released with it's own version number**, all of the changes will be merged into `master` This is done on a **weekly basis due to tests** and is only done with the teams approval.
+When the source code in the `develop` branch reaches a **stable point** and is ready to be **released with it's own version number**, all of the changes will be merged into `master` and then tagged with a release number. This is done on a **weekly basis due to tests** and is only done with the teams approval.
 
-Therefore, each time when changes are merged back into master, this is a new production release by definition. We tend to be **very strict** at this, so that theoretically, we could make a new release every time there is a commit to `master`. All code after being merged back into `master` will be **tagged with a version number and a general message describing the changes**.
-
-**Each commit also needs to have the related issue number in the description or the name of the commit, if applicable.**
+Therefore, each time when changes are merged back into master, this is a new production release by definition. We tend to be **very strict** at this, so that theoretically, we could make a new release every time there is a commit to `master`. All code before being merged back into `master` will be **tagged with a version number and a general message describing the changes**.
 
 ## Documentation updates
 Documentation contributions are very welcome!
@@ -33,7 +31,7 @@ We also use another type of branch:
 * Feature branches
   * **May branch off from: `develop`**
   * **Must merge back into: `develop`**
-  * **Branch naming convention: must be `feature/*`**
+  * **Branch naming convention: anything except `master` and `develop`, preferably `feature/*`**
 
 Unlike the main branches, these branches always have a **limited life time**, since they will be removed eventually.
 
@@ -49,11 +47,13 @@ git checkout -b feature/mynewfeature develop
 And then do what you need to do! Commit changes and then push to your feature branch!
 ```shell
 git add .
-git commit -m "Commit Message - #100"
-git push --set-upstream origin feature/mynewfeature
+git commit -m "Commit Message"
 ```
 Then just do a `git log` to make sure of your changes and your commits **before it's too late to change them without harm** - and just because it *looks nice*.
-
+When you're sure, this command will make it have it's own branch on the repository :
+```shell
+git push --set-upstream origin feature/mynewfeature
+```
 ### Updating your branch code with the `develop` branch
 Might come in handy if someone commits new changes before you are done with your feature :
 ```shell
@@ -91,13 +91,12 @@ After a **positive result from tests and a approval for a merge from the team**,
 ```shell
 git checkout master
 git merge develop
-git push origin develop
 ```
 
 ### Creating a new release
 After a merge, we then need to finally **create a new release**:
 ```shell
-git checkout master
+git checkout develop
 git tag -a v1.0.0
 ```
 Your default text editor will then **open and ask you for a release message**.
@@ -108,10 +107,5 @@ Example:
 ![Release v1.2.8](http://i.imgur.com/GJTitLs.png)
 * A new statistic has been added showing the median of the scores, for testing purposes
 * The variable eHeadCircle has been changed to enemyHeadCircle to remove and prevent Hungarian notation.
-
-All which is left now is:
-```shell
-git push origin master
-```
 
 **_You've done it! YAY!_**
