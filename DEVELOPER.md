@@ -17,9 +17,9 @@ We consider `origin/master` to be the main branch where all the code existent in
 
 We then consider `origin/develop` to be the main branch where all the code existent in that branch always reflects a state with the **latest delivered development changes for the next release, which may not have been fully tested yet**. This is where all commits get **pushed first**, hence the name `develop`.
 
-When the source code in the `develop` branch reaches a **stable point** and is ready to be **released with it's own version number**, all of the changes will be merged into `master` and then tagged with a release number. This is done on a **weekly basis due to tests** and is only done with the teams approval.
+When the source code in the `develop` branch reaches a **stable point** and is ready to be **released with it's own version number**, all of the changes will be merged into `master` This is done on a **weekly basis due to tests** and is only done with the teams approval.
 
-Therefore, each time when changes are merged back into master, this is a new production release by definition. We tend to be **very strict** at this, so that theoretically, we could make a new release every time there is a commit to `master`. All code before being merged back into `master` will be **tagged with a version number and a general message describing the changes**.
+Therefore, each time when changes are merged back into master, this is a new production release by definition. We tend to be **very strict** at this, so that theoretically, we could make a new release every time there is a commit to `master`. All code after being merged back into `master` will be **tagged with a version number and a general message describing the changes**.
 
 ## Documentation updates
 Documentation contributions are very welcome!
