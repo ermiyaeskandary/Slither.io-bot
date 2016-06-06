@@ -126,7 +126,7 @@ var canvasUtil = window.canvasUtil = (function() {
         },
 
         // Constructor for point type
-        point: function (x, y) {
+        point: function(x, y) {
             var p = {
                 x: Math.round(x),
                 y: Math.round(y)
@@ -136,7 +136,7 @@ var canvasUtil = window.canvasUtil = (function() {
         },
 
         // Constructor for rect type
-        rect: function (x, y, w, h) {
+        rect: function(x, y, w, h) {
             var r = {
                 x: Math.round(x),
                 y: Math.round(y),
@@ -148,7 +148,7 @@ var canvasUtil = window.canvasUtil = (function() {
         },
 
         // Constructor for circle type
-        circle: function (x, y, r) {
+        circle: function(x, y, r) {
             var c = {
                 x: Math.round(x),
                 y: Math.round(y),
@@ -471,18 +471,18 @@ var bot = window.bot = (function() {
 
             if (window.visualDebugging) {
                 canvasUtil.drawLine({
-                        x: window.snake.xx,
-                        y: window.snake.yy
-                    },
+                    x: window.snake.xx,
+                    y: window.snake.yy
+                },
                     end,
                     'orange', 5);
                 canvasUtil.drawLine({
-                        x: window.snake.xx,
-                        y: window.snake.yy
-                    }, {
-                        x: collisionPoint.xx,
-                        y: collisionPoint.yy
-                    },
+                    x: window.snake.xx,
+                    y: window.snake.yy
+                }, {
+                    x: collisionPoint.xx,
+                    y: collisionPoint.yy
+                },
                     'red', 5);
             }
 
@@ -490,12 +490,12 @@ var bot = window.bot = (function() {
             var sin = Math.sin(ang);
 
             if (canvasUtil.isLeft({
-                    x: window.snake.xx,
-                    y: window.snake.yy
-                }, end, {
-                    x: collisionPoint.xx,
-                    y: collisionPoint.yy
-                })) {
+                x: window.snake.xx,
+                y: window.snake.yy
+            }, end, {
+                x: collisionPoint.xx,
+                y: collisionPoint.yy
+            })) {
                 sin = -sin;
             }
 
@@ -661,12 +661,12 @@ var bot = window.bot = (function() {
                 for (var i = 0; i < bot.collisionAngles.length; i++) {
                     if (bot.collisionAngles[i] !== undefined) {
                         canvasUtil.drawLine({
-                                x: window.snake.xx,
-                                y: window.snake.yy
-                            }, {
-                                x: bot.collisionAngles[i].x,
-                                y: bot.collisionAngles[i].y
-                            },
+                            x: window.snake.xx,
+                            y: window.snake.yy
+                        }, {
+                            x: bot.collisionAngles[i].x,
+                            y: bot.collisionAngles[i].y
+                        },
                             '#99ffcc', 2);
                     }
                 }
@@ -1015,11 +1015,11 @@ var userInterface = window.userInterface = (function() {
             }
         },
         removeLogo: function() {
-          if (typeof window.showlogo_iv !== 'undefined') {
-              window.ncka = window.lgss = window.lga = 1;
-              clearInterval(window.showlogo_iv);
-              showLogo(true);
-          }
+            if (typeof window.showlogo_iv !== 'undefined') {
+                window.ncka = window.lgss = window.lga = 1;
+                clearInterval(window.showlogo_iv);
+                showLogo(true);
+            }
         },
         // Save variable to local storage
         savePreference: function(item, value) {
@@ -1231,7 +1231,7 @@ var userInterface = window.userInterface = (function() {
 
             oContent.push('games played: ' + bot.scores.length);
             oContent.push('a: ' + Math.round(
-                bot.scores.reduce(function (a, b) { return a + b; }) / (bot.scores.length)) +
+                bot.scores.reduce(function(a, b) { return a + b; }) / (bot.scores.length)) +
                 ' m: ' + median);
 
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
