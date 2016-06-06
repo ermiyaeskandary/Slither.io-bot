@@ -1048,7 +1048,7 @@ var scheduler = window.scheduler = (function() {
          * Get the task for give ID.
          *
          * @param id
-         * @returns {*}
+         * @returns {null|{}}
          */
         getTask: function(id) {
             var index = scheduler.tasks.findIndex(function(v) {
@@ -1060,6 +1060,7 @@ var scheduler = window.scheduler = (function() {
             }
 
             console.log('Task ' + id + ' not found');
+            return null;
 
         },
 
@@ -1514,7 +1515,7 @@ var userInterface = window.userInterface = (function() {
         getTaskMenu: function() {
             var ids = userInterface.getOrderedTaskIDs();
             var menu = '';
-            ids.forEach(function(v,i,l){
+            ids.forEach(function(v, i) {
                 var task = scheduler.getTask(v);
                 menu += '<br/>- ' + (i + 1) + ' ' + (task.active ? '*' : ' ') + v;
             });
@@ -1528,7 +1529,7 @@ var userInterface = window.userInterface = (function() {
          */
         getOrderedTaskIDs: function() {
             var ids = [];
-            scheduler.tasks.forEach(function(v, i, l) {
+            scheduler.tasks.forEach(function(v) {
                 if (v.id !== '_default') {
                     ids.push(v.id);
                 }
