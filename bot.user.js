@@ -1024,11 +1024,11 @@ var scheduler = window.scheduler = (function() {
               description: 'Description of ' + id,
               example: 'Example of ' + id,
               getPriority: function() {
-                  // No need to run
+                  console.log('Task ' + id + ' should have an implementation for "getPriority"');
                   return 0;
               },
               execute: function() {
-                  window.log('I should have an implementation');
+                  console.log('Task ' + id + ' should have an implementation for "execute"');
               }
           }
         },
@@ -1559,7 +1559,6 @@ var userInterface = window.userInterface = (function() {
             if (ids.length <= index) {
                 return;
             }
-            console.log(ids, ids[index]);
             return ids[index];
         },
 
