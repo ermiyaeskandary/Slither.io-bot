@@ -1090,7 +1090,7 @@ var scheduler = window.scheduler = (function() {
          * Existing tasks can be adjusted.
          */
         executeTasks: function() {
-            scheduler.tasks.forEach(function (v) {
+            scheduler.tasks.forEach(function(v) {
                 v.priority = v.getPriority();
             });
 
@@ -1407,7 +1407,7 @@ var userInterface = window.userInterface = (function() {
                 }
 
                 // Keys 1 - 9 (non numpad)
-                if ( e.keyCode > 48 && e.keyCode <= 57) {
+                if (e.keyCode > 48 && e.keyCode <= 57) {
                     var taskID = userInterface.getTaskIdByKeyBinding(e.keyCode);
                     if (taskID !== null) {
                         var task = scheduler.getTask(taskID);
@@ -1510,7 +1510,7 @@ var userInterface = window.userInterface = (function() {
         /**
          * Builds menu for toggling tasks.
          *
-         * @returns {string}
+         * @returns {string} HTML snippet
          */
         getTaskMenu: function() {
             var ids = userInterface.getOrderedTaskIDs();
