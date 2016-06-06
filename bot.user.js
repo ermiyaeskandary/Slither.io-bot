@@ -1408,7 +1408,7 @@ var userInterface = window.userInterface = (function() {
                 // Keys 1 - 9 (non numpad)
                 if ( e.keyCode > 48 && e.keyCode <= 57) {
                     var taskID = userInterface.getTaskIdByKeyBinding(e.keyCode);
-                    if (taskID !== undefined) {
+                    if (taskID !== null) {
                         var task = scheduler.getTask(taskID);
                         task.active = !task.active;
                     }
@@ -1551,13 +1551,13 @@ var userInterface = window.userInterface = (function() {
             var index = keycode - 49;
 
             if (index < 0 || index > 8) {
-                return;
+                return null;
             }
 
             var ids = userInterface.getOrderedTaskIDs();
 
             if (ids.length <= index) {
-                return;
+                return null;
             }
             return ids[index];
         },
