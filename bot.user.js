@@ -931,7 +931,8 @@ var scheduler = window.scheduler = (function() {
 
                         if (this.priority < this.triggerPriority) {
                             // Increment priority to trigger bot.computeFoodGoal
-                            var step = (this.triggerPriority - this.startPriority) / bot.opt.targetFps * bot.opt.foodFrames;
+                            var step = (this.triggerPriority - this.startPriority) /
+                                bot.opt.targetFps * bot.opt.foodFrames;
                             return Math.round(this.priority + step);
                         }
                         return this.startPriority;
@@ -949,7 +950,7 @@ var scheduler = window.scheduler = (function() {
                 {
                     id: 'MoveToXY',
                     active: false,
-                    description: 'Move to the given way point',
+                    description: 'Move to the given way point then deactivate task.',
 
                     // Value is somewhat related to CheckForFood priorities
                     defaultPriority: 300,
@@ -960,12 +961,20 @@ var scheduler = window.scheduler = (function() {
                         y: 20000
                     },
 
+                    /**
+                     * When reached the point given stop with reaching it and deactivate the task.
+                     *
+                     * The task can activated again when needed.
+                     *
+                     * @returns {number} new priority
+                     */
                     getPriority: function () {
                         if (canvasUtil.getDistance2(window.snake.xx, window.snake.yy,
                                 this.point.x, this.point.y) > 1000) {
                             return this.defaultPriority;
                         } else {
                             this.active = false;
+                            return 0;
                         }
                     },
                     execute: function() {
@@ -1533,7 +1542,7 @@ var userInterface = window.userInterface = (function() {
         /**
          * Get task IDs (without _default) alphabetically.
          *
-         * @returns {Array.<*>}
+         * @returns {Array.<string>}
          */
         getOrderedTaskIDs: function() {
             var ids = [];
