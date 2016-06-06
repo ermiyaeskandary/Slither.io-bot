@@ -1037,7 +1037,7 @@ var scheduler = window.scheduler = (function() {
          * @param task
          */
         addTask: function(task) {
-            if (scheduler.getTask(task.id) === undefined) {
+            if (scheduler.getTask(task.id) === null) {
                 scheduler.tasks.push(task);
             } else {
                 console.log('Cannot add task with same ID: ' + task.id);
