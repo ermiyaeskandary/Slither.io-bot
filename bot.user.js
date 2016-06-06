@@ -971,7 +971,7 @@ var userInterface = window.userInterface = (function() {
             var statsOverlay = document.createElement('div');
             statsOverlay.style.position = 'fixed';
             statsOverlay.style.left = '10px';
-            statsOverlay.style.top = '320px';
+            statsOverlay.style.top = '340px';
             statsOverlay.style.width = '140px';
             statsOverlay.style.height = '210px';
             // statsOverlay.style.background = 'rgba(0, 0, 0, 0.5)';
