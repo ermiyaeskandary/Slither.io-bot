@@ -1169,7 +1169,7 @@ var userInterface = window.userInterface = (function() {
             prefOverlay.style.left = '10px';
             prefOverlay.style.top = '75px';
             prefOverlay.style.width = '260px';
-            prefOverlay.style.height = '210px';
+            prefOverlay.style.height = '400px';
             // prefOverlay.style.background = 'rgba(0, 0, 0, 0.5)';
             prefOverlay.style.color = '#C0C0C0';
             prefOverlay.style.fontFamily = 'Consolas, Verdana';
@@ -1183,7 +1183,7 @@ var userInterface = window.userInterface = (function() {
             var statsOverlay = document.createElement('div');
             statsOverlay.style.position = 'fixed';
             statsOverlay.style.left = '10px';
-            statsOverlay.style.top = '340px';
+            statsOverlay.style.top = '500px';
             statsOverlay.style.width = '140px';
             statsOverlay.style.height = '210px';
             // statsOverlay.style.background = 'rgba(0, 0, 0, 0.5)';
