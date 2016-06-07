@@ -1238,7 +1238,8 @@ var userInterface = window.userInterface = (function() {
                 ' m: ' + median);
 
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
-                oContent.push(i + 1 + '. ' + bot.scores[i].score + ' in ' + Math.round(bot.scores[i].duration/1000) +'s');
+                oContent.push(i + 1 + '. ' + bot.scores[i].score +
+                    ' in ' + Math.round(bot.scores[i].duration/1000) + 's');
             }
 
             userInterface.overlays.statsOverlay.innerHTML = oContent.join('<br/>');
@@ -1464,6 +1465,6 @@ var userInterface = window.userInterface = (function() {
     setInterval(userInterface.framesPerSecond.fpsTimer, 80);
 
     // Start!
-    bot.startTime = Date.now();;
+    bot.startTime = Date.now();
     userInterface.oefTimer();
 })();
