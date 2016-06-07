@@ -1226,16 +1226,16 @@ var userInterface = window.userInterface = (function() {
             var median;
 
             if (bot.scores.length === 0) return;
-            median = Math.round((bot.scores[Math.floor((bot.scores.length - 1) / 2)] +
-                     bot.scores[Math.ceil((bot.scores.length - 1) / 2)]) / 2);
+            median = Math.round((bot.scores[Math.floor((bot.scores.length - 1) / 2)].score +
+                     bot.scores[Math.ceil((bot.scores.length - 1) / 2)].score) / 2);
 
             oContent.push('games played: ' + bot.scores.length);
             oContent.push('a: ' + Math.round(
-                bot.scores.reduce(function(a, b) { return a + b; }) / (bot.scores.length)) +
+                bot.scores.reduce(function (a, b) { return a.score + b.score; }) / (bot.scores.length)) +
                 ' m: ' + median);
 
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
-                oContent.push(i + 1 + '. ' + bot.scores[i]);
+                oContent.push(i + 1 + '. ' + bot.scores[i].score);
             }
 
             userInterface.overlays.statsOverlay.innerHTML = oContent.join('<br/>');
@@ -1325,9 +1325,12 @@ var userInterface = window.userInterface = (function() {
             } else if (bot.isBotEnabled && bot.isBotRunning) {
                 bot.isBotRunning = false;
                 if (window.lastscore && window.lastscore.childNodes[1]) {
-                    bot.scores.push(parseInt(window.lastscore.childNodes[1].innerHTML));
+                    var score = parseInt(window.lastscore.childNodes[1].innerHTML);
+                    bot.scores.push({
+                        score: score
+                    });
                     bot.scores.sort(function(a, b) {
-                        return b - a;
+                        return b.score - a.score;
                     });
                     userInterface.updateStats();
                 }
