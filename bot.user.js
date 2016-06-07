@@ -1239,7 +1239,7 @@ var userInterface = window.userInterface = (function() {
 
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
                 oContent.push(i + 1 + '. ' + bot.scores[i].score +
-                    ' in ' + Math.round(bot.scores[i].duration/1000) + 's');
+                    ' in ' + Math.round(bot.scores[i].duration / 1000) + 's');
             }
 
             userInterface.overlays.statsOverlay.innerHTML = oContent.join('<br/>');
