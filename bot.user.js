@@ -1342,6 +1342,7 @@ var userInterface = window.userInterface = (function() {
                 }
 
                 if (window.autoRespawn) {
+                    bot.startTime = Date.now();
                     window.connect();
                 }
             }
