@@ -754,8 +754,8 @@ var bot = window.bot = (function() {
                 // Also knocks out score bonus for this same food since distance == distance
                 if (this[i].distance > f.distance) {
                     // Only bonus if the farther food is within foodRoundAngle of the one we're scoring
-                    if (Math.abs(f.da - this[i].da) <= (bot.opt.foodRoundAngle / 2.0)) {
-                        //window.log("Food at da " + f.da + ", checking other food at da " + this[i].da + " (diff = " + Math.abs(f.da - this[i].da) + " compared to " + (bot.opt.foodRoundAngle / 2.0) + ")");
+                    if (Math.abs(bot.angleBetween(this[i].a, f.a)) <= bot.opt.foodBeyondAngle) {
+                        //window.log("Food at da " + f.da + ", checking other food at da " + this[i].da + " (diff = " + Math.abs(bot.angleBetween(this[i].a, f.a) + " compared to " + (bot.opt.foodRoundAngle / 2.0) + ")");
                         var foodValue = Math.pow(Math.floor(this[i].sz / bot.opt.foodRoundSize) * bot.opt.foodRoundSize, 2);
                         var additionalValue = foodValue / (this[i].distance);
                         foodBeyondValue += additionalValue;
