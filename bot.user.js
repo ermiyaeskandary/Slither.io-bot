@@ -11,6 +11,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
+// @require      http://code.jquery.com/jquery-1.11.1.js
 // @grant        none
 // ==/UserScript==
 
@@ -51,6 +52,12 @@ var customBotOptions = {
     // if you update the script while this is active,
     // you will lose your custom options
     // useDefaults: true
+
+    // serverConnectionKeep
+    // serverConnectionKeep: false
+
+    // serverConnection
+    // serverConnect: defaults to latest server. Format 123.123.123.123:433
 };
 
 // Custom logging function - disabled by default
@@ -1245,7 +1252,7 @@ var userInterface = window.userInterface = (function() {
             // Set static display options here.
             var oContent = [];
             var ht = userInterface.handleTextColor;
-
+console.log('onPrefChange');
             oContent.push('version: ' + GM_info.script.version);
             oContent.push('[T / Right click] bot: ' + ht(bot.isBotEnabled));
             oContent.push('[O] mobile rendering: ' + ht(window.mobileRender));
@@ -1253,6 +1260,7 @@ var userInterface = window.userInterface = (function() {
             oContent.push('[D] quick radius change ' +
                 bot.opt.radiusApproachSize + '/' + bot.opt.radiusAvoidSize);
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
+            oContent.push('<input type="checkbox" id="server-connection-keep" title="Connect to same server"/><input id="server-connection" type="text" title="Game server" size="20" placeholder="0.0.0.0:444" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$"/>' );
             oContent.push('[G] leaderboard overlay: ' + ht(window.leaderboard));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
             oContent.push('[U] log debugging: ' + ht(window.logDebugging));
@@ -1264,6 +1272,12 @@ var userInterface = window.userInterface = (function() {
             oContent.push('[Q] quit to menu');
 
             userInterface.overlays.prefOverlay.innerHTML = oContent.join('<br/>');
+
+            jQuery('#server-connection-keep').prop('checked', window.serverConnectionKeep);
+            jQuery('#server-connection').val(window.serverConnection);
+            jQuery('#server-connection').change(function() {
+                window.serverConnection = $(this).val();
+            });
         },
 
         onFrameUpdate: function() {
@@ -1322,6 +1336,9 @@ var userInterface = window.userInterface = (function() {
                 window.onmousemove = function() {};
                 bot.isBotRunning = true;
                 bot.go();
+
+                window.serverConnection = window.bso.ip + ':' + window.bso.po;
+
             } else if (bot.isBotEnabled && bot.isBotRunning) {
                 bot.isBotRunning = false;
                 if (window.lastscore && window.lastscore.childNodes[1]) {
@@ -1396,6 +1413,10 @@ var userInterface = window.userInterface = (function() {
     userInterface.loadPreference('autoRespawn', false);
     userInterface.loadPreference('mobileRender', false);
     userInterface.loadPreference('leaderboard', true);
+
+    userInterface.loadPreference('serverConnectionKeep', false);
+    userInterface.loadPreference('serverConnection', '');
+
     window.nick.value = userInterface.loadPreference('savedNick', 'Slither.io-bot');
 
     // Don't load saved options or apply custom options if
