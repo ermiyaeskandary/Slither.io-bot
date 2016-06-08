@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (c) 2016 Ermiya Eskandary & Théophile Cailliau and other contributors
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -36,7 +36,7 @@ var customBotOptions = {
     // foodRoundSize: 5,
     // round food angle up to nearest for angle difference scoring
     // foodRoundAngle: Math.PI / 8,
-    // consider more distant food in same direction when scoring food choices
+    // consider food in same direction when scoring food choices
     // foodBeyondAngle: Math.PI / 8,
     // food clusters at or below this size won't be considered
     // if there is a collisionAngle
