@@ -6,7 +6,7 @@
 <!--- Why is this change required? What problem does it solve? -->
 
 ## TESTING STAGE
-<!--- Refer to https://github.com/ErmiyaEskandary/Slither.io-bot/wiki/How-to-Test-Bot-Effectiveness on how to test  -->
+<!--- Refer to https://github.com/ErmiyaEskandary/Slither.io-bot/blob/develop/DEVELOPER.md#testing-the-bots-efficiency on how to test  -->
 <!--- REQUIRED AS MENTIONED IN DOCS, CONTRIBUTING GUIDELINES -->
 
 ## Types of changes
