@@ -36,6 +36,8 @@ var customBotOptions = {
     // foodRoundSize: 5,
     // round food angle up to nearest for angle difference scoring
     // foodRoundAngle: Math.PI / 8,
+    // consider more distant food in same direction when scoring food choices
+    // foodBeyondAngle: Math.PI / 8,
     // food clusters at or below this size won't be considered
     // if there is a collisionAngle
     // foodSmallSize: 10,
@@ -743,6 +745,29 @@ var bot = window.bot = (function() {
                 f.distance / (Math.ceil(f.da / bot.opt.foodRoundAngle) * bot.opt.foodRoundAngle);
         },
 
+        // Increase score for food clusters that have additional clusters in the same general direction
+        // weighted to prefer ones that will be less angle change when we get to this one
+        scoreFoodBeyond: function (f) {
+            var foodBeyondValue = 0.0;
+            for (var i = 0; i < this.length; i++) {
+                // Only add weight for food beyond this one; closer ones will get their own score bonus FROM this one
+                // Also knocks out score bonus for this same food since distance == distance
+                if (this[i].distance > f.distance) {
+                    // Only bonus if the farther food is within foodRoundAngle of the one we're scoring
+                    if (Math.abs(f.da - this[i].da) <= (bot.opt.foodRoundAngle / 2.0)) {
+                        //window.log("Food at da " + f.da + ", checking other food at da " + this[i].da + " (diff = " + Math.abs(f.da - this[i].da) + " compared to " + (bot.opt.foodRoundAngle / 2.0) + ")");
+                        var foodValue = Math.pow(Math.floor(this[i].sz / bot.opt.foodRoundSize) * bot.opt.foodRoundSize, 2);
+                        var additionalValue = foodValue / (this[i].distance);
+                        foodBeyondValue += additionalValue;
+                        // Add to the list of foods beyond this one
+                        f.foodsBeyond.push(this[i]);
+                    }
+                }
+            }
+            //window.log('Adding additional value of ' + foodBeyondValue + ' (' + (foodBeyondValue / f.score) + '%)');
+            f.score += foodBeyondValue;
+        },
+
         computeFoodGoal: function() {
             var foodClusters = [];
             var foodGetIndex = [];
@@ -783,7 +808,8 @@ var bot = window.bot = (function() {
                             da: da,
                             sz: csz,
                             distance: distance,
-                            score: 0.0
+                            score: 0.0,
+                            foodsBeyond: []
                         };
                         fi++;
                     } else {
@@ -793,6 +819,7 @@ var bot = window.bot = (function() {
             }
 
             foodClusters.forEach(bot.scoreFood);
+            foodClusters.forEach(bot.scoreFoodBeyond, foodClusters);
             foodClusters.sort(bot.sortScore);
 
             for (i = 0; i < foodClusters.length; i++) {
@@ -1308,6 +1335,15 @@ var userInterface = window.userInterface = (function() {
                         window.goalCoordinates,
                         'green');
                     canvasUtil.drawCircle(window.goalCoordinates, 'red', true);
+                    // Only draw subsequent goals if they exist
+                    if (window.goalCoordinates.foodsBeyond !== undefined) {
+                        for (var i = 0; i < window.goalCoordinates.foodsBeyond.length; i++) {
+                            canvasUtil.drawLine(
+                                window.goalCoordinates,
+                                window.goalCoordinates.foodsBeyond[i],
+                                'green', 1);
+                        }
+                    }
                 }
             }
         },
