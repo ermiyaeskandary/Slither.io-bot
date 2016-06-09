@@ -900,6 +900,50 @@ var scheduler = window.scheduler = (function() {
                     }
                 },
                 {
+                    id: 'HuntForPrey (experimental)',
+                    active: false,
+                    description: 'Try to catch a pray',
+
+                    // Priority to use when activated
+                    triggerPriority: 450,
+
+                    // How often to check
+                    frequency: 0,
+                    // step
+                    step: 0,
+
+                    getPriority: function() {
+                        // Init
+                        if (this.frequency === 0) {
+                            // A prey is food too!
+                            this.frequency = bot.opt.foodFrames
+                        }
+
+                        if (this.step < this.frequency) {
+                            this.step++;
+                            return 0;
+                        }
+                        this.step = 0;
+                        if (window.preys.length> 0) {
+                            return this.triggerPriority;
+                        }
+                        // No preys to catch
+                        return 0;
+                    },
+                    execute: function() {
+                        if (window.preys.length> 0) {
+                            // TODO decide what prey to catch. For now we take first
+                            var prey = window.preys[0];
+                            window.setAcceleration(1);
+
+                            bot.currentFood = {x:prey.xx, y:prey.yy};
+                            window.goalCoordinates = bot.currentFood;
+                            canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+                        }
+
+                    }
+                },
+                {
                     id: 'CheckForFood',
                     active: true,
                     description: 'Trigger food scan',
