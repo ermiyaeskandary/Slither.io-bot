@@ -904,30 +904,54 @@ var scheduler = window.scheduler = (function() {
                     active: true,
                     description: 'Trigger food scan',
 
-                    // We don't want to block other task so let priority change from
-                    startPriority: 200,
-                    // to maximum priority
+                    // Priority to use when activated
                     triggerPriority: 400,
 
-                    getPriority: function() {
-                        var currentPriority = this.priority;
+                    // How often to check
+                    frequency: 0,
+                    // step
+                    step: 0,
 
-                        if (this.priority < this.triggerPriority) {
-                            // Increment priority to trigger bot.computeFoodGoal
-                            var step = (this.triggerPriority - this.startPriority) /
-                                bot.opt.targetFps * bot.opt.foodFrames;
-                            return Math.round(this.priority + step);
+                    getPriority: function() {
+                        // Init
+                        if (this.frequency === 0) {
+                            this.frequency = bot.opt.foodFrames
                         }
-                        return this.startPriority;
+
+                        if (this.step < this.frequency) {
+                            this.step++;
+                            return 0;
+                        }
+                        this.step = 0;
+                        return this.triggerPriority;
                     },
                     execute: function() {
                         bot.computeFoodGoal();
                         if (bot.currentFood) {
                             window.setAcceleration(bot.foodAccel());
                         }
+                        else {
+                            this.step = 0;
+                        }
 
                         window.goalCoordinates = bot.currentFood;
                         canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+                    }
+                },
+                {
+                    id: 'Eat',
+                    active: true,
+                    description: 'Just eat',
+
+                    priority: 350,
+
+                    getPriority: function() {
+                        return this.priority;
+                    },
+                    execute: function() {
+                        if (bot.currentFood) {
+                            window.setAcceleration(bot.foodAccel());
+                        }
                     }
                 },
                 {
@@ -978,7 +1002,7 @@ var scheduler = window.scheduler = (function() {
                         return 0;
                     },
                     execute: function() {
-                        window.log(this.id, 'nothing to do');
+                        window.log(this.id, 'Nothing to do. You probably need to enable a task.');
                     }
                 }
 
