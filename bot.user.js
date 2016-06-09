@@ -916,7 +916,7 @@ var scheduler = window.scheduler = (function() {
                         // Init
                         if (this.frequency === 0) {
                             // A prey is food too!
-                            this.frequency = bot.opt.foodFrames
+                            this.frequency = bot.opt.foodFrames;
                         }
 
                         if (this.step < this.frequency) {
@@ -973,8 +973,7 @@ var scheduler = window.scheduler = (function() {
                         bot.computeFoodGoal();
                         if (bot.currentFood) {
                             window.setAcceleration(bot.foodAccel());
-                        }
-                        else {
+                        } else {
                             this.step = 0;
                         }
 
@@ -1030,7 +1029,7 @@ var scheduler = window.scheduler = (function() {
                     },
                     execute: function() {
                         window.goalCoordinates = this.point;
-                        canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+                        canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(this.point));
                     }
                 },
                 {
