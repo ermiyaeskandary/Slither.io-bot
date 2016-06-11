@@ -1028,7 +1028,7 @@ var scheduler = window.scheduler = (function() {
                         }
 
                         window.goalCoordinates = bot.currentFood;
-                        canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+                        canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(bot.currentFood));
                     }
                 },
                 {
