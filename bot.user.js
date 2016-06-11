@@ -64,7 +64,12 @@ window.log = function() {
 
 // Add standard deviation function to array prototype
 Array.prototype.stats = function() {
-    var i, j, total = 0, mean = 0, diffSqredArr = [];
+    var i;
+    var j;
+    var total = 0;
+    var mean = 0;
+    var diffSqredArr = [];
+
     for (i = 0; i < this.length; i += 1) {
         total += this[i];
     }
@@ -74,7 +79,9 @@ Array.prototype.stats = function() {
     }
     return {
         mean: mean,
-        stdev: (Math.sqrt(diffSqredArr.reduce(function(firstEl, nextEl) {return firstEl + nextEl;}) / this.length)),
+        stdev: (Math.sqrt(diffSqredArr.reduce(
+            function (firstEl, nextEl) { return firstEl + nextEl; }
+            ) / this.length)),
         min: Math.min.apply(null, this),
         max: Math.max.apply(null, this)
     };
@@ -387,7 +394,7 @@ var logUtil = window.logUtil = (function() {
             logUtil.startTimes[functionName] = performance.now();
         },
 
-        endTime: function(functionName, ms) {
+        endTime: function(functionName) {
             // No sense recording end time if start wasn't called.
             if (!(functionName in logUtil.startTimes)) {
                 window.log('logUtil.endTime called for "' + functionName + '" without start');
@@ -804,11 +811,12 @@ var bot = window.bot = (function() {
         // Increase score for food clusters that have additional clusters in the same general direction
         // weighted to prefer ones that will be less angle change when we get to this one
         scoreFoodBeyond: function (f) {
-            // If this food is more than 10 seconds away, don't bother thinking about even more distant food
-            // Don't even think about food more than 10 seconds away
+            // If this food is more than 10 seconds away, don't bother thinking
+            // about even more distant food
             var maxDistance = window.snake.sp * 10 * 10 * 1000;
-            if (f.distance > maxDistance)
+            if (f.distance > maxDistance) {
                 return;
+            }
 
             var foodBeyondValue = 0.0;
             for (var i = 0; i < this.length; i++) {
@@ -819,8 +827,8 @@ var bot = window.bot = (function() {
                     // of the one we're scoring
                     var clusterBeyondAngle = Math.abs(bot.angleBetween(this[i].a, f.a));
                     if (clusterBeyondAngle <= bot.opt.foodBeyondAngle) {
-                        // window.log("Food at a " + f.a + ", checking other food at a " + this[i].a + 
-                        // " (diff = " + Math.abs(bot.angleBetween(this[i].a, f.a) + " compared to " + 
+                        // window.log("Food at a " + f.a + ", checking other food at a " + this[i].a +
+                        // " (diff = " + Math.abs(bot.angleBetween(this[i].a, f.a) + " compared to " +
                         // (bot.opt.foodRoundAngle / 2.0) + ")");
                         var foodValue = Math.pow(Math.floor(this[i].sz / bot.opt.foodRoundSize) *
                             bot.opt.foodRoundSize, 2);
@@ -831,7 +839,8 @@ var bot = window.bot = (function() {
                     }
                 }
             }
-            // window.log('Adding additional value of ' + foodBeyondValue + ' (' + (foodBeyondValue / f.score) + '%)');
+            // window.log('Adding additional value of ' + foodBeyondValue +
+            // ' (' + (foodBeyondValue / f.score) + '%)');
             f.score += foodBeyondValue;
         },
 
@@ -1328,8 +1337,8 @@ var userInterface = window.userInterface = (function() {
             var stats = bot.scores.stats();
 
             oContent.push('games played: ' + bot.scores.length);
-            oContent.push('avg: ' + Math.round(stats.mean) + ' stdev: ' + Math.round(stats.stdev) + '<br/>' +
-                'med: ' + median);
+            oContent.push('avg: ' + Math.round(stats.mean) + '<br/>stdev: ' +
+                Math.round(stats.stdev) + '<br/>med: ' + median);
 
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
                 oContent.push(i + 1 + '. ' + bot.scores[i]);
