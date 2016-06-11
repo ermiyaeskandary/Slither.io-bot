@@ -63,7 +63,7 @@ window.log = function() {
 };
 
 // Add standard deviation function to array prototype
-Array.prototype.stats = function () {
+Array.prototype.stats = function() {
     var i, j, total = 0, mean = 0, diffSqredArr = [];
     for (i = 0; i < this.length; i += 1) {
         total += this[i];
@@ -74,7 +74,7 @@ Array.prototype.stats = function () {
     }
     return {
         mean: mean,
-        stdev: (Math.sqrt(diffSqredArr.reduce(function (firstEl, nextEl) {return firstEl + nextEl;}) / this.length)),
+        stdev: (Math.sqrt(diffSqredArr.reduce(function(firstEl, nextEl) {return firstEl + nextEl;}) / this.length)),
         min: Math.min.apply(null, this),
         max: Math.max.apply(null, this)
     };
@@ -378,7 +378,7 @@ var canvasUtil = window.canvasUtil = (function() {
     };
 })();
 
-var logUtil = window.logUtil = (function () {
+var logUtil = window.logUtil = (function() {
     return {
         functionData: [],
         startTimes: [],
@@ -387,7 +387,7 @@ var logUtil = window.logUtil = (function () {
             logUtil.startTimes[functionName] = performance.now();
         },
 
-        endTime: function (functionName, ms) {
+        endTime: function(functionName, ms) {
             // No sense recording end time if start wasn't called.
             if (!(functionName in logUtil.startTimes)) {
                 window.log('logUtil.endTime called for "' + functionName + '" without start');
@@ -403,7 +403,7 @@ var logUtil = window.logUtil = (function () {
             }
         },
 
-        functionStats: function (functionName) {
+        functionStats: function(functionName) {
             if (functionName in logUtil.functionData) {
                 return logUtil.functionData[functionName].stats();
             } else {
@@ -804,23 +804,34 @@ var bot = window.bot = (function() {
         // Increase score for food clusters that have additional clusters in the same general direction
         // weighted to prefer ones that will be less angle change when we get to this one
         scoreFoodBeyond: function (f) {
+            // If this food is more than 10 seconds away, don't bother thinking about even more distant food
+            // Don't even think about food more than 10 seconds away
+            var maxDistance = window.snake.sp * 10 * 10 * 1000;
+            if (f.distance > maxDistance)
+                return;
+
             var foodBeyondValue = 0.0;
             for (var i = 0; i < this.length; i++) {
                 // Only add weight for food beyond this one; closer ones will get their own score bonus FROM this one
                 // Also knocks out score bonus for this same food since distance == distance
                 if (this[i].distance > f.distance) {
-                    // Only bonus if the farther food is within foodRoundAngle of the one we're scoring
-                    if (Math.abs(bot.angleBetween(this[i].a, f.a)) <= bot.opt.foodBeyondAngle) {
-                        //window.log("Food at da " + f.da + ", checking other food at da " + this[i].da + " (diff = " + Math.abs(bot.angleBetween(this[i].a, f.a) + " compared to " + (bot.opt.foodRoundAngle / 2.0) + ")");
-                        var foodValue = Math.pow(Math.floor(this[i].sz / bot.opt.foodRoundSize) * bot.opt.foodRoundSize, 2);
-                        var additionalValue = foodValue / (this[i].distance);
+                    // Only bonus if the farther food is within foodRoundAngle
+                    // of the one we're scoring
+                    var clusterBeyondAngle = Math.abs(bot.angleBetween(this[i].a, f.a));
+                    if (clusterBeyondAngle <= bot.opt.foodBeyondAngle) {
+                        // window.log("Food at a " + f.a + ", checking other food at a " + this[i].a + 
+                        // " (diff = " + Math.abs(bot.angleBetween(this[i].a, f.a) + " compared to " + 
+                        // (bot.opt.foodRoundAngle / 2.0) + ")");
+                        var foodValue = Math.pow(Math.floor(this[i].sz / bot.opt.foodRoundSize) *
+                            bot.opt.foodRoundSize, 2);
+                        var additionalValue = (foodValue / (this[i].distance);
                         foodBeyondValue += additionalValue;
                         // Add to the list of foods beyond this one
                         f.foodsBeyond.push(this[i]);
                     }
                 }
             }
-            //window.log('Adding additional value of ' + foodBeyondValue + ' (' + (foodBeyondValue / f.score) + '%)');
+            // window.log('Adding additional value of ' + foodBeyondValue + ' (' + (foodBeyondValue / f.score) + '%)');
             f.score += foodBeyondValue;
         },
 
@@ -982,9 +993,9 @@ var bot = window.bot = (function() {
         foodTimer: function() {
             if (window.playing && bot.lookForFood &&
                 window.snake !== null && window.snake.alive_amt === 1) {
-                logUtil.startTime("cfg");
+                logUtil.startTime('cfg');
                 bot.computeFoodGoal();
-                logUtil.endTime("cfg");
+                logUtil.endTime('cfg');
                 window.goalCoordinates = bot.currentFood;
                 canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
             }
@@ -1316,11 +1327,8 @@ var userInterface = window.userInterface = (function() {
 
             var stats = bot.scores.stats();
 
-            avg = Math.round(stats.mean);
-            stdev = Math.round(stats.stdev);
-
             oContent.push('games played: ' + bot.scores.length);
-            oContent.push('avg: ' + avg + ' stdev: ' + stdev + '<br/>' +
+            oContent.push('avg: ' + Math.round(stats.mean) + ' stdev: ' + Math.round(stats.stdev) + '<br/>' +
                 'med: ' + median);
 
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
@@ -1383,10 +1391,11 @@ var userInterface = window.userInterface = (function() {
                 }
 
                 if (window.logUtil !== undefined) {
-                    var cfg = window.logUtil.functionStats("cfg");
+                    var cfg = window.logUtil.functionStats('cfg');
 
                     if (cfg) {
-                        oContent.push('cfg: μ' + Math.round(cfg.mean) + ' ∧' + Math.round(cfg.min) + '  ∨' + Math.round(cfg.max));
+                        oContent.push('cfg: μ' + Math.round(cfg.mean) +
+                            ' ∧' + Math.round(cfg.min) + '  ∨' + Math.round(cfg.max));
                     }
                 }
             }
