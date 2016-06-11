@@ -978,11 +978,15 @@ var scheduler = window.scheduler = (function() {
                     },
                     execute: function() {
                         if (window.preys.length > 0) {
-                            // TODO decide what prey to catch. For now we take first
+                            // Decide what prey to catch. For now we take first.
                             var prey = window.preys[0];
                             window.setAcceleration(1);
 
-                            bot.currentFood = {x:prey.xx, y:prey.yy};
+                            bot.currentFood = {
+                                x:prey.xx,
+                                y:prey.yy
+                            };
+
                             window.goalCoordinates = bot.currentFood;
                             canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(bot.currentFood));
                         }
