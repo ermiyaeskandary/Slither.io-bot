@@ -824,7 +824,7 @@ var bot = window.bot = (function() {
                         // (bot.opt.foodRoundAngle / 2.0) + ")");
                         var foodValue = Math.pow(Math.floor(this[i].sz / bot.opt.foodRoundSize) *
                             bot.opt.foodRoundSize, 2);
-                        var additionalValue = (foodValue / (this[i].distance);
+                        var additionalValue = foodValue / this[i].distance;
                         foodBeyondValue += additionalValue;
                         // Add to the list of foods beyond this one
                         f.foodsBeyond.push(this[i]);
