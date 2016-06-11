@@ -910,8 +910,8 @@ var scheduler = window.scheduler = (function() {
                         // Lower limit of snakeLength criteria used below
                         var lengthGroup;
                         var snakeLength = 0;
-
-                        snakeLength = Math.floor(15 * (fpsls[snake.sct] + snake.fam / fmlts[snake.sct] - 1) - 5) / 1;
+                        var length = 15 * (fpsls[snake.sct] + snake.fam / fmlts[snake.sct] - 1) - 5;
+                        snakeLength = Math.floor(length) / 1;
                         if (snakeLength == 0) {
                             return 0;
                         }
@@ -977,14 +977,14 @@ var scheduler = window.scheduler = (function() {
                         return 0;
                     },
                     execute: function() {
-                        if (window.preys.length> 0) {
+                        if (window.preys.length > 0) {
                             // TODO decide what prey to catch. For now we take first
                             var prey = window.preys[0];
                             window.setAcceleration(1);
 
                             bot.currentFood = {x:prey.xx, y:prey.yy};
                             window.goalCoordinates = bot.currentFood;
-                            canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+                            canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(bot.currentFood));
                         }
 
                     }
