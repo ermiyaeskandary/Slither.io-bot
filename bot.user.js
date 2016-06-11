@@ -900,6 +900,52 @@ var scheduler = window.scheduler = (function() {
                     }
                 },
                 {
+                    id: 'SnakeParamsBySize (experimental)',
+                    active: false,
+                    description: 'Make snake params change on snake size',
+
+                    lastLengthGroup: 0,
+
+                    getPriority: function() {
+                        // Lower limit of snakeLength criteria used below
+                        var lengthGroup;
+                        var snakeLength = 0;
+
+                        snakeLength = Math.floor(15 * (fpsls[snake.sct] + snake.fam / fmlts[snake.sct] - 1) - 5) / 1;
+                        if (snakeLength == 0) {
+                            return 0;
+                        }
+                        var opt = bot.opt;
+
+                        if (snakeLength < 5000) {
+                            lengthGroup = 0;
+
+                            opt.foodAccelSize = 20;
+                            opt.foodRoundSize = 1;
+                        } else if ( snakeLength < 10000) {
+                            lengthGroup = 5000;
+
+                            opt.foodAccelSize = 40;
+                            opt.foodRoundSize = 5;
+                        } else {
+                            lengthGroup = 10000;
+
+                            opt.foodAccelSize = 60;
+                            opt.foodRoundSize = 10;
+                        }
+                        if (lengthGroup != this.lastLengthGroup) {
+                            lengthGroup != this.lastLengthGroup;
+                            // No need to update UI yet.
+                            // userInterface.onPrefChange();
+                        }
+
+                        return 0;
+                    },
+                    execute: function() {
+                        // NOP
+                    }
+                },
+                {
                     id: 'HuntForPrey (experimental)',
                     active: false,
                     description: 'Try to catch a pray',
