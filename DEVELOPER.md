@@ -13,7 +13,7 @@ At the core, our development model is greatly inspired by existing models out th
 * `master`
 * `develop`
 
-We consider `origin/master` to be the main branch where all the code existent in that branch refelcts a **production-ready, fully tested and fully working** state.
+We consider `origin/master` to be the main branch where all the code existent in that branch reflects a **production-ready, fully tested and fully working** state.
 
 We then consider `origin/develop` to be the main branch where all the code existent in that branch always reflects a state with the **latest delivered development changes for the next release, which may not have been fully tested yet**. This is where all commits get **pushed first**, hence the name `develop`.
 
