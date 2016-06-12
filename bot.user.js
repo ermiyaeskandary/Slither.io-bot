@@ -61,7 +61,7 @@ window.log = function() {
 };
 
 // Add standard deviation function to array prototype
-Array.prototype.stats = function () {
+Array.prototype.stats = function() {
     var i, j, total = 0, mean = 0, diffSqredArr = [];
     for (i = 0; i < this.length; i += 1) {
         total += this[i];
@@ -72,7 +72,9 @@ Array.prototype.stats = function () {
     }
     return {
         mean: mean,
-        stdev: (Math.sqrt(diffSqredArr.reduce(function (firstEl, nextEl) {return firstEl + nextEl;}) / this.length)),
+        stdev: (Math.sqrt(diffSqredArr.reduce(
+            function(firstEl, nextEl) { return firstEl + nextEl; }
+            ) / this.length)),
         min: Math.min.apply(null, this),
         max: Math.max.apply(null, this)
     };
@@ -376,7 +378,7 @@ var canvasUtil = window.canvasUtil = (function() {
     };
 })();
 
-var logUtil = window.logUtil = (function () {
+var logUtil = window.logUtil = (function() {
     return {
         functionData: [],
         startTimes: [],
@@ -385,7 +387,7 @@ var logUtil = window.logUtil = (function () {
             logUtil.startTimes[functionName] = performance.now();
         },
 
-        endTime: function (functionName, ms) {
+        endTime: function(functionName, ms) {
             // No sense recording end time if start wasn't called.
             if (!(functionName in logUtil.startTimes)) {
                 window.log('logUtil.endTime called for "' + functionName + '" without start');
@@ -401,7 +403,7 @@ var logUtil = window.logUtil = (function () {
             }
         },
 
-        functionStats: function (functionName) {
+        functionStats: function(functionName) {
             if (functionName in logUtil.functionData) {
                 return logUtil.functionData[functionName].stats();
             } else {
@@ -900,7 +902,8 @@ var bot = window.bot = (function() {
                 window.snake.xx - (bot.sectorBoxSide / 2),
                 window.snake.yy - (bot.sectorBoxSide / 2),
                 bot.sectorBoxSide, bot.sectorBoxSide);
-            // if (window.visualDebugging) canvasUtil.drawRect(bot.sectorBox, '#c0c0c0', true, 0.1);
+            // if (window.visualDebugging) 
+            // canvasUtil.drawRect(bot.sectorBox, '#c0c0c0', true, 0.1);
 
             bot.cos = Math.cos(window.snake.ang);
             bot.sin = Math.sin(window.snake.ang);
@@ -1359,7 +1362,8 @@ var userInterface = window.userInterface = (function() {
                     var cfg = window.logUtil.functionStats("cfg");
 
                     if (cfg) {
-                        oContent.push('cfg: μ' + Math.round(cfg.mean) + ' ∧' + Math.round(cfg.min) + '  ∨' + Math.round(cfg.max));
+                        oContent.push('cfg: μ' + Math.round(cfg.mean) + ' ∧' +
+                            Math.round(cfg.min) + '  ∨' + Math.round(cfg.max));
                     }
                 }
             }
