@@ -8,91 +8,128 @@
 </head>
 
 <body>
-  <div class="container">
-    <div class="page-header">
-      <h1>Slither.io botManager</h1>
-    </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+    </title>
+</head>
 
-
-    <div class="row">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          Running bots
+<body>
+    <div class="container container-fluid">
+        <div class="page-header">
+            <h1>Slither.io botManager</h1>
         </div>
-        <!-- Table -->
 
 
-        <table class="table" id="table-bots">
-          <thead>
-            <tr>
-              <th>bot url</th>
-              <th>Running</th>
-              <th>Highest score</th>
-              <th>Current rank</th>
-            </tr>
-          </thead>
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Add a variable to check for
+
+                    <div class="input-group">
+                        <input class="form-control" id="add-variable-text" placeholder="bot.isBotRunning" type=
+                        "text"><span class="input-group-btn"><button class="btn btn-default" id="add-variable" type=
+                        "button"><span class="input-group-btn">Add</span></button></span>
+                    </div>
+                </div>
+                <!-- Table -->
 
 
-          <tbody>
-          </tbody>
-        </table>
-      </div>
+                <table class="table" id="table-bots">
+                    <thead>
+                        <tr id="th-variables">
+                            <td>
+                            </td>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <hr>
+
+
+        <div class="row">
+            <div class="input-group">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" id="submit-code" type="button"><span class="input-group-btn">Run</span></button></span> 
+                  <input class="form-control" id= "code-url" type="text" value="https://rawgit.com/ErmiyaEskandary/Slither.io-bot/master/bot.user.js">
+            </div>
+        </div>
+
+        <br/>
+
+        <div class="row">
+            <button class="btn btn-default" id="update-stats">Update stats</button>
+        </div>
+
+        <hr>
+
+
+        <footer>
+            <p>Tool to test and create multiple instances of <a href=
+            "https://github.com/ErmiyaEskandary/Slither.io-bot">ErmiyaEskandary's Slither.io bot</a>.</p>
+        </footer>
     </div>
+</body>
+</html>
 
-
-    <div class="row">
-      <div class="input-group">
-        <span class="input-group-btn"><button class="btn btn-default" id="submit-code" type="button">Run</button></span> <input id="code-url" class="form-control" value="https://rawgit.com/ErmiyaEskandary/Slither.io-bot/master/bot.user.js" type="text">
-      </div>
-      <!-- /input-group -->
-    </div>
-    <br>
-
-
-    <div class="row">
-      <button class="btn btn-default" id="update-stats">Update stats</button>
-    </div>
-
-    <hr>
-
-
-    <footer>
-      <p>Tool to test and create multiple instances of <a href="https://github.com/ErmiyaEskandary/Slither.io-bot">ErmiyaEskandary's Slither.io bot</a>.</p>
-    </footer>
-  </div>
   <script>
+    window.checkVariables = ['botUrl', 'bot.isBotRunning', 'bot.scores']
     // Require stuff :D
     window.$ = window.jQuery = require('./js/jquery-2.2.3.min.js');
     require('./renderer.js');
     require('./js/bootstrap.js');
     const {ipcRenderer} = require('electron');
   </script> 
+
+
   <script>
-    $('#submit-code').click(function () {
-      // maybe linting the code?
-      args = {codeUrl:  $('#code-url').val()};
-      // Create a new bot window in main.js
-      ipcRenderer.send('submit-code', args);
+    $('#submit-code').click(function() {
+        // maybe linting the code?
+        args = {
+            codeUrl: $('#code-url').val()
+        };
+        // Create a new bot window in main.js
+        ipcRenderer.send('submit-code', args);
+    })
+    ipcRenderer.on('replyAllStats', (event, args) => {
+        $('#table-bots tbody tr').remove();
+        for (var i = 0; i < args.length; i++) {
+            var current = args[i];
+            console.log(current);
+            $('#table-bots tbody').append($('<tr>'));
+            var currentRow = $('#table-bots tbody tr:last-child');
+            for (var j = 0; j < window.checkVariables.length; j++) {
+                var currentVariable = window.checkVariables[j];
+                currentRow.append($('<td>').text((eval('current.' + currentVariable))));
+            }
+        }
+    });
+    $('#update-stats').click(function() {
+        ipcRenderer.send('getAllStats');
+    })
+    $('#add-variable').click(function() {
+        window.checkVariables.push($('#add-variable-text').val());
+        updateTableHead();
     })
 
-    ipcRenderer.on('replyAllStats', (event, args) => {
-      console.log(args);
-      $('#table-bots tbody tr').remove();
-      for (var i = 0; i < args.length; i++) {
-        var current = args[i];
-        console.log(current);
-        $('#table-bots tbody').append(`<tr>
-            <td> ${current.botUrl} <\/td>
-            <td> ${current.bot.isBotRunning} <\/td>
-            <td> ${Math.max.apply(Math, current.bot.scores)} <\/td>
-            <td> ${current.rank}<\/td>
-          `)
-      }
-    });
-
-    $('#update-stats').click(function () {
-      ipcRenderer.send('getAllStats');
+    function updateTableHead() {
+        $('#table-bots thead th').remove();
+        for (var i = 0; i < window.checkVariables.length; i++) {
+            var currentVariable = window.checkVariables[i];
+            $('#th-variables').append($('<th>').text(currentVariable));
+        }
+    }
+    $('document').ready(function() {
+        updateTableHead();
     })
   </script>
+
 </body>
 </html>
