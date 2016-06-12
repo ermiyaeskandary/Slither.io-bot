@@ -926,12 +926,12 @@ var scheduler = window.scheduler = (function() {
                             lengthGroup = 5000;
 
                             opt.foodAccelSize = 40;
-                            opt.foodRoundSize = 5;
+                            opt.foodRoundSize = 1;
                         } else {
                             lengthGroup = 10000;
 
                             opt.foodAccelSize = 60;
-                            opt.foodRoundSize = 10;
+                            opt.foodRoundSize = 5;
                         }
                         if (lengthGroup != this.lastLengthGroup) {
                             lengthGroup != this.lastLengthGroup;
