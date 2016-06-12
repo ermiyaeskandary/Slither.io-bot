@@ -958,9 +958,9 @@ var bot = window.bot = (function() {
         foodTimer: function() {
             if (window.playing && bot.lookForFood &&
                 window.snake !== null && window.snake.alive_amt === 1) {
-                logUtil.startTime("cfg");
+                logUtil.startTime('cfg');
                 bot.computeFoodGoal();
-                logUtil.endTime("cfg");
+                logUtil.endTime('cfg');
                 window.goalCoordinates = bot.currentFood;
                 canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
             }
@@ -1359,7 +1359,7 @@ var userInterface = window.userInterface = (function() {
                 }
 
                 if (window.logUtil !== undefined) {
-                    var cfg = window.logUtil.functionStats("cfg");
+                    var cfg = window.logUtil.functionStats('cfg');
 
                     if (cfg) {
                         oContent.push('cfg: μ' + Math.round(cfg.mean) + ' ∧' +
