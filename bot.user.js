@@ -849,7 +849,6 @@ var bot = window.bot = (function() {
             }
 
             foodClusters.forEach(bot.scoreFood);
-            foodClusters.forEach(bot.scoreFoodBeyond, foodClusters);
             foodClusters.sort(bot.sortScore);
 
             for (i = 0; i < foodClusters.length; i++) {
