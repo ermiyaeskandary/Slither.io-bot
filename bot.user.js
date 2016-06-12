@@ -62,7 +62,11 @@ window.log = function() {
 
 // Add standard deviation function to array prototype
 Array.prototype.stats = function() {
-    var i, j, total = 0, mean = 0, diffSqredArr = [];
+    var i;
+    var j;
+    var total = 0;
+    var mean = 0;
+    var diffSqredArr = [];
     for (i = 0; i < this.length; i += 1) {
         total += this[i];
     }
@@ -387,7 +391,7 @@ var logUtil = window.logUtil = (function() {
             logUtil.startTimes[functionName] = performance.now();
         },
 
-        endTime: function(functionName, ms) {
+        endTime: function(functionName) {
             // No sense recording end time if start wasn't called.
             if (!(functionName in logUtil.startTimes)) {
                 window.log('logUtil.endTime called for "' + functionName + '" without start');
@@ -902,7 +906,7 @@ var bot = window.bot = (function() {
                 window.snake.xx - (bot.sectorBoxSide / 2),
                 window.snake.yy - (bot.sectorBoxSide / 2),
                 bot.sectorBoxSide, bot.sectorBoxSide);
-            // if (window.visualDebugging) 
+            // if (window.visualDebugging)
             // canvasUtil.drawRect(bot.sectorBox, '#c0c0c0', true, 0.1);
 
             bot.cos = Math.cos(window.snake.ang);
