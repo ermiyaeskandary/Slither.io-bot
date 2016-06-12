@@ -909,10 +909,12 @@ var scheduler = window.scheduler = (function() {
                     getPriority: function() {
                         // Lower limit of snakeLength criteria used below
                         var lengthGroup;
-                        var snakeLength = 0;
-                        var length = 15 * (fpsls[snake.sct] + snake.fam / fmlts[snake.sct] - 1) - 5;
-                        snakeLength = Math.floor(length) / 1;
-                        if (snakeLength == 0) {
+                        var snake = window.snake;
+                        // Taken from slither.io code around 'Your length'
+                        var snakeLength = Math.floor(15 * (window.fpsls[snake.sct] +
+                                snake.fam / window.fmlts[snake.sct] - 1) - 5) / 1;
+
+                        if (snakeLength === 0) {
                             return 0;
                         }
                         var opt = bot.opt;
@@ -922,7 +924,7 @@ var scheduler = window.scheduler = (function() {
 
                             opt.foodAccelSize = 20;
                             opt.foodRoundSize = 1;
-                        } else if ( snakeLength < 10000) {
+                        } else if (snakeLength < 10000) {
                             lengthGroup = 5000;
 
                             opt.foodAccelSize = 40;
