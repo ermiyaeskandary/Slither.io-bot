@@ -949,14 +949,14 @@ var scheduler = window.scheduler = (function() {
                 },
                 {
                     id: 'HuntForPrey (experimental)',
-                    active: false,
+                    active: true,
                     description: 'Try to catch a pray',
 
                     // Priority to use when activated
                     triggerPriority: 450,
 
                     // How often to check
-                    frequency: 0,
+                    frequency: 1,
                     // step
                     step: 0,
 
@@ -972,16 +972,30 @@ var scheduler = window.scheduler = (function() {
                             return 0;
                         }
                         this.step = 0;
+
+                        this.prey = null;
+
                         if (window.preys.length> 0) {
-                            return this.triggerPriority;
+                            var snake = window.snake;
+
+                            var radius = bot.speedMult * bot.opt.radiusMult / 2 * bot.snakeRadius;
+                            var targetRadius2 = 4 * radius * radius;
+                            var easyPreys = window.preys.filter(function(prey){
+                                var d2 = canvasUtil.getDistance2(snake.xx, snake.yy, prey.xx, prey.yy);
+                                return d2 < targetRadius2;
+                            });
+                            if (easyPreys.length > 0) {
+                                this.prey = easyPreys[0];
+                                return this.triggerPriority;
+                            }
+                            return 0;
                         }
                         // No preys to catch
                         return 0;
                     },
                     execute: function() {
-                        if (window.preys.length > 0) {
-                            // Decide what prey to catch. For now we take first.
-                            var prey = window.preys[0];
+                        var prey = this.prey;
+                        if (prey) {
                             window.setAcceleration(1);
 
                             bot.currentFood = {
@@ -992,7 +1006,6 @@ var scheduler = window.scheduler = (function() {
                             window.goalCoordinates = bot.currentFood;
                             canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(bot.currentFood));
                         }
-
                     }
                 },
                 {
