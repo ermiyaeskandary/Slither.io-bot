@@ -7,13 +7,6 @@
   <link href="./css/bootstrap.css" rel="stylesheet" type="text/css">
 </head>
 
-<body>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>
-    </title>
-</head>
 
 <body>
     <div class="container container-fluid">
@@ -28,9 +21,10 @@
                     Add a variable to check for
 
                     <div class="input-group">
-                        <input class="form-control" id="add-variable-text" placeholder="bot.isBotRunning" type=
-                        "text"><span class="input-group-btn"><button class="btn btn-default" id="add-variable" type=
-                        "button">Add</button></span>
+                        <input class="form-control" id="add-variable-text" placeholder="bot.isBotRunning" type="text"></input>
+                        <span class="input-group-btn">
+                          <button class="btn btn-default" id="add-variable" type="button">Add</button>
+                        </span>
                     </div>
                 </div>
                 <!-- Table -->
@@ -39,11 +33,8 @@
                 <table class="table" id="table-bots">
                     <thead>
                         <tr id="th-variables">
-                            <td>
-                            </td>
                         </tr>
                     </thead>
-
 
                     <tbody>
                     </tbody>
@@ -58,8 +49,7 @@
             <div class="input-group">
                 <span class="input-group-btn">
                   <button class="btn btn-default" id="submit-code" type="button">Run</button></span> 
-                  <input class="form-control" id= "code-url" type="text" value="https://rawgit.com/ErmiyaEskandary/Slither.io-bot/master/bot.user.js">
-                  </span>
+                  <input class="form-control" id= "code-url" type="text" value="https://rawgit.com/ErmiyaEskandary/Slither.io-bot/master/bot.user.js"></input>
             </div>
         </div>
 
@@ -77,8 +67,6 @@
             "https://github.com/ErmiyaEskandary/Slither.io-bot">ErmiyaEskandary's Slither.io bot</a>.</p>
         </footer>
     </div>
-</body>
-</html>
 
   <script>
     window.checkVariables = ['botUrl', 'bot.isBotRunning', 'bot.scores']
