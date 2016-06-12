@@ -25,12 +25,9 @@
         <table class="table" id="table-bots">
           <thead>
             <tr>
-              <th>bot object</th>
-
+              <th>bot url</th>
               <th>Running</th>
-
               <th>Highest score</th>
-
               <th>Current rank</th>
             </tr>
           </thead>
@@ -85,7 +82,7 @@
         var current = args[i];
         console.log(current);
         $('#table-bots tbody').append(`<tr>
-            <td> ${current.bot} <\/td>
+            <td> ${current.botUrl} <\/td>
             <td> ${current.bot.isBotRunning} <\/td>
             <td> ${Math.max.apply(Math, current.bot.scores)} <\/td>
             <td> ${current.rank}<\/td>

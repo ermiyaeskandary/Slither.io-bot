@@ -60,6 +60,8 @@ function createBotWindow (codeUrl) {
 
     // Insert 'passStats.js', to communicate for the stats
     insertScriptToWindow(botWindow, `${dirname}/passStats.js`)
+
+    botWindow.webContents.executeJavaScript(`window.botUrl = '${codeUrl}'`)
   });
 
   // Add the bot to the list with bots
