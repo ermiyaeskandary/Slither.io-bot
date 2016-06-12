@@ -42,7 +42,7 @@ function insertScriptToWindow (targetWindow, url) {
   targetWindow.webContents.executeJavaScript(greasemonkey + script)
 }
 
-function createBotWindow (code) {
+function createBotWindow (codeUrl) {
   // Create the browser window.
   var botWindow = new BrowserWindow({width: 800, height: 600, webPreferences: {webSecurity : false}})
 
@@ -53,7 +53,7 @@ function createBotWindow (code) {
   botWindow.webContents.on('did-finish-load', function() {
 
     // Insert the latest bot script
-    insertScriptToWindow(botWindow, 'https://rawgit.com/ErmiyaEskandary/Slither.io-bot/master/bot.user.js')
+    insertScriptToWindow(botWindow, codeUrl)
 
     // Get the dirname as a url
     var dirname = __dirname.replace(/\\/g,'/')
@@ -99,7 +99,7 @@ app.on('activate', function () {
 
 
 ipcMain.on('submit-code', (event, arg) => {
-  newBotWindow = createBotWindow(arg.code)
+  newBotWindow = createBotWindow(arg.codeUrl)
 })
 
 ipcMain.on('getAllStats', (event) => {

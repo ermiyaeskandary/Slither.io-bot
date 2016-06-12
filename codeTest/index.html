@@ -2,35 +2,65 @@
 <html>
 <head>
   <meta charset="UTF-8">
+
   <title>Hello World!</title>
   <link href="./css/bootstrap.css" rel="stylesheet" type="text/css">
 </head>
+
 <body>
   <div class="container">
     <div class="page-header">
       <h1>Slither.io bot code test</h1>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        Running bots
-      </div><!-- Table -->
-      <table class="table" id="table-bots">
-        <thead>
-          <tr>
-            <th>bot object</th>
-            <th>Running</th>
-            <th>Highest score</th>
-            <th>Current rank</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div><button class="btn btn-primary" id="submit-code">Start a new bot</button> <button class="btn btn-primary"
-    id="update-stats">Update stats</button>
+
+
+    <div class="row">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Running bots
+        </div>
+        <!-- Table -->
+
+
+        <table class="table" id="table-bots">
+          <thead>
+            <tr>
+              <th>bot object</th>
+
+              <th>Running</th>
+
+              <th>Highest score</th>
+
+              <th>Current rank</th>
+            </tr>
+          </thead>
+
+
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <div class="row">
+      <div class="input-group">
+        <span class="input-group-btn"><button class="btn btn-default" id="submit-code" type="button">Run</button></span> <input id="code-url" class="form-control" value="https://rawgit.com/ErmiyaEskandary/Slither.io-bot/master/bot.user.js" type="text">
+      </div>
+      <!-- /input-group -->
+    </div>
+    <br>
+
+
+    <div class="row">
+      <button class="btn btn-default" id="update-stats">Update stats</button>
+    </div>
+
     <hr>
+
+
     <footer>
-      <p>Code benchmark for <a href="https://github.com/ErmiyaEskandary/Slither.io-bot">ErmiyaEskandary's Slither.io
-      bot</a></p>
+      <p>Code benchmark for <a href="https://github.com/ErmiyaEskandary/Slither.io-bot">ErmiyaEskandary's Slither.io bot</a></p>
     </footer>
   </div>
   <script>
@@ -43,7 +73,7 @@
   <script>
     $('#submit-code').click(function () {
       // maybe linting the code?
-      args = {code:  $('#user-code').val()};
+      args = {codeUrl:  $('#code-url').val()};
       // Create a new bot window in main.js
       ipcRenderer.send('submit-code', args);
     })
