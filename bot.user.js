@@ -1378,7 +1378,7 @@ var userInterface = window.userInterface = (function() {
                         window.goalCoordinates,
                         'green');
                     canvasUtil.drawCircle(window.goalCoordinates, 'red', true);
-                 }
+                }
             }
         },
 
