@@ -1,0 +1,28 @@
+{
+  "name": "electron-quick-start",
+  "version": "1.0.0",
+  "description": "An application to test code for a slither.io-bot",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ErmiyaEskandary/Slither.io-bot.git"
+  },
+  "keywords": [
+    "slither.io",
+    "bot",
+    "code",
+    "test"
+  ],
+  "author": "GitHub",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/ErmiyaEskandary/Slither.io-bot/issues"
+  },
+  "homepage": "https://github.com/ErmiyaEskandary/Slither.io-bot#readme",
+  "devDependencies": {
+    "electron-prebuilt": "^1.0.1"
+  }
+}

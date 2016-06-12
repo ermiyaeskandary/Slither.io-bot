@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+  <link href="./css/bootstrap.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <h1>Slither.io bot code test</h1>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Running bots
+      </div><!-- Table -->
+      <table class="table" id="table-bots">
+        <thead>
+          <tr>
+            <th>bot object</th>
+            <th>Running</th>
+            <th>Highest score</th>
+            <th>Current rank</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div><button class="btn btn-primary" id="submit-code">Start a new bot</button> <button class="btn btn-primary"
+    id="update-stats">Update stats</button>
+    <hr>
+    <footer>
+      <p>Code benchmark for <a href="https://github.com/ErmiyaEskandary/Slither.io-bot">ErmiyaEskandary's Slither.io
+      bot</a></p>
+    </footer>
+  </div>
+  <script>
+    // Require stuff :D
+    window.$ = window.jQuery = require('./js/jquery-2.2.3.min.js');
+    require('./renderer.js');
+    require('./js/bootstrap.js');
+    const {ipcRenderer} = require('electron');
+  </script> 
+  <script>
+    $('#submit-code').click(function () {
+      // maybe linting the code?
+      args = {code:  $('#user-code').val()};
+      // Create a new bot window in main.js
+      ipcRenderer.send('submit-code', args);
+    })
+
+    ipcRenderer.on('replyAllStats', (event, args) => {
+      console.log(args);
+      $('#table-bots tbody tr').remove();
+      for (var i = 0; i < args.length; i++) {
+        var current = args[i];
+        console.log(current);
+        $('#table-bots tbody').append(`<tr>
+            <td> ${current.bot} <\/td>
+            <td> ${current.bot.isBotRunning} <\/td>
+            <td> ${Math.max.apply(Math, current.bot.scores)} <\/td>
+            <td> ${current.rank}<\/td>
+          `)
+      }
+    });
+
+    $('#update-stats').click(function () {
+      ipcRenderer.send('getAllStats');
+    })
+  </script>
+</body>
+</html>
