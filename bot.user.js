@@ -1378,16 +1378,7 @@ var userInterface = window.userInterface = (function() {
                         window.goalCoordinates,
                         'green');
                     canvasUtil.drawCircle(window.goalCoordinates, 'red', true);
-                    // Only draw subsequent goals if they exist
-                    if (window.goalCoordinates.foodsBeyond !== undefined) {
-                        for (var i = 0; i < window.goalCoordinates.foodsBeyond.length; i++) {
-                            canvasUtil.drawLine(
-                                window.goalCoordinates,
-                                window.goalCoordinates.foodsBeyond[i],
-                                'green', 1);
-                        }
-                    }
-                }
+                 }
             }
         },
 
