@@ -896,7 +896,9 @@ var scheduler = window.scheduler = (function() {
                     },
                     execute: function() {
                         // NOP
-                        // TODO: checkCollision() needs refactoring; it should return but not set direction
+                        // TODO: checkCollision() needs refactoring;
+                        //       it should set/return direction but not set direction as that interferes with
+                        //       other tasks
                     }
                 },
                 {
@@ -949,7 +951,7 @@ var scheduler = window.scheduler = (function() {
                 },
                 {
                     id: 'HuntForPrey (experimental)',
-                    active: true,
+                    active: false,
                     description: 'Try to catch a pray',
 
                     // Priority to use when activated
@@ -975,13 +977,14 @@ var scheduler = window.scheduler = (function() {
 
                         this.prey = null;
 
-                        if (window.preys.length> 0) {
+                        if (window.preys.length > 0) {
                             var snake = window.snake;
 
                             var radius = bot.speedMult * bot.opt.radiusMult / 2 * bot.snakeRadius;
                             var targetRadius2 = 4 * radius * radius;
-                            var easyPreys = window.preys.filter(function(prey){
-                                var d2 = canvasUtil.getDistance2(snake.xx, snake.yy, prey.xx, prey.yy);
+                            var easyPreys = window.preys.filter(function(prey) {
+                                var d2 = canvasUtil.getDistance2(snake.xx, snake.yy,
+                                    prey.xx, prey.yy);
                                 return d2 < targetRadius2;
                             });
                             if (easyPreys.length > 0) {
