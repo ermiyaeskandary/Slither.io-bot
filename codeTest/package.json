@@ -1,6 +1,6 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
+  "name": "slitherio-code-test",
+  "version": "0.0.1",
   "description": "An application to test code for a slither.io-bot",
   "main": "main.js",
   "scripts": {
@@ -16,8 +16,8 @@
     "code",
     "test"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "K00sKlust",
+  "license": "Mozilla Public License, v. 2.0",
   "bugs": {
     "url": "https://github.com/ErmiyaEskandary/Slither.io-bot/issues"
   },
