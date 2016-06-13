@@ -2,9 +2,16 @@
 <html>
 <head>
   <meta charset="UTF-8">
-
   <title>Slither.io botManager</title>
-  <link href="./css/bootstrap.css" rel="stylesheet" type="text/css">
+
+  <!-- http://stackoverflow.com/a/37480521 -->
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+  <script>if (window.module) module = window.module;</script>
+
 </head>
 
 
@@ -68,57 +75,10 @@
         </footer>
     </div>
 
-  <script>
-    window.checkVariables = ['botUrl', 'bot.isBotRunning', 'bot.scores']
-    // Require stuff :D
-    window.$ = window.jQuery = require('./js/jquery-2.2.3.min.js');
-    require('./renderer.js');
-    require('./js/bootstrap.js');
-    const {ipcRenderer} = require('electron');
-  </script> 
-
-
-  <script>
-    $('#submit-code').click(function() {
-        // maybe linting the code?
-        args = {
-            codeUrl: $('#code-url').val()
-        };
-        // Create a new bot window in main.js
-        ipcRenderer.send('submit-code', args);
-    })
-    ipcRenderer.on('replyAllStats', (event, args) => {
-        $('#table-bots tbody tr').remove();
-        for (var i = 0; i < args.length; i++) {
-            var current = args[i];
-            console.log(current);
-            $('#table-bots tbody').append($('<tr>'));
-            var currentRow = $('#table-bots tbody tr:last-child');
-            for (var j = 0; j < window.checkVariables.length; j++) {
-                var currentVariable = window.checkVariables[j];
-                currentRow.append($('<td>').text((eval('current.' + currentVariable))));
-            }
-        }
-    });
-    $('#update-stats').click(function() {
-        ipcRenderer.send('getAllStats');
-    })
-    $('#add-variable').click(function() {
-        window.checkVariables.push($('#add-variable-text').val());
-        updateTableHead();
-    })
-
-    function updateTableHead() {
-        $('#table-bots thead th').remove();
-        for (var i = 0; i < window.checkVariables.length; i++) {
-            var currentVariable = window.checkVariables[i];
-            $('#th-variables').append($('<th>').text(currentVariable));
-        }
-    }
-    $('document').ready(function() {
-        updateTableHead();
-    })
-  </script>
+    <script type="text/javascript">
+      require('./renderer.js');
+      const {ipcRenderer} = require('electron');
+    </script>
 
 </body>
 </html>
