@@ -7,7 +7,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // ==UserScript==
 // @name         Slither.io-bot
 // @namespace    http://slither.io/
-// @version      1.2.8
+// @version      1.2.9
 // @description  Slither.io bot
 // @author       Ermiya Eskandary & Théophile Cailliau
 // @match        http://slither.io/
@@ -126,7 +126,7 @@ var canvasUtil = window.canvasUtil = (function() {
         },
 
         // Constructor for point type
-        point: function (x, y) {
+        point: function(x, y) {
             var p = {
                 x: Math.round(x),
                 y: Math.round(y)
@@ -136,7 +136,7 @@ var canvasUtil = window.canvasUtil = (function() {
         },
 
         // Constructor for rect type
-        rect: function (x, y, w, h) {
+        rect: function(x, y, w, h) {
             var r = {
                 x: Math.round(x),
                 y: Math.round(y),
@@ -148,7 +148,7 @@ var canvasUtil = window.canvasUtil = (function() {
         },
 
         // Constructor for circle type
-        circle: function (x, y, r) {
+        circle: function(x, y, r) {
             var c = {
                 x: Math.round(x),
                 y: Math.round(y),
@@ -471,18 +471,18 @@ var bot = window.bot = (function() {
 
             if (window.visualDebugging) {
                 canvasUtil.drawLine({
-                        x: window.snake.xx,
-                        y: window.snake.yy
-                    },
+                    x: window.snake.xx,
+                    y: window.snake.yy
+                },
                     end,
                     'orange', 5);
                 canvasUtil.drawLine({
-                        x: window.snake.xx,
-                        y: window.snake.yy
-                    }, {
-                        x: collisionPoint.xx,
-                        y: collisionPoint.yy
-                    },
+                    x: window.snake.xx,
+                    y: window.snake.yy
+                }, {
+                    x: collisionPoint.xx,
+                    y: collisionPoint.yy
+                },
                     'red', 5);
             }
 
@@ -490,12 +490,12 @@ var bot = window.bot = (function() {
             var sin = Math.sin(ang);
 
             if (canvasUtil.isLeft({
-                    x: window.snake.xx,
-                    y: window.snake.yy
-                }, end, {
-                    x: collisionPoint.xx,
-                    y: collisionPoint.yy
-                })) {
+                x: window.snake.xx,
+                y: window.snake.yy
+            }, end, {
+                x: collisionPoint.xx,
+                y: collisionPoint.yy
+            })) {
                 sin = -sin;
             }
 
@@ -661,12 +661,12 @@ var bot = window.bot = (function() {
                 for (var i = 0; i < bot.collisionAngles.length; i++) {
                     if (bot.collisionAngles[i] !== undefined) {
                         canvasUtil.drawLine({
-                                x: window.snake.xx,
-                                y: window.snake.yy
-                            }, {
-                                x: bot.collisionAngles[i].x,
-                                y: bot.collisionAngles[i].y
-                            },
+                            x: window.snake.xx,
+                            y: window.snake.yy
+                        }, {
+                            x: bot.collisionAngles[i].x,
+                            y: bot.collisionAngles[i].y
+                        },
                             '#99ffcc', 2);
                     }
                 }
@@ -971,7 +971,7 @@ var userInterface = window.userInterface = (function() {
             var statsOverlay = document.createElement('div');
             statsOverlay.style.position = 'fixed';
             statsOverlay.style.left = '10px';
-            statsOverlay.style.top = '320px';
+            statsOverlay.style.top = '340px';
             statsOverlay.style.width = '140px';
             statsOverlay.style.height = '210px';
             // statsOverlay.style.background = 'rgba(0, 0, 0, 0.5)';
@@ -1014,7 +1014,13 @@ var userInterface = window.userInterface = (function() {
                 window.lbn.style.display = 'none';
             }
         },
-
+        removeLogo: function() {
+            if (typeof window.showlogo_iv !== 'undefined') {
+                window.ncka = window.lgss = window.lga = 1;
+                clearInterval(window.showlogo_iv);
+                showLogo(true);
+            }
+        },
         // Save variable to local storage
         savePreference: function(item, value) {
             window.localStorage.setItem(item, value);
@@ -1112,6 +1118,13 @@ var userInterface = window.userInterface = (function() {
                 // Letter 'H' to toggle hidden mode
                 if (e.keyCode === 72) {
                     userInterface.toggleOverlays();
+                }
+                // Letter 'B' to prompt for a custom background url
+                if (e.keyCode === 66) {
+                    var url = prompt('Please enter a background url:');
+                    if (url !== null) {
+                        canvasUtil.setBackground(url);
+                    }
                 }
                 // Letter 'O' to change rendermode (visual)
                 if (e.keyCode === 79) {
@@ -1218,7 +1231,7 @@ var userInterface = window.userInterface = (function() {
 
             oContent.push('games played: ' + bot.scores.length);
             oContent.push('a: ' + Math.round(
-                bot.scores.reduce(function (a, b) { return a + b; }) / (bot.scores.length)) +
+                bot.scores.reduce(function(a, b) { return a + b; }) / (bot.scores.length)) +
                 ' m: ' + median);
 
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
@@ -1244,6 +1257,7 @@ var userInterface = window.userInterface = (function() {
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
             oContent.push('[U] log debugging: ' + ht(window.logDebugging));
             oContent.push('[H] overlays');
+            oContent.push('[B] change background');
             oContent.push('[Mouse Wheel] zoom');
             oContent.push('[Z] reset zoom');
             oContent.push('[ESC] quick respawn');
@@ -1352,7 +1366,9 @@ var userInterface = window.userInterface = (function() {
                 y: window.mc.height / window.hh
             };
         },
-
+        // Handles the text color of the bot preferences
+        // enabled = green
+        // disabled = red
         handleTextColor: function(enabled) {
             return '<span style=\"color:' +
                 (enabled ? 'green;\">enabled' : 'red;\">disabled') + '</span>';
@@ -1429,11 +1445,7 @@ var userInterface = window.userInterface = (function() {
         userInterface.toggleMobileRendering(false);
     }
     // Remove laggy logo animation
-    if (typeof window.showlogo_iv !== 'undefined') {
-        window.ncka = window.lgss = window.lga = 1;
-        clearInterval(window.showlogo_iv);
-        showLogo(true);
-    }
+    userInterface.removeLogo();
     // Unblocks all skins without the need for FB sharing.
     window.localStorage.setItem('edttsg', '1');
 

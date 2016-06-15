@@ -13,7 +13,7 @@ At the core, our development model is greatly inspired by existing models out th
 * `master`
 * `develop`
 
-We consider `origin/master` to be the main branch where all the code existent in that branch refelcts a **production-ready, fully tested and fully working** state.
+We consider `origin/master` to be the main branch where all the code existent in that branch reflects a **production-ready, fully tested and fully working** state.
 
 We then consider `origin/develop` to be the main branch where all the code existent in that branch always reflects a state with the **latest delivered development changes for the next release, which may not have been fully tested yet**. This is where all commits get **pushed first**, hence the name `develop`.
 
@@ -48,10 +48,12 @@ And then do what you need to do! Commit changes and then push to your feature br
 ```shell
 git add .
 git commit -m "Commit Message"
-git push --set-upstream origin feature/mynewfeature
 ```
 Then just do a `git log` to make sure of your changes and your commits **before it's too late to change them without harm** - and just because it *looks nice*.
-
+When you're sure, this command will make it have it's own branch on the repository :
+```shell
+git push --set-upstream origin feature/mynewfeature
+```
 ### Updating your branch code with the `develop` branch
 Might come in handy if someone commits new changes before you are done with your feature :
 ```shell
@@ -89,13 +91,12 @@ After a **positive result from tests and a approval for a merge from the team**,
 ```shell
 git checkout master
 git merge develop
-git push origin develop
 ```
 
 ### Creating a new release
 After a merge, we then need to finally **create a new release**:
 ```shell
-git checkout master
+git checkout develop
 git tag -a v1.0.0
 ```
 Your default text editor will then **open and ask you for a release message**.
@@ -106,10 +107,5 @@ Example:
 ![Release v1.2.8](http://i.imgur.com/GJTitLs.png)
 * A new statistic has been added showing the median of the scores, for testing purposes
 * The variable eHeadCircle has been changed to enemyHeadCircle to remove and prevent Hungarian notation.
-
-All which is left now is:
-```shell
-git push origin master
-```
 
 **_You've done it! YAY!_**
