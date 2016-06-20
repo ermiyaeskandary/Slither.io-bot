@@ -912,11 +912,11 @@ var userInterface = window.userInterface = (function() {
 
     // Modify the redraw()-function to remove the zoom altering code
     // and replace b.globalCompositeOperation = "lighter"; to "hard-light".
-    var original_redraw_string = window.redraw.toString();
+    var original_redraw_string = original_redraw.toString();
     var new_redraw_string = original_redraw_string.replace(
         'gsc!=f&&(gsc<f?(gsc+=2E-4,gsc>=f&&(gsc=f)):(gsc-=2E-4,gsc<=f&&(gsc=f)))', '');
     new_redraw_string = new_redraw_string.replace(/b.globalCompositeOperation="lighter"/gi,
-        'b.globalCompositeOperation="lighter"');
+        'b.globalCompositeOperation="hard-light"');
     var new_redraw = new Function(new_redraw_string.substring(
         new_redraw_string.indexOf('{') + 1, new_redraw_string.lastIndexOf('}')));
 
