@@ -1189,6 +1189,9 @@ var userInterface = window.userInterface = (function() {
                         }
                         break;
                         // "Right click" to toggle bot in addition to the letter "T"
+                    case 2:
+                        bot.quickRespawn();
+                        break;
                     case 3:
                         bot.isBotEnabled = !bot.isBotEnabled;
                         break;
@@ -1260,7 +1263,7 @@ var userInterface = window.userInterface = (function() {
             oContent.push('[B] change background');
             oContent.push('[Mouse Wheel] zoom');
             oContent.push('[Z] reset zoom');
-            oContent.push('[ESC] quick respawn');
+            oContent.push('[ESC / Middle click] quick respawn');
             oContent.push('[Q] quit to menu');
 
             userInterface.overlays.prefOverlay.innerHTML = oContent.join('<br/>');
