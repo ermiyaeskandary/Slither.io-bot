@@ -69,7 +69,7 @@ NOTE : For existing collaborators, please refer to the [DEVELOPER.md file.](http
 
 [![Documentation Status](https://readthedocs.org/projects/slitherio-bot/badge/?version=latest)](http://slitherio-bot.readthedocs.io/en/latest/?badge=latest)
 
-The [online documentation](http://slitherio-bot.readthedocs.io/en/master/) is maintained in the `/docs` directory.
+The [online documentation](http://slitherio-bot.readthedocs.io/) is maintained in the `/docs` directory.
 
 # Authors
 **Ermiya Eskandary & Théophile Cailliau (ErmiyaEskandary & FliiFe)**
