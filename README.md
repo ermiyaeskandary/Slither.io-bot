@@ -1,3 +1,6 @@
+## Note: 
+Project "temporarily" discontinued as the original authors have lost interest in the game/project however continued development from fellow developers is not to be discouraged, if you wish so.
+
 # Slither.io bot
 Just for fun and AI. Written in Javascript, this is a project which the aim is to make a computer play against humans inside a human-driven game, which is in this case Slither.io. The goal is simple - try and make the snake live and get as long as possible.
 
