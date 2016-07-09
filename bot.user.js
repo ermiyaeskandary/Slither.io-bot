@@ -344,6 +344,23 @@ var canvasUtil = window.canvasUtil = (function() {
                 }
             }
             return false;
+        },
+        getSnakeTail: function(snake) {
+            var tailIndex = 0;
+            for (var pts = 0, lp = snake.pts.length; pts < lp; pts++) {
+                if (!snake.pts[pts].dying) {
+                    tailIndex = pts;
+                }
+                else {
+                    break;
+                }
+            }
+            return snake.pts[tailIndex];
+        },
+        getSnakeScore: function(snake) {
+            // Taken from slither.io code around 'Your length'
+            return Math.floor(15 * (window.fpsls[snake.sct] +
+                    snake.fam / window.fmlts[snake.sct] - 1) - 5) / 1;
         }
     };
 })();
@@ -912,21 +929,20 @@ var scheduler = window.scheduler = (function() {
                         // Lower limit of snakeLength criteria used below
                         var lengthGroup;
                         var snake = window.snake;
-                        // Taken from slither.io code around 'Your length'
-                        var snakeLength = Math.floor(15 * (window.fpsls[snake.sct] +
-                                snake.fam / window.fmlts[snake.sct] - 1) - 5) / 1;
 
-                        if (snakeLength === 0) {
+                        var snakeScore = canvasUtil.getSnakeScore(snake);
+
+                        if (snakeScore === 0) {
                             return 0;
                         }
                         var opt = bot.opt;
 
-                        if (snakeLength < 5000) {
+                        if (snakeScore < 5000) {
                             lengthGroup = 0;
 
                             opt.foodAccelSize = 20;
                             opt.foodRoundSize = 1;
-                        } else if (snakeLength < 10000) {
+                        } else if (snakeScore < 10000) {
                             lengthGroup = 5000;
 
                             opt.foodAccelSize = 40;
