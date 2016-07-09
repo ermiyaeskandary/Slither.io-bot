@@ -1117,6 +1117,52 @@ var scheduler = window.scheduler = (function() {
                     }
                 },
                 {
+                    id: 'FollowTail',
+                    active: false,
+                    description: '(exp) Follow tail if big enough.',
+
+                    triggerSize: 1000,
+                    direction: null,
+
+                    getPriority: function() {
+                        var snake = window.snake;
+                        var size = canvasUtil.getSnakeScore(snake);
+
+                        if (size > this.triggerSize) {
+                            var tail = canvasUtil.getSnakeTail(snake);
+                            var head = {
+                                x: snake.xx,
+                                y: snake.yy
+                            };
+                            // TODO: What is an unsafe distance?
+                            canvasUtil.getDistance2FromSnake(tail);
+                            if (tail.distance > 0) {
+                                // TODO: Add some magic to decide where to go using head and tail.
+                                this.direction = {
+                                    x: tail.xx,
+                                    y: tail.yy
+                                };
+                                // TODO: Activate 'AvoidCollisionEnemySnake' as we are unsafe
+                                return 499;
+                            }
+                            else {
+                                // TODO: We should stun 'AvoidCollisionEnemySnake' as we are safe
+                                return 0;
+                            }
+                        }
+                        else {
+                            this.direction = null;
+                            return 0;
+                        }
+                    },
+                    execute: function() {
+                        if (this.direction) {
+                            window.goalCoordinates = this.direction;
+                            canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(this.direction));
+                        }
+                    }
+                },
+                {
                     id: '_default',
                     active: true,
                     description: 'This is the default task which cannot be deactivated.',
