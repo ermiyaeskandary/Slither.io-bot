@@ -1117,9 +1117,74 @@ var scheduler = window.scheduler = (function() {
                     }
                 },
                 {
-                    id: 'FollowTail',
+                    id: 'Z_(exp) MakeCircle',
+                    active: true,
+                    description: 'Make a perfect circle.',
+
+                    triggerSize: 5000,
+
+                    size: 0,
+                    center: null,
+                    direction: null,
+
+                    getPriority: function() {
+                        var snake = window.snake;
+                        var size = canvasUtil.getSnakeScore(snake);
+
+                        if (size > this.triggerSize) {
+                            // We make the circle on current snake spot
+                            var head = {
+                                x: snake.xx,
+                                y: snake.yy
+                            };
+                            if (this.center) {
+                                // perpendicular on vector (center - head)
+                                var m = {
+                                    x: head.y - this.center.y,
+                                    y: -(head.x - this.center.x)
+                                };
+                                // Tiny correction inside
+                                var s = 0.1;
+                                var inward = {
+                                    x: m.y * s,
+                                    y: - m.x * s
+                                };
+                                this.direction = {
+                                    x: head.x + m.x + inward.x,
+                                    y: head.y + m.y + inward.y
+                                };
+                                return 460;
+                            }
+                            else {
+                                this.center = head;
+                                return 0;
+                            }
+                        }
+                        else {
+                            this.center = null;
+                            this.direction = null;
+                            return 0;
+                        }
+                    },
+                    execute: function() {
+                        if (window.visualDebugging) {
+                            canvasUtil.drawCircle(canvasUtil.circle(
+                                this.center.x,
+                                this.center.y,
+                                1000),
+                                '#00FF00', false);
+                        }
+
+                        if (this.direction) {
+                            window.goalCoordinates = this.direction;
+                            canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(this.direction));
+                        }
+                    }
+                },
+                {
+                    id: 'Z_(exp) FollowTail',
                     active: false,
-                    description: '(exp) Follow tail if big enough.',
+                    description: 'Follow tail if big enough.',
 
                     triggerSize: 1000,
                     direction: null,
