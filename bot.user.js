@@ -919,7 +919,7 @@ var scheduler = window.scheduler = (function() {
                     }
                 },
                 {
-                    id: 'SnakeParamsBySize (experimental)',
+                    id: 'Z_(exp) SnakeParamsBySize',
                     active: false,
                     description: 'Make snake params change on snake size',
 
@@ -966,7 +966,7 @@ var scheduler = window.scheduler = (function() {
                     }
                 },
                 {
-                    id: 'HuntForPrey (experimental)',
+                    id: 'Z_(exp) HuntForPrey',
                     active: false,
                     description: 'Try to catch a pray',
 
@@ -1082,7 +1082,7 @@ var scheduler = window.scheduler = (function() {
                     }
                 },
                 {
-                    id: 'MoveToXY',
+                    id: 'Z_(exp) MoveToXY',
                     active: false,
                     description: 'Move to the given way point then deactivate task.',
 
