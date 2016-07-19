@@ -58,6 +58,16 @@ This is the angle, *in radians*, at which the snake is going. It goes from :math
 
 The nickname you choose on login screen. In case you forget...
 
+1.3.1.4 ``snake.alive_amt`` - Number
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Reflects loading of snake when the game begins. Range from 0 to 1. Always 1 in game play.
+
+1.3.1.5 ``snake.sc`` - Number
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This is the snake scale, determining how big the snake is drawn.
+
 1.3.2 ``snakes`` - Array of objects
 -----------------------------------
 
@@ -117,3 +127,31 @@ They are the window size. They are dynamic read-only values.
 They stand for 'x mouse' and 'y mouse' respectively. They are used to control the snake.
 
 .. note:: It should be in mouse coordinates. Please refer to :ref:`different-units-section`
+
+1.4.3 ``window.sector_size`` - Number
+--------------------------------
+
+This is the size of your snake vision (scope) in the game map. Used with ``bot.sectorBox``.
+
+1.5 Game functions
+==================
+
+1.5.1 ``document.onkeydown``
+----------------------------
+
+This is a listener to keyboard press. Upon running the bot.user.js script, this funciton is saved as ``userInterface.original_keydown`` and then overridden to add more functionalities.
+
+1.5.2 ``window.onmousedown``
+----------------------------
+
+This is a listener to mouse press. Upon running the bot.user.js script, this funciton is saved as ``userInterface.original_onmousedown`` and then overridden to add more functionalities.
+
+1.5.3 ``window.onmousemove``
+----------------------------
+
+This is a listener to mouse cursor movement. Upon running the bot.user.js script, this funciton is saved as ``userInterface.original_onmousemove`` and then overridden to add more functionalities.
+
+1.5.4 ``window.setAcceleration(x)``
+-----------------------------------
+
+This is the function used to accelerate your snake. When called with argument '1' snake will accelerate.
