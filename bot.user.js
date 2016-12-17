@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (c) 2016 Ermiya Eskandary & Théophile Cailliau and other contributors
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -36,6 +36,8 @@ var customBotOptions = {
     // foodRoundSize: 5,
     // round food angle up to nearest for angle difference scoring
     // foodRoundAngle: Math.PI / 8,
+    // consider food in same direction when scoring food choices
+    // foodBeyondAngle: Math.PI / 8,
     // food clusters at or below this size won't be considered
     // if there is a collisionAngle
     // foodSmallSize: 10,
@@ -59,6 +61,32 @@ window.log = function() {
         console.log.apply(console, arguments);
     }
 };
+
+// Add standard deviation function to array prototype
+Array.prototype.stats = function() {
+    var i;
+    var j;
+    var total = 0;
+    var mean = 0;
+    var diffSqredArr = [];
+
+    for (i = 0; i < this.length; i += 1) {
+        total += this[i];
+    }
+    mean = total / this.length;
+    for (j = 0; j < this.length; j += 1) {
+        diffSqredArr.push(Math.pow((this[j] - mean), 2));
+    }
+    return {
+        mean: mean,
+        stdev: (Math.sqrt(diffSqredArr.reduce(
+            function (firstEl, nextEl) { return firstEl + nextEl; }
+            ) / this.length)),
+        min: Math.min.apply(null, this),
+        max: Math.max.apply(null, this)
+    };
+};
+
 
 var canvasUtil = window.canvasUtil = (function() {
     return {
@@ -348,6 +376,42 @@ var canvasUtil = window.canvasUtil = (function() {
     };
 })();
 
+var logUtil = window.logUtil = (function() {
+    return {
+        functionData: [],
+        startTimes: [],
+
+        startTime: function(functionName) {
+            logUtil.startTimes[functionName] = performance.now();
+        },
+
+        endTime: function(functionName) {
+            // No sense recording end time if start wasn't called.
+            if (!(functionName in logUtil.startTimes)) {
+                window.log('logUtil.endTime called for "' + functionName + '" without start');
+                return;
+            }
+            var duration = performance.now() - logUtil.startTimes[functionName];
+
+            if (!(functionName in logUtil.functionData)) {
+                logUtil.functionData[functionName] = [];
+            }
+            if (logUtil.functionData[functionName].push(duration) > window.bot.opt.logFrames) {
+                logUtil.functionData[functionName].shift();
+            }
+        },
+
+        functionStats: function(functionName) {
+            if (functionName in logUtil.functionData) {
+                return logUtil.functionData[functionName].stats();
+            } else {
+                window.log('No function data for ' + functionName);
+                return false;
+            }
+        }
+    };
+})();
+
 var bot = window.bot = (function() {
     return {
         isBotRunning: false,
@@ -377,7 +441,8 @@ var bot = window.bot = (function() {
             rearHeadAngle: 3 * Math.PI / 4,
             rearHeadDir: Math.PI / 2,
             radiusApproachSize: 5,
-            radiusAvoidSize: 25
+            radiusAvoidSize: 25,
+            logFrames: 200
         },
         MID_X: 0,
         MID_Y: 0,
@@ -734,6 +799,42 @@ var bot = window.bot = (function() {
                 f.distance / (Math.ceil(f.da / bot.opt.foodRoundAngle) * bot.opt.foodRoundAngle);
         },
 
+        // Increase score for food clusters that have additional clusters in the same general direction
+        // weighted to prefer ones that will be less angle change when we get to this one
+        scoreFoodBeyond: function (f) {
+            // If this food is more than 10 seconds away, don't bother thinking
+            // about even more distant food
+            var maxDistance = window.snake.sp * 10 * 10 * 1000;
+            if (f.distance > maxDistance) {
+                return;
+            }
+
+            var foodBeyondValue = 0.0;
+            for (var i = 0; i < this.length; i++) {
+                // Only add weight for food beyond this one; closer ones will get their own score bonus FROM this one
+                // Also knocks out score bonus for this same food since distance == distance
+                if (this[i].distance > f.distance) {
+                    // Only bonus if the farther food is within foodRoundAngle
+                    // of the one we're scoring
+                    var clusterBeyondAngle = Math.abs(bot.angleBetween(this[i].a, f.a));
+                    if (clusterBeyondAngle <= bot.opt.foodBeyondAngle) {
+                        // window.log("Food at a " + f.a + ", checking other food at a " + this[i].a +
+                        // " (diff = " + Math.abs(bot.angleBetween(this[i].a, f.a) + " compared to " +
+                        // (bot.opt.foodRoundAngle / 2.0) + ")");
+                        var foodValue = Math.pow(Math.floor(this[i].sz / bot.opt.foodRoundSize) *
+                            bot.opt.foodRoundSize, 2);
+                        var additionalValue = foodValue / this[i].distance;
+                        foodBeyondValue += additionalValue;
+                        // Add to the list of foods beyond this one
+                        f.foodsBeyond.push(this[i]);
+                    }
+                }
+            }
+            // window.log('Adding additional value of ' + foodBeyondValue +
+            // ' (' + (foodBeyondValue / f.score) + '%)');
+            f.score += foodBeyondValue;
+        },
+
         computeFoodGoal: function() {
             var foodClusters = [];
             var foodGetIndex = [];
@@ -774,7 +875,8 @@ var bot = window.bot = (function() {
                             da: da,
                             sz: csz,
                             distance: distance,
-                            score: 0.0
+                            score: 0.0,
+                            foodsBeyond: []
                         };
                         fi++;
                     } else {
@@ -784,6 +886,7 @@ var bot = window.bot = (function() {
             }
 
             foodClusters.forEach(bot.scoreFood);
+            foodClusters.forEach(bot.scoreFoodBeyond, foodClusters);
             foodClusters.sort(bot.sortScore);
 
             for (i = 0; i < foodClusters.length; i++) {
@@ -890,7 +993,9 @@ var bot = window.bot = (function() {
         foodTimer: function() {
             if (window.playing && bot.lookForFood &&
                 window.snake !== null && window.snake.alive_amt === 1) {
+                logUtil.startTime('cfg');
                 bot.computeFoodGoal();
+                logUtil.endTime('cfg');
                 window.goalCoordinates = bot.currentFood;
                 canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
             }
@@ -1230,10 +1335,11 @@ var userInterface = window.userInterface = (function() {
             median = Math.round((bot.scores[Math.floor((bot.scores.length - 1) / 2)] +
                      bot.scores[Math.ceil((bot.scores.length - 1) / 2)]) / 2);
 
+            var stats = bot.scores.stats();
+
             oContent.push('games played: ' + bot.scores.length);
-            oContent.push('a: ' + Math.round(
-                bot.scores.reduce(function(a, b) { return a + b; }) / (bot.scores.length)) +
-                ' m: ' + median);
+            oContent.push('avg: ' + Math.round(stats.mean) + '<br/>stdev: ' +
+                Math.round(stats.stdev) + '<br/>med: ' + median);
 
             for (var i = 0; i < bot.scores.length && i < 10; i++) {
                 oContent.push(i + 1 + '. ' + bot.scores[i]);
@@ -1293,6 +1399,15 @@ var userInterface = window.userInterface = (function() {
                     userInterface.overlays.serverOverlay.innerHTML =
                         window.bso.ip + ':' + window.bso.po;
                 }
+
+                if (window.logUtil !== undefined) {
+                    var cfg = window.logUtil.functionStats('cfg');
+
+                    if (cfg) {
+                        oContent.push('cfg: μ' + Math.round(cfg.mean) +
+                            ' ∧' + Math.round(cfg.min) + '  ∨' + Math.round(cfg.max));
+                    }
+                }
             }
 
             userInterface.overlays.botOverlay.innerHTML = oContent.join('<br/>');
@@ -1309,6 +1424,15 @@ var userInterface = window.userInterface = (function() {
                         window.goalCoordinates,
                         'green');
                     canvasUtil.drawCircle(window.goalCoordinates, 'red', true);
+                    // Only draw subsequent goals if they exist
+                    if (window.goalCoordinates.foodsBeyond !== undefined) {
+                        for (var i = 0; i < window.goalCoordinates.foodsBeyond.length; i++) {
+                            canvasUtil.drawLine(
+                                window.goalCoordinates,
+                                window.goalCoordinates.foodsBeyond[i],
+                                'green', 1);
+                        }
+                    }
                 }
             }
         },
