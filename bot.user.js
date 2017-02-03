@@ -344,6 +344,23 @@ var canvasUtil = window.canvasUtil = (function() {
                 }
             }
             return false;
+        },
+        getSnakeTail: function(snake) {
+            var tailIndex = 0;
+            for (var pts = 0, lp = snake.pts.length; pts < lp; pts++) {
+                if (!snake.pts[pts].dying) {
+                    tailIndex = pts;
+                }
+                else {
+                    break;
+                }
+            }
+            return snake.pts[tailIndex];
+        },
+        getSnakeScore: function(snake) {
+            // Taken from slither.io code around 'Your length'
+            return Math.floor(15 * (window.fpsls[snake.sct] +
+                    snake.fam / window.fmlts[snake.sct] - 1) - 5) / 1;
         }
     };
 })();
@@ -864,40 +881,520 @@ var bot = window.bot = (function() {
                 bot.snakeWidth * bot.speedMult
             );
         },
-
         // Main bot
         go: function() {
             bot.every();
 
-            if (bot.checkCollision()) {
-                bot.lookForFood = false;
-                if (bot.foodTimeout) {
-                    window.clearTimeout(bot.foodTimeout);
-                    bot.foodTimeout = window.setTimeout(
-                        bot.foodTimer, 1000 / bot.opt.targetFps * bot.opt.foodFrames);
+            scheduler.executeTasks();
+
+        }
+
+
+    };
+})();
+
+var scheduler = window.scheduler = (function() {
+    return {
+        tasks: [],
+
+        init: function() {
+            this.tasks = [
+                {
+                    id: 'AvoidCollisionEnemySnake',
+                    active: true,
+                    description: 'Avoid collision with other (enemy) snakes',
+
+                    getPriority: function() {
+                        if (bot.checkCollision()) {
+                            return 500;
+                        } else {
+                            return 0;
+                        }
+                    },
+                    execute: function() {
+                        // NOP
+                        // TODO: checkCollision() needs refactoring;
+                        //       it should set/return direction but not set direction as that interferes with
+                        //       other tasks
+                    }
+                },
+                {
+                    id: 'Z_(exp) SnakeParamsBySize',
+                    active: false,
+                    description: 'Make snake params change on snake size',
+
+                    lastLengthGroup: 0,
+
+                    getPriority: function() {
+                        // Lower limit of snakeLength criteria used below
+                        var lengthGroup;
+                        var snake = window.snake;
+
+                        var snakeScore = canvasUtil.getSnakeScore(snake);
+
+                        if (snakeScore === 0) {
+                            return 0;
+                        }
+                        var opt = bot.opt;
+
+                        if (snakeScore < 5000) {
+                            lengthGroup = 0;
+
+                            opt.foodAccelSize = 20;
+                            opt.foodRoundSize = 1;
+                        } else if (snakeScore < 10000) {
+                            lengthGroup = 5000;
+
+                            opt.foodAccelSize = 40;
+                            opt.foodRoundSize = 1;
+                        } else {
+                            lengthGroup = 10000;
+
+                            opt.foodAccelSize = 60;
+                            opt.foodRoundSize = 5;
+                        }
+                        if (lengthGroup !== this.lastLengthGroup) {
+                            this.lastLengthGroup = lengthGroup;
+                            // No need to update UI yet.
+                            // userInterface.onPrefChange();
+                        }
+
+                        return 0;
+                    },
+                    execute: function() {
+                        // NOP
+                    }
+                },
+                {
+                    id: 'Z_(exp) HuntForPrey',
+                    active: false,
+                    description: 'Try to catch a pray',
+
+                    // Priority to use when activated
+                    triggerPriority: 450,
+
+                    // How often to check
+                    frequency: 1,
+                    // step
+                    step: 0,
+
+                    getPriority: function() {
+                        // Init
+                        if (this.frequency === 0) {
+                            // A prey is food too!
+                            this.frequency = bot.opt.foodFrames;
+                        }
+
+                        if (this.step < this.frequency) {
+                            this.step++;
+                            return 0;
+                        }
+                        this.step = 0;
+
+                        this.prey = null;
+
+                        if (window.preys.length > 0) {
+                            var snake = window.snake;
+
+                            var radius = bot.speedMult * bot.opt.radiusMult / 2 * bot.snakeRadius;
+                            var targetRadius2 = 4 * radius * radius;
+                            var easyPreys = window.preys.filter(function(prey) {
+                                var d2 = canvasUtil.getDistance2(snake.xx, snake.yy,
+                                    prey.xx, prey.yy);
+                                return d2 < targetRadius2;
+                            });
+                            if (easyPreys.length > 0) {
+                                this.prey = easyPreys[0];
+                                return this.triggerPriority;
+                            }
+                            return 0;
+                        }
+                        // No preys to catch
+                        return 0;
+                    },
+                    execute: function() {
+                        var prey = this.prey;
+                        if (prey) {
+                            window.setAcceleration(1);
+
+                            bot.currentFood = {
+                                x: prey.xx,
+                                y: prey.yy
+                            };
+
+                            window.goalCoordinates = bot.currentFood;
+                            canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(bot.currentFood));
+                        }
+                    }
+                },
+                {
+                    id: 'CheckForFood',
+                    active: true,
+                    description: 'Trigger food scan',
+
+                    // Priority to use when activated
+                    triggerPriority: 400,
+
+                    // How often to check
+                    frequency: 0,
+                    // step
+                    step: 0,
+
+                    getPriority: function() {
+                        // Init
+                        if (this.frequency === 0) {
+                            this.frequency = bot.opt.foodFrames
+                        }
+
+                        if (this.step < this.frequency) {
+                            this.step++;
+                            return 0;
+                        }
+                        this.step = 0;
+                        return this.triggerPriority;
+                    },
+                    execute: function() {
+                        bot.computeFoodGoal();
+                        if (bot.currentFood) {
+                            window.setAcceleration(bot.foodAccel());
+                        } else {
+                            this.step = 0;
+                        }
+
+                        window.goalCoordinates = bot.currentFood;
+                        canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(bot.currentFood));
+                    }
+                },
+                {
+                    id: 'Eat',
+                    active: true,
+                    description: 'Just eat',
+
+                    priority: 350,
+
+                    getPriority: function() {
+                        return this.priority;
+                    },
+                    execute: function() {
+                        if (bot.currentFood) {
+                            window.setAcceleration(bot.foodAccel());
+                        }
+                    }
+                },
+                {
+                    id: 'Z_(exp) MoveToXY',
+                    active: false,
+                    description: 'Move to the given way point then deactivate task.',
+
+                    // Value is somewhat related to CheckForFood priorities
+                    defaultPriority: 300,
+
+                    // Where to move
+                    point: {
+                        x: 20000,
+                        y: 20000
+                    },
+
+                    /**
+                     * When reached the point given stop with reaching it and deactivate the task.
+                     *
+                     * The task can activated again when needed.
+                     *
+                     * @returns {number} new priority
+                     */
+                    getPriority: function () {
+                        if (canvasUtil.getDistance2(window.snake.xx, window.snake.yy,
+                                this.point.x, this.point.y) > 1000) {
+                            return this.defaultPriority;
+                        } else {
+                            this.active = false;
+                            return 0;
+                        }
+                    },
+                    execute: function() {
+                        window.goalCoordinates = this.point;
+                        canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(this.point));
+                    }
+                },
+                {
+                    id: 'Z_(exp) MakeCircle',
+                    active: true,
+                    description: 'Make a perfect circle.',
+
+                    triggerSize: 5000,
+
+                    size: 0,
+                    center: null,
+                    direction: null,
+
+                    getPriority: function() {
+                        var snake = window.snake;
+                        var size = canvasUtil.getSnakeScore(snake);
+
+                        if (size > this.triggerSize) {
+                            // We make the circle on current snake spot
+                            var head = {
+                                x: snake.xx,
+                                y: snake.yy
+                            };
+                            if (this.center) {
+                                // perpendicular on vector (center - head)
+                                var m = {
+                                    x: head.y - this.center.y,
+                                    y: -(head.x - this.center.x)
+                                };
+                                // Tiny correction inside
+                                var s = 0.1;
+                                var inward = {
+                                    x: m.y * s,
+                                    y: - m.x * s
+                                };
+                                this.direction = {
+                                    x: head.x + m.x + inward.x,
+                                    y: head.y + m.y + inward.y
+                                };
+                                return 460;
+                            }
+                            else {
+                                this.center = head;
+                                return 0;
+                            }
+                        }
+                        else {
+                            this.center = null;
+                            this.direction = null;
+                            return 0;
+                        }
+                    },
+                    execute: function() {
+                        if (window.visualDebugging) {
+                            canvasUtil.drawCircle(canvasUtil.circle(
+                                this.center.x,
+                                this.center.y,
+                                1000),
+                                '#00FF00', false);
+                        }
+
+                        if (this.direction) {
+                            window.goalCoordinates = this.direction;
+                            canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(this.direction));
+                        }
+                    }
+                },
+                {
+                    id: 'Z_(exp) FollowTail',
+                    active: false,
+                    description: 'Follow tail if big enough.',
+
+                    triggerSize: 1000,
+                    direction: null,
+
+                    getPriority: function() {
+                        var snake = window.snake;
+                        var size = canvasUtil.getSnakeScore(snake);
+
+                        if (size > this.triggerSize) {
+                            var tail = canvasUtil.getSnakeTail(snake);
+                            var head = {
+                                x: snake.xx,
+                                y: snake.yy
+                            };
+                            // TODO: What is an unsafe distance?
+                            canvasUtil.getDistance2FromSnake(tail);
+                            if (tail.distance > 0) {
+                                // TODO: Add some magic to decide where to go using head and tail.
+                                this.direction = {
+                                    x: tail.xx,
+                                    y: tail.yy
+                                };
+                                // TODO: Activate 'AvoidCollisionEnemySnake' as we are unsafe
+                                return 499;
+                            }
+                            else {
+                                // TODO: We should stun 'AvoidCollisionEnemySnake' as we are safe
+                                return 0;
+                            }
+                        }
+                        else {
+                            this.direction = null;
+                            return 0;
+                        }
+                    },
+                    execute: function() {
+                        if (this.direction) {
+                            window.goalCoordinates = this.direction;
+                            canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(this.direction));
+                        }
+                    }
+                },
+                {
+                    id: '_default',
+                    active: true,
+                    description: 'This is the default task which cannot be deactivated.',
+
+                    getPriority: function() {
+                        // Always active
+                        this.active = true;
+
+                        // Lowest priority
+                        return 0;
+                    },
+                    execute: function() {
+                        window.log(this.id, 'Nothing to do. You probably need to enable a task.');
+                    }
                 }
+
+            ];
+        },
+
+        /**
+         * Lists the current tasks.
+         *
+         * Helper function for task developers.
+         *
+         * Example:
+         *   window.scheduler.listTasks();
+         */
+        listTasks: function() {
+            scheduler.tasks.forEach(function (v) {
+                console.log(v.id, 'Active:', v.active, 'Priority:', v.priority, v.description);
+            });
+        },
+
+        /**
+         * Utility to create a task.
+         *
+         * @param id
+         * @returns {
+         *     active: boolean,
+         *     id: string,
+         *     description: string,
+         *     getPriority: getPriority,
+         *     execute: execute
+         * }
+         */
+        newTask: function(id) {
+          return {
+              // Only active task will be checked.
+              active: false,
+              // ID is required and must differ from existing task
+              id: id,
+              // used when dumping all tasks
+              description: 'Description of ' + id,
+              getPriority: function() {
+                  console.log('Task ' + id + ' should have an implementation for "getPriority"');
+                  return 0;
+              },
+              execute: function() {
+                  console.log('Task ' + id + ' should have an implementation for "execute"');
+              }
+          };
+        },
+
+        /**
+         * Add task with unique ID to scheduler.
+         *
+         * @param task
+         */
+        addTask: function(task) {
+            if (scheduler.getTask(task.id) === null) {
+                scheduler.tasks.push(task);
             } else {
-                bot.lookForFood = true;
-                if (bot.foodTimeout === undefined) {
-                    bot.foodTimeout = window.setTimeout(
-                        bot.foodTimer, 1000 / bot.opt.targetFps * bot.opt.foodFrames);
-                }
-                window.setAcceleration(bot.foodAccel());
+                console.log('Cannot add task with same ID: ' + task.id);
             }
         },
 
-        // Timer version of food check
-        foodTimer: function() {
-            if (window.playing && bot.lookForFood &&
-                window.snake !== null && window.snake.alive_amt === 1) {
-                bot.computeFoodGoal();
-                window.goalCoordinates = bot.currentFood;
-                canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+        /**
+         * Get the task for give ID.
+         *
+         * @param id
+         * @returns {null|{}}
+         */
+        getTask: function(id) {
+            var index = scheduler.tasks.findIndex(function(v) {
+                return v.id === id;
+            });
+
+            if (index !== -1) {
+                return scheduler.tasks[index];
             }
-            bot.foodTimeout = undefined;
+
+            console.log('Task ' + id + ' not found');
+            return null;
+
+        },
+
+        /**
+         * Delete task for given ID.
+         * @param id
+         */
+        deleteTask: function(id) {
+            var index = scheduler.tasks.findIndex(function(v) {
+                return v.id === id;
+            });
+
+            if (index !== -1) {
+                scheduler.tasks.splice(index, 1);
+            }
+
+        },
+
+        // Values of previous running task.
+        // {id: ID, priority:PRIORITY}
+        lastTaskRunStat: {},
+
+        /**
+         * Execute task with highest priority.
+         *
+         * New tasks can be injected into scheduler.tasks.
+         * Existing tasks can be adjusted.
+         */
+        executeTasks: function() {
+            // Get new priorities
+            scheduler.tasks.forEach(function(v) {
+                v.priority = v.getPriority();
+            });
+
+            scheduler.tasks.sort(scheduler.sortTasks);
+
+            var task = scheduler.tasks[0];
+
+            if (!task.active) {
+                return;
+            }
+
+            // Only log task when switched from task or priority changed
+            if (scheduler.lastTaskRunStat && (scheduler.lastTaskRunStat.id !== task.id ||
+                scheduler.lastTaskRunStat.priority !== task.priority)) {
+                window.log('ID:', task.id, 'Priority:', task.priority);
+            }
+
+            scheduler.lastTaskRunStat = {
+                id: task.id,
+                priority: task.priority
+            };
+            task.execute();
+        },
+
+        /**
+         * Sort tasks by active then priority.
+         *
+         * @param {Task} a Task
+         * @param {Task} b Task
+         * @returns {boolean} a < b
+         */
+        sortTasks: function(a, b) {
+
+            if (a.active !== b.active) {
+                return a.active < b.active;
+            }
+            return a.priority < b.priority;
         }
+
     };
 })();
+
+scheduler.init();
 
 var userInterface = window.userInterface = (function() {
     // Save the original slither.io functions so we can modify them, or reenable them later.
@@ -958,7 +1455,7 @@ var userInterface = window.userInterface = (function() {
             prefOverlay.style.left = '10px';
             prefOverlay.style.top = '75px';
             prefOverlay.style.width = '260px';
-            prefOverlay.style.height = '210px';
+            prefOverlay.style.height = '400px';
             // prefOverlay.style.background = 'rgba(0, 0, 0, 0.5)';
             prefOverlay.style.color = '#C0C0C0';
             prefOverlay.style.fontFamily = 'Consolas, Verdana';
@@ -972,7 +1469,7 @@ var userInterface = window.userInterface = (function() {
             var statsOverlay = document.createElement('div');
             statsOverlay.style.position = 'fixed';
             statsOverlay.style.left = '10px';
-            statsOverlay.style.top = '340px';
+            statsOverlay.style.top = '500px';
             statsOverlay.style.width = '140px';
             statsOverlay.style.height = '210px';
             // statsOverlay.style.background = 'rgba(0, 0, 0, 0.5)';
@@ -1175,6 +1672,15 @@ var userInterface = window.userInterface = (function() {
                 if (e.keyCode === 13) {
                     userInterface.saveNick();
                 }
+
+                // Keys 1 - 9 (non numpad)
+                if (e.keyCode > 48 && e.keyCode <= 57) {
+                    var taskID = userInterface.getTaskIdByKeyBinding(e.keyCode);
+                    if (taskID !== null) {
+                        var task = scheduler.getTask(taskID);
+                        task.active = !task.active;
+                    }
+                }
                 userInterface.onPrefChange();
             }
         },
@@ -1253,6 +1759,7 @@ var userInterface = window.userInterface = (function() {
             oContent.push('[A/S] radius multiplier: ' + bot.opt.radiusMult);
             oContent.push('[D] quick radius change ' +
                 bot.opt.radiusApproachSize + '/' + bot.opt.radiusAvoidSize);
+            oContent.push('[1-9] toggle schedule task: ' + userInterface.getTaskMenu());
             oContent.push('[I] auto respawn: ' + ht(window.autoRespawn));
             oContent.push('[G] leaderboard overlay: ' + ht(window.leaderboard));
             oContent.push('[Y] visual debugging: ' + ht(window.visualDebugging));
@@ -1265,6 +1772,62 @@ var userInterface = window.userInterface = (function() {
             oContent.push('[Q] quit to menu');
 
             userInterface.overlays.prefOverlay.innerHTML = oContent.join('<br/>');
+        },
+
+        /**
+         * Builds menu for toggling tasks.
+         *
+         * @returns {string} HTML snippet
+         */
+        getTaskMenu: function() {
+            var ids = userInterface.getOrderedTaskIDs();
+            var menu = '';
+            ids.forEach(function(v, i) {
+                var task = scheduler.getTask(v);
+                menu += '<br/>- ' + (i + 1) + ' ' + (task.active ? '*' : ' ') + v;
+            });
+            return menu;
+        },
+
+        /**
+         * Get task IDs (without _default) alphabetically.
+         *
+         * @returns {Array.<string>}
+         */
+        getOrderedTaskIDs: function() {
+            var ids = [];
+            scheduler.tasks.forEach(function(v) {
+                if (v.id !== '_default') {
+                    ids.push(v.id);
+                }
+            });
+            return ids.sort();
+        },
+
+        /**
+         * Get task ID by index on ordered keys.
+         *
+         * This allows for keys 1-9 to toggle task.
+         *
+         * @param {integer} keycode the key pressed
+         * @returns {null|string} Task ID selected
+         */
+        getTaskIdByKeyBinding: function(keycode) {
+            // http://www.cambiaresearch.com/articles/15/javascript-key-codes
+            // 48 = keyboard-0 NOT num-0
+            // 49 = 1
+            var index = keycode - 49;
+
+            if (index < 0 || index > 8) {
+                return null;
+            }
+
+            var ids = userInterface.getOrderedTaskIDs();
+
+            if (ids.length <= index) {
+                return null;
+            }
+            return ids[index];
         },
 
         onFrameUpdate: function() {
@@ -1326,6 +1889,7 @@ var userInterface = window.userInterface = (function() {
                 bot.go();
             } else if (bot.isBotEnabled && bot.isBotRunning) {
                 bot.isBotRunning = false;
+                scheduler.init();
                 if (window.lastscore && window.lastscore.childNodes[1]) {
                     bot.scores.push(parseInt(window.lastscore.childNodes[1].innerHTML));
                     bot.scores.sort(function(a, b) {
