@@ -874,39 +874,156 @@ var bot = window.bot = (function() {
             );
         },
 
+        tasks: [
+            {
+                id: 'AvoidCollisionEnemySnake',
+                description: 'Avoid collision with other (enemy) snakes',
+                getPriority: function() {
+                    if (bot.checkCollision()) {
+                        return 500;
+                    }
+                    else {
+                      return 0;
+                    }
+                },
+                execute: function() {
+                    // NOP
+                    // TODO: checkCollision() needs refactoring; it should return but not set direction
+                }
+            },
+            {
+                id: 'CheckForFood',
+                description: 'Trigger food scan',
+                triggerPriority: 400,
+                startPriority: 200,
+                getPriority: function() {
+                    var currentPriority = this.priority;
+
+                    bot.computeFoodGoal();
+                    if (bot.currentFood) {
+                        window.setAcceleration(bot.foodAccel());
+                        if (this.priority < this.triggerPriority) {
+                            // Increment priority to trigger bot.computeFoodGoal
+                            return this.priority + 1;
+                        }
+                    }
+                    return this.startPriority;
+                },
+                execute: function() {
+                    window.goalCoordinates = bot.currentFood;
+                    canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+                }
+            },
+            {
+                id : 'MoveToXY',
+                description: 'move to the given waypoint',
+                example: "bot.gotoXY = {x:X, y:Y, active: true, priority: 300};",
+                getPriority: function() {
+                    if (bot.gotoXY !== undefined) {
+                        if (bot.gotoXY.active) {
+                            // TODO lower priority when nearing point or deactivate
+                            return bot.gotoXY.priority;
+                        }
+                        else {
+                            return 1;
+                        }
+                    }
+                    return 0;
+                },
+                execute: function() {
+                    window.goalCoordinates = bot.gotoXY.point;
+                    canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
+                }
+            },
+            // {
+            //     id: 'AvoidCollisionWall',
+            //     // A use case is to feed ones friend but that could also be done by collision
+            //     description: 'There is no use in dying against the wall'
+            //     getPriority: function() {
+            //         return 1000;
+            //     }
+            // },
+            // {
+            //     id: 'KillEnemy',
+            //     description: 'This is a suicide action useful when having a friend(s).',
+            //     getPriority: function() {
+            //         return 0;
+            //     }
+            // },
+            // {
+            //     id: 'avoidCollisionFriend',
+            //     // do not collide with friends
+            //     getPriority: function() {
+            //       return 1000;
+            //     }
+            // },
+            {
+                id : 'ListTasks',
+                description: 'List the current set of tasks',
+                example: "bot.tasks.getTaskById('ListTasks');",
+                getPriority: function() {
+                    return 0;
+                },
+                execute: function() {
+                    bot.tasks.forEach(function(v,i,l){
+                        console.log(v.id, v.priority, v.description);
+                    });
+                }
+            },
+
+        ],
+
+        lastTask: {},
+
+        /**
+         * Execute task with highest priority.
+         *
+         * New tasks can be injected into bot.tasks.
+         * Existing tasks can be adjusted.
+         */
+        executeTasks: function() {
+            bot.tasks.forEach(function(v, i, l){
+                v.priority = v.getPriority();
+            });
+
+            bot.tasks.sort(bot.sortTasks);
+
+            var task = bot.tasks[0];
+            if (bot.lastTask && (bot.lastTask.id !== task.id || bot.lastTask.priority !== task.priority)) {
+                console.log(task.priority, task.id);
+            }
+            bot.lastTask = {
+                id: task.id,
+                priority: task.priority
+            };
+            task.execute();
+        },
+
+        sortTasks: function(a, b) {
+            return a.priority < b.priority;
+        },
+
         // Main bot
         go: function() {
             bot.every();
 
-            if (bot.checkCollision()) {
-                bot.lookForFood = false;
-                if (bot.foodTimeout) {
-                    window.clearTimeout(bot.foodTimeout);
-                    bot.foodTimeout = window.setTimeout(
-                        bot.foodTimer, 1000 / bot.opt.targetFps * bot.opt.foodFrames);
-                }
-            } else {
-                bot.lookForFood = true;
-                if (bot.foodTimeout === undefined) {
-                    bot.foodTimeout = window.setTimeout(
-                        bot.foodTimer, 1000 / bot.opt.targetFps * bot.opt.foodFrames);
-                }
-                window.setAcceleration(bot.foodAccel());
-            }
-        },
+            bot.executeTasks();
 
-        // Timer version of food check
-        foodTimer: function() {
-            if (window.playing && bot.lookForFood &&
-                window.snake !== null && window.snake.alive_amt === 1) {
-                bot.computeFoodGoal();
-                window.goalCoordinates = bot.currentFood;
-                canvasUtil.setMouseCoordinates(canvasUtil.mapToMouse(window.goalCoordinates));
-            }
-            bot.foodTimeout = undefined;
         }
+
     };
 })();
+
+// TODO needs a UI
+bot.gotoXY = {
+    priority: 300,
+    active: true,
+    // This is ~ center point
+    point: {
+        x: 20000,
+        y: 20000
+    }
+};
 
 var userInterface = window.userInterface = (function() {
     // Save the original slither.io functions so we can modify them, or reenable them later.
